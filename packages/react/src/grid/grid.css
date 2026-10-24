@@ -1,0 +1,76 @@
+/* Grid: equal columns on the window size classes (06-component-specs.md, increment 1).
+   The breakpoints are the token breakpoints (BREAKPOINT in @qeetrix/tokens: 600, 840, 1200 and
+   1600px); tests/foundations.server.test.tsx keeps them equal. Each size class inherits the nearest
+   smaller one that is set. */
+.qx-grid {
+  --qx-grid-current: var(--qx-grid-base, 1);
+  display: grid;
+  grid-template-columns: repeat(var(--qx-grid-current), minmax(0, 1fr));
+  align-items: stretch;
+  &[data-gap="none"] {
+    gap: 0;
+  }
+  &[data-gap="xs"] {
+    gap: var(--qx-space-gap-xs);
+  }
+  &[data-gap="sm"] {
+    gap: var(--qx-space-gap-sm);
+  }
+  &[data-gap="md"] {
+    gap: var(--qx-space-gap-md);
+  }
+  &[data-gap="lg"] {
+    gap: var(--qx-space-gap-lg);
+  }
+  &[data-gap="xl"] {
+    gap: var(--qx-space-gap-xl);
+  }
+  &[data-gap="2xl"] {
+    gap: var(--qx-space-layout-md);
+  }
+  &[data-gap="3xl"] {
+    gap: var(--qx-space-layout-lg);
+  }
+  &[data-gap="4xl"] {
+    gap: var(--qx-space-layout-xl);
+  }
+  &[data-align="start"] {
+    align-items: start;
+  }
+  &[data-align="center"] {
+    align-items: center;
+  }
+  &[data-align="end"] {
+    align-items: end;
+  }
+  &[data-align="stretch"] {
+    align-items: stretch;
+  }
+}
+
+@media (width >= 600px) {
+  .qx-grid {
+    --qx-grid-current: var(--qx-grid-medium, var(--qx-grid-base, 1));
+  }
+}
+@media (width >= 840px) {
+  .qx-grid {
+    --qx-grid-current: var(--qx-grid-expanded, var(--qx-grid-medium, var(--qx-grid-base, 1)));
+  }
+}
+@media (width >= 1200px) {
+  .qx-grid {
+    --qx-grid-current: var(
+      --qx-grid-large,
+      var(--qx-grid-expanded, var(--qx-grid-medium, var(--qx-grid-base, 1)))
+    );
+  }
+}
+@media (width >= 1600px) {
+  .qx-grid {
+    --qx-grid-current: var(
+      --qx-grid-xlarge,
+      var(--qx-grid-large, var(--qx-grid-expanded, var(--qx-grid-medium, var(--qx-grid-base, 1))))
+    );
+  }
+}

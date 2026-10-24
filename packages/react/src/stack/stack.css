@@ -1,0 +1,56 @@
+/* Stack: a vertical flow (06-component-specs.md, increment 1). */
+.qx-stack {
+  display: flex;
+  flex-direction: column;
+  &[data-gap="none"] {
+    gap: 0;
+  }
+  &[data-gap="xs"] {
+    gap: var(--qx-space-gap-xs);
+  }
+  &[data-gap="sm"] {
+    gap: var(--qx-space-gap-sm);
+  }
+  &[data-gap="md"] {
+    gap: var(--qx-space-gap-md);
+  }
+  &[data-gap="lg"] {
+    gap: var(--qx-space-gap-lg);
+  }
+  &[data-gap="xl"] {
+    gap: var(--qx-space-gap-xl);
+  }
+  &[data-gap="2xl"] {
+    gap: var(--qx-space-layout-md);
+  }
+  &[data-gap="3xl"] {
+    gap: var(--qx-space-layout-lg);
+  }
+  &[data-gap="4xl"] {
+    gap: var(--qx-space-layout-xl);
+  }
+  &[data-align="start"] {
+    align-items: flex-start;
+  }
+  &[data-align="center"] {
+    align-items: center;
+  }
+  &[data-align="end"] {
+    align-items: flex-end;
+  }
+  &[data-align="stretch"] {
+    align-items: stretch;
+  }
+  &[data-justify="start"] {
+    justify-content: flex-start;
+  }
+  &[data-justify="center"] {
+    justify-content: center;
+  }
+  &[data-justify="end"] {
+    justify-content: flex-end;
+  }
+  &[data-justify="between"] {
+    justify-content: space-between;
+  }
+}

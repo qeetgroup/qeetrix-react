@@ -35,6 +35,42 @@
       "style": "./dist/styles.css",
       "default": "./dist/index.js"
     },
+    "./box": {
+      "types": "./dist/box/index.d.ts",
+      "default": "./dist/box/index.js"
+    },
+    "./grid": {
+      "types": "./dist/grid/index.d.ts",
+      "default": "./dist/grid/index.js"
+    },
+    "./heading": {
+      "types": "./dist/heading/index.d.ts",
+      "default": "./dist/heading/index.js"
+    },
+    "./inline": {
+      "types": "./dist/inline/index.d.ts",
+      "default": "./dist/inline/index.js"
+    },
+    "./separator": {
+      "types": "./dist/separator/index.d.ts",
+      "default": "./dist/separator/index.js"
+    },
+    "./skip-link": {
+      "types": "./dist/skip-link/index.d.ts",
+      "default": "./dist/skip-link/index.js"
+    },
+    "./stack": {
+      "types": "./dist/stack/index.d.ts",
+      "default": "./dist/stack/index.js"
+    },
+    "./text": {
+      "types": "./dist/text/index.d.ts",
+      "default": "./dist/text/index.js"
+    },
+    "./visually-hidden": {
+      "types": "./dist/visually-hidden/index.d.ts",
+      "default": "./dist/visually-hidden/index.js"
+    },
     "./styles.css": "./dist/styles.css",
     "./css/*": "./dist/css/*",
     "./package.json": "./package.json"

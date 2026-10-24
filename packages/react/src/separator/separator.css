@@ -1,0 +1,21 @@
+/* Separator: a 1px line (06-component-specs.md, increment 1). */
+.qx-separator {
+  flex: none;
+  border: 0;
+  margin: 0;
+  background: var(--qx-color-border-subtle);
+  &[data-orientation="horizontal"] {
+    inline-size: 100%;
+    block-size: var(--qx-border-width-default);
+  }
+  &[data-orientation="vertical"] {
+    align-self: stretch;
+    inline-size: var(--qx-border-width-default);
+  }
+  &[data-tone="default"] {
+    background: var(--qx-color-border-default);
+  }
+  &[data-tone="strong"] {
+    background: var(--qx-color-border-strong);
+  }
+}

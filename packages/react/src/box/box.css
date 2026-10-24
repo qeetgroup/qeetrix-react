@@ -1,0 +1,123 @@
+/* Box: a token-only surface (06-component-specs.md, increment 1). */
+.qx-box {
+  &[data-padding="none"] {
+    padding: 0;
+  }
+  &[data-padding="xs"] {
+    padding: var(--qx-space-inset-xs);
+  }
+  &[data-padding="sm"] {
+    padding: var(--qx-space-inset-sm);
+  }
+  &[data-padding="md"] {
+    padding: var(--qx-space-inset-md);
+  }
+  &[data-padding="lg"] {
+    padding: var(--qx-space-inset-lg);
+  }
+  &[data-padding="xl"] {
+    padding: var(--qx-space-inset-xl);
+  }
+  &[data-padding-inline="none"] {
+    padding-inline: 0;
+  }
+  &[data-padding-inline="xs"] {
+    padding-inline: var(--qx-space-inset-xs);
+  }
+  &[data-padding-inline="sm"] {
+    padding-inline: var(--qx-space-inset-sm);
+  }
+  &[data-padding-inline="md"] {
+    padding-inline: var(--qx-space-inset-md);
+  }
+  &[data-padding-inline="lg"] {
+    padding-inline: var(--qx-space-inset-lg);
+  }
+  &[data-padding-inline="xl"] {
+    padding-inline: var(--qx-space-inset-xl);
+  }
+  &[data-padding-block="none"] {
+    padding-block: 0;
+  }
+  &[data-padding-block="xs"] {
+    padding-block: var(--qx-space-inset-xs);
+  }
+  &[data-padding-block="sm"] {
+    padding-block: var(--qx-space-inset-sm);
+  }
+  &[data-padding-block="md"] {
+    padding-block: var(--qx-space-inset-md);
+  }
+  &[data-padding-block="lg"] {
+    padding-block: var(--qx-space-inset-lg);
+  }
+  &[data-padding-block="xl"] {
+    padding-block: var(--qx-space-inset-xl);
+  }
+  &[data-background="canvas"] {
+    background: var(--qx-color-surface-canvas);
+  }
+  &[data-background="default"] {
+    background: var(--qx-color-surface-default);
+  }
+  &[data-background="raised"] {
+    background: var(--qx-color-surface-raised);
+  }
+  &[data-background="sunken"] {
+    background: var(--qx-color-surface-sunken);
+  }
+  &[data-background="overlay"] {
+    background: var(--qx-color-surface-overlay);
+  }
+  &[data-background="inverse"] {
+    background: var(--qx-color-surface-inverse);
+  }
+  &[data-background="neutral"] {
+    background: var(--qx-color-bg-neutral-subtle);
+  }
+  &[data-background="brand"] {
+    background: var(--qx-color-bg-brand-subtle);
+  }
+  &[data-background="selected"] {
+    background: var(--qx-color-bg-selected);
+  }
+  &[data-background="inverse"] {
+    color: var(--qx-color-text-inverse);
+  }
+  &[data-border="none"] {
+    border: 0;
+  }
+  &[data-border="subtle"] {
+    border: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  }
+  &[data-border="default"] {
+    border: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  }
+  &[data-border="strong"] {
+    border: var(--qx-border-width-default) solid var(--qx-color-border-strong);
+  }
+  &[data-radius="none"] {
+    border-radius: var(--qx-radius-none);
+  }
+  &[data-radius="sm"] {
+    border-radius: var(--qx-radius-sm);
+  }
+  &[data-radius="control"] {
+    border-radius: var(--qx-radius-control);
+  }
+  &[data-radius="surface"] {
+    border-radius: var(--qx-radius-surface);
+  }
+  &[data-radius="overlay"] {
+    border-radius: var(--qx-radius-overlay);
+  }
+  &[data-radius="modal"] {
+    border-radius: var(--qx-radius-modal);
+  }
+  &[data-radius="chip"] {
+    border-radius: var(--qx-radius-chip);
+  }
+  &[data-radius="full"] {
+    border-radius: var(--qx-radius-full);
+  }
+}

@@ -12,8 +12,8 @@ successor to `@qeetrix/ui`, which keeps working unchanged until every product ha
 - **Stack:** React 19, Base UI (peer), `@qeetrix/tokens` (peer), TypeScript 7, bun.
 - **Shape:** one bun workspace; the core package lives in `packages/react`. Heavy components get
   their own packages under `packages/` **only after the owner approves each one**.
-- **Status:** `0.0.x`, Phase 3 (engineering platform). No components yet. Primitives arrive in
-  Phase 4 increments.
+- **Status:** `0.0.x`, Phase 4. Increment 1 (the foundation primitives) is in; actions, form
+  controls, overlays, selection and display follow (02-inventory.md).
 
 It is a **library, not an app**: everything it exports is someone's dependency.
 

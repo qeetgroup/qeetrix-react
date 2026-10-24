@@ -1,0 +1,82 @@
+/* Text: running text, labels and inline code (06-component-specs.md, increment 1). Sizes change
+   font-size and line-height only, so the letter geometry set with the font shorthand survives. */
+.qx-text {
+  margin: 0;
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  &[data-size="sm"] {
+    font-size: var(--qx-typography-body-sm-font-size);
+    line-height: var(--qx-typography-body-sm-line-height);
+  }
+  &[data-size="md"] {
+    font-size: var(--qx-typography-body-md-font-size);
+    line-height: var(--qx-typography-body-md-line-height);
+  }
+  &[data-size="lg"] {
+    font-size: var(--qx-typography-body-lg-font-size);
+    line-height: var(--qx-typography-body-lg-line-height);
+  }
+  &[data-weight="regular"] {
+    font-weight: var(--qx-typography-body-md-font-weight);
+  }
+  &[data-weight="medium"] {
+    font-weight: var(--qx-typography-label-md-font-weight);
+  }
+  &[data-weight="semibold"] {
+    font-weight: var(--qx-typography-title-md-font-weight);
+  }
+  &[data-mono] {
+    font-family: var(--qx-font-family-mono);
+  }
+  &[data-tone="default"] {
+    color: var(--qx-color-text-default);
+  }
+  &[data-tone="subtle"] {
+    color: var(--qx-color-text-subtle);
+  }
+  &[data-tone="subtlest"] {
+    color: var(--qx-color-text-subtlest);
+  }
+  &[data-tone="disabled"] {
+    color: var(--qx-color-text-disabled);
+  }
+  &[data-tone="inverse"] {
+    color: var(--qx-color-text-inverse);
+  }
+  &[data-tone="brand"] {
+    color: var(--qx-color-text-brand);
+  }
+  &[data-tone="danger"] {
+    color: var(--qx-color-text-danger);
+  }
+  &[data-tone="success"] {
+    color: var(--qx-color-text-success);
+  }
+  &[data-tone="warning"] {
+    color: var(--qx-color-text-warning);
+  }
+  &[data-tone="info"] {
+    color: var(--qx-color-text-info);
+  }
+  &[data-truncate="line"] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  &[data-truncate="lines"] {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--qx-text-lines);
+    line-clamp: var(--qx-text-lines);
+  }
+  &[data-align="start"] {
+    text-align: start;
+  }
+  &[data-align="center"] {
+    text-align: center;
+  }
+  &[data-align="end"] {
+    text-align: end;
+  }
+}

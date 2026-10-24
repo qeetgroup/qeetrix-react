@@ -4,6 +4,185 @@
 
 ```ts
 
+import { ComponentProps } from 'react';
+import { ReactElement } from 'react';
+
+// @public
+export function Box(input: BoxProps): ReactElement;
+
+// @public (undocumented)
+export type BoxBackground = "canvas" | "default" | "raised" | "sunken" | "overlay" | "inverse" | "neutral" | "brand" | "selected";
+
+// @public (undocumented)
+export type BoxBorder = "none" | "subtle" | "default" | "strong";
+
+// @public (undocumented)
+export interface BoxProps extends ComponentProps<"div"> {
+    background?: BoxBackground;
+    border?: BoxBorder;
+    padding?: Inset;
+    paddingBlock?: Inset;
+    paddingInline?: Inset;
+    radius?: BoxRadius;
+    render?: RenderProp;
+}
+
+// @public (undocumented)
+export type BoxRadius = "none" | "sm" | "control" | "surface" | "overlay" | "modal" | "chip" | "full";
+
+// @public (undocumented)
+export type FlowJustify = "start" | "center" | "end" | "between";
+
+// @public
+export function Grid(input: GridProps): ReactElement;
+
+// @public (undocumented)
+export type GridAlign = "start" | "center" | "end" | "stretch";
+
+// @public (undocumented)
+export type GridColumnCount = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+
+// @public
+export interface GridColumns {
+    base?: GridColumnCount;
+    expanded?: GridColumnCount;
+    large?: GridColumnCount;
+    medium?: GridColumnCount;
+    xlarge?: GridColumnCount;
+}
+
+// @public (undocumented)
+export interface GridProps extends ComponentProps<"div"> {
+    align?: GridAlign;
+    columns?: GridColumnCount | GridColumns;
+    gap?: Space;
+    render?: RenderProp;
+}
+
+// @public
+export function Heading(input: HeadingProps): ReactElement;
+
+// @public (undocumented)
+export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+
+// @public (undocumented)
+export interface HeadingProps extends ComponentProps<"h2"> {
+    align?: TextAlign;
+    level: HeadingLevel;
+    render?: RenderProp;
+    size?: HeadingSize;
+    tone?: HeadingTone;
+    truncate?: Truncate;
+}
+
+// @public (undocumented)
+export type HeadingSize = "display-lg" | "display-md" | "display-sm" | "heading-lg" | "heading-md" | "heading-sm" | "title-lg" | "title-md" | "title-sm";
+
+// @public (undocumented)
+export type HeadingTone = "default" | "subtle" | "inverse";
+
+// @public
+export function Inline(input: InlineProps): ReactElement;
+
+// @public (undocumented)
+export type InlineAlign = "start" | "center" | "end" | "baseline" | "stretch";
+
+// @public (undocumented)
+export interface InlineProps extends ComponentProps<"div"> {
+    align?: InlineAlign;
+    gap?: Space;
+    justify?: FlowJustify;
+    render?: RenderProp;
+    wrap?: boolean;
+}
+
+// @public
+export type Inset = "none" | "xs" | "sm" | "md" | "lg" | "xl";
+
+// @public
+export type RenderProp = ReactElement<Record<string, unknown>>;
+
+// @public
+export function Separator(input: SeparatorProps): ReactElement;
+
+// @public (undocumented)
+export type SeparatorOrientation = "horizontal" | "vertical";
+
+// @public (undocumented)
+export interface SeparatorProps extends ComponentProps<"div"> {
+    decorative?: boolean;
+    orientation?: SeparatorOrientation;
+    render?: RenderProp;
+    tone?: SeparatorTone;
+}
+
+// @public (undocumented)
+export type SeparatorTone = "subtle" | "default" | "strong";
+
+// @public
+export function SkipLink(input: SkipLinkProps): ReactElement;
+
+// @public (undocumented)
+export interface SkipLinkProps extends ComponentProps<"a"> {
+    href?: string;
+    render?: RenderProp;
+}
+
+// @public
+export type Space = "none" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
+
+// @public
+export function Stack(input: StackProps): ReactElement;
+
+// @public (undocumented)
+export type StackAlign = "start" | "center" | "end" | "stretch";
+
+// @public (undocumented)
+export interface StackProps extends ComponentProps<"div"> {
+    align?: StackAlign;
+    gap?: Space;
+    justify?: FlowJustify;
+    render?: RenderProp;
+}
+
+// @public
+function Text_2(input: TextProps): ReactElement;
+export { Text_2 as Text }
+
+// @public
+export type TextAlign = "start" | "center" | "end";
+
+// @public (undocumented)
+export interface TextProps extends ComponentProps<"span"> {
+    align?: TextAlign;
+    mono?: boolean;
+    render?: RenderProp;
+    size?: TextSize;
+    tone?: TextTone;
+    truncate?: Truncate;
+    weight?: TextWeight;
+}
+
+// @public (undocumented)
+export type TextSize = "sm" | "md" | "lg";
+
+// @public
+export type TextTone = "default" | "subtle" | "subtlest" | "disabled" | "inverse" | "brand" | "danger" | "success" | "warning" | "info";
+
+// @public (undocumented)
+export type TextWeight = "regular" | "medium" | "semibold";
+
+// @public
+export type Truncate = boolean | number;
+
+// @public
+export function VisuallyHidden(input: VisuallyHiddenProps): ReactElement;
+
+// @public (undocumented)
+export interface VisuallyHiddenProps extends ComponentProps<"span"> {
+    render?: RenderProp;
+}
+
 // (No @packageDocumentation comment for this package)
 
 ```

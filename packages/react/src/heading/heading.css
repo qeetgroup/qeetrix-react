@@ -1,0 +1,74 @@
+/* Heading: the level sets the element, the size sets the look (06-component-specs.md,
+   increment 1). Display sizes use the Geo letterforms, the rest Base. */
+.qx-heading {
+  margin: 0;
+  font: var(--qx-typography-heading-lg);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+  color: var(--qx-color-text-default);
+  &[data-size="display-lg"] {
+    font-size: var(--qx-typography-display-lg-font-size);
+    line-height: var(--qx-typography-display-lg-line-height);
+  }
+  &[data-size="display-md"] {
+    font-size: var(--qx-typography-display-md-font-size);
+    line-height: var(--qx-typography-display-md-line-height);
+  }
+  &[data-size="display-sm"] {
+    font-size: var(--qx-typography-display-sm-font-size);
+    line-height: var(--qx-typography-display-sm-line-height);
+  }
+  &[data-size="heading-lg"] {
+    font-size: var(--qx-typography-heading-lg-font-size);
+    line-height: var(--qx-typography-heading-lg-line-height);
+  }
+  &[data-size="heading-md"] {
+    font-size: var(--qx-typography-heading-md-font-size);
+    line-height: var(--qx-typography-heading-md-line-height);
+  }
+  &[data-size="heading-sm"] {
+    font-size: var(--qx-typography-heading-sm-font-size);
+    line-height: var(--qx-typography-heading-sm-line-height);
+  }
+  &[data-size="title-lg"] {
+    font-size: var(--qx-typography-title-lg-font-size);
+    line-height: var(--qx-typography-title-lg-line-height);
+  }
+  &[data-size="title-md"] {
+    font-size: var(--qx-typography-title-md-font-size);
+    line-height: var(--qx-typography-title-md-line-height);
+  }
+  &[data-size="title-sm"] {
+    font-size: var(--qx-typography-title-sm-font-size);
+    line-height: var(--qx-typography-title-sm-line-height);
+  }
+  &[data-size^="display-"] {
+    font-variation-settings: "GEOM" var(--qx-font-geometry-display);
+  }
+  &[data-tone="subtle"] {
+    color: var(--qx-color-text-subtle);
+  }
+  &[data-tone="inverse"] {
+    color: var(--qx-color-text-inverse);
+  }
+  &[data-truncate="line"] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  &[data-truncate="lines"] {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: var(--qx-text-lines);
+    line-clamp: var(--qx-text-lines);
+  }
+  &[data-align="start"] {
+    text-align: start;
+  }
+  &[data-align="center"] {
+    text-align: center;
+  }
+  &[data-align="end"] {
+    text-align: end;
+  }
+}
