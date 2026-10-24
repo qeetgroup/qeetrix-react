@@ -4,8 +4,14 @@
 
 ```ts
 
+import { Button as Button_2 } from '@base-ui/react/button';
 import { ComponentProps } from 'react';
+import { ComponentType } from 'react';
+import { IconProps } from '@qeetrix/icons';
 import { ReactElement } from 'react';
+import { ReactNode } from 'react';
+import { Toggle as Toggle_2 } from '@base-ui/react/toggle';
+import { ToggleGroup as ToggleGroup_2 } from '@base-ui/react/toggle-group';
 
 // @public
 export function Box(input: BoxProps): ReactElement;
@@ -29,6 +35,27 @@ export interface BoxProps extends ComponentProps<"div"> {
 
 // @public (undocumented)
 export type BoxRadius = "none" | "sm" | "control" | "surface" | "overlay" | "modal" | "chip" | "full";
+
+// @public
+export function Button(input: ButtonProps): ReactElement;
+
+// Warning: (ae-forgotten-export) The symbol "ButtonBaseProps" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export interface ButtonProps extends ButtonBaseProps {
+    children?: ReactNode;
+    fullWidth?: boolean;
+    icon?: QeetrixIcon;
+}
+
+// @public (undocumented)
+export type ButtonTone = "brand" | "danger";
+
+// @public (undocumented)
+export type ButtonVariant = "solid" | "soft" | "ghost";
+
+// @public
+export type ControlSize = "sm" | "md" | "lg";
 
 // @public (undocumented)
 export type FlowJustify = "start" | "center" | "end" | "between";
@@ -82,6 +109,15 @@ export type HeadingSize = "display-lg" | "display-md" | "display-sm" | "heading-
 export type HeadingTone = "default" | "subtle" | "inverse";
 
 // @public
+export function IconButton(input: IconButtonProps): ReactElement;
+
+// @public (undocumented)
+export interface IconButtonProps extends ButtonBaseProps {
+    "aria-label": string;
+    icon: QeetrixIcon;
+}
+
+// @public
 export function Inline(input: InlineProps): ReactElement;
 
 // @public (undocumented)
@@ -98,6 +134,22 @@ export interface InlineProps extends ComponentProps<"div"> {
 
 // @public
 export type Inset = "none" | "xs" | "sm" | "md" | "lg" | "xl";
+
+// @public
+export function Link(input: LinkProps): ReactElement;
+
+// @public (undocumented)
+export interface LinkProps extends ComponentProps<"a"> {
+    external?: boolean;
+    render?: RenderProp;
+    tone?: LinkTone;
+}
+
+// @public (undocumented)
+export type LinkTone = "default" | "subtle" | "inherit";
+
+// @public
+export type QeetrixIcon = ComponentType<IconProps<"outline">>;
 
 // @public
 export type RenderProp = ReactElement<Record<string, unknown>>;
@@ -130,6 +182,23 @@ export interface SkipLinkProps extends ComponentProps<"a"> {
 
 // @public
 export type Space = "none" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
+
+// @public
+export function Spinner(input: SpinnerProps): ReactElement;
+
+// @public (undocumented)
+export interface SpinnerProps extends Omit<ComponentProps<"span">, "children"> {
+    decorative?: boolean;
+    label?: string;
+    size?: SpinnerSize;
+    tone?: SpinnerTone;
+}
+
+// @public (undocumented)
+export type SpinnerSize = "sm" | "md" | "lg" | "xl";
+
+// @public (undocumented)
+export type SpinnerTone = "default" | "brand";
 
 // @public
 export function Stack(input: StackProps): ReactElement;
@@ -171,6 +240,40 @@ export type TextTone = "default" | "subtle" | "subtlest" | "disabled" | "inverse
 
 // @public (undocumented)
 export type TextWeight = "regular" | "medium" | "semibold";
+
+// @public
+export function Toggle(input: ToggleProps): ReactElement;
+
+// @public
+export function ToggleGroup(input: ToggleGroupProps): ReactElement;
+
+// @public (undocumented)
+export interface ToggleGroupProps extends Omit<ComponentProps<"div">, "defaultValue" | "onChange" | "dir"> {
+    defaultValue?: readonly string[];
+    disabled?: boolean;
+    multiple?: boolean;
+    onValueChange?: ToggleGroup_2.Props["onValueChange"];
+    orientation?: "horizontal" | "vertical";
+    size?: ControlSize;
+    value?: readonly string[];
+    variant?: ToggleGroupVariant;
+}
+
+// @public (undocumented)
+export type ToggleGroupVariant = "segmented" | "separate";
+
+// @public (undocumented)
+export interface ToggleProps extends Omit<ComponentProps<"button">, "value" | "defaultValue" | "onChange" | "children"> {
+    children?: ReactNode;
+    defaultPressed?: boolean;
+    filledWhenPressed?: boolean;
+    icon?: QeetrixIcon;
+    onPressedChange?: Toggle_2.Props["onPressedChange"];
+    pressed?: boolean;
+    render?: Toggle_2.Props["render"];
+    size?: ControlSize;
+    value?: string;
+}
 
 // @public
 export type Truncate = boolean | number;

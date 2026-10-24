@@ -17,9 +17,8 @@ async function capture(name: string, densities: readonly string[], element: stri
       html.dataset.qxDensity = density;
       await argosScreenshot(
         densities.length > 1 ? `${name} · ${scheme} · ${density}` : `${name} · ${scheme}`,
-        {
-          element,
-        },
+        // A stage shows loading states on purpose, so aria-busy never clears: don't wait for it.
+        { element, stabilize: { waitForAriaBusy: false } },
       );
     }
   }

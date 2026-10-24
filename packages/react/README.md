@@ -3,15 +3,17 @@
 The React components of **Qeetrix**, the Qeet Group design system: accessible, token-driven
 primitives built on [Base UI](https://base-ui.com), styled by the Qeetrix design language.
 
-> **Status: 0.0.x, increment 1.** The foundation primitives are here: Box, Stack, Inline, Grid, Text,
-> Heading, Separator, VisuallyHidden and SkipLink. Actions, form controls, overlays, selection and
-> display primitives follow in later increments.
+> **Status: 0.0.x, increments 1–2.** The foundation and action primitives are here. Form controls,
+> overlays, selection and display primitives follow in later increments.
 
 ## Install
 
 ```bash
-bun add @qeetrix/react @qeetrix/tokens
+bun add @qeetrix/react @qeetrix/tokens @base-ui/react @qeetrix/icons
 ```
+
+`@base-ui/react` powers the interactive components. Icons come from `@qeetrix/icons`: a component's
+`icon` prop takes any of its icons, e.g. `icon={PlusIcon}`.
 
 ## Styles
 
@@ -29,7 +31,8 @@ layout utilities override them without `!important`.
 ## Use
 
 ```tsx
-import { Box, Grid, Heading, SkipLink, Stack, Text } from "@qeetrix/react";
+import { PlusIcon } from "@qeetrix/icons/icons/plus";
+import { Box, Button, Grid, Heading, Inline, SkipLink, Stack, Text } from "@qeetrix/react";
 
 export function Invoices() {
   return (
@@ -37,7 +40,10 @@ export function Invoices() {
       <SkipLink />
       <main id="main">
         <Stack gap="xl">
-          <Heading level={1}>Invoices</Heading>
+          <Inline justify="between">
+            <Heading level={1}>Invoices</Heading>
+            <Button icon={PlusIcon}>New invoice</Button>
+          </Inline>
           <Grid columns={{ base: 1, medium: 2, large: 3 }} gap="md">
             <Box padding="lg" background="raised" border="default" radius="surface">
               <Text tone="subtle">Due this month</Text>
@@ -50,7 +56,8 @@ export function Invoices() {
 }
 ```
 
-- **Server-safe:** every component in this release renders in React Server Components.
+- **Server-safe:** layout, type, `Link` and `Spinner` render in React Server Components. `Button` and
+  `Toggle` are client components; their `"use client"` directive ships in the build.
 - **`render` prop:** renders a different element with the same props, e.g. `render={<section />}`.
 - **Per-component entry points:** `@qeetrix/react/stack`, plus its own stylesheet at
   `@qeetrix/react/css/stack.css` if you'd rather not load the full one.
@@ -65,6 +72,11 @@ export function Invoices() {
 | `Separator` | A 1px line, horizontal or vertical |
 | `VisuallyHidden` | Content for screen readers only |
 | `SkipLink` | "Skip to main content", hidden until focused |
+| `Button` | Label first, an optional trailing icon; solid (primary), soft (secondary), ghost; brand or danger; `loading` |
+| `IconButton` | A square, icon-only button; `aria-label` is required by its type |
+| `Link` | Inline navigation; `external` opens a new tab safely and says so to screen readers |
+| `Toggle`, `ToggleGroup` | Pressed or not; segmented or separate groups, single or `multiple` |
+| `Spinner` | An indeterminate wait, announced as a status unless `decorative` |
 
 **Layout:** `className` is for placement only (margin, width, grid placement). Visual changes go
 through props, so every Qeet product looks the same.

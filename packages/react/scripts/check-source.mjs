@@ -82,7 +82,11 @@ for (const file of files.filter((f) => f.endsWith(".css"))) {
     if (RAW_COLOUR.test(value))
       report(file, `${property}: ${value} — raw colour; use a --qx-* token`);
     else if (TOKEN_ONLY.some((p) => p.test(property))) {
-      const withoutTokens = value
+      // In a shadow, `inset` and zero offsets are structure, not design values.
+      const structural = /shadow$/.test(property)
+        ? value.replace(/\binset\b|(^|\s)0(?=\s)/g, " ")
+        : value;
+      const withoutTokens = structural
         .replace(/var\(--qx-[a-z0-9-]+\)/g, "")
         .replace(/calc\(|\)|[\s,*+/-]/g, "");
       // Bare numbers are allowed only as multipliers inside calc(), e.g. calc(-1 * var(--qx-…)).
