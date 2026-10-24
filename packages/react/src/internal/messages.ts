@@ -7,4 +7,5 @@ export const messages = {
   skipLink: { label: "Skip to main content" },
   spinner: { label: "Loading" },
   link: { external: "(opens in a new tab)" },
+  field: { optional: "(optional)" },
 } as const;

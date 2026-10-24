@@ -13,6 +13,13 @@ const config: UserConfig = defineConfig({
   clean: true,
   dts: true,
   deps: { neverBundle: [/^react($|\/)/, /^react-dom($|\/)/, /^@base-ui\//, /^@qeetrix\//] },
+  inputOptions: {
+    // Rolldown warns that a bundle may drop "use client". Unbundled output keeps it, and
+    // scripts/check-dist.mjs fails the build if any client module loses it.
+    onLog(level, log, handler) {
+      if (log.code !== "MODULE_LEVEL_DIRECTIVE") handler(level, log);
+    },
+  },
 });
 
 export default config;

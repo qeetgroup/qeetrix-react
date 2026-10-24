@@ -81,7 +81,8 @@ packages/react/
   src/index.ts            the public entry; every export is API
   src/<family>/           one folder per family: <family>.tsx, <family>.css, index.ts, tests
   src/styles/base.css     the qx.base layer
-  scripts/build-css.mjs   compiles each <family>.css into the qx.components layer
+  scripts/build-css.mjs   compiles each <family>.css into the qx.components layer; dist/css/<family>.css
+                          also @imports base.css and every family it renders, found from its imports
   tsdown.config.ts        JS + declarations, unbundled
 packages/react/tests/      platform tests, the gate self-tests, and support (axe, screenshots, stage)
 packages/react/etc/        react.api.md, the public-API report

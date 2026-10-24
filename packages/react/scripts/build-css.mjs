@@ -5,8 +5,10 @@
  * nesting, Base UI's state attributes and var(--qx-*) token values only. This writes:
  *
  *   dist/css/base.css        the qx.base layer
- *   dist/css/<family>.css    the family's styles, inside the qx.components layer
- *   dist/styles.css          the layer order, then every file above
+ *   dist/css/<family>.css    the family's styles, inside the qx.components layer, after @imports of
+ *                            base.css and of every family whose components it renders (Button
+ *                            renders Spinner), so one family's stylesheet works on its own
+ *   dist/styles.css          the layer order, then every family's styles once
  *
  * Apps import dist/styles.css after their own reset, ideally into their components layer:
  *   @import "@qeetrix/react/styles.css" layer(components);
@@ -48,12 +50,26 @@ function compile(filename, source) {
 
 const layer = (name, css) => `@layer ${name} {\n${css.replace(/^/gm, "  ")}\n}\n`;
 
-// A family is a directory under src/ holding <family>.css.
+// A family is a directory under src/ with an index.ts. It has styles of its own when it holds
+// <family>.css, and it needs the styles of every family its modules import from (`../<family>/`).
 const families = readdirSync(SRC, { withFileTypes: true })
-  .filter((d) => d.isDirectory() && d.name !== "styles")
+  .filter((d) => d.isDirectory() && !["styles", "internal"].includes(d.name))
   .map((d) => d.name)
-  .filter((name) => existsSync(new URL(`${name}/${name}.css`, SRC)))
+  .filter((name) => existsSync(new URL(`${name}/index.ts`, SRC)))
   .sort();
+const ownCss = (name) => existsSync(new URL(`${name}/${name}.css`, SRC));
+const imports = (name) => {
+  const deps = new Set();
+  for (const file of readdirSync(new URL(`${name}/`, SRC))) {
+    if (!/\.tsx?$/.test(file) || /\.test\.tsx?$/.test(file)) continue;
+    const code = readFileSync(new URL(`${name}/${file}`, SRC), "utf8");
+    for (const [, dep] of code.matchAll(/from\s+["']\.\.\/([a-z-]+)\//g)) {
+      if (dep !== name && families.includes(dep)) deps.add(dep);
+    }
+  }
+  return [...deps].sort();
+};
+const styled = (name) => ownCss(name) || imports(name).some(styled);
 
 mkdirSync(new URL("css/", DIST), { recursive: true });
 
@@ -65,13 +81,16 @@ const base = layer(
 writeFileSync(new URL("css/base.css", DIST), base);
 blocks.push(base);
 
-for (const name of families) {
-  const css = layer(
-    "qx.components",
-    compile(`${name}/${name}.css`, readFileSync(new URL(`${name}/${name}.css`, SRC), "utf8")),
-  );
-  writeFileSync(new URL(`css/${name}.css`, DIST), css);
-  blocks.push(css);
+for (const name of families.filter(styled)) {
+  const css = ownCss(name)
+    ? layer(
+        "qx.components",
+        compile(`${name}/${name}.css`, readFileSync(new URL(`${name}/${name}.css`, SRC), "utf8")),
+      )
+    : "";
+  const head = ["base", ...imports(name).filter(styled)].map((dep) => `@import "./${dep}.css";`);
+  writeFileSync(new URL(`css/${name}.css`, DIST), `${head.join("\n")}\n\n${css}`);
+  if (css) blocks.push(css);
 }
 
 const header = [
@@ -86,6 +105,7 @@ writeFileSync(
   new URL("styles.css", DIST),
   `${header}\n@layer ${LAYERS.join(", ")};\n\n${blocks.join("\n")}`,
 );
+const count = families.filter(ownCss).length;
 console.log(
-  `✔ CSS built — base + ${families.length} famil${families.length === 1 ? "y" : "ies"} → dist/styles.css, dist/css/`,
+  `✔ CSS built — base + ${count} famil${count === 1 ? "y" : "ies"} → dist/styles.css, dist/css/`,
 );

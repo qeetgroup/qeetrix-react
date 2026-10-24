@@ -2,7 +2,8 @@
 
 ## 0.0.2
 
-The foundation primitives (increment 1) and the actions (increment 2).
+The foundation primitives (increment 1), the actions (increment 2) and the form controls
+(increment 3).
 
 ### Foundation
 
@@ -43,6 +44,43 @@ All nine are server-safe and render in React Server Components.
 - **Dependencies:**
   - new peer `@base-ui/react` ^1.9.0;
   - new dependency `@qeetrix/icons` ^1.0.12, for the external-link mark.
+
+### Form controls
+
+All are client components on Base UI's Field, Fieldset, Input, Checkbox, Radio Group and Switch, so
+labels, descriptions and errors link to their controls without ids. On every form control, `ref` and
+extra props go to the control, while `className` and `style` place the row.
+
+- **`Field`:**
+  - a label, help text and error around any control;
+  - `optional` adds "(optional)", and Qeetrix never marks required fields;
+  - `error` shows a message now (from the server, say) and marks the field invalid. Without it, the
+    browser's or `validate`'s message shows with a sharp alert icon;
+  - the error replaces the help text;
+  - `hideLabel` is for toolbar searches only.
+- **`Input`:** the filled box with a bottom line, a leading `icon`, and start and end adornments.
+  It takes its focus, invalid, read-only and disabled looks from the input.
+- **`Textarea`:** the same look. It grows with its content between `rows` and `maxRows` through CSS
+  `field-sizing`, with no script.
+- **`TextField`:** Field and Input in one, the default form row.
+- **`Fieldset`:** a section of fields under a `title.sm` legend, spaced by the density's form gap.
+  `disabled` disables everything inside.
+- **`Checkbox` and `CheckboxGroup`:**
+  - the 16px box with a sharp tick, and the mixed state with a dash;
+  - a `parent` checkbox selects the whole group;
+  - the label row is at least 24px tall.
+- **`Radio` and `RadioGroup`:** the 5px Ember ring. Arrow keys move and select, and RadioGroup is
+  generic over its value type.
+- **`Switch`:** a 32×18 track with a square thumb that moves to the end side, in either text
+  direction.
+- With no visible label, Checkbox, Radio and Switch require `aria-label` or `aria-labelledby` by
+  their type.
+- **Shared types:** `FieldMessageProps`, `ChoiceLabelProps`, `ChoiceOrientation`.
+
+### Platform
+
+- Each family's stylesheet (`css/<family>.css`) now imports the base layer and the stylesheets of
+  the families it renders, so it works on its own.
 
 ## 0.0.1
 

@@ -1,0 +1,122 @@
+"use client";
+
+import { Field as BaseField } from "@base-ui/react/field";
+import { CircleAlertIcon } from "@qeetrix/icons/icons/circle-alert";
+import {
+  type ComponentProps,
+  type Context,
+  type CSSProperties,
+  createContext,
+  type ReactElement,
+  type ReactNode,
+} from "react";
+import { cx } from "../internal/cx";
+import { messages } from "../internal/messages";
+
+/**
+ * True inside a Field or a choice group. A checkbox, radio or switch there is an item of that field
+ * (Base UI Field.Item); on its own it is a field of its own (Field.Root).
+ */
+export const InFieldContext: Context<boolean> = createContext(false);
+
+/** The help text and error every labelled field shares. */
+export interface FieldMessageProps {
+  /** Help text under the control, e.g. a format ("15 characters"). Hidden while an error shows. */
+  description?: ReactNode;
+  /**
+   * An error to show now, e.g. from the server; it also marks the field invalid. Without it, the
+   * browser's or `validate`'s message shows whenever the field is invalid.
+   */
+  error?: ReactNode;
+}
+
+export interface FieldProps
+  extends Omit<BaseField.Root.Props, "className" | "style" | "render" | "children">,
+    FieldMessageProps {
+  /** The label. Required: a placeholder is never a label. */
+  label: ReactNode;
+  /** Appends "(optional)". Qeetrix marks optional fields, never required ones. */
+  optional?: boolean;
+  /** Hides the label visually and keeps it for assistive technology. Only for a toolbar search. */
+  hideLabel?: boolean;
+  /** Placement only (margin, width, grid placement). */
+  className?: string;
+  style?: CSSProperties;
+  /** The control: an Input, a Textarea, or any Base UI form control. */
+  children?: ReactNode;
+}
+
+function ErrorRow({ children, ...props }: ComponentProps<"div">): ReactElement {
+  return (
+    <div {...props}>
+      <CircleAlertIcon shape="sharp" size={16} aria-hidden className="qx-field-error-icon" />
+      <span>{children}</span>
+    </div>
+  );
+}
+
+/** The description and error under a control; Base UI links both to it with aria-describedby. */
+export function FieldMessages({ description, error }: FieldMessageProps): ReactElement {
+  return (
+    <>
+      {description != null && (
+        <BaseField.Description className="qx-field-description" data-slot="field-description">
+          {description}
+        </BaseField.Description>
+      )}
+      {/* Without explicit children, Base UI fills in the validation or server message. */}
+      <BaseField.Error
+        className="qx-field-error"
+        data-slot="field-error"
+        match={error != null ? true : undefined}
+        render={<ErrorRow />}
+        {...(error != null ? { children: error } : {})}
+      />
+    </>
+  );
+}
+
+/** The label text, with "(optional)" when the field may be left empty. */
+export function labelText(label: ReactNode, optional: boolean | undefined): ReactNode {
+  if (!optional) return label;
+  return (
+    <>
+      {label}{" "}
+      <span className="qx-field-optional" data-slot="field-optional">
+        {messages.field.optional}
+      </span>
+    </>
+  );
+}
+
+/** The label, help text and error for one control (06-component-specs.md §2). */
+export function Field({
+  label,
+  description,
+  error,
+  optional,
+  hideLabel,
+  invalid,
+  className,
+  children,
+  ...props
+}: FieldProps): ReactElement {
+  return (
+    <BaseField.Root
+      {...props}
+      invalid={invalid ?? (error != null ? true : undefined)}
+      className={cx("qx-field", className)}
+      data-slot="field"
+    >
+      <BaseField.Label
+        className="qx-field-label"
+        data-slot="field-label"
+        data-hidden={hideLabel ? "" : undefined}
+      >
+        {labelText(label, optional)}
+      </BaseField.Label>
+      <InFieldContext value>{children}</InFieldContext>
+      <FieldMessages description={description} error={error} />
+    </BaseField.Root>
+  );
+}

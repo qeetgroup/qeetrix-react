@@ -1,0 +1,112 @@
+/* Field (06-component-specs.md §2): label, control, then help text or the error that replaces it.
+   The option rows and groups of Checkbox, Radio and Switch (§3) live here too, so every form row
+   shares one anatomy. */
+.qx-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qx-space-gap-xs);
+  min-inline-size: 0;
+}
+
+.qx-field-label {
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+  &[data-disabled] {
+    color: var(--qx-color-text-disabled);
+  }
+  /* Out of the flow, so the hidden label leaves no gap above the control. */
+  &[data-hidden] {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+.qx-field-optional {
+  font-weight: var(--qx-typography-body-sm-font-weight);
+  color: var(--qx-color-text-subtlest);
+}
+
+.qx-field-description {
+  margin: 0;
+  font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+}
+.qx-field[data-invalid] > .qx-field-description {
+  display: none;
+}
+
+.qx-field-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--qx-space-gap-xs);
+  font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-danger);
+}
+.qx-field-error-icon {
+  flex: none;
+  color: var(--qx-color-icon-danger);
+}
+
+/* Option rows: the label wraps the control and its text, so the whole row is the click target and
+   at least 24px tall (WCAG 2.5.8). The control sits on the first line of a wrapping label. */
+.qx-choice {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+.qx-choice-label {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: var(--qx-space-gap-sm);
+  inline-size: fit-content;
+  min-block-size: var(--qx-size-target-min);
+  padding-block: 2px;
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-default);
+  cursor: pointer;
+  & > :first-child {
+    margin-block: 2px;
+  }
+}
+.qx-choice[data-disabled] .qx-choice-label {
+  color: var(--qx-color-text-disabled);
+  cursor: not-allowed;
+}
+.qx-choice-description {
+  margin: 0;
+  padding-inline-start: 24px;
+  font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+}
+.qx-choice[data-slot="switch"] .qx-choice-description {
+  padding-inline-start: 40px;
+}
+
+/* Groups: the legend in the field-label style, then the options. */
+.qx-choice-group-set {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qx-space-gap-xs);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.qx-choice-group-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qx-space-gap-xs);
+}
+.qx-choice-group[data-orientation="horizontal"] .qx-choice-group-options {
+  flex-flow: row wrap;
+  column-gap: var(--qx-space-gap-lg);
+}

@@ -1,0 +1,44 @@
+/* Radio (06-component-specs.md §3): a 16px circle. On, its border becomes a 5px Ember ring around
+   the input-coloured centre. Focus is the Ember frame, 2px outside. */
+.qx-radio {
+  display: inline-block;
+  flex: none;
+  inline-size: 16px;
+  block-size: 16px;
+  border: var(--qx-border-width-default) solid var(--qx-color-border-strong);
+  border-radius: var(--qx-radius-full);
+  background: var(--qx-color-bg-input);
+  cursor: pointer;
+  transition-property: border-color, border-width;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+
+  &:hover:not([data-disabled], [data-readonly]) {
+    border-color: var(--qx-color-border-strong-hover);
+  }
+  &[data-invalid] {
+    border-color: var(--qx-color-border-danger);
+  }
+  &[data-checked] {
+    border-width: 5px;
+    border-color: var(--qx-color-bg-brand-bold);
+    &:hover:not([data-disabled], [data-readonly]) {
+      border-color: var(--qx-color-bg-brand-bold-hover);
+    }
+  }
+  &[data-disabled] {
+    border-color: var(--qx-color-border-disabled);
+    background: var(--qx-color-bg-disabled);
+    cursor: not-allowed;
+    &[data-checked] {
+      border-color: var(--qx-color-icon-disabled);
+    }
+  }
+  &[data-readonly] {
+    cursor: default;
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
+  }
+}

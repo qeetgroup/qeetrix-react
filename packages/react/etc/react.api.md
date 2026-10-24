@@ -5,11 +5,20 @@
 ```ts
 
 import { Button as Button_2 } from '@base-ui/react/button';
+import { Checkbox as Checkbox_2 } from '@base-ui/react/checkbox';
+import { CheckboxGroup as CheckboxGroup_2 } from '@base-ui/react/checkbox-group';
 import { ComponentProps } from 'react';
 import { ComponentType } from 'react';
+import { CSSProperties } from 'react';
+import { Field as Field_2 } from '@base-ui/react/field';
+import { Fieldset as Fieldset_2 } from '@base-ui/react/fieldset';
 import { IconProps } from '@qeetrix/icons';
+import { Input as Input_2 } from '@base-ui/react/input';
+import { Radio as Radio_2 } from '@base-ui/react/radio';
+import { RadioGroup as RadioGroup_2 } from '@base-ui/react/radio-group';
 import { ReactElement } from 'react';
 import { ReactNode } from 'react';
+import { Switch as Switch_2 } from '@base-ui/react/switch';
 import { Toggle as Toggle_2 } from '@base-ui/react/toggle';
 import { ToggleGroup as ToggleGroup_2 } from '@base-ui/react/toggle-group';
 
@@ -55,7 +64,79 @@ export type ButtonTone = "brand" | "danger";
 export type ButtonVariant = "solid" | "soft" | "ghost";
 
 // @public
+export function Checkbox(input: CheckboxProps): ReactElement;
+
+// @public
+export function CheckboxGroup(input: CheckboxGroupProps): ReactElement;
+
+// @public (undocumented)
+export interface CheckboxGroupProps extends Omit<CheckboxGroup_2.Props, "className" | "style" | "render">, FieldMessageProps {
+    className?: string;
+    label: ReactNode;
+    name?: string;
+    orientation?: ChoiceOrientation;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// Warning: (ae-forgotten-export) The symbol "CheckboxOwnProps" needs to be exported by the entry point index.d.ts
+//
+// @public
+export type CheckboxProps = CheckboxOwnProps & ChoiceLabelProps;
+
+// @public
+export type ChoiceLabelProps = {
+    label: ReactNode;
+    "aria-label"?: string;
+    "aria-labelledby"?: string;
+} | {
+    label?: undefined;
+    "aria-label": string;
+    "aria-labelledby"?: string;
+} | {
+    label?: undefined;
+    "aria-label"?: string;
+    "aria-labelledby": string;
+};
+
+// @public
+export type ChoiceOrientation = "vertical" | "horizontal";
+
+// @public
 export type ControlSize = "sm" | "md" | "lg";
+
+// @public
+export function Field(input: FieldProps): ReactElement;
+
+// @public
+export interface FieldMessageProps {
+    description?: ReactNode;
+    error?: ReactNode;
+}
+
+// @public (undocumented)
+export interface FieldProps extends Omit<Field_2.Root.Props, "className" | "style" | "render" | "children">, FieldMessageProps {
+    children?: ReactNode;
+    className?: string;
+    hideLabel?: boolean;
+    label: ReactNode;
+    optional?: boolean;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+export function Fieldset(input: FieldsetProps): ReactElement;
+
+// @public (undocumented)
+export interface FieldsetProps extends Omit<Fieldset_2.Root.Props, "className" | "style" | "children"> {
+    children?: ReactNode;
+    className?: string;
+    description?: ReactNode;
+    legend: ReactNode;
+    // (undocumented)
+    style?: CSSProperties;
+}
 
 // @public (undocumented)
 export type FlowJustify = "start" | "center" | "end" | "between";
@@ -133,6 +214,19 @@ export interface InlineProps extends ComponentProps<"div"> {
 }
 
 // @public
+export function Input(input: InputProps): ReactElement;
+
+// @public (undocumented)
+export interface InputProps extends Omit<Input_2.Props, "className" | "style" | "render"> {
+    className?: string;
+    endAdornment?: ReactNode;
+    icon?: QeetrixIcon;
+    startAdornment?: ReactNode;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
 export type Inset = "none" | "xs" | "sm" | "md" | "lg" | "xl";
 
 // @public
@@ -150,6 +244,26 @@ export type LinkTone = "default" | "subtle" | "inherit";
 
 // @public
 export type QeetrixIcon = ComponentType<IconProps<"outline">>;
+
+// @public
+export function Radio<Value = string>(input: RadioProps<Value>): ReactElement;
+
+// @public
+export function RadioGroup<Value = string>(input: RadioGroupProps<Value>): ReactElement;
+
+// @public (undocumented)
+export interface RadioGroupProps<Value = string> extends Omit<RadioGroup_2.Props<Value>, "className" | "style" | "render">, FieldMessageProps {
+    className?: string;
+    label: ReactNode;
+    orientation?: ChoiceOrientation;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// Warning: (ae-forgotten-export) The symbol "RadioOwnProps" needs to be exported by the entry point index.d.ts
+//
+// @public
+export type RadioProps<Value = string> = RadioOwnProps<Value> & ChoiceLabelProps;
 
 // @public
 export type RenderProp = ReactElement<Record<string, unknown>>;
@@ -215,11 +329,43 @@ export interface StackProps extends ComponentProps<"div"> {
 }
 
 // @public
+export function Switch(input: SwitchProps): ReactElement;
+
+// Warning: (ae-forgotten-export) The symbol "SwitchOwnProps" needs to be exported by the entry point index.d.ts
+//
+// @public
+export type SwitchProps = SwitchOwnProps & ChoiceLabelProps;
+
+// @public
 function Text_2(input: TextProps): ReactElement;
 export { Text_2 as Text }
 
 // @public
 export type TextAlign = "start" | "center" | "end";
+
+// @public
+export function Textarea(input: TextareaProps): ReactElement;
+
+// @public (undocumented)
+export interface TextareaProps extends Omit<ComponentProps<"textarea">, "defaultValue" | "value" | "rows" | "children"> {
+    defaultValue?: string;
+    maxRows?: number;
+    onValueChange?: Input_2.Props["onValueChange"];
+    rows?: number;
+    value?: string;
+}
+
+// @public
+export function TextField(input: TextFieldProps): ReactElement;
+
+// Warning: (ae-forgotten-export) The symbol "FieldOnly" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export interface TextFieldProps extends Omit<InputProps, "className" | "style">, FieldOnly {
+    className?: string;
+    // (undocumented)
+    style?: CSSProperties;
+}
 
 // @public (undocumented)
 export interface TextProps extends ComponentProps<"span"> {

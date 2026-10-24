@@ -1,0 +1,68 @@
+/* Switch (06-component-specs.md §3): a 32×18 track with 2px corners and a 12px square thumb. On
+   fills the track with Ember and moves the thumb to the end side; inline-start keeps that right in
+   right-to-left text. */
+.qx-switch {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  inline-size: 32px;
+  block-size: 18px;
+  border: var(--qx-border-width-default) solid var(--qx-color-border-strong);
+  border-radius: var(--qx-radius-sm);
+  background: var(--qx-color-bg-input);
+  cursor: pointer;
+  transition-property: background-color, border-color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+
+  &:hover:not([data-disabled], [data-readonly]) {
+    border-color: var(--qx-color-border-strong-hover);
+  }
+  &[data-invalid] {
+    border-color: var(--qx-color-border-danger);
+  }
+  &[data-checked] {
+    border-color: var(--qx-color-bg-brand-bold);
+    background: var(--qx-color-bg-brand-bold);
+    &:hover:not([data-disabled], [data-readonly]) {
+      border-color: var(--qx-color-bg-brand-bold-hover);
+      background: var(--qx-color-bg-brand-bold-hover);
+    }
+  }
+  &[data-disabled] {
+    border-color: var(--qx-color-border-disabled);
+    background: var(--qx-color-bg-disabled);
+    cursor: not-allowed;
+  }
+  &[data-readonly] {
+    cursor: default;
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
+  }
+}
+.qx-switch-thumb {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 2px;
+  inline-size: 12px;
+  block-size: 12px;
+  border-radius: calc(var(--qx-radius-sm) / 2);
+  background: var(--qx-color-icon-subtle);
+  translate: 0 -50%;
+  transition-property: inset-inline-start, background-color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &[data-checked] {
+    inset-inline-start: 16px;
+    background: var(--qx-color-surface-default);
+  }
+  &[data-disabled] {
+    background: var(--qx-color-icon-disabled);
+  }
+}
+/* An 18px track centred on the label's first line. */
+.qx-choice-label > .qx-switch {
+  margin-block: 1px;
+}
