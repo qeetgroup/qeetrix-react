@@ -1,0 +1,7 @@
+/* Qeetrix base layer: the few resets Qeetrix parts rely on, scoped to Qeetrix parts only, so the
+   stylesheet never restyles anything an app owns. */
+:where([class^="qx-"], [class*=" qx-"]),
+:where([class^="qx-"], [class*=" qx-"])::before,
+:where([class^="qx-"], [class*=" qx-"])::after {
+  box-sizing: border-box;
+}

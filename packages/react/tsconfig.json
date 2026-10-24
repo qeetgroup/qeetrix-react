@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node", "vitest/browser"],
+    "tsBuildInfoFile": "./node_modules/.cache/qeetrix-react/tsconfig.tsbuildinfo"
+  },
+  "include": ["src", "tests", "scripts", "tsdown.config.ts", "vitest.config.ts"],
+  "exclude": ["dist"]
+}

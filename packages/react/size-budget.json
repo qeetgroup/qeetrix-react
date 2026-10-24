@@ -1,0 +1,6 @@
+{
+  "$comment": "gzip budgets in kB, enforced by scripts/check-dist.mjs. The full stylesheet budget sits below Mantine's (41 kB) and HeroUI's (39 kB) complete stylesheets; raise a budget only with a reason in the PR.",
+  "stylesheet": 35,
+  "familyCss": 3,
+  "familyJs": 4
+}

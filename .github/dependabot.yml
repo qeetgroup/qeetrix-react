@@ -1,0 +1,30 @@
+# Weekly updates, each held back 3 days after release: a compromised version is usually pulled
+# from npm within that window. PRs target develop, which reaches main (and npm) through the
+# release PR.
+version: 2
+updates:
+  - package-ecosystem: bun
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 3
+    open-pull-requests-limit: 5
+    groups:
+      dev-tooling:
+        dependency-type: development
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 3
+    groups:
+      actions:
+        patterns: ["*"]
