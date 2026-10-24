@@ -1,6 +1,6 @@
 {
   "name": "@qeetrix/react",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Qeetrix React components: accessible, token-driven primitives on Base UI for every Qeet product.",
   "keywords": [
     "qeetrix",
