@@ -20,9 +20,16 @@ const { name } = JSON.parse(
   readFileSync(new URL("../packages/react/package.json", import.meta.url), "utf8"),
 );
 
+/** A valid npm package name, optionally scoped. Anything else never reaches the network. */
+const PACKAGE_NAME = /^(?:@[a-z0-9][a-z0-9._~-]*\/)?[a-z0-9][a-z0-9._~-]*$/;
+
+/** The registry document URL: the scope's "@" stays literal, everything else is encoded. */
+const documentUrl = (pkg) => `${REGISTRY}/${encodeURIComponent(pkg).replace(/^%40/, "@")}`;
+
 /** Every version npm has accepted for `name` — live, deprecated or unpublished — and the live ones. */
 export async function versionsOf(pkg = name) {
-  const response = await fetch(`${REGISTRY}/${pkg.replace("/", "%2f")}`);
+  if (!PACKAGE_NAME.test(pkg)) throw new Error(`not a valid npm package name: ${pkg}`);
+  const response = await fetch(documentUrl(pkg));
   if (response.status === 404) return { used: new Set(), live: new Set() };
   if (!response.ok) throw new Error(`${REGISTRY} answered ${response.status} for ${pkg}`);
   const doc = await response.json();
