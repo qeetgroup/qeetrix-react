@@ -1,7 +1,11 @@
 import { argosScreenshot } from "@argos-ci/vitest";
+import { settled } from "./settled";
 
 const SCHEMES = ["light", "dark"] as const;
 const DENSITIES = ["compact", "default", "comfortable"] as const;
+
+/** The stage around a component; `null` captures the whole viewport, for overlays in a portal. */
+type Target = string | null;
 
 /**
  * Density changes only five tokens (design rules §6): size.control.sm/md/lg, size.row and
@@ -9,16 +13,20 @@ const DENSITIES = ["compact", "default", "comfortable"] as const;
  * screenshot per colour scheme; a component that uses any of them gets every density too.
  * tests/screenshot-coverage.server.test.ts enforces the choice from each family's CSS.
  */
-async function capture(name: string, densities: readonly string[], element: string): Promise<void> {
+async function capture(name: string, densities: readonly string[], target: Target): Promise<void> {
   const html = document.documentElement;
   for (const scheme of SCHEMES) {
     for (const density of densities) {
       html.dataset.qxColorScheme = scheme;
       html.dataset.qxDensity = density;
+      await settled();
       await argosScreenshot(
         densities.length > 1 ? `${name} · ${scheme} · ${density}` : `${name} · ${scheme}`,
         // A stage shows loading states on purpose, so aria-busy never clears: don't wait for it.
-        { element, stabilize: { waitForAriaBusy: false } },
+        {
+          ...(target === null ? {} : { element: target }),
+          stabilize: { waitForAriaBusy: false },
+        },
       );
     }
   }
@@ -27,14 +35,17 @@ async function capture(name: string, densities: readonly string[], element: stri
 }
 
 /** Two screenshots, light and dark, for a component that doesn't change with density. */
-export async function screenshotSchemes(name: string, element = "[data-qx-stage]"): Promise<void> {
-  await capture(name, ["default"], element);
+export async function screenshotSchemes(
+  name: string,
+  target: Target = "[data-qx-stage]",
+): Promise<void> {
+  await capture(name, ["default"], target);
 }
 
 /** Six screenshots, both schemes × three densities, for a component that uses density tokens. */
 export async function screenshotEveryMode(
   name: string,
-  element = "[data-qx-stage]",
+  target: Target = "[data-qx-stage]",
 ): Promise<void> {
-  await capture(name, DENSITIES, element);
+  await capture(name, DENSITIES, target);
 }

@@ -52,7 +52,7 @@
   background: var(--qx-color-icon-subtle);
   translate: 0 -50%;
   transition-property: inset-inline-start, background-color;
-  transition-duration: var(--qx-motion-duration-fast);
+  transition-duration: var(--qx-motion-duration-normal);
   transition-timing-function: var(--qx-motion-easing-standard);
   &[data-checked] {
     inset-inline-start: 16px;

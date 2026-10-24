@@ -1,0 +1,33 @@
+/* Tooltip (06-component-specs.md §7): graphite, 2px corners, no arrow and no shadow. */
+.qx-tooltip-positioner {
+  z-index: var(--qx-z-tooltip);
+}
+.qx-tooltip {
+  max-inline-size: 280px;
+  padding: 4px 8px;
+  border-radius: var(--qx-radius-tooltip);
+  background: var(--qx-color-surface-inverse);
+  color: var(--qx-color-text-inverse);
+  font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  transition-property: opacity, translate;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-enter);
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+  &[data-side="top"]:is([data-starting-style], [data-ending-style]) {
+    translate: 0 4px;
+  }
+  &[data-side="bottom"]:is([data-starting-style], [data-ending-style]) {
+    translate: 0 -4px;
+  }
+  &[data-ending-style] {
+    transition-duration: var(--qx-motion-duration-fast);
+    transition-timing-function: var(--qx-motion-easing-exit);
+  }
+  &[data-instant] {
+    transition: none;
+  }
+}

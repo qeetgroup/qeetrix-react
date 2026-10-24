@@ -87,7 +87,7 @@ describe("per-family stylesheets", () => {
     [...css(family).matchAll(/@import "\.\/([a-z-]+)\.css";/g)].map((m) => m[1]);
 
   it("import the base layer and every family they render", () => {
-    expect(imports("button")).toEqual(["base", "spinner"]);
+    expect(imports("button")).toEqual(["base", "spinner", "tooltip"]);
     expect(imports("checkbox")).toEqual(["base", "field"]);
     expect(imports("text-field")).toEqual(["base", "field", "input"]);
     expect(imports("stack")).toEqual(["base"]);

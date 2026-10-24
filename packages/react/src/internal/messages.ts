@@ -8,4 +8,6 @@ export const messages = {
   spinner: { label: "Loading" },
   link: { external: "(opens in a new tab)" },
   field: { optional: "(optional)" },
+  overlay: { close: "Close" },
+  toast: { close: "Dismiss", region: "Notifications" },
 } as const;

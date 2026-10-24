@@ -1,0 +1,61 @@
+/* Popover (06-component-specs.md, increment 4): a floating panel anchored to its trigger. It fades
+   and slides 4px from the trigger's side, and has no arrow. */
+.qx-popover-positioner {
+  z-index: var(--qx-z-popover);
+}
+.qx-popover {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qx-space-gap-md);
+  min-inline-size: 0;
+  max-inline-size: min(360px, var(--available-width));
+  max-block-size: var(--available-height);
+  overflow: auto;
+  padding: var(--qx-space-inset-lg);
+  border: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  border-radius: var(--qx-radius-overlay);
+  background: var(--qx-color-surface-overlay);
+  box-shadow: var(--qx-shadow-overlay);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  outline: 0;
+  transform-origin: var(--transform-origin);
+  transition-property: opacity, translate;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-enter);
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+  &[data-side="bottom"]:is([data-starting-style], [data-ending-style]) {
+    translate: 0 -4px;
+  }
+  &[data-side="top"]:is([data-starting-style], [data-ending-style]) {
+    translate: 0 4px;
+  }
+  &[data-side="left"]:is([data-starting-style], [data-ending-style]) {
+    translate: 4px 0;
+  }
+  &[data-side="right"]:is([data-starting-style], [data-ending-style]) {
+    translate: -4px 0;
+  }
+  &[data-ending-style] {
+    transition-duration: var(--qx-motion-duration-fast);
+    transition-timing-function: var(--qx-motion-easing-exit);
+  }
+}
+.qx-popover-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qx-space-gap-xs);
+}
+.qx-popover-title {
+  margin: 0;
+  font: var(--qx-typography-title-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+}
+.qx-popover-description {
+  margin: 0;
+  color: var(--qx-color-text-subtle);
+}

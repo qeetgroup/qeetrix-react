@@ -10,10 +10,14 @@ import { CheckboxGroup as CheckboxGroup_2 } from '@base-ui/react/checkbox-group'
 import { ComponentProps } from 'react';
 import { ComponentType } from 'react';
 import { CSSProperties } from 'react';
+import { Dialog as Dialog_2 } from '@base-ui/react/dialog';
+import { Drawer as Drawer_2 } from '@base-ui/react/drawer';
 import { Field as Field_2 } from '@base-ui/react/field';
 import { Fieldset as Fieldset_2 } from '@base-ui/react/fieldset';
 import { IconProps } from '@qeetrix/icons';
 import { Input as Input_2 } from '@base-ui/react/input';
+import { Menu as Menu_2 } from '@base-ui/react/menu';
+import { Popover as Popover_2 } from '@base-ui/react/popover';
 import { Radio as Radio_2 } from '@base-ui/react/radio';
 import { RadioGroup as RadioGroup_2 } from '@base-ui/react/radio-group';
 import { ReactElement } from 'react';
@@ -21,6 +25,7 @@ import { ReactNode } from 'react';
 import { Switch as Switch_2 } from '@base-ui/react/switch';
 import { Toggle as Toggle_2 } from '@base-ui/react/toggle';
 import { ToggleGroup as ToggleGroup_2 } from '@base-ui/react/toggle-group';
+import { Tooltip as Tooltip_2 } from '@base-ui/react/tooltip';
 
 // @public
 export function Box(input: BoxProps): ReactElement;
@@ -104,6 +109,114 @@ export type ChoiceOrientation = "vertical" | "horizontal";
 
 // @public
 export type ControlSize = "sm" | "md" | "lg";
+
+// @public
+export function Dialog(input: DialogProps): ReactElement;
+
+// @public
+export function DialogBody(input: DialogBodyProps): ReactElement;
+
+// @public (undocumented)
+export interface DialogBodyProps extends ComponentProps<"div"> {}
+
+// @public
+export function DialogClose(props: DialogCloseProps): ReactElement;
+
+// @public (undocumented)
+export type DialogCloseProps = Dialog_2.Close.Props;
+
+// @public
+export function DialogContent(input: DialogContentProps): ReactElement;
+
+// @public (undocumented)
+export interface DialogContentProps extends Omit<Dialog_2.Popup.Props, "className" | "style" | "title" | "children"> {
+    children?: ReactNode;
+    className?: string;
+    description?: ReactNode;
+    size?: DialogSize;
+    // (undocumented)
+    style?: CSSProperties;
+    title: ReactNode;
+}
+
+// @public
+export function DialogFooter(input: DialogFooterProps): ReactElement;
+
+// @public (undocumented)
+export interface DialogFooterProps extends ComponentProps<"div"> {}
+
+// @public
+export type DialogIntent = "standard" | "danger" | "warning";
+
+// @public (undocumented)
+export interface DialogProps extends Omit<Dialog_2.Root.Props, "disablePointerDismissal" | "handle"> {
+    dismissible?: boolean;
+    intent?: DialogIntent;
+}
+
+// @public (undocumented)
+export type DialogSize = "sm" | "md" | "lg";
+
+// @public
+export function DialogTrigger(props: DialogTriggerProps): ReactElement;
+
+// @public (undocumented)
+export type DialogTriggerProps = Omit<Dialog_2.Trigger.Props, "handle" | "payload">;
+
+// @public
+export function Drawer(input: DrawerProps): ReactElement;
+
+// @public
+export function DrawerBody(input: DrawerBodyProps): ReactElement;
+
+// @public (undocumented)
+export interface DrawerBodyProps extends Omit<Drawer_2.Content.Props, "className"> {
+    // (undocumented)
+    className?: string;
+}
+
+// @public
+export function DrawerClose(props: DrawerCloseProps): ReactElement;
+
+// @public (undocumented)
+export type DrawerCloseProps = Drawer_2.Close.Props;
+
+// @public
+export function DrawerContent(input: DrawerContentProps): ReactElement;
+
+// @public (undocumented)
+export interface DrawerContentProps extends Omit<Drawer_2.Popup.Props, "className" | "style" | "title" | "children"> {
+    children?: ReactNode;
+    className?: string;
+    description?: ReactNode;
+    size?: DrawerSize;
+    // (undocumented)
+    style?: CSSProperties;
+    title: ReactNode;
+}
+
+// @public
+export function DrawerFooter(input: DrawerFooterProps): ReactElement;
+
+// @public (undocumented)
+export interface DrawerFooterProps extends ComponentProps<"div"> {}
+
+// @public (undocumented)
+export interface DrawerProps extends Omit<Drawer_2.Root.Props, "swipeDirection"> {
+    side?: DrawerSide;
+}
+
+// @public
+export type DrawerSide = "start" | "end";
+
+// @public (undocumented)
+export type DrawerSize = "sm" | "md" | "lg";
+
+// @public
+export function DrawerTrigger(props: DrawerTriggerProps): ReactElement;
+
+// @public (undocumented)
+export type DrawerTriggerProps = Drawer_2.Trigger.Props;
 
 // @public
 export function Field(input: FieldProps): ReactElement;
@@ -196,6 +309,7 @@ export function IconButton(input: IconButtonProps): ReactElement;
 export interface IconButtonProps extends ButtonBaseProps {
     "aria-label": string;
     icon: QeetrixIcon;
+    tooltip?: ReactNode | false;
 }
 
 // @public
@@ -241,6 +355,142 @@ export interface LinkProps extends ComponentProps<"a"> {
 
 // @public (undocumented)
 export type LinkTone = "default" | "subtle" | "inherit";
+
+// @public
+export function Menu(props: MenuProps): ReactElement;
+
+// @public
+export function MenuCheckboxItem(input: MenuCheckboxItemProps): ReactElement;
+
+// Warning: (ae-forgotten-export) The symbol "ItemLookProps" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export interface MenuCheckboxItemProps extends Omit<Menu_2.CheckboxItem.Props, "className" | "style">, ItemLookProps {}
+
+// @public
+export function MenuContent(input: MenuContentProps): ReactElement;
+
+// @public (undocumented)
+export interface MenuContentProps extends Omit<Menu_2.Popup.Props, "className" | "style" | "children"> {
+    align?: Menu_2.Positioner.Props["align"];
+    // (undocumented)
+    children?: ReactNode;
+    className?: string;
+    side?: Menu_2.Positioner.Props["side"];
+    sideOffset?: number;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+export function MenuGroup(props: MenuGroupProps): ReactElement;
+
+// @public
+export function MenuGroupLabel(input: MenuGroupLabelProps): ReactElement;
+
+// @public (undocumented)
+export interface MenuGroupLabelProps extends Omit<Menu_2.GroupLabel.Props, "className"> {
+    // (undocumented)
+    className?: string;
+}
+
+// @public (undocumented)
+export type MenuGroupProps = Menu_2.Group.Props;
+
+// @public
+export function MenuItem(input: MenuItemProps): ReactElement;
+
+// @public (undocumented)
+export interface MenuItemProps extends Omit<Menu_2.Item.Props, "className" | "style">, ItemLookProps {
+    icon?: QeetrixIcon;
+    tone?: MenuItemTone;
+}
+
+// @public (undocumented)
+export type MenuItemTone = "default" | "danger";
+
+// @public (undocumented)
+export type MenuProps = Menu_2.Root.Props;
+
+// @public
+export function MenuRadioGroup(props: MenuRadioGroupProps): ReactElement;
+
+// @public (undocumented)
+export type MenuRadioGroupProps = Menu_2.RadioGroup.Props;
+
+// @public
+export function MenuRadioItem(input: MenuRadioItemProps): ReactElement;
+
+// @public (undocumented)
+export interface MenuRadioItemProps extends Omit<Menu_2.RadioItem.Props, "className" | "style">, ItemLookProps {}
+
+// @public
+export function MenuSeparator(input: MenuSeparatorProps): ReactElement;
+
+// @public (undocumented)
+export interface MenuSeparatorProps extends Omit<Menu_2.Separator.Props, "className"> {
+    // (undocumented)
+    className?: string;
+}
+
+// @public
+export function MenuSubmenu(props: MenuSubmenuProps): ReactElement;
+
+// @public (undocumented)
+export type MenuSubmenuProps = Menu_2.SubmenuRoot.Props;
+
+// @public
+export function MenuSubmenuTrigger(input: MenuSubmenuTriggerProps): ReactElement;
+
+// @public (undocumented)
+export interface MenuSubmenuTriggerProps extends Omit<Menu_2.SubmenuTrigger.Props, "className" | "style"> {
+    // (undocumented)
+    className?: string;
+    icon?: QeetrixIcon;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+export function MenuTrigger(props: MenuTriggerProps): ReactElement;
+
+// @public (undocumented)
+export type MenuTriggerProps = Menu_2.Trigger.Props;
+
+// @public
+export function Popover(props: PopoverProps): ReactElement;
+
+// @public
+export function PopoverClose(props: PopoverCloseProps): ReactElement;
+
+// @public (undocumented)
+export type PopoverCloseProps = Popover_2.Close.Props;
+
+// @public
+export function PopoverContent(input: PopoverContentProps): ReactElement;
+
+// @public (undocumented)
+export interface PopoverContentProps extends Omit<Popover_2.Popup.Props, "className" | "style" | "title" | "children"> {
+    align?: Popover_2.Positioner.Props["align"];
+    // (undocumented)
+    children?: ReactNode;
+    className?: string;
+    description?: ReactNode;
+    side?: Popover_2.Positioner.Props["side"];
+    sideOffset?: number;
+    // (undocumented)
+    style?: CSSProperties;
+    title?: ReactNode;
+}
+
+// @public (undocumented)
+export type PopoverProps = Popover_2.Root.Props;
+
+// @public
+export function PopoverTrigger(props: PopoverTriggerProps): ReactElement;
+
+// @public (undocumented)
+export type PopoverTriggerProps = Popover_2.Trigger.Props;
 
 // @public
 export type QeetrixIcon = ComponentType<IconProps<"outline">>;
@@ -387,6 +637,51 @@ export type TextTone = "default" | "subtle" | "subtlest" | "disabled" | "inverse
 // @public (undocumented)
 export type TextWeight = "regular" | "medium" | "semibold";
 
+// @public (undocumented)
+export interface ToastApi {
+    add: (options: ToastOptions) => string;
+    close: (id?: string) => void;
+    promise: <Value>(promise: Promise<Value>, options: ToastPromiseOptions<Value>) => Promise<Value>;
+    update: (id: string, options: Partial<ToastOptions>) => void;
+}
+
+// @public (undocumented)
+export interface ToastOptions {
+    action?: {
+        label: string;
+        onClick: () => void;
+    };
+    description?: ReactNode;
+    id?: string;
+    onClose?: () => void;
+    timeout?: number;
+    title: ReactNode;
+    tone?: ToastTone;
+}
+
+// @public (undocumented)
+export interface ToastPromiseOptions<Value> {
+    // (undocumented)
+    error: ToastOptions | ((error: unknown) => ToastOptions);
+    // (undocumented)
+    loading: ToastOptions;
+    // (undocumented)
+    success: ToastOptions | ((value: Value) => ToastOptions);
+}
+
+// @public
+export function ToastProvider(input: ToastProviderProps): ReactElement;
+
+// @public (undocumented)
+export interface ToastProviderProps {
+    children?: ReactNode;
+    limit?: number;
+    timeout?: number;
+}
+
+// @public (undocumented)
+export type ToastTone = "info" | "success" | "warning" | "danger";
+
 // @public
 export function Toggle(input: ToggleProps): ReactElement;
 
@@ -422,7 +717,30 @@ export interface ToggleProps extends Omit<ComponentProps<"button">, "value" | "d
 }
 
 // @public
+export function Tooltip(input: TooltipProps): ReactElement;
+
+// @public (undocumented)
+export interface TooltipProps extends Omit<Tooltip_2.Root.Props, "children"> {
+    // (undocumented)
+    align?: Tooltip_2.Positioner.Props["align"];
+    children: ReactElement;
+    closeDelay?: number;
+    content: ReactNode;
+    delay?: number;
+    side?: Tooltip_2.Positioner.Props["side"];
+}
+
+// @public
+export function TooltipProvider(input: TooltipProviderProps): ReactElement;
+
+// @public (undocumented)
+export interface TooltipProviderProps extends Tooltip_2.Provider.Props {}
+
+// @public
 export type Truncate = boolean | number;
+
+// @public
+export function useToast(): ToastApi;
 
 // @public
 export function VisuallyHidden(input: VisuallyHiddenProps): ReactElement;

@@ -2,8 +2,8 @@
 
 ## 0.0.2
 
-The foundation primitives (increment 1), the actions (increment 2) and the form controls
-(increment 3).
+The foundation primitives (increment 1), the actions (increment 2), the form controls (increment 3)
+and the overlays (increment 4).
 
 ### Foundation
 
@@ -77,10 +77,47 @@ extra props go to the control, while `className` and `style` place the row.
   their type.
 - **Shared types:** `FieldMessageProps`, `ChoiceLabelProps`, `ChoiceOrientation`.
 
+### Overlays
+
+All are client components on Base UI. Each has a root, a trigger that renders your control, and a
+content part that assembles the portal, positioner and popup.
+
+- **`Popover`:** an anchored panel with an optional title and description. Focus moves in on open
+  and returns to the trigger on close.
+- **`Tooltip`:** one component around its trigger. It opens after 500ms of hover or at once on
+  focus. `TooltipProvider` groups neighbours, so the next one opens at once.
+- **`Menu`:**
+  - items with sharp icons, shortcuts and a `danger` tone;
+  - checkbox and radio items in a 16px mark column;
+  - group labels, separators and submenus;
+  - the 2px Ember start bar on the highlighted item, which follows the text direction.
+- **`Dialog`:**
+  - `intent` is `standard`, `danger` or `warning`, the last two as alert dialogs with a red or amber
+    intent line;
+  - `dismissible`, off by default for `danger`, so only its actions close it;
+  - sizes 400, 560 and 800px;
+  - the close button comes last in the focus order, so a dialog opens on its first field or its
+    least destructive action.
+- **`Drawer`:**
+  - a full-height side panel at the `end` or `start` edge;
+  - ruled header and footer, and a scrolling body;
+  - focus goes to the first field, except on touch;
+  - it can be swiped away.
+- **`ToastProvider` and `useToast`:**
+  - `add`, `close`, `update` and `promise`;
+  - tones `info`, `success`, `warning` and `danger`, each with a 3px status edge and a sharp icon;
+  - one action at most;
+  - `danger` toasts stay until dismissed and are announced at once.
+- **`IconButton`** now shows its `aria-label` as a tooltip. `tooltip={false}` turns it off, and
+  other text replaces it.
+- **Stacking:** anchored layers use `z.popover`, so a menu opened in a dialog sits above it.
+
 ### Platform
 
 - Each family's stylesheet (`css/<family>.css`) now imports the base layer and the stylesheets of
   the families it renders, so it works on its own.
+- Screenshots wait for transitions to finish, and overlays are captured across the whole viewport.
+  The accessibility check also waits, since contrast measured mid-fade isn't real.
 
 ## 0.0.1
 

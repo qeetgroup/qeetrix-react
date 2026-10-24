@@ -1,0 +1,130 @@
+/* Menu (06-component-specs.md §5): items edge to edge; the highlighted item gets a neutral tint and
+   a 2px Ember bar on its start edge, drawn as a logical inset bar so it follows the text direction. */
+.qx-menu-positioner {
+  z-index: var(--qx-z-popover);
+}
+.qx-menu {
+  min-inline-size: 200px;
+  max-inline-size: min(320px, var(--available-width));
+  max-block-size: var(--available-height);
+  overflow-y: auto;
+  padding-block: 4px;
+  border: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  border-radius: var(--qx-radius-overlay);
+  background: var(--qx-color-surface-overlay);
+  box-shadow: var(--qx-shadow-overlay);
+  color: var(--qx-color-text-default);
+  outline: 0;
+  transition-property: opacity, translate;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-enter);
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+  &[data-side="bottom"]:is([data-starting-style], [data-ending-style]) {
+    translate: 0 -4px;
+  }
+  &[data-side="top"]:is([data-starting-style], [data-ending-style]) {
+    translate: 0 4px;
+  }
+  &[data-ending-style] {
+    transition-duration: var(--qx-motion-duration-fast);
+    transition-timing-function: var(--qx-motion-easing-exit);
+  }
+}
+
+.qx-menu-item-icon {
+  flex: none;
+  color: var(--qx-color-icon-subtle);
+}
+
+.qx-menu-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  block-size: var(--qx-size-control-md);
+  padding-inline: var(--qx-space-inset-md);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+  outline: 0;
+  &[data-highlighted] {
+    background: var(--qx-color-bg-neutral-subtle-hover);
+    &::before {
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      inline-size: var(--qx-border-width-strong);
+      background: var(--qx-color-border-brand);
+    }
+  }
+  &[data-popup-open] {
+    background: var(--qx-color-bg-neutral-subtle-hover);
+  }
+  &[data-tone="danger"] {
+    color: var(--qx-color-text-danger);
+    .qx-menu-item-icon {
+      color: var(--qx-color-icon-danger);
+    }
+  }
+  &[data-disabled] {
+    color: var(--qx-color-text-disabled);
+    .qx-menu-item-icon {
+      color: var(--qx-color-icon-disabled);
+    }
+  }
+}
+.qx-menu-item-label {
+  flex: 1;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.qx-menu-shortcut {
+  margin-inline-start: var(--qx-space-gap-lg);
+  font: var(--qx-typography-code-sm);
+  color: var(--qx-color-text-subtlest);
+}
+.qx-menu-submenu-icon {
+  flex: none;
+  color: var(--qx-color-icon-subtle);
+}
+/* The menu is portalled under <body>, so the document's direction is the one that applies. */
+[dir="rtl"] .qx-menu-submenu-icon {
+  scale: -1 1;
+}
+
+/* Checkbox and radio items keep a 16px start column, so every label lines up. */
+.qx-menu-mark {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: 16px;
+  block-size: 16px;
+}
+.qx-menu-mark-indicator {
+  display: flex;
+}
+.qx-menu-dot {
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: var(--qx-radius-full);
+  background: currentcolor;
+}
+
+.qx-menu-group-label {
+  padding: 8px var(--qx-space-inset-md) 4px;
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+}
+.qx-menu-separator {
+  block-size: var(--qx-border-width-default);
+  margin-block: 4px;
+  background: var(--qx-color-border-subtle);
+}

@@ -3,8 +3,8 @@
 The React components of **Qeetrix**, the Qeet Group design system: accessible, token-driven
 primitives built on [Base UI](https://base-ui.com), styled by the Qeetrix design language.
 
-> **Status: 0.0.x, increments 1–3.** The foundation, action and form-control primitives are here.
-> Overlays, selection and display primitives follow in later increments.
+> **Status: 0.0.x, increments 1–4.** The foundation, action, form-control and overlay primitives are
+> here. Selection and display primitives follow in later increments.
 
 ## Install
 
@@ -57,8 +57,8 @@ export function Invoices() {
 ```
 
 - **Server-safe:** layout, type, `Link` and `Spinner` render in React Server Components. The actions
-  built on Base UI and every form control are client components; their `"use client"` directive
-  ships in the build.
+  built on Base UI, the form controls and the overlays are client components; their `"use client"`
+  directive ships in the build.
 - **`render` prop:** renders a different element with the same props, e.g. `render={<section />}`.
 - **Per-component entry points:** `@qeetrix/react/stack`, plus its own stylesheet at
   `@qeetrix/react/css/stack.css` if you'd rather not load the full one. A family's stylesheet brings
@@ -76,7 +76,7 @@ export function Invoices() {
 | `VisuallyHidden` | Content for screen readers only |
 | `SkipLink` | "Skip to main content", hidden until focused |
 | `Button` | Label first, an optional trailing icon; solid (primary), soft (secondary), ghost; brand or danger; `loading` |
-| `IconButton` | A square, icon-only button; `aria-label` is required by its type |
+| `IconButton` | A square, icon-only button; `aria-label` is required by its type and shows as a tooltip |
 | `Link` | Inline navigation; `external` opens a new tab safely and says so to screen readers |
 | `Toggle`, `ToggleGroup` | Pressed or not; segmented or separate groups, single or `multiple` |
 | `Spinner` | An indeterminate wait, announced as a status unless `decorative` |
@@ -87,6 +87,12 @@ export function Invoices() {
 | `Checkbox`, `CheckboxGroup` | On/off or several of a set; mixed state; a `parent` checkbox selects all |
 | `Radio`, `RadioGroup` | One of a set; arrow keys move and select |
 | `Switch` | A setting that applies at once |
+| `Popover` | A panel anchored to a trigger: filters, details, a short form |
+| `Tooltip` | A short label for a control; `TooltipProvider` groups neighbours |
+| `Menu` | Actions and options from a trigger: icons, shortcuts, checkbox and radio items, submenus |
+| `Dialog` | A focused task or decision; `intent="danger"` makes a confirmation only its actions close |
+| `Drawer` | A side panel for details or an edit form, swipeable on touch |
+| `ToastProvider`, `useToast` | Brief notifications with a status edge; errors stay until dismissed |
 
 **Layout:** `className` is for placement only (margin, width, grid placement). Visual changes go
 through props, so every Qeet product looks the same. On a form control, `className` and `style` place
@@ -107,6 +113,42 @@ import { Checkbox, CheckboxGroup, Fieldset, Radio, RadioGroup, TextField } from 
     <Checkbox value="sms" label="SMS" />
   </CheckboxGroup>
 </Fieldset>
+```
+
+## Overlays
+
+Overlays share one shape: a root that holds the state, a trigger that renders your control, and a
+content part that assembles everything else. Wrap the app once in `ToastProvider` (and, if you like,
+`TooltipProvider`).
+
+```tsx
+import {
+  Button, Dialog, DialogClose, DialogContent, DialogFooter, DialogTrigger, useToast,
+} from "@qeetrix/react";
+
+function RevokeKey({ onRevoke }: { onRevoke: () => Promise<void> }) {
+  const toast = useToast();
+  return (
+    <Dialog intent="danger">
+      <DialogTrigger render={<Button tone="danger">Revoke key</Button>} />
+      <DialogContent title="Revoke this API key?" description="Apps using it stop working at once.">
+        <DialogFooter>
+          <DialogClose render={<Button variant="ghost">Cancel</Button>} />
+          <DialogClose
+            render={<Button tone="danger">Revoke key</Button>}
+            onClick={() =>
+              toast.promise(onRevoke(), {
+                loading: { title: "Revoking…" },
+                success: { title: "Key revoked" },
+                error: { title: "Couldn't revoke the key" },
+              })
+            }
+          />
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 ```
 
 ## License

@@ -1,0 +1,104 @@
+/* Drawer (06-component-specs.md, increment 4): a full-height panel at the start or end edge, square,
+   with ruled sections. It slides in from its edge and follows a swipe back toward it. */
+.qx-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--qx-z-overlay);
+  background: var(--qx-color-overlay-scrim);
+  transition-property: opacity;
+  transition-duration: var(--qx-motion-duration-slow);
+  transition-timing-function: var(--qx-motion-easing-enter);
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+  &[data-ending-style] {
+    transition-duration: var(--qx-motion-duration-normal);
+    transition-timing-function: var(--qx-motion-easing-exit);
+  }
+}
+.qx-drawer-viewport {
+  position: fixed;
+  inset: 0;
+  z-index: var(--qx-z-modal);
+  display: flex;
+  justify-content: flex-end;
+  &[data-side="start"] {
+    justify-content: flex-start;
+  }
+}
+.qx-drawer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  inline-size: min(560px, 100vw - 48px);
+  block-size: 100%;
+  background: var(--qx-color-surface-overlay);
+  box-shadow: var(--qx-shadow-modal);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  outline: 0;
+  transform: translateX(var(--drawer-swipe-movement-x, 0px));
+  transition-property: transform;
+  transition-duration: var(--qx-motion-duration-slow);
+  transition-timing-function: var(--qx-motion-easing-enter);
+  &[data-size="sm"] {
+    inline-size: min(400px, 100vw - 48px);
+  }
+  &[data-size="lg"] {
+    inline-size: min(800px, 100vw - 48px);
+  }
+  &[data-swipe-direction="right"]:is([data-starting-style], [data-ending-style]) {
+    transform: translateX(100%);
+  }
+  &[data-swipe-direction="left"]:is([data-starting-style], [data-ending-style]) {
+    transform: translateX(-100%);
+  }
+  &[data-swiping] {
+    transition: none;
+  }
+  &[data-ending-style] {
+    transition-duration: var(--qx-motion-duration-normal);
+    transition-timing-function: var(--qx-motion-easing-exit);
+  }
+}
+.qx-drawer-header {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--qx-space-gap-xs);
+  padding: var(--qx-space-inset-xl);
+  padding-inline-end: 56px;
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+}
+.qx-drawer-title {
+  margin: 0;
+  font: var(--qx-typography-title-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+}
+.qx-drawer-description {
+  margin: 0;
+  color: var(--qx-color-text-subtle);
+}
+.qx-drawer-body {
+  flex: 1;
+  min-block-size: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--qx-space-inset-xl);
+}
+.qx-drawer-footer {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--qx-space-gap-sm);
+  padding: var(--qx-space-inset-lg) var(--qx-space-inset-xl);
+  border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+}
+.qx-drawer-close {
+  position: absolute;
+  inset-block-start: 20px;
+  inset-inline-end: 16px;
+}

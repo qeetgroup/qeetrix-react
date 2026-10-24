@@ -1,11 +1,13 @@
 import axe from "axe-core";
+import { settled } from "./settled";
 
 /**
  * Run axe on a rendered element and fail with a readable list of violations. Every WCAG 2.x A and
  * AA rule is on, colour contrast included: the design rules guarantee AA, so a contrast failure is
- * a real defect, not noise to silence.
+ * a real defect, not noise to silence. It waits for transitions first: contrast mid-fade isn't real.
  */
 export async function expectAccessible(element: Element): Promise<void> {
+  await settled();
   const result = await axe.run(element, {
     runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] },
   });

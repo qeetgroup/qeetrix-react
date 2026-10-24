@@ -5,6 +5,7 @@ import type { ComponentProps, ReactElement, ReactNode } from "react";
 import { type ControlSize, iconSize, type QeetrixIcon } from "../internal/control";
 import { cx } from "../internal/cx";
 import { Spinner } from "../spinner/spinner";
+import { Tooltip } from "../tooltip/tooltip";
 
 export type ButtonVariant = "solid" | "soft" | "ghost";
 export type ButtonTone = "brand" | "danger";
@@ -36,6 +37,11 @@ export interface IconButtonProps extends ButtonBaseProps {
   icon: QeetrixIcon;
   /** Required: an icon-only button has no visible label. */
   "aria-label": string;
+  /**
+   * The tooltip, which shows the `aria-label` by default (06-component-specs.md §1). Pass other text
+   * to show that instead, or `false` where the label is visible nearby.
+   */
+  tooltip?: ReactNode | false;
 }
 
 function content(icon: QeetrixIcon | undefined, size: ControlSize, loading: boolean): ReactNode {
@@ -94,19 +100,22 @@ export function Button({
   );
 }
 
-/** A square, icon-only button. Its `aria-label` is required by its type. */
+/**
+ * A square, icon-only button. Its `aria-label` is required by its type, and it shows as a tooltip.
+ */
 export function IconButton({
   variant = "ghost",
   tone = "brand",
   size = "md",
   icon,
   loading = false,
+  tooltip,
   disabled,
   className,
   type = "button",
   ...props
 }: IconButtonProps): ReactElement {
-  return (
+  const button = (
     <BaseButton
       {...props}
       type={type}
@@ -124,4 +133,6 @@ export function IconButton({
       {content(icon, size, loading)}
     </BaseButton>
   );
+  if (tooltip === false) return button;
+  return <Tooltip content={tooltip ?? props["aria-label"]}>{button}</Tooltip>;
 }
