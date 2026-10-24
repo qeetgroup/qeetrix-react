@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
-import { screenshotEveryMode } from "../../tests/support/screenshots";
+import { screenshotSchemes } from "../../tests/support/screenshots";
 import { Stage } from "../../tests/support/stage";
 import { Box } from "./box";
 
@@ -41,6 +41,6 @@ describe("Box", () => {
       </Stage>,
     );
     await expectAccessible(container);
-    await screenshotEveryMode("Box");
+    await screenshotSchemes("Box");
   });
 });

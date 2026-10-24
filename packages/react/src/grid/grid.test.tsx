@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
-import { screenshotEveryMode } from "../../tests/support/screenshots";
+import { screenshotSchemes } from "../../tests/support/screenshots";
 import { Stage } from "../../tests/support/stage";
 import { Box } from "../box/box";
 import { Grid } from "./grid";
@@ -59,6 +59,6 @@ describe("Grid", () => {
       </Stage>,
     );
     await expectAccessible(container);
-    await screenshotEveryMode("Grid");
+    await screenshotSchemes("Grid");
   });
 });

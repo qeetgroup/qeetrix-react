@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
-import { screenshotEveryMode } from "../../tests/support/screenshots";
+import { screenshotSchemes } from "../../tests/support/screenshots";
 import { Stage } from "../../tests/support/stage";
 import { Inline } from "../inline/inline";
 import { Stack } from "../stack/stack";
@@ -38,6 +38,6 @@ describe("Separator", () => {
       </Stage>,
     );
     await expectAccessible(container);
-    await screenshotEveryMode("Separator");
+    await screenshotSchemes("Separator");
   });
 });

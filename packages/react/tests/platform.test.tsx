@@ -25,6 +25,19 @@ describe("platform: real browser", () => {
     await expect(expectAccessible(container)).rejects.toThrow(/button-name/);
   });
 
+  it("switches density: control height 28, 32 and 36px", async () => {
+    const { container } = await render(<Probe />);
+    const probe = container.querySelector("[data-slot=probe]") as HTMLElement;
+    const html = document.documentElement;
+    const heights: Record<string, number> = {};
+    for (const density of ["compact", "default", "comfortable"]) {
+      html.dataset.qxDensity = density;
+      heights[density] = probe.getBoundingClientRect().height;
+    }
+    delete html.dataset.qxDensity;
+    expect(heights).toEqual({ compact: 28, default: 32, comfortable: 36 });
+  });
+
   it("captures one screenshot per colour scheme and density", async () => {
     await render(
       <Stage>

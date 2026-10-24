@@ -67,7 +67,7 @@ deliberately broken example by `tests/gates.server.test.ts`, which runs on every
 | API version | A removed or changed API without a raised minor (`scripts/check-api-version.mjs`) |
 | Package | publint and Are the Types Wrong? on the packed tarball |
 | Tests | Real-browser interaction, keyboard and axe (WCAG A/AA, contrast on); server rendering; coverage floor (90% lines) |
-| Screenshots | Every component in both colour schemes × three densities, compared on Argos (once connected) |
+| Screenshots | Compared on Argos (once connected). Light and dark for every component; all three densities too for components whose CSS uses a density token, enforced by `tests/screenshot-coverage.server.test.ts` |
 | Nightly | The browser tests again in Firefox and WebKit |
 
 Releases: `release.yml` re-runs the gate on `main`, then waits for an approver in the
