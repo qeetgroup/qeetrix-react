@@ -38,6 +38,14 @@ jobs:
         with:
           node-version: 24
 
+      - name: no build or test output is committed
+        run: |
+          if tracked=$(git ls-files | grep -E '(^|/)(dist|coverage|snapshots|\.vitest|node_modules)/'); then
+            echo "::error::Generated files are committed — remove them and fix .gitignore:"
+            echo "$tracked"
+            exit 1
+          fi
+
       - run: bun install --frozen-lockfile
       - name: install the compiler-lint tool (TypeScript 6, isolated)
         run: bun install --frozen-lockfile --cwd tools/eslint
