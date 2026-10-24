@@ -1,0 +1,63 @@
+{
+  "name": "@qeetrix/react",
+  "version": "0.0.1",
+  "description": "Qeetrix React components: accessible, token-driven primitives on Base UI for every Qeet product.",
+  "keywords": [
+    "qeetrix",
+    "design-system",
+    "react",
+    "components",
+    "base-ui",
+    "accessibility"
+  ],
+  "license": "MIT",
+  "author": "Qeet Group",
+  "homepage": "https://github.com/qeetgroup/qeetrix-react#readme",
+  "bugs": {
+    "url": "https://github.com/qeetgroup/qeetrix-react/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qeetgroup/qeetrix-react.git",
+    "directory": "packages/react"
+  },
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "style": "./dist/styles.css",
+      "default": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./css/*": "./dist/css/*",
+    "./package.json": "./package.json"
+  },
+  "style": "./dist/styles.css",
+  "scripts": {
+    "build": "tsdown && node scripts/build-css.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "check:package": "publint --strict && attw --pack . --profile esm-only --exclude-entrypoints ./styles.css ./css/*",
+    "prepack": "bun run build"
+  },
+  "peerDependencies": {
+    "@qeetrix/tokens": "^0.0.5",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "devDependencies": {
+    "publint": "^0.3.25",
+    "@arethetypeswrong/cli": "^0.18.5"
+  }
+}

@@ -1,0 +1,8 @@
+# Requests reviewers automatically.
+* @msboffl
+
+# The public API, the styles every Qeet product renders, and the release path.
+/packages/react/src/ @msboffl
+/packages/react/etc/ @msboffl
+/scripts/ @msboffl
+/.github/ @msboffl

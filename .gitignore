@@ -1,0 +1,28 @@
+# Dependencies
+node_modules
+
+# Build output — dist/ is the only build directory
+dist
+*.tsbuildinfo
+
+# Packed tarballs (`npm pack`, attw --pack)
+*.tgz
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.DS_Store
+.idea
+.vscode/*
+*.local
+
+# Claude agent run logs
+.claude/logs/
+
+# Test artefacts
+coverage
+packages/react/tests/__screenshots__/**/*-actual.png
+packages/react/tests/__screenshots__/**/*-diff.png
+.vitest-attachments

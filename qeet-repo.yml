@@ -1,0 +1,68 @@
+# qeetrix-react — repository context metadata (Level 2).
+# Inherits qeetgroup/qeet-context (L0). The Qeetrix product context (L1) does not exist yet.
+
+schema_version: 1
+
+context: {type: repository, level: L2, canonical: true, last_verified: "2026-10-25"}
+
+inheritance:
+  organization: {repository: qeetgroup/qeet-context, level: L0}
+  product:      null          # Qeetrix L1 context is planned
+
+repository:
+  name: qeetrix-react
+  product: qeetrix
+  type: library
+  role: primary
+  status: development         # Phase 3, engineering platform
+  visibility: public
+  default_branch: main
+  production_branch: main
+  successor_of: qeetrix-ui
+
+workspace:
+  manager: bun@1.3.14
+  packages:
+    - {path: packages/react, name: "@qeetrix/react", role: core}
+  heavy_packages: "only after owner approval (D-03)"
+
+package:
+  name: "@qeetrix/react"
+  version_source: packages/react/package.json
+  registry: registry.npmjs.org
+  access: public
+  license: MIT
+  module: esm-only
+  side_effects: ["**/*.css"]
+  peers: {react: "^19.2.0", react-dom: "^19.2.0", "@qeetrix/tokens": "^0.0.5"}
+  exports:
+    ".": {style: dist/styles.css, default: dist/index.js}
+    "./styles.css": dist/styles.css            # @layer qx.base, qx.components
+    "./css/*": dist/css/*                      # one file per family
+
+architecture:
+  decisions: qeetgroup/qeetrix-files → qeetrix-react/03-decisions.md
+  design_rules: qeetgroup/qeetrix-files → qeetrix-react/05-design-rules.md
+  component_specs: qeetgroup/qeetrix-files → qeetrix-react/06-component-specs.md
+  layers: [primitive, component, pattern]
+  behaviour: "@base-ui/react"
+  styles: "plain CSS per family → Lightning CSS → cascade layers; tokens only"
+  build: "tsdown unbundled + isolatedDeclarations"
+
+runtime:
+  language: TypeScript 7
+  react: "^19.2.0"
+  node: ">=22"
+
+commands:
+  install: bun install
+  build: bun run build
+  typecheck: bun run typecheck
+  lint: bun run lint
+  format: bun run format
+  test: bun run test
+  package_checks: bun run check:package
+
+llm_context:
+  primary_instructions: AGENTS.md
+  adapters: [CLAUDE.md, GEMINI.md, .github/copilot-instructions.md]
