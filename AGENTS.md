@@ -33,17 +33,46 @@ The plan, the design language and the architecture are in `qeetgroup/qeetrix-fil
 ## Commands
 
 ```bash
-bun install
+bun install                                   # use Bun 1.3.14: npx -y bun@1.3.14 install
+bun install --cwd tools/eslint                # the compiler-lint tool (its own TypeScript 6)
+bun x playwright install chromium             # once, for the browser tests
+
 bun run build          # tsdown (JS + .d.ts, one file per module) → Lightning CSS (dist/styles.css, dist/css/*)
 bun run typecheck      # tsc 7, strict, isolatedDeclarations
 bun run lint           # Biome
+bun run lint:compiler  # React Compiler and hooks rules (ESLint, from tools/eslint)
 bun run format         # Biome, writing fixes
-bun run test           # Vitest
-bun run check:package  # publint + Are the Types Wrong? on the packed tarball
+bun run test           # Vitest: real Chromium (*.test.tsx) + Node (*.server.test.ts[x])
+bun run test:coverage  # the same, with the coverage floor
+bun run check          # source rules, built-output rules, API report, publint + attw
+bun run --filter '@qeetrix/react' api   # update etc/react.api.md after an intended API change
 ```
 
-**Use Bun 1.3.14 for `bun install`** (`npx -y bun@1.3.14 install`). A newer Bun writes a lockfile
-version that CI's pinned Bun cannot read.
+A newer Bun writes a lockfile version that CI's pinned Bun 1.3.14 can't read.
+
+## What CI enforces
+
+Every pull request and push runs `.github/workflows/ci.yml`. Each gate is itself proven to fail on a
+deliberately broken example by `tests/gates.server.test.ts`, which runs on every CI run.
+
+| Gate | Catches |
+|---|---|
+| Build | tsdown and Lightning CSS errors; CSS that doesn't parse for the browser baseline |
+| Typecheck | Type errors; exports without explicit types (`isolatedDeclarations`) |
+| Biome | Lint and formatting |
+| Compiler lint | Code the React Compiler can't optimise, e.g. reading a ref during render |
+| Source check | A client module without `"use client"`; `dangerouslySetInnerHTML`, `Math.random`, `localStorage`; CSS with raw colours, radii, shadows, type, motion or z-index; `!important`; classes without the `qx-` prefix |
+| Built-output check | A lost `"use client"`; uppercase or colliding paths; a family without an export; exports to missing files or JS wildcards; names that shadow browser globals; size budgets (`size-budget.json`) |
+| API report | `etc/react.api.md` out of date with the code |
+| API version | A removed or changed API without a raised minor (`scripts/check-api-version.mjs`) |
+| Package | publint and Are the Types Wrong? on the packed tarball |
+| Tests | Real-browser interaction, keyboard and axe (WCAG A/AA, contrast on); server rendering; coverage floor (90% lines) |
+| Screenshots | Every component in both colour schemes × three densities, compared on Argos (once connected) |
+| Nightly | The browser tests again in Firefox and WebKit |
+
+Releases: `release.yml` re-runs the gate on `main`, then waits for an approver in the
+`npm-publish` environment, then publishes through npm trusted publishing with provenance.
+`codeql.yml` and `scorecard.yml` run security analysis.
 
 ## Layout
 
@@ -54,7 +83,11 @@ packages/react/
   src/styles/base.css     the qx.base layer
   scripts/build-css.mjs   compiles each <family>.css into the qx.components layer
   tsdown.config.ts        JS + declarations, unbundled
-scripts/npm-versions.mjs  next unused patch on npm; release stops on versions npm has burned
+packages/react/tests/      platform tests, the gate self-tests, and support (axe, screenshots, stage)
+packages/react/etc/        react.api.md, the public-API report
+scripts/npm-versions.mjs   next unused patch on npm; release stops on versions npm has burned
+scripts/check-api-version.mjs   a removed or changed API needs a raised minor
+tools/eslint/              the isolated compiler-lint tool (TypeScript 6 for typescript-eslint)
 ```
 
 ## Rules

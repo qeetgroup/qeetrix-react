@@ -26,3 +26,6 @@ coverage
 packages/react/tests/__screenshots__/**/*-actual.png
 packages/react/tests/__screenshots__/**/*-diff.png
 .vitest-attachments
+
+# Argos screenshots (uploaded from CI, never committed)
+packages/*/snapshots

@@ -15,7 +15,10 @@
 import { readFileSync } from "node:fs";
 
 const REGISTRY = (process.env.NPM_REGISTRY || "https://registry.npmjs.org").replace(/\/$/, "");
-const { name } = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+// The published package, not the private workspace root.
+const { name } = JSON.parse(
+  readFileSync(new URL("../packages/react/package.json", import.meta.url), "utf8"),
+);
 
 /** Every version npm has accepted for `name` — live, deprecated or unpublished — and the live ones. */
 export async function versionsOf(pkg = name) {

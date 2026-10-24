@@ -1,0 +1,12 @@
+{
+  "name": "qeetrix-react-eslint",
+  "private": true,
+  "type": "module",
+  "description": "React Compiler and hooks rules only (decision D-14). Isolated because typescript-eslint needs TypeScript's JavaScript API, which TypeScript 7 does not have; this folder pins TypeScript 6 for the parser alone.",
+  "devDependencies": {
+    "eslint": "^10.13.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.72.0"
+  }
+}

@@ -44,6 +44,12 @@
     "build": "tsdown && node scripts/build-css.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "api": "api-extractor run --local",
+    "check": "bun run check:source && bun run check:dist && bun run check:api && bun run check:package",
+    "check:source": "node scripts/check-source.mjs",
+    "check:dist": "node scripts/check-dist.mjs",
+    "check:api": "api-extractor run",
     "check:package": "publint --strict && attw --pack . --profile esm-only --exclude-entrypoints ./styles.css ./css/*",
     "prepack": "bun run build"
   },
