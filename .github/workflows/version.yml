@@ -27,6 +27,7 @@ jobs:
       github.actor != 'github-actions[bot]'
     permissions:
       contents: write
+      actions: write # start CI on the bumped commit (see the last step)
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -34,6 +35,7 @@ jobs:
           fetch-depth: 0
 
       - name: bump the patch version unless it is already raised
+        id: bump
         env:
           BASE: ${{ github.base_ref }}
           NPM_REGISTRY: ${{ vars.QEETRIX_NPM_REGISTRY }}
@@ -81,3 +83,13 @@ jobs:
           git add "$PKG"
           git commit -m "chore: bump version to $next"
           git push origin "HEAD:${{ github.head_ref }}"
+          echo "bumped=true" >> "$GITHUB_OUTPUT"
+
+      # GitHub holds pull_request runs on a commit pushed by this workflow ("action required"), and
+      # main requires CI on the PR's latest commit. A run started explicitly is not held, so start
+      # CI on the bumped commit: its "Verify" result is what branch protection checks.
+      - name: run CI on the bumped commit
+        if: steps.bump.outputs.bumped == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run ci.yml --ref "${{ github.head_ref }}" --repo "${{ github.repository }}"
