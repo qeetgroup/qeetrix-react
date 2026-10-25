@@ -11,12 +11,15 @@
  *   - no dangerouslySetInnerHTML, Math.random or localStorage.
  * CSS (src/<family>/<family>.css)
  *   - colours, corners, shadows, type, motion and stacking come from var(--qx-*) tokens;
+ *   - every var(--qx-*) names a token in the installed @qeetrix/tokens, or a property declared
+ *     in the package's own CSS (so a token from a newer tokens release can't ship unresolved);
  *   - no raw colour literals, no !important;
  *   - CSS system colours only inside @media (forced-colors: active), where they're the palette;
  *   - logical properties only (right-to-left, D-13): no margin-left, left, text-align: right…;
  *   - every class selector starts with qx-.
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
+import { createRequire } from "node:module";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -148,8 +151,35 @@ function checkDeclarations(file, css, forced) {
   }
 }
 
-for (const file of files.filter((f) => f.endsWith(".css"))) {
-  const css = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+// The custom properties a var() may name: the installed tokens, and those the package declares.
+const tokensCss = createRequire(import.meta.url).resolve("@qeetrix/tokens/tokens.css");
+const tokensVersion = JSON.parse(
+  readFileSync(join(tokensCss, "..", "..", "package.json"), "utf8"),
+).version;
+const stylesheets = files
+  .filter((f) => f.endsWith(".css"))
+  .map((file) => [file, readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "")]);
+const known = new Set(
+  [readFileSync(tokensCss, "utf8"), ...stylesheets.map(([, css]) => css)].flatMap((css) =>
+    [...css.matchAll(/(--qx-[a-z0-9-]+)\s*:/g)].map((m) => m[1]),
+  ),
+);
+// Components also set properties inline: `{ "--qx-text-lines": n }`, or `--qx-grid-${size}`.
+const modules = files
+  .filter((f) => /\.tsx?$/.test(f) && !isTest(f))
+  .map((f) => readFileSync(f, "utf8"));
+for (const code of modules)
+  for (const [, name] of code.matchAll(/["'](--qx-[a-z0-9-]+)["']/g)) known.add(name);
+const prefixes = modules.flatMap((code) =>
+  [...code.matchAll(/`(--qx-[a-z0-9-]*)\$\{/g)].map((m) => m[1]),
+);
+const isKnown = (name) => known.has(name) || prefixes.some((prefix) => name.startsWith(prefix));
+
+for (const [file, css] of stylesheets) {
+  for (const [, name] of css.matchAll(/var\((--qx-[a-z0-9-]+)/g)) {
+    if (!isKnown(name))
+      report(file, `var(${name}) — not in @qeetrix/tokens ${tokensVersion}, nor declared here`);
+  }
   if (/!important/.test(css)) report(file, "uses !important");
   const { outside, inside } = splitForced(css);
   checkDeclarations(file, outside, false);
