@@ -16,6 +16,12 @@ Tier 1 of the design-system gap review (07-components.md, "Gap review"), from
   Arrow keys step, Shift or Page Up/Down by ten; `min`/`max` stop the steppers. It formats for the
   locale (en-IN groups in lakhs: 1,28,400) and takes `format` for currency or percent. Strings,
   including its spoken role description, in English and Hindi.
+- **`Form` and `ErrorSummary`:** forms on Base UI's Form. Fields validate on submit (or on blur or
+  change), server errors arrive through `errors` keyed by each Field's `name`, and `onFormSubmit`
+  runs only when everything is valid. Fields stand `space.form-gap` apart. A failed submit, or
+  server errors, put an ErrorSummary at the top (GOV.UK's pattern): the danger Alert titled "Fix
+  these to continue", each problem worded as the field's own error and linking to its control, and
+  focus moves to it. `ErrorSummary` is exported on its own too. Strings in English and Hindi.
 - **Form consistency:** the test that every field shares its edges and height now includes
   Combobox and NumberField, and the form's main button carries its trailing arrow (as does the
   two-step sign-in's Verify).

@@ -42,6 +42,7 @@ export const messages = {
   },
   otpInput: { character: "Character {index} of {length}" },
   numberField: { increment: "Increase", decrement: "Decrease", roleDescription: "Number field" },
+  errorSummary: { title: "Fix these to continue" },
   combobox: {
     empty: "No matches",
     clear: "Clear",

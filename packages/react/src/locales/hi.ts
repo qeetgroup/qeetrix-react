@@ -45,6 +45,7 @@ export const hi: QeetrixMessages = {
   },
   otpInput: { character: "{length} में से अक्षर {index}" },
   numberField: { increment: "बढ़ाएँ", decrement: "घटाएँ", roleDescription: "संख्या फ़ील्ड" },
+  errorSummary: { title: "जारी रखने के लिए इन्हें ठीक करें" },
   combobox: {
     empty: "कोई मिलान नहीं",
     clear: "साफ़ करें",

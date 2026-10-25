@@ -15,6 +15,8 @@ import {
   Combobox,
   CopyButton,
   EmptyState,
+  ErrorSummary,
+  Form,
   NumberField,
   OTPInput,
   PasswordInput,
@@ -83,6 +85,15 @@ describe("experimental components on the server", () => {
     const out = html(<NumberField aria-label="Users" defaultValue={128400} locale="en-IN" />);
     expect(out).toContain('value="1,28,400"');
     expect(out).toContain('aria-roledescription="Number field"');
+  });
+
+  it("Form and ErrorSummary render on the server; a form starts with no summary", () => {
+    const form = html(<Form aria-label="Invite">fields</Form>);
+    expect(form).toMatch(/^<form/);
+    expect(form).not.toContain("error-summary");
+    const summary = html(<ErrorSummary items={[{ id: "email", message: "Enter a work email" }]} />);
+    expect(summary).toContain('href="#email"');
+    expect(summary).toContain("Fix these to continue");
   });
 
   it("AppShell renders the wide layout, its landmarks and no drawer", () => {
