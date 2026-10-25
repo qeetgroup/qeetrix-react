@@ -1,5 +1,5 @@
 /* Sidebar (07-components.md, C1 · Ruled): square rows edge to edge on the canvas tone; groups
-   between hairlines under small uppercase labels. The current page gets the 3px Ember bar on its
+   between hairlines under tracked small capitals (typography.label.caps). The current page gets the 3px Ember bar on its
    start edge, a neutral tint, weight 600 and an Ember icon. Icons sit in a fixed 16px column from
    the start edge, so in the 48px rail they're centred without moving. */
 .qx-sidebar {
@@ -58,12 +58,27 @@
 }
 .qx-sidebar-group-label {
   padding: 0 var(--qx-space-inset-lg) 6px;
-  font: var(--qx-typography-label-sm);
-  font-weight: var(--qx-typography-title-sm-font-weight);
+  font: var(--qx-typography-label-caps);
+  letter-spacing: var(--qx-typography-label-caps-letter-spacing);
   font-variation-settings: "GEOM" var(--qx-font-geometry-body);
   color: var(--qx-color-text-subtlest);
   text-transform: uppercase;
   white-space: nowrap;
+  /* Indic scripts have no case, and tracking loosens their conjuncts (design rules §5). */
+  &:is(
+      :lang(hi),
+      :lang(mr),
+      :lang(bn),
+      :lang(gu),
+      :lang(pa),
+      :lang(or),
+      :lang(ta),
+      :lang(te),
+      :lang(kn),
+      :lang(ml)
+    ) {
+    letter-spacing: 0;
+  }
 }
 .qx-sidebar-list {
   margin: 0;

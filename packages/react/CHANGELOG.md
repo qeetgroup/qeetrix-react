@@ -29,7 +29,8 @@ product (07-components.md).
   - links only, one level of nesting, every item in the Tab order;
   - square rows edge to edge with round icons; the current page gets `aria-current`, the 3px Ember
     bar, weight 600 and an Ember (optionally filled) icon;
-  - groups between hairlines under uppercase labels; an optional `title`, `filter` and `footer`;
+  - groups between hairlines under tracked small capitals (`typography.label.caps`; untracked for
+    Indic text, which has no case); an optional `title`, `filter` and `footer`;
   - in the rail, icons stay where they are and labels become tooltips.
 - **`Breadcrumb`, `BreadcrumbItem`:** server-safe; mirrored chevrons; long labels truncate and keep a
   title.
@@ -47,6 +48,11 @@ product (07-components.md).
   - a Button's icon sits in its own zone (the new `button-zone` slot), behind a 1px rule as tall as
     the icon, in the label's colour (design rules §7).
 - **Strings:** new `appShell`, `sidebar`, `breadcrumb` and `dataState` groups, in English and Hindi.
+- **Peer dependency:** `@qeetrix/tokens` `^0.0.7`, for `typography.label.caps`. Since tokens 0.0.6
+  the stylesheet also loads Qeet Sans and Fira Code, so the tests now render in the real typefaces.
+- **Source check:** every `var(--qx-*)` must name a token in the installed `@qeetrix/tokens` or a
+  property the package declares itself, so a token from a newer tokens release can't ship
+  unresolved.
 - **Platform:**
   - the CSS build, the dist check and the screenshot coverage test understand
     `src/experimental/<family>/`;

@@ -85,12 +85,29 @@ describe("Sidebar", () => {
     await expect.element(page.getByText("No pages match")).toBeVisible();
   });
 
-  it("labels its groups in small capitals between hairlines", async () => {
+  it("labels its groups in tracked small capitals between hairlines", async () => {
     await render(<PayNav />);
     const label = page.getByText("Money").element();
     expect(getComputedStyle(label).textTransform).toBe("uppercase");
+    expect(getComputedStyle(label).letterSpacing).toBe("0.66px");
+    expect(getComputedStyle(label).fontSize).toBe("11px");
     const group = label.closest("[data-slot=sidebar-group]") as HTMLElement;
     expect(getComputedStyle(group).borderTopWidth).toBe("1px");
+  });
+
+  it("drops the tracking for Indic text, whose conjuncts it would loosen", async () => {
+    await render(
+      <div lang="hi">
+        <Sidebar label="Qeet Pay">
+          <SidebarGroup label="भुगतान">
+            <SidebarItem label="भुगतान सूची" href="#payments" />
+          </SidebarGroup>
+        </Sidebar>
+      </div>,
+    );
+    expect(getComputedStyle(page.getByText("भुगतान", { exact: true }).element()).letterSpacing).toBe(
+      "normal",
+    );
   });
 
   it("becomes a 48px rail in a collapsed AppShell: icons stay put and keep their names", async () => {
