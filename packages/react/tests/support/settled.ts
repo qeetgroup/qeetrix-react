@@ -7,6 +7,7 @@ export async function settled(): Promise<void> {
     document
       .getAnimations()
       .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity)
-      .map((animation) => animation.finished),
+      // A cancelled animation (its element re-rendered or removed) rejects; it's settled too.
+      .map((animation) => animation.finished.catch(() => undefined)),
   );
 }

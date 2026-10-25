@@ -159,6 +159,73 @@ formatRelativeTime(updatedAt, "en-IN", now); // "2 minutes ago"
 Every primitive also works in Windows High Contrast (forced colours) and under reduced motion. Tests
 emulate both.
 
+## Experimental: the console frame
+
+Components and patterns in their first product ship from `@qeetrix/react/experimental`. They may
+change in a patch release until they're Ready.
+
+```tsx
+import {
+  AppShell, PageContent, PageHeader, Sidebar, SidebarGroup, SidebarItem, Stat, StatGroup,
+  TopBar, TopBarSearch, TopBarSwitcher,
+} from "@qeetrix/react/experimental";
+import { Menu, MenuContent, MenuItem, MenuTrigger } from "@qeetrix/react";
+
+<AppShell
+  topBar={
+    <TopBar
+      logo={<QeetLogo variant="dark" height={20} />}
+      product="Qeet ID"
+      context={
+        <>
+          <Menu>
+            <MenuTrigger render={<TopBarSwitcher mark="AC" label="Acme Pvt Ltd" />} />
+            <MenuContent>{organisations}</MenuContent>
+          </Menu>
+          <TopBarSwitcher status="success" label="Production" />
+        </>
+      }
+      search={<TopBarSearch placeholder="Search or jump to…" shortcut={["⌘", "K"]} onClick={openPalette} />}
+      account={accountMenu}
+    />
+  }
+  sidebar={
+    <Sidebar label="Qeet ID">
+      <SidebarGroup label="Directory">
+        <SidebarItem label="Users" icon={UsersIcon} current render={<Link to="/users" />} />
+      </SidebarGroup>
+    </Sidebar>
+  }
+  drawers={[{ id: "help", label: "Help", icon: CircleQuestionMarkIcon, content: help }]}
+>
+  <PageHeader
+    title="Users"
+    actions={<Button icon={PlusIcon}>Invite users</Button>}
+    summary={
+      <StatGroup>
+        <Stat label="Total users" value={1284} note="+38 this week" tone="positive" trend={weekly} />
+      </StatGroup>
+    }
+  />
+  <PageContent>{table}</PageContent>
+</AppShell>
+```
+
+The bar is black in light and dark, topped by a 2px Ember line; the navigation collapses to a 48px
+rail that expands while hovered. Also there: `Breadcrumb`, `EmptyState` and `DataState` (loading,
+error, empty, content), and the secure-entry parts:
+
+```tsx
+<Alert tone="warning" title="Copy this client secret now">It can't be shown again.</Alert>
+<Field label="Client secret">
+  <PasswordInput readOnly autoComplete="off" defaultValue={secret}
+    endAdornment={<CopyButton value={secret} label="Copy client secret" size="sm" />} />
+</Field>
+<Field label="Verification code"><OTPInput size="lg" onValueComplete={verify} /></Field>
+```
+ Colour-scheme switching lives in `QeetrixProvider`
+(`defaultColorScheme="system"`, `useColorScheme()`).
+
 ## Overlays
 
 Overlays share one shape: a root that holds the state, a trigger that renders your control, and a

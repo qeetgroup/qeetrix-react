@@ -10,7 +10,7 @@
         "@biomejs/biome": "2.6.3",
         "@microsoft/api-extractor": "^7.59.4",
         "@qeetrix/icons": "^1.0.12",
-        "@qeetrix/tokens": "^0.0.5",
+        "@qeetrix/tokens": "^0.0.7",
         "@types/node": "^26.6.5",
         "@types/react": "^19.3.0",
         "@types/react-dom": "^19.3.0",
@@ -40,7 +40,7 @@
       },
       "peerDependencies": {
         "@base-ui/react": "^1.9.0",
-        "@qeetrix/tokens": "^0.0.5",
+        "@qeetrix/tokens": "^0.0.7",
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
       },
@@ -205,7 +205,7 @@
 
     "@qeetrix/react": ["@qeetrix/react@workspace:packages/react"],
 
-    "@qeetrix/tokens": ["@qeetrix/tokens@0.0.5", "", {}, "sha512-Adl00NmhKbzWa+QvLa30gk5Bmuq8pKJLY3iPc/Mh2LqnvvgotsvXdKhk0UTyn/V4H0CkhIekyrTRHpDvcSRnyg=="],
+    "@qeetrix/tokens": ["@qeetrix/tokens@0.0.7", "", {}, "sha512-0NX7XZOQgvKbN4jxRt1tic8oHtGEPHP2G8x7EGPz5jqx9MqXjJ6bqGTXzfEOrdYBbVgXwVsCiqZpvBW19NMCmg=="],
 
     "@quansync/fs": ["@quansync/fs@1.1.0", "", { "dependencies": { "quansync": "^1.0.0" } }, "sha512-qAPG/t3HqML1TlN7sY/pTbEjzFVAKsMjNNMGheyDosro+kT4iw2KCUoHcVdmliwWjorm4elZbgNQyU2eD97eDg=="],
 

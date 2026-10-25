@@ -1,0 +1,76 @@
+/* OTPInput (07-components.md, C2): one Input box per character, filled with a bottom line and 4px
+   top corners, the character centred in tabular figures. Like every field it spans its container,
+   so its edges line up with the fields, alerts and buttons around it; the slots share the width,
+   and at `md` each is as tall as an Input. Focus is the 2px Ember frame inside the slot; an invalid
+   code frames every slot in the danger colour. */
+.qx-otp-input {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  inline-size: 100%;
+}
+.qx-otp-input-slot {
+  flex: 1 1 0;
+  min-inline-size: var(--qx-size-control-lg);
+  inline-size: 0;
+  block-size: var(--qx-size-control-lg);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-start-start-radius: var(--qx-radius-control);
+  border-start-end-radius: var(--qx-radius-control);
+  background: var(--qx-color-bg-neutral-subtle);
+  box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-strong);
+  color: var(--qx-color-text-default);
+  caret-color: var(--qx-color-border-focus);
+  font: var(--qx-typography-title-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  transition-property: background-color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &:hover {
+    background: var(--qx-color-bg-neutral-subtle-hover);
+  }
+  &:focus {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+    box-shadow: none;
+  }
+  &[data-invalid] {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-danger);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+    box-shadow: none;
+  }
+  &:disabled {
+    background: var(--qx-color-bg-disabled);
+    box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-disabled);
+    color: var(--qx-color-text-disabled);
+    cursor: not-allowed;
+  }
+  &::placeholder {
+    color: var(--qx-color-text-subtlest);
+    opacity: 1;
+  }
+  [data-size="lg"] > & {
+    block-size: calc(var(--qx-size-control-lg) + 16px);
+    font: var(--qx-typography-title-lg);
+  }
+}
+.qx-otp-input-separator {
+  flex: none;
+  inline-size: var(--qx-space-gap-sm);
+  block-size: var(--qx-border-width-strong);
+  background: var(--qx-color-border-strong);
+}
+
+@media (forced-colors: active) {
+  .qx-otp-input-slot {
+    border: var(--qx-border-width-default) solid CanvasText;
+  }
+  .qx-otp-input-separator {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+}

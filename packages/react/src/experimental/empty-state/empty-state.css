@@ -1,0 +1,49 @@
+/* EmptyState and DataState (07-components.md, C1): centred, at most 480px wide. */
+.qx-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  max-inline-size: 480px;
+  margin-inline: auto;
+  padding: var(--qx-space-layout-lg) var(--qx-space-inset-lg);
+  color: var(--qx-color-text-default);
+  text-align: center;
+  &[data-size="section"] {
+    padding: var(--qx-space-inset-xl) var(--qx-space-inset-lg);
+  }
+}
+.qx-empty-state-icon {
+  flex: none;
+  margin-block-end: var(--qx-space-gap-xs);
+  color: var(--qx-color-icon-subtle);
+  [data-tone="danger"] > & {
+    color: var(--qx-color-icon-danger);
+  }
+}
+.qx-empty-state-title {
+  margin: 0;
+  font: var(--qx-typography-title-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+  [data-size="section"] > & {
+    font: var(--qx-typography-title-sm);
+  }
+}
+.qx-empty-state-description {
+  margin: 0;
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+}
+.qx-empty-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--qx-space-gap-sm);
+  margin-block-start: var(--qx-space-gap-sm);
+}
+.qx-data-state {
+  display: grid;
+  place-items: center;
+  padding: var(--qx-space-layout-lg);
+}

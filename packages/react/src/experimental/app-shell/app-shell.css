@@ -1,0 +1,242 @@
+/* AppShell (07-components.md, C1 · Ruled): the black scope bar across the full width, then the
+   navigation column on the canvas tone, the page on the default surface, and the end-edge panel
+   when one is open. Every seam is a 1px rule; nothing in the flow casts a shadow. The page scrolls;
+   the bar, the navigation and the panel stay put. */
+.qx-app-shell {
+  --qx-app-shell-top: calc(var(--qx-size-control-lg) + 16px);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-block-size: 100dvh;
+  background: var(--qx-color-surface-default);
+  color: var(--qx-color-text-default);
+}
+.qx-app-shell-top {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--qx-z-sticky);
+  grid-column: 1 / -1;
+}
+
+/* The navigation column. Collapsed, it's the 48px rail; hovered or focused, its panel expands over
+   the page while the column keeps its place. Items keep their x position either way. */
+.qx-app-shell-nav {
+  position: sticky;
+  inset-block-start: var(--qx-app-shell-top);
+  z-index: calc(var(--qx-z-sticky) - 1);
+  grid-column: 1;
+  grid-row: 2;
+  block-size: calc(100dvh - var(--qx-app-shell-top));
+  inline-size: var(--qx-component-sidebar-width-expanded);
+  transition-property: inline-size;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  .qx-app-shell[data-collapsed] > & {
+    inline-size: var(--qx-component-sidebar-width-collapsed);
+  }
+}
+.qx-app-shell-nav-panel {
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: hidden;
+  border-inline-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  background: var(--qx-color-surface-canvas);
+  [data-peek] > & {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: var(--qx-component-sidebar-width-expanded);
+    box-shadow: var(--qx-shadow-overlay);
+  }
+}
+.qx-app-shell-nav-body {
+  flex: 1;
+  min-block-size: 0;
+}
+.qx-app-shell-nav-foot {
+  flex: none;
+  border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+}
+/* The collapse control is a row like the sidebar's items: same height, same icon column. */
+.qx-app-shell-collapse {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  inline-size: 100%;
+  block-size: var(--qx-size-control-lg);
+  padding-inline: var(--qx-space-inset-lg);
+  border: 0;
+  background: transparent;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-label-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  white-space: nowrap;
+  cursor: pointer;
+  transition-property: background-color, color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &:hover {
+    background: var(--qx-color-overlay-hover);
+    color: var(--qx-color-text-default);
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+}
+.qx-app-shell-collapse-icon {
+  flex: none;
+  color: var(--qx-color-icon-subtle);
+}
+/* The panel icons point toward the navigation, so they mirror with it. */
+[dir="rtl"] .qx-app-shell-collapse-icon {
+  scale: -1 1;
+}
+.qx-app-shell[data-collapsed] .qx-app-shell-nav:not([data-peek]) .qx-app-shell-collapse-label {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.qx-app-shell-main {
+  grid-column: 2;
+  grid-row: 2;
+  min-inline-size: 0;
+  outline: 0;
+}
+.qx-app-shell-notifications {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qx-space-gap-sm);
+  padding: var(--qx-space-inset-lg) var(--qx-space-layout-md) 0;
+}
+
+/* The end-edge panel, opened from the bar's tools: it pushes the page on large windows. */
+.qx-app-shell-panel {
+  position: sticky;
+  inset-block-start: var(--qx-app-shell-top);
+  z-index: calc(var(--qx-z-sticky) - 1);
+  display: flex;
+  flex-direction: column;
+  grid-column: 3;
+  grid-row: 2;
+  inline-size: 320px;
+  block-size: calc(100dvh - var(--qx-app-shell-top));
+  border-inline-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  background: var(--qx-color-surface-default);
+}
+.qx-app-shell-panel-header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--qx-space-gap-sm);
+  block-size: calc(var(--qx-size-control-lg) + 8px);
+  padding-inline: var(--qx-space-inset-lg) var(--qx-space-inset-sm);
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  background: var(--qx-color-surface-canvas);
+}
+.qx-app-shell-panel-title {
+  margin: 0;
+  font: var(--qx-typography-label-md);
+  font-weight: var(--qx-typography-title-sm-font-weight);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+}
+.qx-app-shell-panel-body {
+  flex: 1;
+  min-block-size: 0;
+  overflow-y: auto;
+  padding: var(--qx-space-inset-lg);
+}
+
+/* Below the large window class, the panel overlays the page instead of pushing it. */
+@media (width < 1200px) {
+  .qx-app-shell-panel {
+    position: fixed;
+    inset-block: var(--qx-app-shell-top) 0;
+    inset-inline-end: 0;
+    block-size: auto;
+    box-shadow: var(--qx-shadow-overlay);
+  }
+}
+
+/* Narrow: one column. The navigation opens from the bar's menu button. */
+@media (width < 840px) {
+  .qx-app-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .qx-app-shell-nav {
+    display: none;
+  }
+  .qx-app-shell-main {
+    grid-column: 1;
+  }
+  .qx-app-shell-panel {
+    inline-size: min(320px, 100vw);
+  }
+  .qx-app-shell-notifications {
+    padding-inline: var(--qx-space-inset-lg);
+  }
+}
+
+/* The narrow-screen navigation drawer. */
+.qx-app-shell-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--qx-z-overlay);
+  background: var(--qx-color-overlay-scrim);
+  transition-property: opacity;
+  transition-duration: var(--qx-motion-duration-slow);
+  transition-timing-function: var(--qx-motion-easing-enter);
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+}
+.qx-app-shell-viewport {
+  position: fixed;
+  inset: 0;
+  z-index: var(--qx-z-modal);
+  display: flex;
+  justify-content: flex-start;
+}
+.qx-app-shell-drawer {
+  inline-size: min(var(--qx-component-sidebar-width-mobile), 100vw - 48px);
+  block-size: 100%;
+  background: var(--qx-color-surface-canvas);
+  box-shadow: var(--qx-shadow-modal);
+  outline: 0;
+  transform: translateX(var(--drawer-swipe-movement-x, 0px));
+  transition-property: transform;
+  transition-duration: var(--qx-motion-duration-slow);
+  transition-timing-function: var(--qx-motion-easing-enter);
+  &[data-swipe-direction="left"]:is([data-starting-style], [data-ending-style]) {
+    transform: translateX(-100%);
+  }
+  &[data-swipe-direction="right"]:is([data-starting-style], [data-ending-style]) {
+    transform: translateX(100%);
+  }
+  &[data-swiping] {
+    transition: none;
+  }
+  &[data-ending-style] {
+    transition-duration: var(--qx-motion-duration-normal);
+    transition-timing-function: var(--qx-motion-easing-exit);
+  }
+}
+
+@media (forced-colors: active) {
+  .qx-app-shell-nav-panel,
+  .qx-app-shell-nav-foot,
+  .qx-app-shell-panel,
+  .qx-app-shell-panel-header {
+    border-color: CanvasText;
+  }
+  .qx-app-shell-drawer {
+    border-inline-end: var(--qx-border-width-default) solid CanvasText;
+  }
+}

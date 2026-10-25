@@ -11,6 +11,36 @@ export const messages = {
   overlay: { close: "Close" },
   toast: { close: "Dismiss", region: "Notifications" },
   slider: { minimum: "Minimum", maximum: "Maximum" },
+  appShell: {
+    collapse: "Collapse",
+    expand: "Expand",
+    open: "Open navigation",
+    navigation: "Navigation",
+    tools: "Tools",
+    closePanel: "Close panel",
+  },
+  sidebar: { filter: "Filter navigation", noMatches: "No pages match" },
+  breadcrumb: { label: "Breadcrumb" },
+  dataState: {
+    errorTitle: "Couldn't load this",
+    errorDescription: "Try again, or check your connection.",
+    retry: "Try again",
+  },
+  copyButton: { copy: "Copy", copied: "Copied", failed: "Couldn't copy" },
+  alert: {
+    dismiss: "Dismiss",
+    info: "Information",
+    success: "Success",
+    warning: "Warning",
+    danger: "Error",
+  },
+  passwordInput: {
+    show: "Show password",
+    shown: "Password shown",
+    hidden: "Password hidden",
+    capsLock: "Caps Lock is on",
+  },
+  otpInput: { character: "Character {index} of {length}" },
 } as const;
 
 /** The complete catalogue, as a locale pack provides it. */

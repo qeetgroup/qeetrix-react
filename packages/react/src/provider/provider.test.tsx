@@ -1,13 +1,23 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
+import { canEmulateMedia, emulateMedia } from "../../tests/support/media";
 import { Dialog, DialogContent } from "../dialog/dialog";
 import { Field } from "../field/field";
 import { Input } from "../input/input";
 import { hi } from "../locales/hi";
 import { Slider } from "../slider/slider";
 import { ToastProvider } from "../toast/toast";
-import { QeetrixProvider, useLocale } from "./provider";
+import { QeetrixProvider, useColorScheme, useLocale } from "./provider";
+
+function SchemeSwitch() {
+  const { colorScheme, resolvedColorScheme, setColorScheme } = useColorScheme();
+  return (
+    <button type="button" onClick={() => setColorScheme("dark")}>
+      {colorScheme}/{resolvedColorScheme}
+    </button>
+  );
+}
 
 function Locale() {
   return <output>{useLocale()}</output>;
@@ -80,5 +90,48 @@ describe("QeetrixProvider", () => {
   it("defaults to English and en-IN with no provider", async () => {
     await render(<Locale />);
     await expect.element(page.getByRole("status")).toHaveTextContent("en-IN");
+  });
+});
+
+describe("colour scheme", () => {
+  const html = document.documentElement;
+  let reset: (() => Promise<void>) | undefined;
+  afterEach(async () => {
+    await reset?.();
+    reset = undefined;
+    delete html.dataset.qxColorScheme;
+  });
+
+  it("writes the chosen scheme to <html> and reports changes for the product to persist", async () => {
+    const onColorSchemeChange = vi.fn();
+    await render(
+      <QeetrixProvider defaultColorScheme="light" onColorSchemeChange={onColorSchemeChange}>
+        <SchemeSwitch />
+      </QeetrixProvider>,
+    );
+    await expect.poll(() => html.dataset.qxColorScheme).toBe("light");
+    await page.getByRole("button", { name: "light/light" }).click();
+    await expect.poll(() => html.dataset.qxColorScheme).toBe("dark");
+    expect(onColorSchemeChange).toHaveBeenLastCalledWith("dark");
+  });
+
+  it.runIf(canEmulateMedia)("follows the operating system while it's system", async () => {
+    reset = await emulateMedia({ "prefers-color-scheme": "dark" });
+    await render(
+      <QeetrixProvider defaultColorScheme="system">
+        <SchemeSwitch />
+      </QeetrixProvider>,
+    );
+    await expect.poll(() => html.dataset.qxColorScheme).toBe("dark");
+    await expect.element(page.getByRole("button", { name: "system/dark" })).toBeVisible();
+  });
+
+  it("leaves <html> alone when no provider manages the scheme", async () => {
+    await render(
+      <QeetrixProvider locale="hi-IN">
+        <Locale />
+      </QeetrixProvider>,
+    );
+    expect(html.dataset.qxColorScheme).toBeUndefined();
   });
 });
