@@ -8,9 +8,14 @@ import { settled } from "./settled";
  */
 export async function expectAccessible(element: Element): Promise<void> {
   await settled();
-  const result = await axe.run(element, {
-    runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] },
-  });
+  // Base UI's focus guards are aria-hidden on purpose: they pass focus on the moment it lands, so
+  // nothing ever rests on them. axe can't know that.
+  const result = await axe.run(
+    { include: [element], exclude: [["[data-base-ui-focus-guard]"]] },
+    {
+      runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] },
+    },
+  );
   if (result.violations.length > 0) {
     const lines = result.violations.map(
       (v) =>

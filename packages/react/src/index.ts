@@ -6,12 +6,13 @@
  *   2. actions: Button, IconButton, Link, Toggle, ToggleGroup, Spinner;
  *   3. form controls: Field, Input, Textarea, TextField, Fieldset, Checkbox, CheckboxGroup, Radio,
  *      RadioGroup, Switch;
- *   4. overlays: Popover, Tooltip, Menu, Dialog, Drawer, Toast.
- * Client components (actions on Base UI, form controls, overlays) carry "use client"; the rest are
- * server-safe.
+ *   4. overlays: Popover, Tooltip, Menu, Dialog, Drawer, Toast;
+ *   5. selection and disclosure: Select, Slider, Tabs, Accordion, Collapsible, ScrollArea.
+ * Client components (everything on Base UI) carry "use client"; the rest are server-safe.
  *
  * @packageDocumentation
  */
+export * from "./accordion";
 export * from "./box";
 export * from "./button";
 export * from "./checkbox";
@@ -30,11 +31,15 @@ export * from "./link";
 export * from "./menu";
 export * from "./popover";
 export * from "./radio";
+export * from "./scroll-area";
+export * from "./select";
 export * from "./separator";
 export * from "./skip-link";
+export * from "./slider";
 export * from "./spinner";
 export * from "./stack";
 export * from "./switch";
+export * from "./tabs";
 export * from "./text";
 export * from "./text-field";
 export * from "./toast";

@@ -1,0 +1,53 @@
+/* ScrollArea (06-component-specs.md, increment 5): 8px scrollbars with a 4px thumb, shown while the
+   region is hovered, scrolling or keyboard-focused, so a keyboard user sees there is more. */
+.qx-scroll-area {
+  position: relative;
+  display: flex;
+  min-inline-size: 0;
+  min-block-size: 0;
+}
+.qx-scroll-area-viewport {
+  flex: 1;
+  min-inline-size: 0;
+  overscroll-behavior: contain;
+  outline: 0;
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+}
+.qx-scroll-area-scrollbar {
+  display: flex;
+  padding: 2px;
+  opacity: 0;
+  transition-property: opacity;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &[data-orientation="vertical"] {
+    inline-size: 8px;
+  }
+  &[data-orientation="horizontal"] {
+    block-size: 8px;
+  }
+  &:is([data-hovering], [data-scrolling]),
+  .qx-scroll-area:has(> .qx-scroll-area-viewport:focus-visible) > & {
+    opacity: 1;
+  }
+}
+.qx-scroll-area-thumb {
+  flex: 1;
+  border-radius: var(--qx-radius-sm);
+  background: var(--qx-color-border-strong);
+  [data-orientation="vertical"] > & {
+    inline-size: 100%;
+    block-size: var(--scroll-area-thumb-height);
+  }
+  [data-orientation="horizontal"] > & {
+    inline-size: var(--scroll-area-thumb-width);
+    block-size: 100%;
+  }
+  &:hover,
+  &:active {
+    background: var(--qx-color-icon-subtle);
+  }
+}

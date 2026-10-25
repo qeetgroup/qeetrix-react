@@ -2,8 +2,8 @@
 
 ## 0.0.2
 
-The foundation primitives (increment 1), the actions (increment 2), the form controls (increment 3)
-and the overlays (increment 4).
+The foundation primitives (increment 1), the actions (increment 2), the form controls (increment 3),
+the overlays (increment 4), and selection and disclosure (increment 5).
 
 ### Foundation
 
@@ -112,12 +112,40 @@ content part that assembles the portal, positioner and popup.
   other text replaces it.
 - **Stacking:** anchored layers use `z.popover`, so a menu opened in a dialog sits above it.
 
+### Selection and disclosure
+
+- **`Select`:**
+  - a field-style trigger with a chevron, and a menu-style list below it;
+  - the chosen option carries an Ember check;
+  - `items` can be flat or grouped, and `multiple` lists the chosen labels;
+  - generic over the value. A Field labels it.
+- **`Tabs`, `TabsList`, `Tab`, `TabsPanel`:**
+  - the 3px Ember bar slides under the selected tab, and `TabsList` draws it;
+  - a selected tab has weight 600 and can fill its icon;
+  - padding is 12px at compact density and 16px otherwise;
+  - `activateOnFocus` is on by default;
+  - vertical tabs carry the line and bar on the start edge.
+- **`Slider`:**
+  - a 4px track, the Ember range, and a 16px square thumb ringed in the surface colour;
+  - `label` and `showValue` with `Intl` formatting;
+  - a range renders one thumb per value, named Minimum and Maximum.
+- **`Accordion`, `AccordionItem`:**
+  - ruled sections with a `title.sm` trigger inside a heading (`headingLevel`), and a turning
+    chevron;
+  - the panel's height animates;
+  - find in page opens a closed section that holds the match.
+- **`Collapsible`, `CollapsibleTrigger`, `CollapsiblePanel`:** one unruled section.
+- **`ScrollArea`:** 8px scrollbars that show on hover, while scrolling and on keyboard focus. The
+  region takes focus when it overflows.
+
 ### Platform
 
 - Each family's stylesheet (`css/<family>.css`) now imports the base layer and the stylesheets of
   the families it renders, so it works on its own.
 - Screenshots wait for transitions to finish, and overlays are captured across the whole viewport.
-  The accessibility check also waits, since contrast measured mid-fade isn't real.
+  The accessibility check also waits, since contrast measured mid-fade isn't real. It skips Base
+  UI's aria-hidden focus guards, which hand focus on the moment it lands.
+- A type-only import between families no longer pulls in the other family's stylesheet.
 
 ## 0.0.1
 

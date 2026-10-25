@@ -1,0 +1,73 @@
+/* Slider (06-component-specs.md, increment 5): a 4px track, the Ember range and a 16px square thumb
+   with 2px corners, ringed in the surface colour so it reads on the range. */
+.qx-slider {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qx-space-gap-xs);
+  min-inline-size: 0;
+}
+.qx-slider-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--qx-space-gap-md);
+}
+/* The label keeps its colour when disabled: it names the slider through aria-labelledby, so it
+   isn't a disabled control's <label>, and must still meet contrast. */
+.qx-slider-label {
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+}
+.qx-slider-value {
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variant-numeric: tabular-nums;
+  color: var(--qx-color-text-default);
+}
+.qx-slider-control {
+  display: flex;
+  align-items: center;
+  block-size: var(--qx-size-target-min);
+  padding-inline: 8px;
+  touch-action: none;
+  user-select: none;
+}
+.qx-slider-track {
+  position: relative;
+  inline-size: 100%;
+  block-size: 4px;
+  background: var(--qx-color-border-default);
+}
+.qx-slider-indicator {
+  block-size: 100%;
+  background: var(--qx-color-bg-brand-bold);
+  [data-disabled] & {
+    background: var(--qx-color-bg-disabled);
+  }
+}
+.qx-slider-thumb {
+  inline-size: 16px;
+  block-size: 16px;
+  border-radius: var(--qx-radius-sm);
+  background: var(--qx-color-bg-brand-bold);
+  box-shadow: 0 0 0 var(--qx-border-width-strong) var(--qx-color-surface-default);
+  cursor: grab;
+  transition-property: background-color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &:hover {
+    background: var(--qx-color-bg-brand-bold-hover);
+  }
+  &[data-dragging] {
+    cursor: grabbing;
+  }
+  &:has(:focus-visible) {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
+  }
+  &[data-disabled] {
+    background: var(--qx-color-icon-disabled);
+    cursor: not-allowed;
+  }
+}

@@ -3,8 +3,8 @@
 The React components of **Qeetrix**, the Qeet Group design system: accessible, token-driven
 primitives built on [Base UI](https://base-ui.com), styled by the Qeetrix design language.
 
-> **Status: 0.0.x, increments 1–4.** The foundation, action, form-control and overlay primitives are
-> here. Selection and display primitives follow in later increments.
+> **Status: 0.0.x, increments 1–5.** The foundation, action, form-control, overlay, and selection and
+> disclosure primitives are here. Display primitives follow in the next increment.
 
 ## Install
 
@@ -56,9 +56,8 @@ export function Invoices() {
 }
 ```
 
-- **Server-safe:** layout, type, `Link` and `Spinner` render in React Server Components. The actions
-  built on Base UI, the form controls and the overlays are client components; their `"use client"`
-  directive ships in the build.
+- **Server-safe:** layout, type, `Link` and `Spinner` render in React Server Components. Everything
+  built on Base UI is a client component; its `"use client"` directive ships in the build.
 - **`render` prop:** renders a different element with the same props, e.g. `render={<section />}`.
 - **Per-component entry points:** `@qeetrix/react/stack`, plus its own stylesheet at
   `@qeetrix/react/css/stack.css` if you'd rather not load the full one. A family's stylesheet brings
@@ -93,6 +92,11 @@ export function Invoices() {
 | `Dialog` | A focused task or decision; `intent="danger"` makes a confirmation only its actions close |
 | `Drawer` | A side panel for details or an edit form, swipeable on touch |
 | `ToastProvider`, `useToast` | Brief notifications with a status edge; errors stay until dismissed |
+| `Select` | One option, or several, from up to about 15; looks like a field, opens like a menu |
+| `Tabs` | Views of one context, with the sliding Ember bar |
+| `Slider` | A number or a range on a scale, with a formatted value |
+| `Accordion`, `Collapsible` | Ruled sections, or one section, that show and hide |
+| `ScrollArea` | A scrolling region with Qeetrix scrollbars |
 
 **Layout:** `className` is for placement only (margin, width, grid placement). Visual changes go
 through props, so every Qeet product looks the same. On a form control, `className` and `style` place

@@ -4,9 +4,11 @@
 
 ```ts
 
+import { Accordion as Accordion_2 } from '@base-ui/react/accordion';
 import { Button as Button_2 } from '@base-ui/react/button';
 import { Checkbox as Checkbox_2 } from '@base-ui/react/checkbox';
 import { CheckboxGroup as CheckboxGroup_2 } from '@base-ui/react/checkbox-group';
+import { Collapsible as Collapsible_2 } from '@base-ui/react/collapsible';
 import { ComponentProps } from 'react';
 import { ComponentType } from 'react';
 import { CSSProperties } from 'react';
@@ -22,10 +24,39 @@ import { Radio as Radio_2 } from '@base-ui/react/radio';
 import { RadioGroup as RadioGroup_2 } from '@base-ui/react/radio-group';
 import { ReactElement } from 'react';
 import { ReactNode } from 'react';
+import { Ref } from 'react';
+import { ScrollArea as ScrollArea_2 } from '@base-ui/react/scroll-area';
+import { Select as Select_2 } from '@base-ui/react/select';
+import { Slider as Slider_2 } from '@base-ui/react/slider';
 import { Switch as Switch_2 } from '@base-ui/react/switch';
+import { Tabs as Tabs_2 } from '@base-ui/react/tabs';
 import { Toggle as Toggle_2 } from '@base-ui/react/toggle';
 import { ToggleGroup as ToggleGroup_2 } from '@base-ui/react/toggle-group';
 import { Tooltip as Tooltip_2 } from '@base-ui/react/tooltip';
+
+// @public
+export function Accordion<Value = string>(input: AccordionProps<Value>): ReactElement;
+
+// @public
+export function AccordionItem(input: AccordionItemProps): ReactElement;
+
+// @public (undocumented)
+export interface AccordionItemProps extends Omit<Accordion_2.Item.Props, "className" | "style" | "title" | "children"> {
+    children?: ReactNode;
+    // (undocumented)
+    className?: string;
+    headingLevel?: Exclude<HeadingLevel, 1>;
+    // (undocumented)
+    style?: CSSProperties;
+    title: ReactNode;
+}
+
+// @public (undocumented)
+export interface AccordionProps<Value = string> extends Omit<Accordion_2.Root.Props<Value>, "className" | "style"> {
+    className?: string;
+    // (undocumented)
+    style?: CSSProperties;
+}
 
 // @public
 export function Box(input: BoxProps): ReactElement;
@@ -106,6 +137,29 @@ export type ChoiceLabelProps = {
 
 // @public
 export type ChoiceOrientation = "vertical" | "horizontal";
+
+// @public
+export function Collapsible(props: CollapsibleProps): ReactElement;
+
+// @public
+export function CollapsiblePanel(input: CollapsiblePanelProps): ReactElement;
+
+// @public (undocumented)
+export interface CollapsiblePanelProps extends Omit<Collapsible_2.Panel.Props, "className" | "style"> {
+    // (undocumented)
+    className?: string;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public (undocumented)
+export type CollapsibleProps = Collapsible_2.Root.Props;
+
+// @public
+export function CollapsibleTrigger(props: CollapsibleTriggerProps): ReactElement;
+
+// @public (undocumented)
+export type CollapsibleTriggerProps = Collapsible_2.Trigger.Props;
 
 // @public
 export type ControlSize = "sm" | "md" | "lg";
@@ -519,6 +573,59 @@ export type RadioProps<Value = string> = RadioOwnProps<Value> & ChoiceLabelProps
 export type RenderProp = ReactElement<Record<string, unknown>>;
 
 // @public
+export function ScrollArea(input: ScrollAreaProps): ReactElement;
+
+// @public (undocumented)
+export type ScrollAreaOrientation = "vertical" | "horizontal" | "both";
+
+// @public (undocumented)
+export interface ScrollAreaProps extends Omit<ScrollArea_2.Root.Props, "className" | "style" | "children"> {
+    // (undocumented)
+    children?: ReactNode;
+    className?: string;
+    orientation?: ScrollAreaOrientation;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+export function Select<Value, Multiple extends boolean | undefined = false>(input: SelectProps<Value, Multiple>): ReactElement;
+
+// @public
+export interface SelectItem<Value> {
+    // (undocumented)
+    disabled?: boolean;
+    // (undocumented)
+    label: ReactNode;
+    // (undocumented)
+    value: Value;
+}
+
+// @public
+export interface SelectItemGroup<Value> {
+    // (undocumented)
+    items: ReadonlyArray<SelectItem<Value>>;
+    // (undocumented)
+    label: ReactNode;
+}
+
+// @public (undocumented)
+export interface SelectProps<Value, Multiple extends boolean | undefined = false> extends Omit<Select_2.Root.Props<Value, Multiple>, "items" | "children" | "id"> {
+    // (undocumented)
+    "aria-describedby"?: string;
+    "aria-label"?: string;
+    // (undocumented)
+    "aria-labelledby"?: string;
+    className?: string;
+    id?: string;
+    items: ReadonlyArray<SelectItem<Value> | SelectItemGroup<Value>>;
+    placeholder?: ReactNode;
+    ref?: Ref<HTMLButtonElement>;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
 export function Separator(input: SeparatorProps): ReactElement;
 
 // @public (undocumented)
@@ -542,6 +649,18 @@ export function SkipLink(input: SkipLinkProps): ReactElement;
 export interface SkipLinkProps extends ComponentProps<"a"> {
     href?: string;
     render?: RenderProp;
+}
+
+// @public
+export function Slider<Value extends number | readonly number[] = number>(input: SliderProps<Value>): ReactElement;
+
+// @public (undocumented)
+export interface SliderProps<Value extends number | readonly number[] = number> extends Omit<Slider_2.Root.Props<Value>, "className" | "style" | "children"> {
+    className?: string;
+    label?: ReactNode;
+    showValue?: boolean;
+    // (undocumented)
+    style?: CSSProperties;
 }
 
 // @public
@@ -585,6 +704,53 @@ export function Switch(input: SwitchProps): ReactElement;
 //
 // @public
 export type SwitchProps = SwitchOwnProps & ChoiceLabelProps;
+
+// @public
+export function Tab(input: TabProps): ReactElement;
+
+// @public (undocumented)
+export interface TabProps extends Omit<Tabs_2.Tab.Props, "className" | "style" | "children"> {
+    children?: ReactNode;
+    // (undocumented)
+    className?: string;
+    filledWhenSelected?: boolean;
+    icon?: QeetrixIcon;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+export function Tabs(input: TabsProps): ReactElement;
+
+// @public
+export function TabsList(input: TabsListProps): ReactElement;
+
+// @public (undocumented)
+export interface TabsListProps extends Omit<Tabs_2.List.Props, "className" | "style"> {
+    activateOnFocus?: boolean;
+    // (undocumented)
+    className?: string;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+export function TabsPanel(input: TabsPanelProps): ReactElement;
+
+// @public (undocumented)
+export interface TabsPanelProps extends Omit<Tabs_2.Panel.Props, "className" | "style"> {
+    // (undocumented)
+    className?: string;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public (undocumented)
+export interface TabsProps extends Omit<Tabs_2.Root.Props, "className" | "style"> {
+    className?: string;
+    // (undocumented)
+    style?: CSSProperties;
+}
 
 // @public
 function Text_2(input: TextProps): ReactElement;

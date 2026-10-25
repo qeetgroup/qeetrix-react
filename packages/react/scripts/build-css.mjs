@@ -63,7 +63,8 @@ const imports = (name) => {
   for (const file of readdirSync(new URL(`${name}/`, SRC))) {
     if (!/\.tsx?$/.test(file) || /\.test\.tsx?$/.test(file)) continue;
     const code = readFileSync(new URL(`${name}/${file}`, SRC), "utf8");
-    for (const [, dep] of code.matchAll(/from\s+["']\.\.\/([a-z-]+)\//g)) {
+    // A type-only import brings no component, so no styles.
+    for (const [, dep] of code.matchAll(/^import (?!type\b)[^;]*?from\s+["']\.\.\/([a-z-]+)\//gm)) {
       if (dep !== name && families.includes(dep)) deps.add(dep);
     }
   }

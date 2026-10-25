@@ -35,6 +35,10 @@
       "style": "./dist/styles.css",
       "default": "./dist/index.js"
     },
+    "./accordion": {
+      "types": "./dist/accordion/index.d.ts",
+      "default": "./dist/accordion/index.js"
+    },
     "./box": {
       "types": "./dist/box/index.d.ts",
       "default": "./dist/box/index.js"
@@ -95,6 +99,14 @@
       "types": "./dist/radio/index.d.ts",
       "default": "./dist/radio/index.js"
     },
+    "./scroll-area": {
+      "types": "./dist/scroll-area/index.d.ts",
+      "default": "./dist/scroll-area/index.js"
+    },
+    "./select": {
+      "types": "./dist/select/index.d.ts",
+      "default": "./dist/select/index.js"
+    },
     "./separator": {
       "types": "./dist/separator/index.d.ts",
       "default": "./dist/separator/index.js"
@@ -102,6 +114,10 @@
     "./skip-link": {
       "types": "./dist/skip-link/index.d.ts",
       "default": "./dist/skip-link/index.js"
+    },
+    "./slider": {
+      "types": "./dist/slider/index.d.ts",
+      "default": "./dist/slider/index.js"
     },
     "./spinner": {
       "types": "./dist/spinner/index.d.ts",
@@ -114,6 +130,10 @@
     "./switch": {
       "types": "./dist/switch/index.d.ts",
       "default": "./dist/switch/index.js"
+    },
+    "./tabs": {
+      "types": "./dist/tabs/index.d.ts",
+      "default": "./dist/tabs/index.js"
     },
     "./text": {
       "types": "./dist/text/index.d.ts",

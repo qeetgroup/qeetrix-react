@@ -1,0 +1,63 @@
+/* Accordion and Collapsible (06-component-specs.md, increment 5): ruled sections; the chevron turns
+   and the panel's height animates when a section opens. */
+.qx-accordion {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+}
+.qx-accordion-item {
+  border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+}
+.qx-accordion-header {
+  margin: 0;
+}
+.qx-accordion-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--qx-space-gap-md);
+  inline-size: 100%;
+  min-block-size: var(--qx-size-control-lg);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-title-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+  text-align: start;
+  cursor: pointer;
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+  &[data-disabled] {
+    color: var(--qx-color-text-disabled);
+    cursor: not-allowed;
+  }
+}
+.qx-accordion-icon {
+  flex: none;
+  color: var(--qx-color-icon-subtle);
+  transition-property: rotate;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  [data-panel-open] > & {
+    rotate: 180deg;
+  }
+}
+.qx-accordion-panel,
+.qx-collapsible-panel {
+  block-size: var(--accordion-panel-height, var(--collapsible-panel-height));
+  overflow: hidden;
+  transition-property: block-size;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &[data-starting-style],
+  &[data-ending-style] {
+    block-size: 0;
+  }
+}
+.qx-accordion-content {
+  padding-block-end: var(--qx-space-inset-lg);
+}

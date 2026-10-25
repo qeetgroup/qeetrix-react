@@ -10,4 +10,5 @@ export const messages = {
   field: { optional: "(optional)" },
   overlay: { close: "Close" },
   toast: { close: "Dismiss", region: "Notifications" },
+  slider: { minimum: "Minimum", maximum: "Maximum" },
 } as const;
