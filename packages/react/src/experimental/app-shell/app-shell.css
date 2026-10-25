@@ -108,6 +108,10 @@
   min-inline-size: 0;
   outline: 0;
 }
+.qx-app-shell-banners {
+  display: flex;
+  flex-direction: column;
+}
 .qx-app-shell-notifications {
   display: flex;
   flex-direction: column;

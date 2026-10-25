@@ -2,7 +2,15 @@
 
 import { Field as BaseField } from "@base-ui/react/field";
 import { Fieldset as BaseFieldset } from "@base-ui/react/fieldset";
-import { type CSSProperties, type ReactElement, type ReactNode, use } from "react";
+import {
+  type Context,
+  type CSSProperties,
+  createContext,
+  type ReactElement,
+  type ReactNode,
+  use,
+} from "react";
+import type { QeetrixIcon } from "../internal/control";
 import { cx } from "../internal/cx";
 import { type FieldMessageProps, FieldMessages, InFieldContext } from "./field";
 
@@ -18,6 +26,15 @@ export type ChoiceLabelProps =
 /** Options stacked (`vertical`) or in a wrapping row (`horizontal`, for short options). */
 export type ChoiceOrientation = "vertical" | "horizontal";
 
+/**
+ * How a group's options look: `default` rows, or `tile`s, larger boxes with an icon, a title and a
+ * line each, the whole tile the click target (Add an application: choose its type).
+ */
+export type ChoiceVariant = "default" | "tile";
+
+/** The look of the options in the enclosing group. */
+export const ChoiceVariantContext: Context<ChoiceVariant> = createContext<ChoiceVariant>("default");
+
 type Kind = "checkbox" | "radio" | "switch";
 
 interface ChoiceRowProps {
@@ -25,6 +42,8 @@ interface ChoiceRowProps {
   label: ReactNode;
   description: ReactNode;
   disabled: boolean | undefined;
+  /** An icon before the text: 16px in a row, 20px in a box on a tile. */
+  icon?: QeetrixIcon | undefined;
   className: string | undefined;
   style: CSSProperties | undefined;
   /** The control. */
@@ -41,11 +60,13 @@ export function ChoiceRow({
   label,
   description,
   disabled,
+  icon: Icon,
   className,
   style,
   children,
 }: ChoiceRowProps): ReactElement {
   const inField = use(InFieldContext);
+  const tile = use(ChoiceVariantContext) === "tile";
   if (label == null) return children;
   const row = {
     disabled,
@@ -56,6 +77,11 @@ export function ChoiceRow({
       <>
         <BaseField.Label className="qx-choice-label" data-slot={`${kind}-label`}>
           {children}
+          {Icon && (
+            <span className="qx-choice-icon" aria-hidden>
+              <Icon shape="sharp" size={tile ? 20 : 16} />
+            </span>
+          )}
           <span className="qx-choice-text">{label}</span>
         </BaseField.Label>
         {description != null && (
@@ -78,6 +104,9 @@ interface ChoiceGroupProps extends FieldMessageProps {
   name: string | undefined;
   disabled: boolean | undefined;
   orientation: ChoiceOrientation;
+  variant: ChoiceVariant;
+  /** For tiles: the most columns, fewer where there isn't room. */
+  columns: number;
   className: string | undefined;
   style: CSSProperties | undefined;
   /** The Base UI group element the fieldset renders as. */
@@ -94,6 +123,8 @@ export function ChoiceGroup({
   name,
   disabled,
   orientation,
+  variant,
+  columns,
   className,
   style,
   group,
@@ -105,16 +136,19 @@ export function ChoiceGroup({
       disabled={disabled}
       invalid={error != null ? true : undefined}
       className={cx("qx-field qx-choice-group", className)}
-      style={style}
+      style={{ "--qx-choice-columns": columns, ...style } as CSSProperties}
       data-slot={`${kind}-group`}
       data-orientation={orientation}
+      data-variant={variant}
     >
       <BaseFieldset.Root render={group} className="qx-choice-group-set">
         <BaseFieldset.Legend className="qx-field-label" data-slot={`${kind}-group-legend`}>
           {label}
         </BaseFieldset.Legend>
         <div className="qx-choice-group-options">
-          <InFieldContext value>{children}</InFieldContext>
+          <ChoiceVariantContext value={variant}>
+            <InFieldContext value>{children}</InFieldContext>
+          </ChoiceVariantContext>
         </div>
       </BaseFieldset.Root>
       <FieldMessages description={description} error={error} />

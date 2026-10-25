@@ -1,0 +1,44 @@
+/* AvatarGroup (07-components.md): avatars side by side, a 2px hairline apart (not overlapped, so
+   initials stay whole and no ring is needed on a tinted row), then the +N count in a pill the
+   avatar's height, on the avatar's own fill. */
+.qx-avatar-group {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--qx-border-width-strong);
+  vertical-align: middle;
+}
+.qx-avatar-group-more {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: 32px;
+  block-size: 32px;
+  padding-inline: var(--qx-space-gap-xs);
+  border-radius: var(--qx-radius-full);
+  background: var(--qx-color-bg-neutral-subtle-pressed);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variant-numeric: tabular-nums;
+  text-box: trim-both cap alphabetic;
+  [data-size="sm"] > & {
+    min-inline-size: 24px;
+    block-size: 24px;
+  }
+  [data-size="lg"] > & {
+    min-inline-size: 40px;
+    block-size: 40px;
+    font: var(--qx-typography-label-md);
+  }
+  [data-size="xl"] > & {
+    min-inline-size: 48px;
+    block-size: 48px;
+    font: var(--qx-typography-label-md);
+  }
+}
+
+@media (forced-colors: active) {
+  .qx-avatar-group-more {
+    border: var(--qx-border-width-default) solid CanvasText;
+  }
+}

@@ -1,3 +1,4 @@
+export type { ChoiceVariant } from "../field/choice";
 export {
   Checkbox,
   CheckboxGroup,

@@ -94,6 +94,7 @@ export const hi: QeetrixMessages = {
     open: "खोलने के लिए",
     close: "बंद करने के लिए",
   },
+  avatarGroup: { label: "{count} लोग: {names}", more: "{count} और" },
   codeBlock: { copy: "कोड कॉपी करें", region: "कोड", shell: "शेल" },
   descriptionList: { empty: "सेट नहीं है" },
   filterTags: { label: "लागू फ़िल्टर", remove: "फ़िल्टर {filter} हटाएँ", clear: "सब हटाएँ" },

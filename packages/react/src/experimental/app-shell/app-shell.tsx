@@ -60,6 +60,11 @@ export interface AppShellProps extends Omit<ComponentProps<"div">, "children"> {
   defaultActiveDrawer?: string | null;
   /** Called with the panel that opens, or `null` when it closes. */
   onActiveDrawerChange?: (id: string | null) => void;
+  /**
+   * Page banners: Alerts with `variant="banner"`, about the whole app (maintenance, a trial ending,
+   * viewing as someone else). Edge to edge across the page, under the bar, above everything else.
+   */
+  banners?: ReactNode;
   /** Page messages (Alerts) above the page header. */
   notifications?: ReactNode;
   /** The frame's density. Default `compact`: consoles are dense (design rules §15). */
@@ -148,6 +153,7 @@ export function AppShell({
   activeDrawer,
   defaultActiveDrawer = null,
   onActiveDrawerChange,
+  banners,
   notifications,
   density = "compact",
   children,
@@ -266,6 +272,11 @@ export function AppShell({
           </div>
         )}
         <main id={mainId} tabIndex={-1} className="qx-app-shell-main" data-slot="app-shell-main">
+          {banners != null && (
+            <div className="qx-app-shell-banners" data-slot="app-shell-banners">
+              {banners}
+            </div>
+          )}
           {notifications != null && (
             <div className="qx-app-shell-notifications" data-slot="app-shell-notifications">
               {notifications}

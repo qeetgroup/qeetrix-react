@@ -1,5 +1,36 @@
 # @qeetrix/react
 
+## 0.0.7
+
+Four reusable parts from the gap review, each mocked up and approved first: choice tiles,
+AvatarGroup, page banners and QRCode (with our own encoder).
+
+- **`RadioGroup`, `CheckboxGroup` · tiles:** new `variant="tile"`: each option a bordered tile with
+  an icon, a title and a line about it, for choices that need explaining (an application's type,
+  sign-in methods). A click anywhere on the tile chooses it; the keys stay the group's own (one Tab
+  stop and arrows for radios). The chosen tile takes the selected tint and a 2px Ember edge. New
+  `columns` (1 to 4) lays tiles out in up to that many columns of at least 12rem, one where it's
+  narrow. `Radio` and `Checkbox` gain `icon`. New type `ChoiceVariant` (minor).
+- **`AvatarGroup`:** a few people at a glance (a group's members, an application's users): the
+  first `max` avatars side by side a hairline apart, so initials stay whole on any row tint, then
+  +N. One image to assistive technology, named in full: "412 people: Priya Sharma, Rahul Verma,
+  Ananya Iyer and 409 more", with counts and the list formatted for the locale. Strings in English
+  and Hindi.
+- **`Alert` · page banner:** new `variant="banner"` for a notice about the whole app (maintenance,
+  a trial ending, viewing as someone else): one line across the page, the title running into the
+  description, actions and Dismiss at the end; the tone's tint edge to edge with a rule in the tone
+  under it, on the page's gutter so the icon lines up with the page title. Every banner is the same
+  height at each density. New `icon` prop in place of the tone's icon (an eye for "viewing as").
+  `AppShell` gains `banners`, the slot for them: under the top bar, above everything else on the
+  page. New type `AlertVariant` (minor).
+- **`QRCode`:** text a phone camera reads, for authenticator setup (`otpauth://`) and UPI payments,
+  from our own encoder: byte mode (UTF-8), versions 1 to 40, levels `L`, `M` (default), `Q` and `H`,
+  Reed–Solomon error correction and the standard's mask scoring. Always dark on white, in the dark
+  scheme and in forced colours, with the four-module quiet zone inside a hairline tile. An SVG named
+  by the required `label`; server-safe. Checked by a reader written from the standard and, where
+  the browser has one, by its BarcodeDetector; every version and level was also read by Apple's
+  CoreImage. Too long a value throws a RangeError.
+
 ## 0.0.6
 
 Date components built in, with no date library (07-components.md, "Dates without a library"),

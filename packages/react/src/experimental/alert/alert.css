@@ -47,6 +47,11 @@
   min-inline-size: 0;
   padding-inline-end: var(--qx-space-gap-xs);
 }
+.qx-alert-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 .qx-alert-title {
   font: var(--qx-typography-label-md);
   font-weight: var(--qx-typography-title-sm-font-weight);
@@ -64,6 +69,66 @@
 .qx-alert-dismiss {
   flex: none;
   margin-block: -2px;
+}
+
+/* The banner (07-components.md): a notice about the whole app, edge to edge under the top bar. The
+   tint spans the page with a rule in the tone under it (no status edge: it isn't beside anything),
+   on the page's gutter, so its icon lines up with the page title. One line, the title running into
+   the description, the actions at the end; every banner a row's height with a small button in it,
+   whether it has one or not. */
+.qx-alert[data-variant="banner"] {
+  align-items: center;
+  min-block-size: calc(
+    var(--qx-size-control-sm) +
+    2 *
+    var(--qx-space-inset-sm) +
+    var(--qx-border-width-default)
+  );
+  padding: var(--qx-space-inset-sm) var(--qx-space-layout-md);
+  border-inline-start: 0;
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-info);
+  &[data-tone="success"] {
+    border-block-end-color: var(--qx-color-border-success);
+  }
+  &[data-tone="warning"] {
+    border-block-end-color: var(--qx-color-border-warning);
+  }
+  &[data-tone="danger"] {
+    border-block-end-color: var(--qx-color-border-danger);
+  }
+  & > .qx-alert-icon {
+    margin-block-start: 0;
+  }
+  .qx-alert-body {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--qx-space-gap-xs) var(--qx-space-gap-md);
+    padding-inline-end: 0;
+  }
+  .qx-alert-text {
+    display: block;
+    flex: 1 1 20rem;
+  }
+  .qx-alert-title,
+  .qx-alert-description {
+    display: inline;
+  }
+  .qx-alert-description {
+    color: var(--qx-color-text-default);
+  }
+  .qx-alert-actions {
+    margin-block-start: 0;
+  }
+  .qx-alert-dismiss {
+    margin-block: 0;
+  }
+}
+
+@media (width < 840px) {
+  .qx-alert[data-variant="banner"] {
+    padding-inline: var(--qx-space-inset-lg);
+  }
 }
 
 @media (forced-colors: active) {

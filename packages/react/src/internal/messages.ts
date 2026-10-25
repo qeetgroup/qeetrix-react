@@ -91,6 +91,7 @@ export const messages = {
     open: "to open",
     close: "to close",
   },
+  avatarGroup: { label: "{count} people: {names}", more: "{count} more" },
   codeBlock: { copy: "Copy code", region: "Code", shell: "Shell" },
   descriptionList: { empty: "Not set" },
   filterTags: { label: "Applied filters", remove: "Remove filter {filter}", clear: "Clear all" },
