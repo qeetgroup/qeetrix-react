@@ -1,32 +1,12 @@
 # @qeetrix/react
 
-## 0.0.4
-
-The second Phase 5 increment (C2, secure entry), from `@qeetrix/react/experimental`
-(07-components.md).
-
-- **`CopyButton`:** copies a value (or what a function returns, even asynchronously); the icon
-  turns into a check, "Copied" is announced politely, focus stays, and it resets after 2 seconds.
-  It fails visibly where there's no clipboard. An IconButton named by `label`, or a Button with a
-  visible label.
-- **`Alert`:** `info`, `success`, `warning` or `danger` on the status tint with the 3px status edge;
-  a title (led by a hidden tone word), a description, actions and an optional Dismiss. `announce`
-  makes it `role="status"` or `role="alert"` only when it appears after something happens. It never
-  takes focus or disappears by itself.
-- **`PasswordInput`:** an Input with a pressed-state Show password toggle, announced; hidden by
-  default and hidden again when its form submits; `current-password` / `new-password` / `off`;
-  spelling and capitalisation tools off; a Caps Lock warning; `endAdornment` for a CopyButton.
-- **`OTPInput`:** one-time codes in slots on Base UI's OTP Field: typing moves on, paste fills
-  every slot, SMS autofill lands at once; numeric by default; `groups`, `md` and `lg` sizes; the
-  first slot takes the field's label, the rest are "Character 2 of 6".
-- **Strings:** new `copyButton`, `alert`, `passwordInput` and `otpInput` groups, in English and
-  Hindi.
-
 ## 0.0.3
 
-The first Phase 5 increment (C1, the console frame), from `@qeetrix/react/experimental`. Experimental
-parts may change in a patch release; each moves to the root export once it has shipped in its
-product (07-components.md).
+The first two Phase 5 increments, from `@qeetrix/react/experimental`: C1, the console frame, and
+C2, secure entry. Experimental parts may change in a patch release; each moves to the root export
+once it has shipped in its product (07-components.md).
+
+### C1 · Console frame
 
 - **`AppShell`** (design B · Ruled, chosen from three researched concepts; 07-components.md):
   - the frame of every Qeet console: a skip link, the sticky TopBar across the full width, the
@@ -79,6 +59,25 @@ product (07-components.md).
   - the CSS build, the dist check and the screenshot coverage test understand
     `src/experimental/<family>/`;
   - the test helper treats cancelled animations as settled.
+
+### C2 · Secure entry
+
+- **`CopyButton`:** copies a value (or what a function returns, even asynchronously); the icon
+  turns into a check, "Copied" is announced politely, focus stays, and it resets after 2 seconds.
+  It fails visibly where there's no clipboard. An IconButton named by `label`, or a Button with a
+  visible label.
+- **`Alert`:** `info`, `success`, `warning` or `danger` on the status tint with the 3px status edge;
+  a title (led by a hidden tone word), a description, actions and an optional Dismiss. `announce`
+  makes it `role="status"` or `role="alert"` only when it appears after something happens. It never
+  takes focus or disappears by itself.
+- **`PasswordInput`:** an Input with a pressed-state Show password toggle, announced; hidden by
+  default and hidden again when its form submits; `current-password` / `new-password` / `off`;
+  spelling and capitalisation tools off; a Caps Lock warning; `endAdornment` for a CopyButton.
+- **`OTPInput`:** one-time codes in slots on Base UI's OTP Field: typing moves on, paste fills
+  every slot, SMS autofill lands at once; numeric by default; `groups`, `md` and `lg` sizes; the
+  first slot takes the field's label, the rest are "Character 2 of 6".
+- **Strings:** new `copyButton`, `alert`, `passwordInput` and `otpInput` groups, in English and
+  Hindi.
 
 ## 0.0.2
 
