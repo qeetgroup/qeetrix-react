@@ -34,9 +34,16 @@ describe("ScrollArea", () => {
   });
 
   it("shows its scrollbar while hovered", async () => {
-    const { container } = await render(<Activity />);
+    // The pointer starts on a sibling: an earlier test can leave it anywhere.
+    const { container } = await render(
+      <>
+        <p>Elsewhere</p>
+        <Activity />
+      </>,
+    );
     const scrollbar = container.querySelector(".qx-scroll-area-scrollbar") as HTMLElement;
-    expect(getComputedStyle(scrollbar).opacity).toBe("0");
+    await page.getByText("Elsewhere").hover();
+    await expect.poll(() => getComputedStyle(scrollbar).opacity).toBe("0");
     await page.getByText("INV-2026-0001").hover();
     await expect.poll(() => getComputedStyle(scrollbar).opacity).toBe("1");
     expect(scrollbar.getBoundingClientRect().width).toBe(8);
