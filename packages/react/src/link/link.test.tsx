@@ -63,6 +63,25 @@ describe("Link", () => {
     }
   });
 
+  it("ties the arrow to the last word through trailing space, tabs and long unbroken text", async () => {
+    const tail = async (text: string) => {
+      const { container, unmount } = await render(
+        <Link href="https://qeet.in" external>
+          {text}
+        </Link>,
+      );
+      const result = container.querySelector(".qx-link-tail")?.textContent;
+      await unmount();
+      return result;
+    };
+    expect(await tail("Read the guide  ")).toBe("guide  ");
+    expect(await tail("Read\tthe\u00a0guide")).toBe("guide");
+    expect(await tail("Docs")).toBe("Docs");
+    expect(await tail("   ")).toBe("\u2060");
+    // A long run without spaces: the old pattern backtracked quadratically on it.
+    expect(await tail(`${"!".repeat(50_000)} a`)).toBe("a");
+  });
+
   it("shows the Ember focus frame 2px outside", async () => {
     await render(<Link href="#x">Pricing</Link>);
     await tab();

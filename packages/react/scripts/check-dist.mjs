@@ -153,7 +153,7 @@ for (const file of walk(dist).filter((f) => f.endsWith(".js"))) {
   const code = readFileSync(file, "utf8");
   for (const [, local, exported] of code.matchAll(/\b(\w+\$\d+) as (\w+)\b/g)) {
     if (local.replace(/\$\d+$/, "") !== exported || !/^[A-Z]/.test(exported)) continue;
-    const restored = new RegExp(`__name\\(${local.replace("$", "\\$")},\\s*"${exported}"\\)`);
+    const restored = new RegExp(`__name\\(${local.replaceAll("$", "\\$")},\\s*"${exported}"\\)`);
     if (!restored.test(code)) {
       report(
         `${relative(root, file)} exports ${exported} as ${local}; its name won't show as ${exported}`,

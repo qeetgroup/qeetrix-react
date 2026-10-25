@@ -25,6 +25,19 @@ export interface LinkProps extends ComponentProps<"a"> {
 }
 
 /**
+ * Where the text's last word starts, or -1 when it has none. A scan, not `/\S+\s*$/`: that pattern
+ * backtracks quadratically on a long run without spaces.
+ */
+function lastWordStart(text: string): number {
+  let end = text.length;
+  while (end > 0 && /\s/.test(text.charAt(end - 1))) end--;
+  if (end === 0) return -1;
+  let start = end;
+  while (start > 0 && !/\s/.test(text.charAt(start - 1))) start--;
+  return start;
+}
+
+/**
  * The text with the external arrow tied to its last word, so the arrow never wraps onto a line by
  * itself. Plain text is split before its last word; other content gets a word joiner instead.
  */
@@ -38,7 +51,7 @@ function withArrow(children: ReactNode): ReactNode {
       data-slot="link-icon"
     />
   );
-  const at = typeof children === "string" ? children.search(/\S+\s*$/) : -1;
+  const at = typeof children === "string" ? lastWordStart(children) : -1;
   if (typeof children === "string" && at >= 0) {
     return (
       <>
