@@ -1,13 +1,21 @@
 /**
  * One form, every field type: their edges and heights must agree (design rules §8). Inputs, selects,
- * password and code fields span the column at the same height, and the Alert above and the
+ * dates, password and code fields span the column at the same height, and the Alert above and the
  * full-width Button below share their edges, in every density.
  */
 import { ArrowRightIcon } from "@qeetrix/icons/icons/arrow-right";
 import { describe, expect, it } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { Alert, Combobox, NumberField, OTPInput, PasswordInput } from "../src/experimental";
+import {
+  Alert,
+  Combobox,
+  DatePicker,
+  DateRangePicker,
+  NumberField,
+  OTPInput,
+  PasswordInput,
+} from "../src/experimental";
 import { Button, Field, Input, Select, Stack } from "../src/index";
 import { expectAccessible } from "./support/axe";
 import { screenshotEveryMode } from "./support/screenshots";
@@ -49,6 +57,12 @@ function Form() {
             defaultValue="usr_1"
           />
         </Field>
+        <Field label="Joining date">
+          <DatePicker defaultValue="2026-10-25" />
+        </Field>
+        <Field label="Audit period">
+          <DateRangePicker defaultValue={{ start: "2026-10-01", end: "2026-10-25" }} />
+        </Field>
         <Field label="Session timeout">
           <NumberField defaultValue={30} endAdornment="minutes" />
         </Field>
@@ -81,6 +95,8 @@ describe("form consistency", () => {
       ".qx-select-trigger",
       "[data-slot=combobox]",
       "[data-slot=number-field]",
+      ".qx-date-picker",
+      ".qx-date-range-picker",
       ".qx-password-input",
       "[data-slot=otp-input]",
       "[data-slot=button]",
@@ -100,6 +116,8 @@ describe("form consistency", () => {
       ".qx-select-trigger",
       "[data-slot=combobox]",
       "[data-slot=number-field]",
+      ".qx-date-picker",
+      ".qx-date-range-picker",
       ".qx-password-input",
       "[data-slot=otp-input-slot]",
       "[data-slot=button]",

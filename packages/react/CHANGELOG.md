@@ -1,5 +1,62 @@
 # @qeetrix/react
 
+## 0.0.6
+
+Date components built in, with no date library (07-components.md, "Dates without a library"), and
+one Table for every list.
+
+**Breaking — one Table.** `Table` is now the single way to show records: give it `columns` and
+`rows`, and sorting, selection, row actions and the loading, empty and error states are built in.
+`TableCaption`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell` and their prop types
+are no longer exported; tables made from them become one `<Table label rows rowId rowLabel
+columns />`. Name a table with `label` (it was a caption or `aria-label`). No Qeet product used the
+parts yet.
+
+- **`Table`:** sortable headers (buttons, `aria-sort`; one way, the other, then the server's order;
+  `sortFirst: "descending"` for dates and amounts); `selectable` rows with a page-wide header
+  checkbox (mixed when some are chosen) that keeps rows chosen on other pages; a bar with the
+  count, `bulkActions` and Clear in place of the `toolbar` while rows are selected; `rowActions` in
+  a menu named for the row; placeholder rows while loading, dimmed rows while refreshing, and
+  `empty` and `error` messages under the header; a sticky header. Built for server-paged lists:
+  the rows arrive sorted and paged. New types `TableColumn`, `TableSort`, `SortDirection`. Strings
+  in English and Hindi.
+
+- **`Calendar`:** a month of dates to choose from, following the WAI-ARIA date picker grid. One day
+  in the Tab order; arrow keys move by day and week (mirrored right-to-left), Home and End to the
+  week's ends, Page Up and Page Down by month (with Shift, by year), Enter or Space choose. Each day
+  is read as its full date, today as "Today, …". `min`, `max` and `isDateDisabled`; the week starts
+  by locale (Sunday for India). Today has a thin Ember outline, the chosen day the Ember fill. Dates
+  are "YYYY-MM-DD" strings; the arithmetic runs on UTC midnights with the browser's `Intl`, always
+  Gregorian. The title ("October 2026 ⌄") opens the years, a decade a page, then that year's
+  months, then their days; Escape steps back to the days. Every view keeps the same size. Strings
+  in English and Hindi.
+- **`DatePicker`:** a field to type a date in the locale's order (25/10/2026 for India) or choose
+  it from the Calendar in a popover exactly as wide as the field. Typed text is read on leaving the
+  field or on Enter, with any separator; text that isn't an allowed date stays, and the field turns
+  invalid with the reason through Field. Alt+Down opens the calendar; focus returns to where it was
+  opened from. With `name`, a hidden input submits "YYYY-MM-DD".
+- **`RangeCalendar`:** a Calendar that chooses a range: the first pick is one end, the range
+  follows the pointer or focus until the second, and ends picked backwards are swapped. Escape
+  undoes a half-chosen range. A band of the subtle brand fill with Ember ends; every day in it is
+  selected, and each step is announced. Exports the `DateRange` type.
+- **`DateRangePicker`:** one field for a range ("01/12/2026 – 31/12/2026"), typed with any
+  separators in either order, or chosen in a RangeCalendar in a popover as wide as the field.
+  Errors as DatePicker's; `startName` and `endName` submit "YYYY-MM-DD".
+- **`Avatar`, `TopBarSwitcher`:** initials are centred on the capitals' own height (CSS `text-box`
+  trimming), not on the room the font keeps for descenders: they sat up to 0.6px high. A test checks
+  the rendered pixels at every size in Chromium, Firefox and WebKit.
+- **`Table`:** cells keep `space.gap-xs` above and below, so two-line content such as an AvatarItem
+  doesn't touch the row lines (one-line rows stay at the density's row height); the row checkbox is
+  centred on the row, not on the text baseline.
+- **`AvatarItem`:** a person as lists and menus show them: avatar, name and an optional second
+  line (an email, a role). The two lines sit close, together as tall as a `md` avatar (32px), so
+  they fit a compact table row; long text ends with an ellipsis. Server-safe.
+- **`SearchField`:** a search box for lists: the Input box with a search icon, `type="search"`, and
+  a Clear button while there's text; Escape clears it first. `onSearch` runs when typing pauses
+  (`searchDelay`, 300 ms), at once on Enter, and with "" when cleared. Strings in English and Hindi.
+- **`PopoverContent`:** new `anchor` prop, to position against another element than the trigger
+  (minor).
+
 ## 0.0.5
 
 Tier 1 of the design-system gap review (07-components.md, "Gap review"), from

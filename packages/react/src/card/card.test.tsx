@@ -2,30 +2,26 @@ import { describe, expect, it } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
-import { screenshotSchemes } from "../../tests/support/screenshots";
+import { screenshotEveryMode } from "../../tests/support/screenshots";
 import { Stage } from "../../tests/support/stage";
 import { Button } from "../button/button";
 import { Stack } from "../stack/stack";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../table/table";
+import { Table } from "../table/table";
 import { Text } from "../text/text";
 import { Card } from "./card";
 
 function Invoices() {
   return (
-    <Table aria-label="Recent invoices">
-      <TableHeader>
-        <TableRow>
-          <TableHead>Invoice</TableHead>
-          <TableHead numeric>Amount</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <TableRow>
-          <TableCell>INV-0042</TableCell>
-          <TableCell numeric>₹1,24,500</TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
+    <Table
+      label="Recent invoices"
+      rows={[{ id: "INV-0042", amount: "₹1,24,500" }]}
+      rowId={(row) => row.id}
+      rowLabel={(row) => row.id}
+      columns={[
+        { id: "invoice", header: "Invoice", cell: (row) => row.id },
+        { id: "amount", header: "Amount", cell: (row) => row.amount, numeric: true },
+      ]}
+    />
   );
 }
 
@@ -110,6 +106,6 @@ describe("Card", () => {
       </Stage>,
     );
     await expectAccessible(container);
-    await screenshotSchemes("Card");
+    await screenshotEveryMode("Card");
   });
 });

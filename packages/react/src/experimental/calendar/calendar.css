@@ -1,0 +1,161 @@
+/* Calendar (07-components.md): the month and its arrows above a grid of days, each
+   `size.control.md` tall with 4px corners: square at the calendar's own size, wider when a picker
+   stretches the grid to its field. The title opens the years and then the months, in a 3-column
+   panel over the days, the same size. Today (and this month and year) has a thin Ember outline;
+   the chosen one is filled Ember, and the fill takes over the outline; those outside the range are
+   disabled grey. */
+.qx-calendar {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--qx-space-gap-sm);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+}
+.qx-calendar-header {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+}
+.qx-calendar-title {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  font: var(--qx-typography-label-md);
+  font-weight: var(--qx-typography-title-sm-font-weight);
+}
+/* The title opens the years: a quiet button until hovered, with a chevron that says so. */
+.qx-calendar-zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  block-size: var(--qx-size-control-sm);
+  margin: 0;
+  padding-block: 0;
+  padding-inline: var(--qx-space-inset-sm);
+  border: 0;
+  border-radius: var(--qx-radius-control);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition-property: background-color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &:hover {
+    background: var(--qx-color-overlay-hover);
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+}
+.qx-calendar-zoom-icon {
+  flex: none;
+  color: var(--qx-color-icon-subtle);
+}
+[dir="rtl"] .qx-calendar-step .qx-button-icon {
+  scale: -1 1;
+}
+.qx-calendar-grid {
+  border-collapse: collapse;
+}
+.qx-calendar-weekday {
+  block-size: var(--qx-size-control-sm);
+  padding: 0;
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+  text-align: center;
+}
+.qx-calendar-cell {
+  padding: 1px;
+  text-align: center;
+}
+/* A blank cell holds a day's height, so a blank sixth week keeps its row and the height never jumps. */
+.qx-calendar-cell:empty::before {
+  content: "";
+  display: block;
+  block-size: var(--qx-size-control-md);
+}
+/* The months or years cover the days, which stay in place unseen, so every view is the same size:
+   three columns, four rows spread over the days' height. */
+.qx-calendar-body {
+  position: relative;
+}
+.qx-calendar-grid[data-covered] {
+  visibility: hidden;
+}
+.qx-calendar-panel {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  table-layout: fixed;
+  & .qx-calendar-cell {
+    padding: var(--qx-space-gap-xs);
+  }
+}
+.qx-calendar-day,
+.qx-calendar-option {
+  position: relative;
+  display: grid;
+  place-items: center;
+  inline-size: 100%;
+  min-inline-size: var(--qx-size-control-md);
+  block-size: var(--qx-size-control-md);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--qx-radius-control);
+  background: transparent;
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition-property: background-color, color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &:hover:not([aria-disabled]) {
+    background: var(--qx-color-overlay-hover);
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+  &[data-today] {
+    box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-brand);
+  }
+  &[data-outside]:not([aria-disabled]) {
+    color: var(--qx-color-text-subtle);
+  }
+  &[aria-disabled] {
+    color: var(--qx-color-text-disabled);
+    cursor: not-allowed;
+  }
+  [aria-selected] > & {
+    background: var(--qx-color-bg-brand-bold);
+    color: var(--qx-color-text-on-brand);
+    box-shadow: none;
+    &:hover {
+      background: var(--qx-color-bg-brand-bold-hover);
+    }
+    &:focus-visible {
+      outline-color: var(--qx-color-border-focus);
+      box-shadow: inset 0 0 0 calc(var(--qx-focus-ring-width) + var(--qx-border-width-default))
+        var(--qx-color-surface-default);
+    }
+  }
+}
+
+@media (forced-colors: active) {
+  [aria-selected] > :is(.qx-calendar-day, .qx-calendar-option) {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+  :is(.qx-calendar-day, .qx-calendar-option)[data-today]:not(:focus-visible) {
+    outline: var(--qx-border-width-default) solid CanvasText;
+    outline-offset: calc(-1 * var(--qx-border-width-default));
+  }
+}

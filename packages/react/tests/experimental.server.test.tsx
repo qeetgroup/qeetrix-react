@@ -10,10 +10,14 @@ import { describe, expect, it } from "vitest";
 import {
   Alert,
   AppShell,
+  AvatarItem,
   Breadcrumb,
   BreadcrumbItem,
+  Calendar,
   Combobox,
   CopyButton,
+  DatePicker,
+  DateRangePicker,
   EmptyState,
   ErrorSummary,
   Form,
@@ -21,6 +25,7 @@ import {
   OTPInput,
   Pagination,
   PasswordInput,
+  RangeCalendar,
   Sidebar,
   SidebarGroup,
   SidebarItem,
@@ -80,6 +85,43 @@ describe("experimental components on the server", () => {
     expect(out).toContain('role="combobox"');
     expect(out).toContain('aria-label="Fruit"');
     expect(out).not.toContain('role="listbox"');
+  });
+
+  it("Calendar and DatePicker render on the server: the month's grid, the field without its dialog", () => {
+    const month = html(<Calendar today="2026-10-25" defaultValue="2026-10-20" />);
+    expect(month).toContain('role="grid"');
+    expect(month).toContain("October 2026");
+    expect(month).toContain('data-date="2026-10-31"');
+    const field = html(
+      <DatePicker aria-label="Joining date" name="joined" defaultValue="2026-10-25" />,
+    );
+    expect(field).toContain('value="25/10/2026"');
+    expect(field).toMatch(/type="hidden" name="joined" value="2026-10-25"/);
+    expect(field).toContain('aria-label="Choose date"');
+    expect(field).not.toContain('role="dialog"');
+  });
+
+  it("RangeCalendar and DateRangePicker render on the server: the range, the field and its inputs", () => {
+    const range = { start: "2026-10-12", end: "2026-10-14" };
+    const month = html(<RangeCalendar today="2026-10-25" defaultValue={range} />);
+    expect(month).toContain('data-range="start"');
+    expect(month).toContain('data-range="middle"');
+    expect(month).toContain('data-range="end"');
+    const field = html(
+      <DateRangePicker aria-label="Period" startName="from" endName="to" defaultValue={range} />,
+    );
+    expect(field).toContain('value="12/10/2026 – 14/10/2026"');
+    expect(field).toMatch(/name="from" value="2026-10-12"/);
+    expect(field).toMatch(/name="to" value="2026-10-14"/);
+    expect(field).not.toContain('role="dialog"');
+  });
+
+  it("AvatarItem carries no client code, and renders the name and second line", () => {
+    expect(source("avatar-item/avatar-item.tsx")).not.toMatch(/^["']use client["']/);
+    const out = html(<AvatarItem name="Priya Sharma" description="priya@acme.in" />);
+    expect(out).toContain("Priya Sharma");
+    expect(out).toContain("priya@acme.in");
+    expect(out).toContain('aria-hidden="true"');
   });
 
   it("NumberField renders its formatted value on the server", () => {

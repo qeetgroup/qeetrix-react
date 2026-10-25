@@ -52,6 +52,21 @@
   & > :is(.qx-table, .qx-scroll-area):last-child {
     margin-block-end: calc(-1 * var(--qx-space-inset-lg));
   }
+  /* Edge to edge, a table's toolbar (or selection bar) is a band above its header: the controls
+     centred with equal room above and below, starting at the first column's edge, and the last
+     (an lg icon button) centred on the rows' sm action menus at every density. */
+  & > .qx-table {
+    gap: 0;
+  }
+  & > .qx-table > .qx-table-bar {
+    padding-block: var(--qx-space-inset-sm);
+    padding-inline: var(--qx-space-inset-md)
+      calc(var(--qx-space-inset-md) - (var(--qx-size-control-lg) - var(--qx-size-control-sm)) / 2);
+  }
+  /* The selection bar ends with Clear, a text button: the same end as the rows' padding allows. */
+  & > .qx-table > .qx-table-bar[data-selected] {
+    padding-inline-end: var(--qx-space-inset-sm);
+  }
 }
 .qx-card-footer {
   display: flex;

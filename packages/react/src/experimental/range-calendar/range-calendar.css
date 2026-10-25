@@ -1,0 +1,34 @@
+/* RangeCalendar (07-components.md): the range is a band of the subtle brand fill, the height of a
+   day, running under the days and across their gutters. Its two ends are filled Ember (Calendar's
+   chosen day) and the band reaches into them from the middle; the days between keep their text
+   colour, with today's outline. */
+.qx-range-calendar .qx-calendar-cell[data-range] {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block: 1px;
+    inset-inline: 0;
+    background: var(--qx-color-bg-brand-subtle);
+  }
+  &[data-range="start"]::before {
+    inset-inline-start: 50%;
+  }
+  &[data-range="end"]::before {
+    inset-inline-end: 50%;
+  }
+}
+.qx-range-calendar [data-range="middle"] > .qx-calendar-day {
+  background: transparent;
+  color: var(--qx-color-text-default);
+  box-shadow: none;
+  &:hover {
+    background: var(--qx-color-bg-brand-subtle-hover);
+  }
+  &[data-today] {
+    box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-brand);
+  }
+  &:focus-visible {
+    box-shadow: none;
+  }
+}

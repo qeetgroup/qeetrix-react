@@ -20,6 +20,8 @@ export interface PopoverContentProps
   align?: BasePopover.Positioner.Props["align"];
   /** Distance from the trigger, in pixels. Default 6. */
   sideOffset?: number;
+  /** Position against this element instead of the trigger, e.g. the whole field a button sits in. */
+  anchor?: BasePopover.Positioner.Props["anchor"];
   /** Placement and sizing only. */
   className?: string;
   style?: CSSProperties;
@@ -51,6 +53,7 @@ export function PopoverContent({
   side,
   align,
   sideOffset = 6,
+  anchor,
   className,
   children,
   ...props
@@ -61,6 +64,7 @@ export function PopoverContent({
         side={side}
         align={align}
         sideOffset={sideOffset}
+        anchor={anchor}
         className="qx-popover-positioner"
       >
         <BasePopover.Popup
