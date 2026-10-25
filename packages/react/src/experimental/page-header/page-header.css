@@ -1,0 +1,66 @@
+/* PageHeader and PageContent (07-components.md, C1): a ruled band at the head of the page, then
+   the work surface. With tabs, the tab list's line is the band's foot. */
+.qx-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qx-space-gap-sm);
+  padding: var(--qx-space-inset-lg) var(--qx-space-inset-xl);
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  background: var(--qx-color-surface-default);
+  color: var(--qx-color-text-default);
+  &[data-tabs] {
+    padding-block-end: 0;
+    border-block-end: 0;
+  }
+}
+.qx-page-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--qx-space-gap-md);
+}
+.qx-page-header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qx-space-gap-xs);
+  min-inline-size: 0;
+}
+.qx-page-header-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+}
+.qx-page-header-count {
+  font: var(--qx-typography-title-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+  font-variant-numeric: tabular-nums;
+  color: var(--qx-color-text-subtle);
+}
+.qx-page-header-description {
+  margin: 0;
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+}
+.qx-page-header-actions {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+}
+.qx-page-header-tabs {
+  margin-inline: calc(-1 * var(--qx-space-inset-sm));
+}
+
+.qx-page-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qx-space-gap-lg);
+  padding: var(--qx-space-inset-lg) var(--qx-space-inset-xl) var(--qx-space-inset-xl);
+  &[data-width="narrow"] {
+    max-inline-size: 800px;
+  }
+}

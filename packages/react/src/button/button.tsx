@@ -99,7 +99,11 @@ export function Button({
       <span className="qx-button-label" data-slot="button-label">
         {children}
       </span>
-      {content(icon, size, loading)}
+      {(icon || loading) && (
+        <span className="qx-button-zone" data-slot="button-zone">
+          {content(icon, size, loading)}
+        </span>
+      )}
     </BaseButton>
   );
 }

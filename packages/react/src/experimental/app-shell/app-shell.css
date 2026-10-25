@@ -1,21 +1,32 @@
-/* AppShell (07-components.md, C1): ruled surfaces, no shadows in the flow. The sidebar column is a
-   raised surface from 840px; below that it's hidden and opens as a drawer. The page scrolls; the
-   header and the sidebar stay put. */
+/* AppShell (07-components.md, C1): a full-width bar, then three columns: the navigation, the page
+   and the end-edge tools. Seams are 1px rules; nothing in the flow casts a shadow. The page scrolls;
+   the bar, the navigation and the tools stay put. */
 .qx-app-shell {
+  --qx-app-shell-top: calc(var(--qx-size-control-lg) + 16px);
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr);
   min-block-size: 100dvh;
   background: var(--qx-color-surface-canvas);
   color: var(--qx-color-text-default);
 }
-.qx-app-shell-sidebar {
+.qx-app-shell-top {
   position: sticky;
   inset-block-start: 0;
-  block-size: 100dvh;
+  z-index: var(--qx-z-sticky);
+  grid-column: 1 / -1;
+}
+
+/* The navigation column. Collapsed, the column is the 48px rail; hovered or focused, its panel
+   expands over the page while the column keeps its place. */
+.qx-app-shell-nav {
+  position: sticky;
+  inset-block-start: var(--qx-app-shell-top);
+  z-index: calc(var(--qx-z-sticky) - 1);
+  grid-column: 1;
+  grid-row: 2;
+  block-size: calc(100dvh - var(--qx-app-shell-top));
   inline-size: var(--qx-component-sidebar-width-expanded);
-  overflow: hidden;
-  border-inline-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
-  background: var(--qx-color-surface-raised);
   transition-property: inline-size;
   transition-duration: var(--qx-motion-duration-normal);
   transition-timing-function: var(--qx-motion-easing-standard);
@@ -23,59 +34,186 @@
     inline-size: var(--qx-component-sidebar-width-collapsed);
   }
 }
-.qx-app-shell-body {
+.qx-app-shell-nav-panel {
   display: flex;
   flex-direction: column;
-  min-inline-size: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  border-inline-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  background: var(--qx-color-surface-raised);
+  [data-peek] > & {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: var(--qx-component-sidebar-width-expanded);
+    box-shadow: var(--qx-shadow-overlay);
+  }
 }
-.qx-app-shell-header {
-  position: sticky;
-  inset-block-start: 0;
-  z-index: var(--qx-z-sticky);
+.qx-app-shell-nav-body {
+  flex: 1;
+  min-block-size: 0;
+}
+.qx-app-shell-nav-foot {
+  flex: none;
+  padding-block: var(--qx-space-gap-xs);
+  border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+}
+.qx-app-shell-collapse {
   display: flex;
   align-items: center;
-  gap: var(--qx-space-gap-md);
-  block-size: calc(var(--qx-size-control-lg) + 16px);
-  padding-inline: var(--qx-space-inset-md) var(--qx-space-inset-lg);
-  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  gap: var(--qx-space-gap-sm);
+  inline-size: 100%;
+  block-size: var(--qx-size-control-md);
+  padding-inline: var(--qx-space-inset-md);
+  border: 0;
+  background: transparent;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-label-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  white-space: nowrap;
+  cursor: pointer;
+  &:hover {
+    background: var(--qx-color-bg-neutral-subtle);
+    color: var(--qx-color-text-default);
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+}
+.qx-app-shell-collapse-icon {
+  flex: none;
+  color: var(--qx-color-icon-subtle);
+}
+/* The panel icons point toward the navigation, so they mirror with it. */
+[dir="rtl"] .qx-app-shell-collapse-icon {
+  scale: -1 1;
+}
+.qx-app-shell[data-collapsed] .qx-app-shell-nav:not([data-peek]) {
+  .qx-app-shell-collapse {
+    justify-content: center;
+    inline-size: var(--qx-size-control-md);
+    margin-inline: auto;
+    padding-inline: 0;
+  }
+  .qx-app-shell-collapse-label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+
+.qx-app-shell-main {
+  grid-column: 2;
+  grid-row: 2;
+  min-inline-size: 0;
+  outline: 0;
+}
+.qx-app-shell-notifications {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qx-space-gap-sm);
+  padding: var(--qx-space-inset-lg) var(--qx-space-inset-xl) 0;
+}
+
+/* The end-edge tools: a 40px toolbar on the edge, and the open panel beside it. */
+.qx-app-shell-tools {
+  position: sticky;
+  inset-block-start: var(--qx-app-shell-top);
+  z-index: calc(var(--qx-z-sticky) - 1);
+  display: flex;
+  grid-column: 3;
+  grid-row: 2;
+  block-size: calc(100dvh - var(--qx-app-shell-top));
+}
+.qx-app-shell-toolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  inline-size: 40px;
+  padding-block: var(--qx-space-gap-sm);
+  border-inline-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  background: var(--qx-color-surface-raised);
+}
+.qx-app-shell-trigger {
+  position: relative;
+  &[data-badge]::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 4px;
+    inset-inline-end: 4px;
+    inline-size: 6px;
+    block-size: 6px;
+    border-radius: var(--qx-radius-full);
+    background: var(--qx-color-icon-brand);
+    pointer-events: none;
+  }
+}
+.qx-app-shell-panel {
+  display: flex;
+  flex-direction: column;
+  inline-size: 320px;
+  border-inline-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
   background: var(--qx-color-surface-default);
 }
-.qx-app-shell-header-start {
-  display: flex;
-  flex: 1;
-  align-items: center;
-  min-inline-size: 0;
-}
-.qx-app-shell-actions {
+.qx-app-shell-panel-header {
   display: flex;
   flex: none;
   align-items: center;
+  justify-content: space-between;
   gap: var(--qx-space-gap-sm);
+  block-size: calc(var(--qx-size-control-lg) + 8px);
+  padding-inline: var(--qx-space-inset-lg) var(--qx-space-inset-sm);
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
 }
-/* The panel icons point toward the sidebar, so they mirror with it. */
-[dir="rtl"] .qx-app-shell-toggle > svg {
-  scale: -1 1;
+.qx-app-shell-panel-title {
+  margin: 0;
+  font: var(--qx-typography-title-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
 }
-.qx-app-shell-main {
+.qx-app-shell-panel-body {
   flex: 1;
-  min-inline-size: 0;
-  padding: var(--qx-space-inset-xl);
-  outline: 0;
+  min-block-size: 0;
+  overflow-y: auto;
+  padding: var(--qx-space-inset-lg);
 }
 
+/* Below the large window class, the panel overlays the page instead of pushing it. */
+@media (width < 1200px) {
+  .qx-app-shell-panel {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 40px;
+    box-shadow: var(--qx-shadow-overlay);
+  }
+}
+
+/* Narrow: one column. The navigation opens from the bar's menu button; the panel overlays it. */
 @media (width < 840px) {
   .qx-app-shell {
     grid-template-columns: minmax(0, 1fr);
   }
-  .qx-app-shell-sidebar {
+  .qx-app-shell-nav {
     display: none;
   }
   .qx-app-shell-main {
-    padding: var(--qx-space-inset-lg);
+    grid-column: 1;
+  }
+  .qx-app-shell-tools {
+    position: fixed;
+    inset-block: var(--qx-app-shell-top) 0;
+    inset-inline-end: 0;
+  }
+  .qx-app-shell-panel {
+    position: static;
+    inline-size: min(320px, 100vw);
   }
 }
 
-/* The narrow-screen drawer. */
+/* The narrow-screen navigation drawer. */
 .qx-app-shell-backdrop {
   position: fixed;
   inset: 0;
@@ -122,10 +260,16 @@
 }
 
 @media (forced-colors: active) {
-  .qx-app-shell-header {
-    border-block-end-color: CanvasText;
+  .qx-app-shell-nav-panel,
+  .qx-app-shell-toolbar,
+  .qx-app-shell-panel {
+    border-color: CanvasText;
   }
   .qx-app-shell-drawer {
     border-inline-end: var(--qx-border-width-default) solid CanvasText;
+  }
+  .qx-app-shell-trigger[data-badge]::after {
+    forced-color-adjust: none;
+    background: Highlight;
   }
 }

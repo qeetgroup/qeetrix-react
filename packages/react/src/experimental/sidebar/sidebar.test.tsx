@@ -16,7 +16,7 @@ import { Sidebar, SidebarGroup, SidebarItem } from "./sidebar";
 
 function PayNav({ reportsCurrent = false }: { reportsCurrent?: boolean }) {
   return (
-    <Sidebar label="Qeet Pay" style={{ inlineSize: 256, blockSize: 420 }}>
+    <Sidebar label="Qeet Pay" title="Payments" filter>
       <SidebarGroup>
         <SidebarItem label="Overview" href="#overview" icon={LayoutGridIcon} filledWhenCurrent />
       </SidebarGroup>
@@ -68,33 +68,45 @@ describe("Sidebar", () => {
 
   it("puts every item in the Tab order; Space toggles a category", async () => {
     await render(<PayNav />);
-    for (let i = 0; i < 4; i++) await tab();
+    for (let i = 0; i < 5; i++) await tab();
     const reports = page.getByRole("button", { name: "Reports" });
     await expect.element(reports).toHaveFocus();
     await userEvent.keyboard(" ");
     await expect.element(reports).toHaveAttribute("aria-expanded", "true");
   });
 
-  it("becomes a rail in a collapsed AppShell: names stay, labels move to tooltips", async () => {
+  it("filters its items as you type; categories with matches open", async () => {
+    await render(<PayNav />);
+    await userEvent.type(page.getByRole("searchbox", { name: "Filter navigation" }), "gst");
+    await expect.element(page.getByRole("link", { name: "GST returns" })).toBeVisible();
+    expect(page.getByRole("link", { name: /Payouts/ }).elements()).toHaveLength(0);
+    await userEvent.clear(page.getByRole("searchbox", { name: "Filter navigation" }));
+    await userEvent.type(page.getByRole("searchbox", { name: "Filter navigation" }), "zzz");
+    await expect.element(page.getByText("No pages match")).toBeVisible();
+  });
+
+  it("becomes a rail in a collapsed AppShell: icon squares that keep their names", async () => {
     await page.viewport(1200, 600);
     await render(
       <AppShell defaultSidebarCollapsed sidebar={<PayNav />}>
         <p>Page</p>
       </AppShell>,
     );
-    const payouts = page.getByRole("link", { name: "Payouts" });
-    expect(payouts.element().getBoundingClientRect().width).toBe(32);
-    await userEvent.hover(payouts);
-    await expect
-      .poll(() => document.querySelector("[data-slot=tooltip-popup]")?.textContent)
-      .toBe("Payouts");
+    // A console is compact, so the rail's icon squares are the compact control size.
+    expect(
+      page.getByRole("link", { name: "Payouts" }).element().getBoundingClientRect().width,
+    ).toBe(28);
     await page.getByRole("button", { name: "Reports" }).click();
     await expect.element(page.getByRole("link", { name: "GST returns" })).toBeVisible();
   });
 
   it("is accessible and looks right in every mode", async () => {
     await page.viewport(320, 460);
-    await render(<PayNav reportsCurrent />);
+    await render(
+      <div style={{ inlineSize: 256, blockSize: 460 }}>
+        <PayNav reportsCurrent />
+      </div>,
+    );
     await expectAccessible(document.body);
     await screenshotEveryMode("Sidebar", "[data-slot=sidebar]");
   });

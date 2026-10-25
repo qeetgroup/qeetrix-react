@@ -28,8 +28,11 @@ product (07-components.md).
   - `QeetrixProvider` takes `colorScheme`, `defaultColorScheme` and `onColorSchemeChange`, writes
     `data-qx-color-scheme` on `<html>`, and follows the operating system while `system`;
   - `useColorScheme()` returns the scheme and a setter. The product persists the choice.
-- **`Button` and `IconButton`:** a `neutral` tone for ghost utility actions in toolbars and headers,
-  whose icons stay neutral (design rules §16).
+- **`Button` and `IconButton`:**
+  - a `neutral` tone for ghost utility actions in toolbars and headers, whose icons stay neutral
+    (design rules §16);
+  - a Button's icon sits in its own square zone (the new `button-zone` slot), behind a 1px
+    full-height rule in the label's colour (design rules §7).
 - **Strings:** new `appShell`, `breadcrumb` and `dataState` groups, in English and Hindi.
 - **Platform:**
   - the CSS build, the dist check and the screenshot coverage test understand

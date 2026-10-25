@@ -53,7 +53,8 @@ describe("experimental components on the server", () => {
     expect(out).toContain('href="#main"');
     expect(out).toContain('<nav aria-label="Qeet ID"');
     expect(out).toContain('<main id="main" tabindex="-1"');
-    expect(out).toContain('aria-label="Collapse navigation"');
+    expect(out).toContain('aria-expanded="true"');
+    expect(out).toContain(">Collapse</span>");
     expect(out).not.toContain("app-shell-drawer");
   });
 

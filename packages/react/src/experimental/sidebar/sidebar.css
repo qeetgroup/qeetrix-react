@@ -8,18 +8,35 @@
   min-block-size: 0;
   color: var(--qx-color-text-default);
 }
-/* The same height as the AppShell header, with the same rule below, so the two read as one line. */
+/* The area's title and the filter, above the items. */
 .qx-sidebar-header {
   display: flex;
   flex: none;
-  align-items: center;
-  min-inline-size: 0;
-  block-size: calc(var(--qx-size-control-lg) + 16px);
-  padding-inline: var(--qx-space-inset-md);
-  overflow: hidden;
-  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  flex-direction: column;
+  gap: var(--qx-space-gap-sm);
+  padding: var(--qx-space-inset-md) var(--qx-space-inset-md) var(--qx-space-gap-xs);
+}
+.qx-sidebar-title {
+  font: var(--qx-typography-title-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+  color: var(--qx-color-text-default);
   white-space: nowrap;
+  overflow: hidden;
   text-overflow: ellipsis;
+}
+.qx-sidebar-empty {
+  margin: 0;
+  padding: var(--qx-space-gap-sm) var(--qx-space-inset-md);
+  font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+  &:empty {
+    display: none;
+  }
+}
+/* A group whose items are all filtered out disappears with its label. */
+.qx-sidebar-group:not(:has(.qx-sidebar-entry)) {
+  display: none;
 }
 .qx-sidebar-nav {
   flex: 1;
@@ -136,21 +153,28 @@
 
 /* The rail: icon squares centred in the 48px column; labels move to tooltips. */
 .qx-sidebar[data-rail] {
-  .qx-sidebar-header,
+  /* Invisible but in place: when the rail expands under the pointer, the items mustn't move. The
+     filter's shortcut stays visible in that space. */
+  .qx-sidebar-header {
+    position: relative;
+    overflow: hidden;
+    visibility: hidden;
+  }
+  .qx-sidebar-rail-search {
+    position: absolute;
+    inset-block-end: var(--qx-space-gap-xs);
+    inset-inline-start: 50%;
+    translate: -50% 0;
+    visibility: visible;
+  }
   .qx-sidebar-footer {
     padding-inline: var(--qx-space-gap-sm);
   }
+  /* Group labels keep their space too, so the rail and the expanded list share one vertical
+     rhythm; the groups are separated by that space. */
   .qx-sidebar-group-label {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
     overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .qx-sidebar-group + .qx-sidebar-group {
-    margin-block-start: var(--qx-space-gap-xs);
-    padding-block-start: var(--qx-space-gap-xs);
-    border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+    visibility: hidden;
   }
   .qx-sidebar-item {
     justify-content: center;

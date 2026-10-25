@@ -1,13 +1,14 @@
-/* Button and IconButton (06-component-specs.md §1; design rules §7). Label first, icon last; the
-   focus frame is drawn inside, with a surface-coloured gap. */
+/* Button and IconButton (06-component-specs.md §1; design rules §7). Label first; an icon sits in
+   its own square zone at the end, behind a 1px full-height rule. The focus frame is drawn inside,
+   with a surface-coloured gap. */
 .qx-button {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 14px;
   block-size: var(--qx-size-control-md);
-  padding-inline: 14px 12px;
+  padding-inline: 14px 0;
   border: 0;
   border-radius: var(--qx-radius-control);
   font: var(--qx-typography-label-md);
@@ -25,8 +26,8 @@
 
   &[data-size="sm"] {
     block-size: var(--qx-size-control-sm);
-    gap: 16px;
-    padding-inline: 10px 8px;
+    gap: 10px;
+    padding-inline: 10px 0;
     font-size: var(--qx-typography-label-sm-font-size);
     line-height: var(--qx-typography-label-sm-line-height);
   }
@@ -35,8 +36,8 @@
   }
   &[data-size="lg"] {
     block-size: var(--qx-size-control-lg);
-    gap: 32px;
-    padding-inline: 16px 14px;
+    gap: 16px;
+    padding-inline: 16px 0;
   }
   &[data-size="lg"]:not([data-icon]):not([data-loading]) {
     padding-inline: 16px;
@@ -135,6 +136,17 @@
   .qx-button-icon {
     flex: none;
   }
+}
+
+/* The icon zone: a square as tall as the button, behind a full-height rule in the label's own colour
+   (white on filled buttons), so the two read as one control. */
+.qx-button-zone {
+  display: grid;
+  flex: none;
+  place-items: center;
+  align-self: stretch;
+  aspect-ratio: 1;
+  border-inline-start: var(--qx-border-width-default) solid currentcolor;
 }
 
 .qx-icon-button {

@@ -2,9 +2,9 @@
 
 import { useDirection } from "@base-ui/react/direction-provider";
 import { Drawer as BaseDrawer } from "@base-ui/react/drawer";
-import { PanelLeftIcon } from "@qeetrix/icons/icons/panel-left";
 import { PanelLeftCloseIcon } from "@qeetrix/icons/icons/panel-left-close";
 import { PanelLeftOpenIcon } from "@qeetrix/icons/icons/panel-left-open";
+import { XIcon } from "@qeetrix/icons/icons/x";
 import {
   type ComponentProps,
   type Context,
@@ -12,26 +12,59 @@ import {
   type ReactElement,
   type ReactNode,
   use,
+  useEffect,
+  useId,
+  useRef,
   useState,
 } from "react";
 import { IconButton } from "../../button/button";
+import type { QeetrixIcon } from "../../internal/control";
 import { cx } from "../../internal/cx";
 import { useMediaQuery } from "../../internal/media";
 import type { QeetrixMessages } from "../../internal/messages";
 import { useMessages } from "../../provider/provider";
 import { SkipLink } from "../../skip-link/skip-link";
+import { Tooltip } from "../../tooltip/tooltip";
 
 /** The `expanded` window class (tokens `breakpoint.expanded`): the sidebar is a column from here. */
 const WIDE = "(width >= 840px)";
+/** How long the pointer rests on the rail before it expands over the page. */
+const PEEK_DELAY = 200;
+
+/** The frame's density; `inherit` leaves it to the page. */
+export type AppShellDensity = "compact" | "default" | "comfortable" | "inherit";
+
+/** An end-edge panel: help, the assistant, activity. */
+export interface AppShellDrawer {
+  id: string;
+  /** The trigger's label and the panel's title. */
+  label: string;
+  /** The trigger's icon, from `@qeetrix/icons`. */
+  icon: QeetrixIcon;
+  /** The panel's content. */
+  content: ReactNode;
+  /** A dot on the trigger: something new inside. */
+  badge?: boolean;
+}
 
 export interface AppShellProps extends Omit<ComponentProps<"div">, "children"> {
+  /** The global bar: a TopBar. */
+  topBar?: ReactNode;
   /** The navigation: a Sidebar. */
-  sidebar: ReactNode;
-  /** The start of the header, usually a Breadcrumb. */
-  header?: ReactNode;
-  /** The end of the header: environment badge, help, notifications. */
-  actions?: ReactNode;
-  /** The page. */
+  sidebar?: ReactNode;
+  /** End-edge panels, opened from a toolbar on the end edge. */
+  drawers?: AppShellDrawer[];
+  /** The open panel's id, or `null`, controlled. */
+  activeDrawer?: string | null;
+  /** The open panel when uncontrolled. Default none. */
+  defaultActiveDrawer?: string | null;
+  /** Called with the panel that opens, or `null` when it closes. */
+  onActiveDrawerChange?: (id: string | null) => void;
+  /** Page messages (Alerts) above the page header. */
+  notifications?: ReactNode;
+  /** The frame's density. Default `compact`: consoles are dense (design rules §15). */
+  density?: AppShellDensity;
+  /** The page: a PageHeader and PageContent. */
   children?: ReactNode;
   /** Whether the sidebar is collapsed to its icon rail, controlled. */
   sidebarCollapsed?: boolean;
@@ -41,51 +74,81 @@ export interface AppShellProps extends Omit<ComponentProps<"div">, "children"> {
   onSidebarCollapsedChange?: (collapsed: boolean) => void;
   /** The main region's id, which the built-in skip link targets. Default `main`. */
   mainId?: string;
-  /** The toggle's labels, over QeetrixProvider's and the English defaults. */
+  /** The shell's strings, over QeetrixProvider's and the English defaults. */
   messages?: Partial<QeetrixMessages["appShell"]>;
 }
 
 interface ShellState {
-  /** The sidebar column is a rail. */
+  /** The sidebar shows as its rail (collapsed, and not peeking). */
   collapsed: boolean;
   /** This sidebar is the narrow-screen drawer's copy. */
   inDrawer: boolean;
+  /** Below the `expanded` window class. */
+  narrow: boolean;
+  /** Fix the sidebar open. */
   expand: () => void;
+  /** Close the narrow-screen navigation drawer. */
   closeDrawer: () => void;
+  /** Open the narrow-screen navigation drawer. */
+  openNavigation: () => void;
+  drawers: AppShellDrawer[];
+  activeDrawer: string | null;
+  toggleDrawer: (id: string) => void;
+  strings: QeetrixMessages["appShell"];
 }
 
-const ShellContext: Context<ShellState> = createContext<ShellState>({
+const ShellContext: Context<ShellState | null> = createContext<ShellState | null>(null);
+
+const outside: ShellState = {
   collapsed: false,
   inDrawer: false,
+  narrow: false,
   expand: () => {},
   closeDrawer: () => {},
-});
+  openNavigation: () => {},
+  drawers: [],
+  activeDrawer: null,
+  toggleDrawer: () => {},
+  strings: {
+    collapse: "",
+    expand: "",
+    open: "",
+    navigation: "",
+    tools: "",
+    closePanel: "",
+  },
+};
 
-/** The shell's state, for a sidebar's own parts. A sidebar outside an AppShell is expanded. */
+/** The shell's state, for its own parts. Outside an AppShell, a sidebar is expanded. */
 export function useShellState(): ShellState {
-  return use(ShellContext);
+  return use(ShellContext) ?? outside;
 }
 
 export interface AppShellState {
-  /** The sidebar is showing as its icon rail: a header or footer can show a compact form. */
+  /** The sidebar is showing as its icon rail. */
   collapsed: boolean;
 }
 
-/** The AppShell's state, for content inside its sidebar. */
+/** The AppShell's state, for content inside its sidebar or bar. */
 export function useAppShell(): AppShellState {
-  const { collapsed, inDrawer } = use(ShellContext);
+  const { collapsed, inDrawer } = useShellState();
   return { collapsed: collapsed && !inDrawer };
 }
 
 /**
- * The frame of a Qeet console (07-components.md, C1): the sidebar, a sticky header and the page. On
- * wide screens the sidebar is a column that collapses to an icon rail; on narrow screens it opens
- * as a drawer from the start edge.
+ * The frame of a Qeet console (07-components.md, C1), after the consoles enterprises run on: a
+ * full-width dark global bar; the navigation, which collapses to an icon rail that expands while
+ * hovered; the page; and panels on the end edge. Compact by default.
  */
 export function AppShell({
+  topBar,
   sidebar,
-  header,
-  actions,
+  drawers = [],
+  activeDrawer,
+  defaultActiveDrawer = null,
+  onActiveDrawerChange,
+  notifications,
+  density = "compact",
   children,
   sidebarCollapsed,
   defaultSidebarCollapsed = false,
@@ -99,72 +162,185 @@ export function AppShell({
   const skip = useMessages("skipLink");
   const wide = useMediaQuery(WIDE, true);
   const rtl = useDirection() === "rtl";
+  const panelTitle = useId();
+
   const [ownCollapsed, setOwnCollapsed] = useState(defaultSidebarCollapsed);
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const collapsed = sidebarCollapsed ?? ownCollapsed;
   const setCollapsed = (next: boolean) => {
     if (sidebarCollapsed === undefined) setOwnCollapsed(next);
     onSidebarCollapsedChange?.(next);
   };
-  const shell: ShellState = {
-    collapsed,
-    inDrawer: false,
-    expand: () => setCollapsed(false),
-    closeDrawer: () => setDrawerOpen(false),
+
+  const [ownDrawer, setOwnDrawer] = useState(defaultActiveDrawer);
+  const active = activeDrawer === undefined ? ownDrawer : activeDrawer;
+  const setActive = (next: string | null) => {
+    if (activeDrawer === undefined) setOwnDrawer(next);
+    onActiveDrawerChange?.(next);
   };
-  const Icon = wide ? (collapsed ? PanelLeftOpenIcon : PanelLeftCloseIcon) : PanelLeftIcon;
-  const label = wide ? (collapsed ? strings.expand : strings.collapse) : strings.open;
+  const panel = drawers.find((drawer) => drawer.id === active);
+
+  const [navOpen, setNavOpen] = useState(false);
+
+  // The rail expands over the page while hovered (after a rest) or while focus is inside it.
+  const [peek, setPeek] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  const startPeek = () => {
+    if (!collapsed) return;
+    window.clearTimeout(timer.current);
+    timer.current = window.setTimeout(() => setPeek(true), PEEK_DELAY);
+  };
+  const endPeek = () => {
+    window.clearTimeout(timer.current);
+    setPeek(false);
+  };
+
+  const shell: ShellState = {
+    collapsed: collapsed && !peek,
+    inDrawer: false,
+    narrow: !wide,
+    expand: () => {
+      endPeek();
+      setCollapsed(false);
+    },
+    closeDrawer: () => setNavOpen(false),
+    openNavigation: () => setNavOpen(true),
+    drawers,
+    activeDrawer: active,
+    toggleDrawer: (id) => setActive(active === id ? null : id),
+    strings,
+  };
+
+  const CollapseIcon = collapsed ? PanelLeftOpenIcon : PanelLeftCloseIcon;
+  const collapseControl = (
+    <button
+      type="button"
+      className="qx-app-shell-collapse"
+      aria-expanded={!collapsed}
+      onClick={() => {
+        endPeek();
+        setCollapsed(!collapsed);
+      }}
+    >
+      <CollapseIcon shape="round" size={16} aria-hidden className="qx-app-shell-collapse-icon" />
+      <span className="qx-app-shell-collapse-label">
+        {collapsed ? strings.expand : strings.collapse}
+      </span>
+    </button>
+  );
+
   return (
     <ShellContext value={shell}>
       <div
         {...props}
         className={cx("qx-app-shell", className)}
         data-slot="app-shell"
+        data-qx-density={density === "inherit" ? undefined : density}
         data-collapsed={collapsed ? "" : undefined}
+        data-drawer-open={panel ? "" : undefined}
       >
         <SkipLink href={`#${mainId}`}>{skip.label}</SkipLink>
-        <div className="qx-app-shell-sidebar" data-slot="app-shell-sidebar">
-          {sidebar}
-        </div>
-        <div className="qx-app-shell-body">
-          <header className="qx-app-shell-header" data-slot="app-shell-header">
-            <IconButton
-              icon={Icon}
-              aria-label={label}
-              aria-expanded={wide ? !collapsed : drawerOpen}
-              onClick={() => (wide ? setCollapsed(!collapsed) : setDrawerOpen(true))}
-              tone="neutral"
-              className="qx-app-shell-toggle"
-            />
-            <div className="qx-app-shell-header-start">{header}</div>
-            {actions != null && (
-              <div className="qx-app-shell-actions" data-slot="app-shell-actions">
-                {actions}
+        {topBar != null && <div className="qx-app-shell-top">{topBar}</div>}
+        {sidebar != null && (
+          // biome-ignore lint/a11y/noStaticElementInteractions: hover and focus only preview the rail; every action is on the links and buttons inside
+          <div
+            className="qx-app-shell-nav"
+            data-slot="app-shell-nav"
+            data-peek={peek ? "" : undefined}
+            onPointerEnter={startPeek}
+            onPointerLeave={endPeek}
+            onFocus={() => collapsed && setPeek(true)}
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setPeek(false);
+            }}
+          >
+            <div className="qx-app-shell-nav-panel">
+              <div className="qx-app-shell-nav-body">{sidebar}</div>
+              <div className="qx-app-shell-nav-foot">
+                <Tooltip content={strings.expand} side="inline-end" disabled={!collapsed || peek}>
+                  {collapseControl}
+                </Tooltip>
+              </div>
+            </div>
+          </div>
+        )}
+        <main id={mainId} tabIndex={-1} className="qx-app-shell-main" data-slot="app-shell-main">
+          {notifications != null && (
+            <div className="qx-app-shell-notifications" data-slot="app-shell-notifications">
+              {notifications}
+            </div>
+          )}
+          {children}
+        </main>
+        {drawers.length > 0 && (
+          <div className="qx-app-shell-tools" data-slot="app-shell-tools">
+            {panel && (
+              <aside
+                className="qx-app-shell-panel"
+                data-slot="app-shell-panel"
+                aria-labelledby={panelTitle}
+              >
+                <div className="qx-app-shell-panel-header">
+                  <h2 id={panelTitle} className="qx-app-shell-panel-title">
+                    {panel.label}
+                  </h2>
+                  <IconButton
+                    icon={XIcon}
+                    aria-label={strings.closePanel}
+                    size="sm"
+                    tone="neutral"
+                    tooltip={false}
+                    onClick={() => setActive(null)}
+                  />
+                </div>
+                <div className="qx-app-shell-panel-body">{panel.content}</div>
+              </aside>
+            )}
+            {wide && (
+              // biome-ignore lint/a11y/useSemanticElements: a fieldset is for form controls; this is a set of buttons
+              <div role="group" aria-label={strings.tools} className="qx-app-shell-toolbar">
+                {drawers.map((drawer) => (
+                  <span
+                    key={drawer.id}
+                    className="qx-app-shell-trigger"
+                    data-badge={drawer.badge ? "" : undefined}
+                  >
+                    <IconButton
+                      icon={drawer.icon}
+                      aria-label={drawer.label}
+                      aria-pressed={active === drawer.id}
+                      tone="neutral"
+                      onClick={() => shell.toggleDrawer(drawer.id)}
+                    />
+                  </span>
+                ))}
               </div>
             )}
-          </header>
-          <main id={mainId} tabIndex={-1} className="qx-app-shell-main" data-slot="app-shell-main">
-            {children}
-          </main>
-        </div>
-        <BaseDrawer.Root
-          open={drawerOpen && !wide}
-          onOpenChange={setDrawerOpen}
-          swipeDirection={rtl ? "right" : "left"}
-        >
-          <BaseDrawer.Portal>
-            <BaseDrawer.Backdrop className="qx-app-shell-backdrop" />
-            <BaseDrawer.Viewport className="qx-app-shell-viewport">
-              <BaseDrawer.Popup
-                className="qx-app-shell-drawer"
-                data-slot="app-shell-drawer"
-                aria-label={strings.navigation}
-              >
-                <ShellContext value={{ ...shell, inDrawer: true }}>{sidebar}</ShellContext>
-              </BaseDrawer.Popup>
-            </BaseDrawer.Viewport>
-          </BaseDrawer.Portal>
-        </BaseDrawer.Root>
+          </div>
+        )}
+        {sidebar != null && (
+          <BaseDrawer.Root
+            open={navOpen && !wide}
+            onOpenChange={setNavOpen}
+            swipeDirection={rtl ? "right" : "left"}
+          >
+            <BaseDrawer.Portal>
+              <BaseDrawer.Backdrop className="qx-app-shell-backdrop" />
+              <BaseDrawer.Viewport className="qx-app-shell-viewport">
+                <BaseDrawer.Popup
+                  className="qx-app-shell-drawer"
+                  data-slot="app-shell-drawer"
+                  data-qx-density={density === "inherit" ? undefined : density}
+                  aria-label={strings.navigation}
+                >
+                  <ShellContext value={{ ...shell, collapsed: false, inDrawer: true }}>
+                    {sidebar}
+                  </ShellContext>
+                </BaseDrawer.Popup>
+              </BaseDrawer.Viewport>
+            </BaseDrawer.Portal>
+          </BaseDrawer.Root>
+        )}
       </div>
     </ShellContext>
   );

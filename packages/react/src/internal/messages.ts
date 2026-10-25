@@ -12,11 +12,14 @@ export const messages = {
   toast: { close: "Dismiss", region: "Notifications" },
   slider: { minimum: "Minimum", maximum: "Maximum" },
   appShell: {
-    collapse: "Collapse navigation",
-    expand: "Expand navigation",
+    collapse: "Collapse",
+    expand: "Expand",
     open: "Open navigation",
     navigation: "Navigation",
+    tools: "Tools",
+    closePanel: "Close panel",
   },
+  sidebar: { filter: "Filter navigation", noMatches: "No pages match" },
   breadcrumb: { label: "Breadcrumb" },
   dataState: {
     errorTitle: "Couldn't load this",

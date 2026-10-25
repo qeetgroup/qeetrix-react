@@ -1,0 +1,84 @@
+/* TopBar (07-components.md, C1): the full-width global bar. It renders the dark scheme on itself,
+   so its surface and everything inside take the dark values over light and dark pages alike. The
+   3px Ember line on its top edge is the same signature that tops every Qeetrix dialog. */
+.qx-top-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-md);
+  block-size: calc(var(--qx-size-control-lg) + 16px);
+  padding-inline: var(--qx-space-inset-sm) var(--qx-space-inset-md);
+  border-block-start: var(--qx-border-width-accent) solid var(--qx-color-border-brand);
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  background: var(--qx-color-surface-sunken);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+}
+.qx-top-bar-start {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  min-inline-size: 0;
+}
+.qx-top-bar-identity {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  block-size: var(--qx-size-control-md);
+  padding-inline: var(--qx-space-gap-xs);
+  color: var(--qx-color-text-default);
+  text-decoration: none;
+  white-space: nowrap;
+  &:hover {
+    background: var(--qx-color-bg-neutral-subtle);
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+}
+.qx-top-bar-product {
+  font: var(--qx-typography-title-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+}
+.qx-top-bar-divider {
+  flex: none;
+  inline-size: var(--qx-border-width-default);
+  block-size: 20px;
+  background: var(--qx-color-border-default);
+}
+.qx-top-bar-context {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  min-inline-size: 0;
+}
+.qx-top-bar-search {
+  flex: 0 1 560px;
+  min-inline-size: 200px;
+}
+.qx-top-bar-end {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--qx-space-gap-xs);
+}
+
+@media (width < 840px) {
+  .qx-top-bar-search {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .qx-top-bar {
+    border-block-end-color: CanvasText;
+  }
+  .qx-top-bar-divider {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+}

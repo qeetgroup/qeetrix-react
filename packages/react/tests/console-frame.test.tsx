@@ -1,127 +1,38 @@
 /**
- * The exit for increment C1 (07-components.md): two products' console frames from the same parts,
- * since a pattern needs two products. Qeet ID's Users page shows the empty, loading and error
- * states; Qeet Pay's frame proves the parts carry another product's navigation.
+ * The exit for increment C1 (07-components.md): consoles from the same parts. Qeet ID's Users
+ * page shows the dense "heavy data" state consoles live in, plus the rail (hovered), an open panel,
+ * and the empty, loading and error states. Qeet Pay's frame proves the parts carry a second
+ * product, since a pattern needs two.
  */
-import { BellIcon } from "@qeetrix/icons/icons/bell";
 import { CreditCardIcon } from "@qeetrix/icons/icons/credit-card";
 import { FileTextIcon } from "@qeetrix/icons/icons/file-text";
-import { HouseIcon } from "@qeetrix/icons/icons/house";
-import { KeyRoundIcon } from "@qeetrix/icons/icons/key-round";
-import { LayoutGridIcon } from "@qeetrix/icons/icons/layout-grid";
-import { SettingsIcon } from "@qeetrix/icons/icons/settings";
-import { ShieldIcon } from "@qeetrix/icons/icons/shield";
-import { UsersIcon } from "@qeetrix/icons/icons/users";
 import { WalletIcon } from "@qeetrix/icons/icons/wallet";
-import { WebhookIcon } from "@qeetrix/icons/icons/webhook";
-import { afterEach, describe, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import {
   AppShell,
   Breadcrumb,
   BreadcrumbItem,
-  DataState,
-  EmptyState,
+  PageContent,
+  PageHeader,
   Sidebar,
   SidebarGroup,
   SidebarItem,
-  useAppShell,
+  TopBar,
 } from "../src/experimental";
-import {
-  Avatar,
-  Badge,
-  Button,
-  Heading,
-  IconButton,
-  QeetrixProvider,
-  Stack,
-  Text,
-} from "../src/index";
+import { QeetrixProvider, Text } from "../src/index";
+import { QeetIdConsole } from "./fixtures/qeet-id-console";
 import { expectAccessible } from "./support/axe";
 import { canEmulateMedia, emulateMedia } from "./support/media";
-import { screenshotEveryMode, screenshotSchemes } from "./support/screenshots";
-
-/** The organisation switcher: the name, or just its avatar in the rail (useAppShell). */
-function Organisation() {
-  const { collapsed } = useAppShell();
-  return collapsed ? (
-    <Avatar name="Acme Pvt Ltd" size="sm" />
-  ) : (
-    <Text weight="semibold" truncate>
-      Acme Pvt Ltd
-    </Text>
-  );
-}
-
-function QeetIdConsole({
-  collapsed = false,
-  state = "empty",
-}: {
-  collapsed?: boolean;
-  state?: "empty" | "loading" | "error";
-}) {
-  return (
-    <AppShell
-      defaultSidebarCollapsed={collapsed}
-      sidebar={
-        <Sidebar label="Qeet ID" header={<Organisation />}>
-          <SidebarGroup>
-            <SidebarItem label="Overview" href="#overview" icon={HouseIcon} />
-          </SidebarGroup>
-          <SidebarGroup label="Directory">
-            <SidebarItem label="Users" href="#users" icon={UsersIcon} current filledWhenCurrent />
-            <SidebarItem label="Organisations" href="#orgs" icon={LayoutGridIcon} />
-            <SidebarItem label="Sessions" href="#sessions" icon={ShieldIcon} />
-          </SidebarGroup>
-          <SidebarGroup label="Developers">
-            <SidebarItem label="Applications" href="#apps" icon={KeyRoundIcon} />
-            <SidebarItem label="Webhooks" href="#webhooks" icon={WebhookIcon} />
-          </SidebarGroup>
-          <SidebarGroup label="Settings">
-            <SidebarItem label="Settings" href="#settings" icon={SettingsIcon} />
-          </SidebarGroup>
-        </Sidebar>
-      }
-      header={
-        <Breadcrumb>
-          <BreadcrumbItem href="#directory">Directory</BreadcrumbItem>
-          <BreadcrumbItem current>Users</BreadcrumbItem>
-        </Breadcrumb>
-      }
-      actions={
-        <>
-          <Badge tone="warning">Production</Badge>
-          <IconButton icon={BellIcon} aria-label="Notifications" tone="neutral" />
-        </>
-      }
-    >
-      <Stack gap="lg">
-        <Heading level={1}>Users</Heading>
-        <DataState
-          loading={state === "loading"}
-          error={state === "error" ? "failed" : undefined}
-          onRetry={() => {}}
-          empty
-          emptyState={
-            <EmptyState
-              icon={UsersIcon}
-              title="No users yet"
-              description="Invite your team, or connect a directory to sync them."
-              actions={<Button>Invite users</Button>}
-            />
-          }
-        />
-      </Stack>
-    </AppShell>
-  );
-}
+import { screenshotSchemes } from "./support/screenshots";
 
 function QeetPayConsole() {
   return (
     <AppShell
+      topBar={<TopBar product="Qeet Pay" href="#home" />}
       sidebar={
-        <Sidebar label="Qeet Pay" header={<Text weight="semibold">Qeet Pay</Text>}>
+        <Sidebar label="Qeet Pay" title="Payments">
           <SidebarGroup label="Money">
             <SidebarItem label="Payments" href="#payments" icon={CreditCardIcon} />
             <SidebarItem label="Payouts" href="#payouts" icon={WalletIcon} />
@@ -132,14 +43,20 @@ function QeetPayConsole() {
           </SidebarGroup>
         </Sidebar>
       }
-      header={
-        <Breadcrumb>
-          <BreadcrumbItem href="#invoices">Invoices</BreadcrumbItem>
-          <BreadcrumbItem current>Sent</BreadcrumbItem>
-        </Breadcrumb>
-      }
     >
-      <Heading level={1}>Sent invoices</Heading>
+      <PageHeader
+        breadcrumb={
+          <Breadcrumb>
+            <BreadcrumbItem href="#invoices">Invoices</BreadcrumbItem>
+            <BreadcrumbItem current>Sent</BreadcrumbItem>
+          </Breadcrumb>
+        }
+        title="Sent invoices"
+        count={312}
+      />
+      <PageContent>
+        <Text tone="subtle">Invoices sent this month.</Text>
+      </PageContent>
     </AppShell>
   );
 }
@@ -152,31 +69,47 @@ afterEach(async () => {
   html.removeAttribute("dir");
 });
 
-describe("C1 exit: console frames from the same parts", () => {
-  it("Qeet ID: the Users page, empty, in every mode", async () => {
-    await page.viewport(1280, 720);
+describe("C1 exit: consoles from the same parts", () => {
+  it("Qeet ID: the Users page with its data", async () => {
+    await page.viewport(1440, 900);
     const { container } = await render(<QeetIdConsole />);
     await expectAccessible(container);
-    await screenshotEveryMode("Console · Qeet ID · users", null);
+    await screenshotSchemes("Console · Qeet ID · users", null);
   });
 
-  it("Qeet ID: collapsed to the rail, and the error and loading states", async () => {
-    await page.viewport(1280, 720);
-    const screen = await render(<QeetIdConsole collapsed state="error" />);
-    await screenshotSchemes("Console · Qeet ID · rail and error", null);
-    await screen.rerender(<QeetIdConsole state="loading" />);
-    await screenshotSchemes("Console · Qeet ID · loading", null);
+  it("Qeet ID: the rail, hovered open over the page", async () => {
+    await page.viewport(1440, 900);
+    await render(<QeetIdConsole collapsed />);
+    await screenshotSchemes("Console · Qeet ID · rail", null);
+    // Keyboard focus expands the rail as hover does, and holds still for the screenshot.
+    page.getByRole("link", { name: "Organisations" }).element().focus();
+    await expect.poll(() => document.querySelector("[data-peek]") !== null).toBe(true);
+    await screenshotSchemes("Console · Qeet ID · rail expanded", null);
   });
 
-  it("Qeet ID: narrow, with the navigation drawer open", async () => {
-    await page.viewport(420, 760);
+  it("Qeet ID: the help panel open beside the page", async () => {
+    await page.viewport(1440, 900);
+    await render(<QeetIdConsole drawer="help" />);
+    await screenshotSchemes("Console · Qeet ID · help panel", null);
+  });
+
+  it("Qeet ID: empty, loading and error", async () => {
+    await page.viewport(1440, 720);
+    const screen = await render(<QeetIdConsole state="empty" />);
+    await screenshotSchemes("Console · Qeet ID · empty", null);
+    await screen.rerender(<QeetIdConsole state="error" />);
+    await screenshotSchemes("Console · Qeet ID · error", null);
+  });
+
+  it("Qeet ID: narrow, with the navigation open", async () => {
+    await page.viewport(420, 800);
     await render(<QeetIdConsole />);
     await page.getByRole("button", { name: "Open navigation" }).click();
     await screenshotSchemes("Console · Qeet ID · narrow", null);
   });
 
   it("Qeet ID: right-to-left and forced colours", async () => {
-    await page.viewport(1280, 720);
+    await page.viewport(1440, 900);
     html.dir = "rtl";
     await render(
       <QeetrixProvider direction="rtl">
@@ -190,8 +123,8 @@ describe("C1 exit: console frames from the same parts", () => {
     }
   });
 
-  it("Qeet Pay: another product's navigation in the same frame", async () => {
-    await page.viewport(1280, 720);
+  it("Qeet Pay: another product in the same frame", async () => {
+    await page.viewport(1280, 600);
     const { container } = await render(<QeetPayConsole />);
     await expectAccessible(container);
     await screenshotSchemes("Console · Qeet Pay", null);

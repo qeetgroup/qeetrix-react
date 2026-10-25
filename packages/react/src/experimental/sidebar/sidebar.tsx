@@ -2,34 +2,51 @@
 
 import type { IconProps } from "@qeetrix/icons";
 import { ChevronDownIcon } from "@qeetrix/icons/icons/chevron-down";
+import { SearchIcon } from "@qeetrix/icons/icons/search";
 import {
   Children,
   type ComponentProps,
   type ComponentType,
+  type Context,
   type CSSProperties,
+  createContext,
   isValidElement,
   type MouseEvent,
   type ReactElement,
   type ReactNode,
+  use,
   useId,
+  useRef,
   useState,
 } from "react";
+import { IconButton } from "../../button/button";
+import { Input } from "../../input/input";
 import type { QeetrixIcon } from "../../internal/control";
 import { cx } from "../../internal/cx";
+import type { QeetrixMessages } from "../../internal/messages";
 import { type RenderProp, renderElement } from "../../internal/render";
+import { useMessages } from "../../provider/provider";
 import { Tooltip } from "../../tooltip/tooltip";
 import { useShellState } from "../app-shell/app-shell";
 
-export interface SidebarProps extends Omit<ComponentProps<"div">, "children"> {
+export interface SidebarProps extends Omit<ComponentProps<"div">, "children" | "title"> {
   /** Names the navigation landmark, e.g. the product: "Qeet Pay". */
   label: string;
-  /** Above the items: the product or organisation switcher. */
-  header?: ReactNode;
-  /** Below the items: the user menu. */
+  /** The area's heading at the top, e.g. "Identity". */
+  title?: ReactNode;
+  /** Add "Filter navigation", which narrows the items by label as you type. */
+  filter?: boolean;
+  /** Below the items, e.g. a link to what's new. */
   footer?: ReactNode;
   /** SidebarGroups. */
   children?: ReactNode;
+  /** The filter's strings, over QeetrixProvider's and the English defaults. */
+  messages?: Partial<QeetrixMessages["sidebar"]>;
 }
+
+/** The filter's text, lower-cased; and whether an enclosing category matched it by its own label. */
+const FilterContext: Context<string> = createContext("");
+const ParentMatchContext: Context<boolean> = createContext(false);
 
 export interface SidebarGroupProps extends Omit<ComponentProps<"div">, "children"> {
   /** The group's label; without one, the group is separated by space alone. */
@@ -45,7 +62,10 @@ export interface SidebarItemProps {
   href?: string;
   /** A router link instead of `<a>`, e.g. `render={<Link to="/users" />}`. */
   render?: RenderProp;
-  /** A 16px sharp icon from `@qeetrix/icons`; icons represent destinations, not actions. */
+  /**
+   * A 16px icon from `@qeetrix/icons`, in its round shape: navigation is the one place Qeetrix uses
+   * round icons. Icons represent destinations, not actions.
+   */
   icon?: QeetrixIcon;
   /** Show the icon's filled drawing while current. Only for icons that have one. */
   filledWhenCurrent?: boolean;
@@ -70,27 +90,61 @@ export interface SidebarItemProps {
  */
 export function Sidebar({
   label,
-  header,
+  title,
+  filter,
   footer,
+  messages,
   className,
   children,
   ...props
 }: SidebarProps): ReactElement {
-  const { collapsed, inDrawer } = useShellState();
+  const shell = useShellState();
+  const rail = shell.collapsed && !shell.inDrawer;
+  const strings = useMessages("sidebar", messages);
+  const [query, setQuery] = useState("");
+  const filterRef = useRef<HTMLInputElement>(null);
   return (
     <div
       {...props}
       className={cx("qx-sidebar", className)}
       data-slot="sidebar"
-      data-rail={collapsed && !inDrawer ? "" : undefined}
+      data-rail={rail ? "" : undefined}
     >
-      {header != null && (
+      {(title != null || filter) && (
         <div className="qx-sidebar-header" data-slot="sidebar-header">
-          {header}
+          {filter && rail && (
+            // In the rail, the filter's space holds a shortcut to it: expand, then type.
+            <IconButton
+              icon={SearchIcon}
+              aria-label={strings.filter}
+              tone="neutral"
+              className="qx-sidebar-rail-search"
+              onClick={() => {
+                shell.expand();
+                requestAnimationFrame(() => filterRef.current?.focus());
+              }}
+            />
+          )}
+          {title != null && <div className="qx-sidebar-title">{title}</div>}
+          {filter && (
+            <Input
+              ref={filterRef}
+              type="search"
+              icon={SearchIcon}
+              value={query}
+              onValueChange={setQuery}
+              aria-label={strings.filter}
+              placeholder={strings.filter}
+              className="qx-sidebar-filter"
+            />
+          )}
         </div>
       )}
       <nav aria-label={label} className="qx-sidebar-nav" data-slot="sidebar-nav">
-        {children}
+        <FilterContext value={query.trim().toLocaleLowerCase()}>{children}</FilterContext>
+        <p className="qx-sidebar-empty" role="status">
+          {query.trim() ? strings.noMatches : ""}
+        </p>
       </nav>
       {footer != null && (
         <div className="qx-sidebar-footer" data-slot="sidebar-footer">
@@ -140,15 +194,25 @@ export function SidebarItem({
   className,
   style,
   children,
-}: SidebarItemProps): ReactElement {
+}: SidebarItemProps): ReactElement | null {
   const shell = useShellState();
+  const query = use(FilterContext);
+  const parentMatched = use(ParentMatchContext);
   const rail = shell.collapsed && !shell.inDrawer;
   const panelId = useId();
   const nested = Children.toArray(children).filter(isValidElement);
   const isCategory = nested.length > 0;
   const holdsCurrent = nested.some((child) => (child.props as { current?: boolean }).current);
   const [open, setOpen] = useState(defaultOpen ?? holdsCurrent);
-  const expanded = open && !rail;
+
+  // Filtering: an item stays if it matches, if its category matched, or if a child matches.
+  const matches = (text: string) => text.toLocaleLowerCase().includes(query);
+  const selfMatch = query === "" || parentMatched || matches(label);
+  const childMatch =
+    query !== "" &&
+    nested.some((child) => matches(String((child.props as { label?: string }).label)));
+  if (!selfMatch && !childMatch) return null;
+  const expanded = (query !== "" ? true : open) && !rail;
   const marked = current || (isCategory && holdsCurrent && !expanded);
   const Filled = Icon as ComponentType<IconProps> | undefined;
 
@@ -156,7 +220,7 @@ export function SidebarItem({
     <>
       {Icon && (
         <Icon
-          shape="sharp"
+          shape="round"
           size={16}
           aria-hidden
           className="qx-sidebar-icon qx-sidebar-icon-outline"
@@ -164,7 +228,7 @@ export function SidebarItem({
       )}
       {Filled && filledWhenCurrent && (
         <Filled
-          shape="sharp"
+          shape="round"
           variant="filled"
           size={16}
           aria-hidden
@@ -174,7 +238,7 @@ export function SidebarItem({
       <span className="qx-sidebar-label">{label}</span>
       {badge != null && <span className="qx-sidebar-badge">{badge}</span>}
       {isCategory && (
-        <ChevronDownIcon shape="sharp" size={16} aria-hidden className="qx-sidebar-chevron" />
+        <ChevronDownIcon shape="round" size={16} aria-hidden className="qx-sidebar-chevron" />
       )}
     </>
   );
@@ -211,20 +275,20 @@ export function SidebarItem({
       children: content,
     })
   );
-  if (rail) {
-    control = (
-      <Tooltip content={label} side="inline-end">
-        {control}
-      </Tooltip>
-    );
-  }
+  // The tooltip wrapper is always there, disabled outside the rail: the element tree stays the
+  // same when the rail expands under the pointer, so a click that started in the rail still lands.
+  control = (
+    <Tooltip content={label} side="inline-end" disabled={!rail}>
+      {control}
+    </Tooltip>
+  );
 
   return (
     <li className={cx("qx-sidebar-entry", className)} style={style} data-slot="sidebar-item">
       {control}
       {isCategory && (
         <ul id={panelId} className="qx-sidebar-list qx-sidebar-sublist" hidden={!expanded}>
-          {nested}
+          <ParentMatchContext value={query !== "" && matches(label)}>{nested}</ParentMatchContext>
         </ul>
       )}
     </li>

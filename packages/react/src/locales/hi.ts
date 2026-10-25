@@ -15,11 +15,14 @@ export const hi: QeetrixMessages = {
   toast: { close: "खारिज करें", region: "सूचनाएँ" },
   slider: { minimum: "न्यूनतम", maximum: "अधिकतम" },
   appShell: {
-    collapse: "नेविगेशन छोटा करें",
-    expand: "नेविगेशन बड़ा करें",
+    collapse: "छोटा करें",
+    expand: "बड़ा करें",
     open: "नेविगेशन खोलें",
     navigation: "नेविगेशन",
+    tools: "टूल",
+    closePanel: "पैनल बंद करें",
   },
+  sidebar: { filter: "नेविगेशन में खोजें", noMatches: "कोई पेज नहीं मिला" },
   breadcrumb: { label: "पेज का पथ" },
   dataState: {
     errorTitle: "यह लोड नहीं हो सका",
