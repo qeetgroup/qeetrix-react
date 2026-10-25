@@ -29,4 +29,19 @@ export const hi: QeetrixMessages = {
     errorDescription: "फिर से कोशिश करें, या अपना कनेक्शन जाँचें।",
     retry: "फिर से कोशिश करें",
   },
+  copyButton: { copy: "कॉपी करें", copied: "कॉपी हो गया", failed: "कॉपी नहीं हो सका" },
+  alert: {
+    dismiss: "खारिज करें",
+    info: "जानकारी",
+    success: "सफल",
+    warning: "चेतावनी",
+    danger: "त्रुटि",
+  },
+  passwordInput: {
+    show: "पासवर्ड दिखाएँ",
+    shown: "पासवर्ड दिख रहा है",
+    hidden: "पासवर्ड छिपा है",
+    capsLock: "कैप्स लॉक चालू है",
+  },
+  otpInput: { character: "{length} में से अक्षर {index}" },
 };

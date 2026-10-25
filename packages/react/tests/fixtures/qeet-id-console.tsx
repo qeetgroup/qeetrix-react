@@ -32,7 +32,7 @@ import { SparklesIcon } from "@qeetrix/icons/icons/sparkles";
 import { UserGroupIcon } from "@qeetrix/icons/icons/user-group";
 import { UsersIcon } from "@qeetrix/icons/icons/users";
 import { WebhookIcon } from "@qeetrix/icons/icons/webhook";
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import {
   AppShell,
   type AppShellDensity,
@@ -231,7 +231,7 @@ function Filters() {
   );
 }
 
-function Scope() {
+function Scope({ env }: { env: Environment }) {
   return (
     <>
       <Menu>
@@ -242,7 +242,14 @@ function Scope() {
         </MenuContent>
       </Menu>
       <Menu>
-        <MenuTrigger render={<TopBarSwitcher status="success" label="Production" />} />
+        <MenuTrigger
+          render={
+            <TopBarSwitcher
+              status={env === "production" ? "success" : "warning"}
+              label={env === "production" ? "Production" : "Development"}
+            />
+          }
+        />
         <MenuContent>
           <MenuItem>Production</MenuItem>
           <MenuItem>Development</MenuItem>
@@ -252,33 +259,43 @@ function Scope() {
   );
 }
 
-export interface ConsoleProps {
+type Environment = "production" | "development";
+
+export interface FrameProps {
+  /** The sidebar item marked current. */
+  current?: string;
+  env?: Environment;
+  notifications?: ReactNode;
   collapsed?: boolean;
-  state?: "ready" | "empty" | "loading" | "error";
   drawer?: string | null;
   density?: AppShellDensity;
+  children?: ReactNode;
 }
 
-/** The Qeet ID console: Directory › Users. */
-export function QeetIdConsole({
+/** The Qeet ID console frame: the scope bar, the navigation and the panels, around any page. */
+export function QeetIdFrame({
+  current = "users",
+  env = "production",
+  notifications,
   collapsed = false,
-  state = "ready",
   drawer = null,
   density = "compact",
-}: ConsoleProps): ReactElement {
-  const ready = state === "ready";
+  children,
+}: FrameProps): ReactElement {
+  const is = (id: string) => current === id;
   return (
     <AppShell
       density={density}
       defaultSidebarCollapsed={collapsed}
       defaultActiveDrawer={drawer}
+      notifications={notifications}
       topBar={
         <TopBar
           launcher={<IconButton icon={LayoutGridIcon} aria-label="Qeet products" tone="neutral" />}
           logo={<QeetLogo variant="dark" height={20} />}
           product="Qeet ID"
           href="#home"
-          context={<Scope />}
+          context={<Scope env={env} />}
           search={<TopBarSearch placeholder="Search or jump to…" shortcut={["⌘", "K"]} />}
           actions={<IconButton icon={SettingsIcon} aria-label="Settings" tone="neutral" />}
           account={<Avatar name="Priya Sharma" size="sm" />}
@@ -295,14 +312,19 @@ export function QeetIdConsole({
           }
         >
           <SidebarGroup>
-            <SidebarItem label="Overview" href="#overview" icon={HouseIcon} />
+            <SidebarItem
+              label="Overview"
+              href="#overview"
+              icon={HouseIcon}
+              current={is("overview")}
+            />
           </SidebarGroup>
           <SidebarGroup label="Directory">
             <SidebarItem
               label="Users"
               href="#users"
               icon={UsersIcon}
-              current
+              current={is("users")}
               filledWhenCurrent
               badge="1,284"
             />
@@ -310,7 +332,13 @@ export function QeetIdConsole({
             <SidebarItem label="Organisations" href="#orgs" icon={BuildingIcon} />
           </SidebarGroup>
           <SidebarGroup label="Access">
-            <SidebarItem label="Applications" href="#apps" icon={AppWindowIcon} badge="12" />
+            <SidebarItem
+              label="Applications"
+              href="#apps"
+              icon={AppWindowIcon}
+              badge="12"
+              current={is("apps")}
+            />
             <SidebarItem label="Connections" icon={PlugIcon}>
               <SidebarItem label="Passkeys" href="#passkeys" />
               <SidebarItem label="Enterprise SSO" href="#sso" />
@@ -325,7 +353,7 @@ export function QeetIdConsole({
             <SidebarItem label="Audit logs" href="#audit" icon={ScrollTextIcon} />
           </SidebarGroup>
           <SidebarGroup label="Developers">
-            <SidebarItem label="API keys" href="#keys" icon={KeyRoundIcon} />
+            <SidebarItem label="API keys" href="#keys" icon={KeyRoundIcon} current={is("keys")} />
             <SidebarItem label="Webhooks" href="#webhooks" icon={WebhookIcon} />
             <SidebarItem label="SDKs" href="#sdks" icon={CodeXmlIcon} />
           </SidebarGroup>
@@ -361,6 +389,28 @@ export function QeetIdConsole({
         },
       ]}
     >
+      {children}
+    </AppShell>
+  );
+}
+
+export interface ConsoleProps {
+  collapsed?: boolean;
+  state?: "ready" | "empty" | "loading" | "error";
+  drawer?: string | null;
+  density?: AppShellDensity;
+}
+
+/** The Qeet ID console: Directory › Users. */
+export function QeetIdConsole({
+  collapsed = false,
+  state = "ready",
+  drawer = null,
+  density = "compact",
+}: ConsoleProps): ReactElement {
+  const ready = state === "ready";
+  return (
+    <QeetIdFrame collapsed={collapsed} drawer={drawer} density={density}>
       <Tabs defaultValue="all">
         <PageHeader
           breadcrumb={
@@ -440,6 +490,6 @@ export function QeetIdConsole({
           </DataState>
         </PageContent>
       </Tabs>
-    </AppShell>
+    </QeetIdFrame>
   );
 }

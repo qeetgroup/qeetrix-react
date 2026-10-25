@@ -1,0 +1,74 @@
+/* Alert (07-components.md, C2): the status's subtle tint, the 3px status edge on the start side (the
+   Toast's mark, here in the page flow), a sharp status icon, a semibold title and the description in
+   the subtle text colour. No shadow: it sits in the page, not over it. */
+.qx-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--qx-space-gap-md);
+  padding: var(--qx-space-inset-md) var(--qx-space-inset-sm) var(--qx-space-inset-md)
+    var(--qx-space-inset-md);
+  border-inline-start: var(--qx-border-width-accent) solid var(--qx-color-icon-info);
+  background: var(--qx-color-bg-info-subtle);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  &[data-tone="success"] {
+    border-inline-start-color: var(--qx-color-icon-success);
+    background: var(--qx-color-bg-success-subtle);
+  }
+  &[data-tone="warning"] {
+    border-inline-start-color: var(--qx-color-icon-warning);
+    background: var(--qx-color-bg-warning-subtle);
+  }
+  &[data-tone="danger"] {
+    border-inline-start-color: var(--qx-color-icon-danger);
+    background: var(--qx-color-bg-danger-subtle);
+  }
+}
+.qx-alert-icon {
+  flex: none;
+  margin-block-start: 2px;
+  color: var(--qx-color-icon-info);
+  [data-tone="success"] > & {
+    color: var(--qx-color-icon-success);
+  }
+  [data-tone="warning"] > & {
+    color: var(--qx-color-icon-warning);
+  }
+  [data-tone="danger"] > & {
+    color: var(--qx-color-icon-danger);
+  }
+}
+.qx-alert-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-inline-size: 0;
+  padding-inline-end: var(--qx-space-gap-xs);
+}
+.qx-alert-title {
+  font: var(--qx-typography-label-md);
+  font-weight: var(--qx-typography-title-sm-font-weight);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+}
+.qx-alert-description {
+  color: var(--qx-color-text-subtle);
+}
+.qx-alert-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--qx-space-gap-sm);
+  margin-block-start: var(--qx-space-gap-sm);
+}
+.qx-alert-dismiss {
+  flex: none;
+  margin-block: -2px;
+}
+
+@media (forced-colors: active) {
+  .qx-alert {
+    border: var(--qx-border-width-default) solid CanvasText;
+    border-inline-start: var(--qx-border-width-accent) solid CanvasText;
+  }
+}

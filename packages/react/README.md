@@ -213,7 +213,17 @@ import { Menu, MenuContent, MenuItem, MenuTrigger } from "@qeetrix/react";
 
 The bar is black in light and dark, topped by a 2px Ember line; the navigation collapses to a 48px
 rail that expands while hovered. Also there: `Breadcrumb`, `EmptyState` and `DataState` (loading,
-error, empty, content). Colour-scheme switching lives in `QeetrixProvider`
+error, empty, content), and the secure-entry parts:
+
+```tsx
+<Alert tone="warning" title="Copy this client secret now">It can't be shown again.</Alert>
+<Field label="Client secret">
+  <PasswordInput readOnly autoComplete="off" defaultValue={secret}
+    endAdornment={<CopyButton value={secret} label="Copy client secret" size="sm" />} />
+</Field>
+<Field label="Verification code"><OTPInput size="lg" onValueComplete={verify} /></Field>
+```
+ Colour-scheme switching lives in `QeetrixProvider`
 (`defaultColorScheme="system"`, `useColorScheme()`).
 
 ## Overlays

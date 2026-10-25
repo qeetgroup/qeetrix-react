@@ -1,0 +1,11 @@
+/* CopyButton (07-components.md, C2): a Button or IconButton whose icon becomes a check once the text
+   is on the clipboard, or an alert when it couldn't be copied. On ghost buttons the icon takes the
+   status colour; on filled ones it stays the label colour, which already contrasts. */
+.qx-copy-button[data-variant="ghost"] {
+  &[data-state="copied"] .qx-button-icon {
+    color: var(--qx-color-icon-success);
+  }
+  &[data-state="failed"] .qx-button-icon {
+    color: var(--qx-color-icon-danger);
+  }
+}

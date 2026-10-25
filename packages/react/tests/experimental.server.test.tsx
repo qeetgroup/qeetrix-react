@@ -8,10 +8,14 @@ import { BREAKPOINT } from "@qeetrix/tokens";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import {
+  Alert,
   AppShell,
   Breadcrumb,
   BreadcrumbItem,
+  CopyButton,
   EmptyState,
+  OTPInput,
+  PasswordInput,
   Sidebar,
   SidebarGroup,
   SidebarItem,
@@ -51,6 +55,19 @@ describe("experimental components on the server", () => {
     expect(strip).toContain(">1,28,400</dd>");
     expect(strip).toContain(">72%</dd>");
     expect(strip.match(/<svg/g)).toHaveLength(1);
+  });
+
+  it("C2's parts render on the server: hidden secrets, six named slots, a quiet alert", () => {
+    const secret = html(<PasswordInput aria-label="Password" defaultValue="x" />);
+    expect(secret).toContain('type="password"');
+    expect(secret).toMatch(/autocomplete="current-password"/i);
+    const code = html(<OTPInput aria-label="Code" />);
+    expect(code.match(/<input/g)?.length).toBeGreaterThanOrEqual(6);
+    expect(code).toContain('aria-label="Character 6 of 6"');
+    const alert = html(<Alert tone="warning" title="Heads up" />);
+    expect(alert).not.toContain("role=");
+    expect(alert).toContain("Warning: ");
+    expect(html(<CopyButton value="x" label="Copy ID" />)).toContain('aria-label="Copy ID"');
   });
 
   it("AppShell renders the wide layout, its landmarks and no drawer", () => {

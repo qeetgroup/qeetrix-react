@@ -26,6 +26,21 @@ export const messages = {
     errorDescription: "Try again, or check your connection.",
     retry: "Try again",
   },
+  copyButton: { copy: "Copy", copied: "Copied", failed: "Couldn't copy" },
+  alert: {
+    dismiss: "Dismiss",
+    info: "Information",
+    success: "Success",
+    warning: "Warning",
+    danger: "Error",
+  },
+  passwordInput: {
+    show: "Show password",
+    shown: "Password shown",
+    hidden: "Password hidden",
+    capsLock: "Caps Lock is on",
+  },
+  otpInput: { character: "Character {index} of {length}" },
 } as const;
 
 /** The complete catalogue, as a locale pack provides it. */
