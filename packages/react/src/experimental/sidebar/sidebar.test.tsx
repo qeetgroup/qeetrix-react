@@ -85,17 +85,39 @@ describe("Sidebar", () => {
     await expect.element(page.getByText("No pages match")).toBeVisible();
   });
 
-  it("becomes a rail in a collapsed AppShell: icon squares that keep their names", async () => {
+  it("labels its groups in small capitals between hairlines", async () => {
+    await render(<PayNav />);
+    const label = page.getByText("Money").element();
+    expect(getComputedStyle(label).textTransform).toBe("uppercase");
+    const group = label.closest("[data-slot=sidebar-group]") as HTMLElement;
+    expect(getComputedStyle(group).borderTopWidth).toBe("1px");
+  });
+
+  it("becomes a 48px rail in a collapsed AppShell: icons stay put and keep their names", async () => {
     await page.viewport(1200, 600);
+    const iconX = () =>
+      (
+        page
+          .getByRole("link", { name: "Payouts" })
+          .element()
+          .querySelector(".qx-sidebar-icon") as Element
+      ).getBoundingClientRect().left;
+    const expanded = await render(
+      <AppShell sidebar={<PayNav />}>
+        <p>Page</p>
+      </AppShell>,
+    );
+    const open = iconX();
+    await expanded.unmount();
     await render(
       <AppShell defaultSidebarCollapsed sidebar={<PayNav />}>
         <p>Page</p>
       </AppShell>,
     );
-    // A console is compact, so the rail's icon squares are the compact control size.
-    expect(
-      page.getByRole("link", { name: "Payouts" }).element().getBoundingClientRect().width,
-    ).toBe(28);
+    const payouts = page.getByRole("link", { name: "Payouts" });
+    // The 48px rail, less its 1px rule.
+    expect(payouts.element().getBoundingClientRect().width).toBe(47);
+    expect(iconX()).toBe(open);
     await page.getByRole("button", { name: "Reports" }).click();
     await expect.element(page.getByRole("link", { name: "GST returns" })).toBeVisible();
   });

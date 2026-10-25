@@ -1,6 +1,6 @@
 /**
- * The experimental channel on the server (07-components.md, C1): Breadcrumb and EmptyState are
- * server-safe; AppShell renders its wide layout first, with no drawer markup; the shell's breakpoint
+ * The experimental channel on the server (07-components.md, C1): Breadcrumb, EmptyState, PageHeader
+ * and Stat are server-safe; AppShell renders its wide layout first, with no drawer markup; the shell's breakpoint
  * is the tokens' `expanded` window class.
  */
 import { readFileSync } from "node:fs";
@@ -15,6 +15,8 @@ import {
   Sidebar,
   SidebarGroup,
   SidebarItem,
+  Stat,
+  StatGroup,
 } from "../src/experimental";
 
 const html = (node: React.ReactElement) => renderToString(node);
@@ -34,6 +36,21 @@ describe("experimental components on the server", () => {
     expect(trail).toMatch(/^<nav aria-label="Breadcrumb"/);
     expect(trail).toContain('aria-current="page"');
     expect(html(<EmptyState title="No users yet" level={2} />)).toContain("<h2");
+  });
+
+  it("PageHeader and Stat carry no client code; numbers are formatted for India by default", () => {
+    expect(source("page-header/page-header.tsx")).not.toMatch(/^["']use client["']/);
+    expect(source("stat/stat.tsx")).not.toMatch(/^["']use client["']/);
+    const strip = html(
+      <StatGroup>
+        <Stat label="Collected" value={128400} trend={[1, 3, 2, 5]} />
+        <Stat label="Ratio" value="72%" />
+      </StatGroup>,
+    );
+    expect(strip).toMatch(/^<dl class="qx-stat-group"/);
+    expect(strip).toContain(">1,28,400</dd>");
+    expect(strip).toContain(">72%</dd>");
+    expect(strip.match(/<svg/g)).toHaveLength(1);
   });
 
   it("AppShell renders the wide layout, its landmarks and no drawer", () => {

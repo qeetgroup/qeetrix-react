@@ -1,6 +1,7 @@
-/* Sidebar (07-components.md, C1; the navigation signed off in the Phase 2 prototype): items edge to
-   edge; the current page gets weight 600, a neutral tint, the 3px Ember bar on its start edge and
-   an Ember icon. Collapsed, it's a rail of 32px icon squares. */
+/* Sidebar (07-components.md, C1 · Ruled): square rows edge to edge on the canvas tone; groups
+   between hairlines under small uppercase labels. The current page gets the 3px Ember bar on its
+   start edge, a neutral tint, weight 600 and an Ember icon. Icons sit in a fixed 16px column from
+   the start edge, so in the 48px rail they're centred without moving. */
 .qx-sidebar {
   display: flex;
   flex-direction: column;
@@ -14,7 +15,7 @@
   flex: none;
   flex-direction: column;
   gap: var(--qx-space-gap-sm);
-  padding: var(--qx-space-inset-md) var(--qx-space-inset-md) var(--qx-space-gap-xs);
+  padding: var(--qx-space-inset-md) var(--qx-space-inset-lg) var(--qx-space-gap-xs);
 }
 .qx-sidebar-title {
   font: var(--qx-typography-title-sm);
@@ -26,7 +27,7 @@
 }
 .qx-sidebar-empty {
   margin: 0;
-  padding: var(--qx-space-gap-sm) var(--qx-space-inset-md);
+  padding: var(--qx-space-gap-sm) var(--qx-space-inset-lg);
   font: var(--qx-typography-body-sm);
   font-variation-settings: "GEOM" var(--qx-font-geometry-body);
   color: var(--qx-color-text-subtle);
@@ -43,21 +44,25 @@
   min-block-size: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  padding-block: var(--qx-space-gap-sm);
+  padding-block: var(--qx-space-gap-sm) var(--qx-space-inset-md);
 }
 .qx-sidebar-footer {
   flex: none;
-  padding: var(--qx-space-inset-md);
+  padding-block: var(--qx-space-gap-xs);
   border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
 }
 .qx-sidebar-group + .qx-sidebar-group {
   margin-block-start: var(--qx-space-gap-sm);
+  padding-block-start: var(--qx-space-inset-md);
+  border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
 }
 .qx-sidebar-group-label {
-  padding: var(--qx-space-inset-md) var(--qx-space-inset-md) var(--qx-space-gap-xs);
+  padding: 0 var(--qx-space-inset-lg) 6px;
   font: var(--qx-typography-label-sm);
+  font-weight: var(--qx-typography-title-sm-font-weight);
   font-variation-settings: "GEOM" var(--qx-font-geometry-body);
   color: var(--qx-color-text-subtlest);
+  text-transform: uppercase;
   white-space: nowrap;
 }
 .qx-sidebar-list {
@@ -70,10 +75,10 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: var(--qx-space-gap-sm);
+  gap: 10px;
   inline-size: 100%;
-  block-size: var(--qx-size-control-md);
-  padding-inline: var(--qx-space-inset-md);
+  block-size: var(--qx-size-control-lg);
+  padding-inline: var(--qx-space-inset-lg) var(--qx-space-inset-md);
   border: 0;
   background: transparent;
   color: var(--qx-color-text-subtle);
@@ -83,12 +88,15 @@
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
+  transition-property: background-color, color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
   &:hover {
-    background: var(--qx-color-bg-neutral-subtle);
+    background: var(--qx-color-overlay-hover);
     color: var(--qx-color-text-default);
   }
   &[data-current] {
-    background: var(--qx-color-bg-neutral-subtle);
+    background: var(--qx-color-bg-neutral-subtle-hover);
     color: var(--qx-color-text-default);
     font-weight: var(--qx-typography-title-sm-font-weight);
     &::before {
@@ -130,7 +138,7 @@
   flex: none;
   font: var(--qx-typography-label-sm);
   font-variant-numeric: tabular-nums;
-  color: var(--qx-color-text-subtle);
+  color: var(--qx-color-text-subtlest);
 }
 .qx-sidebar-chevron {
   flex: none;
@@ -144,17 +152,17 @@
 }
 /* Nested items line up with their parent's label: padding + icon + gap. */
 .qx-sidebar-sublist .qx-sidebar-item {
-  padding-inline-start: calc(var(--qx-space-inset-md) + 16px + var(--qx-space-gap-sm));
+  padding-inline-start: calc(var(--qx-space-inset-lg) + 16px + 10px);
   font-weight: var(--qx-typography-body-md-font-weight);
 }
 .qx-sidebar-sublist .qx-sidebar-item[data-current] {
   font-weight: var(--qx-typography-title-sm-font-weight);
 }
 
-/* The rail: icon squares centred in the 48px column; labels move to tooltips. */
+/* The rail: the same rows, 48px wide, so each icon is already centred; labels move to tooltips.
+   Headers and group labels stay in place, invisible, so nothing moves when the rail expands under
+   the pointer; the rules between groups stay visible. */
 .qx-sidebar[data-rail] {
-  /* Invisible but in place: when the rail expands under the pointer, the items mustn't move. The
-     filter's shortcut stays visible in that space. */
   .qx-sidebar-header {
     position: relative;
     overflow: hidden;
@@ -167,20 +175,9 @@
     translate: -50% 0;
     visibility: visible;
   }
-  .qx-sidebar-footer {
-    padding-inline: var(--qx-space-gap-sm);
-  }
-  /* Group labels keep their space too, so the rail and the expanded list share one vertical
-     rhythm; the groups are separated by that space. */
   .qx-sidebar-group-label {
     overflow: hidden;
     visibility: hidden;
-  }
-  .qx-sidebar-item {
-    justify-content: center;
-    inline-size: var(--qx-size-control-md);
-    margin-inline: auto;
-    padding-inline: 0;
   }
   .qx-sidebar-label {
     position: absolute;
@@ -196,6 +193,10 @@
 }
 
 @media (forced-colors: active) {
+  .qx-sidebar-footer,
+  .qx-sidebar-group + .qx-sidebar-group {
+    border-color: CanvasText;
+  }
   .qx-sidebar-item[data-current] {
     forced-color-adjust: none;
     background: Highlight;

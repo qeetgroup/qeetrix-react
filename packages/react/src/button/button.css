@@ -1,12 +1,12 @@
 /* Button and IconButton (06-component-specs.md §1; design rules §7). Label first; an icon sits in
-   its own square zone at the end, behind a 1px full-height rule. The focus frame is drawn inside,
+   its own zone at the end, behind a 1px rule as tall as the icon. The focus frame is drawn inside,
    with a surface-coloured gap. */
 .qx-button {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 12px;
   block-size: var(--qx-size-control-md);
   padding-inline: 14px 0;
   border: 0;
@@ -26,7 +26,7 @@
 
   &[data-size="sm"] {
     block-size: var(--qx-size-control-sm);
-    gap: 10px;
+    gap: 8px;
     padding-inline: 10px 0;
     font-size: var(--qx-typography-label-sm-font-size);
     line-height: var(--qx-typography-label-sm-line-height);
@@ -36,7 +36,7 @@
   }
   &[data-size="lg"] {
     block-size: var(--qx-size-control-lg);
-    gap: 16px;
+    gap: 14px;
     padding-inline: 16px 0;
   }
   &[data-size="lg"]:not([data-icon]):not([data-loading]) {
@@ -138,15 +138,39 @@
   }
 }
 
-/* The icon zone: a square as tall as the button, behind a full-height rule in the label's own colour
-   (white on filled buttons), so the two read as one control. */
+/* The icon zone: the icon with even space on both sides, behind a rule as tall as the icon in the
+   label's own colour (white on filled buttons). A short seam, not a full-height split, so label and
+   icon read as one control. */
 .qx-button-zone {
+  position: relative;
   display: grid;
   flex: none;
   place-items: center;
   align-self: stretch;
-  aspect-ratio: 1;
-  border-inline-start: var(--qx-border-width-default) solid currentcolor;
+  padding-inline: 10px;
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 0;
+    inline-size: var(--qx-border-width-default);
+    block-size: var(--qx-size-icon-sm);
+    background: currentcolor;
+    opacity: 0.55;
+    translate: 0 -50%;
+  }
+  .qx-button[data-size="sm"] > & {
+    padding-inline: 8px;
+    &::before {
+      block-size: var(--qx-size-icon-xs);
+    }
+  }
+  .qx-button[data-size="lg"] > & {
+    padding-inline: 12px;
+    &::before {
+      block-size: var(--qx-size-icon-md);
+    }
+  }
 }
 
 .qx-icon-button {
@@ -174,5 +198,12 @@
   .qx-button[data-disabled]:not([data-loading]) {
     border-color: GrayText;
     color: GrayText;
+  }
+  .qx-button-zone::before {
+    background: ButtonText;
+    opacity: 1;
+  }
+  .qx-button[data-disabled]:not([data-loading]) .qx-button-zone::before {
+    background: GrayText;
   }
 }

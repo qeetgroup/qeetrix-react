@@ -1,22 +1,26 @@
-/* PageHeader and PageContent (07-components.md, C1): a ruled band at the head of the page, then
-   the work surface. With tabs, the tab list's line is the band's foot. */
+/* PageHeader and PageContent (07-components.md, C1 · Ruled): a ruled band at the head of the page,
+   then the work surface, on one page gutter. The summary strip runs edge to edge between rules; when
+   the header ends with it, or with tabs, that line is the band's foot. */
 .qx-page-header {
+  --qx-page-gutter: var(--qx-space-layout-md);
   display: flex;
   flex-direction: column;
-  gap: var(--qx-space-gap-sm);
-  padding: var(--qx-space-inset-lg) var(--qx-space-inset-xl);
+  padding: 20px var(--qx-page-gutter);
   border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
   background: var(--qx-color-surface-default);
   color: var(--qx-color-text-default);
-  &[data-tabs] {
+  &[data-foot] {
     padding-block-end: 0;
     border-block-end: 0;
   }
 }
+.qx-page-header-breadcrumb {
+  margin-block-end: 6px;
+}
 .qx-page-header-row {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
   gap: var(--qx-space-gap-md);
 }
@@ -33,10 +37,11 @@
   gap: var(--qx-space-gap-sm);
 }
 .qx-page-header-count {
-  font: var(--qx-typography-title-md);
+  font: var(--qx-typography-title-lg);
+  font-weight: var(--qx-typography-body-md-font-weight);
   font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
   font-variant-numeric: tabular-nums;
-  color: var(--qx-color-text-subtle);
+  color: var(--qx-color-text-subtlest);
 }
 .qx-page-header-description {
   margin: 0;
@@ -51,16 +56,43 @@
   align-items: center;
   gap: var(--qx-space-gap-sm);
 }
+/* The key numbers: bled to the page edges, on the canvas tone between two rules; the first and last
+   cells line up with the gutter. */
+.qx-page-header-summary {
+  --qx-stat-group-inset: var(--qx-page-gutter);
+  margin: 20px calc(-1 * var(--qx-page-gutter)) 0;
+  border-block: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  background: var(--qx-color-surface-canvas);
+}
 .qx-page-header-tabs {
-  margin-inline: calc(-1 * var(--qx-space-inset-sm));
+  margin: var(--qx-space-gap-md) calc(-1 * var(--qx-space-inset-sm)) 0;
+  .qx-page-header-summary + & {
+    margin-block-start: var(--qx-space-gap-sm);
+  }
 }
 
 .qx-page-content {
   display: flex;
   flex-direction: column;
-  gap: var(--qx-space-gap-lg);
-  padding: var(--qx-space-inset-lg) var(--qx-space-inset-xl) var(--qx-space-inset-xl);
+  gap: var(--qx-space-gap-md);
+  padding: var(--qx-space-inset-lg) var(--qx-space-layout-md) var(--qx-space-layout-md);
   &[data-width="narrow"] {
     max-inline-size: 800px;
+  }
+}
+
+@media (width < 840px) {
+  .qx-page-header {
+    --qx-page-gutter: var(--qx-space-inset-lg);
+  }
+  .qx-page-content {
+    padding-inline: var(--qx-space-inset-lg);
+  }
+}
+
+@media (forced-colors: active) {
+  .qx-page-header,
+  .qx-page-header-summary {
+    border-color: CanvasText;
   }
 }

@@ -19,9 +19,13 @@ import {
   Sidebar,
   SidebarGroup,
   SidebarItem,
+  Stat,
+  StatGroup,
   TopBar,
+  TopBarSearch,
+  TopBarSwitcher,
 } from "../src/experimental";
-import { QeetrixProvider, Text } from "../src/index";
+import { formatCurrency, QeetrixProvider, Text } from "../src/index";
 import { QeetIdConsole } from "./fixtures/qeet-id-console";
 import { expectAccessible } from "./support/axe";
 import { canEmulateMedia, emulateMedia } from "./support/media";
@@ -30,7 +34,19 @@ import { screenshotSchemes } from "./support/screenshots";
 function QeetPayConsole() {
   return (
     <AppShell
-      topBar={<TopBar product="Qeet Pay" href="#home" />}
+      topBar={
+        <TopBar
+          product="Qeet Pay"
+          href="#home"
+          context={
+            <>
+              <TopBarSwitcher mark="AC" label="Acme Pvt Ltd" />
+              <TopBarSwitcher status="warning" label="Test mode" />
+            </>
+          }
+          search={<TopBarSearch placeholder="Search payments, invoices…" shortcut={["⌘", "K"]} />}
+        />
+      }
       sidebar={
         <Sidebar label="Qeet Pay" title="Payments">
           <SidebarGroup label="Money">
@@ -53,6 +69,22 @@ function QeetPayConsole() {
         }
         title="Sent invoices"
         count={312}
+        summary={
+          <StatGroup>
+            <Stat
+              label="Collected this month"
+              value={formatCurrency(1240500, "INR", "en-IN", { maximumFractionDigits: 0 })}
+              note="+12% on September"
+              tone="positive"
+            />
+            <Stat
+              label="Outstanding"
+              value={formatCurrency(318200, "INR", "en-IN", { maximumFractionDigits: 0 })}
+              note="41 invoices"
+            />
+            <Stat label="Overdue" value={9} note="₹46,800 past due" tone="negative" />
+          </StatGroup>
+        }
       />
       <PageContent>
         <Text tone="subtle">Invoices sent this month.</Text>

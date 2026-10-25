@@ -7,6 +7,7 @@ import { QeetIdConsole } from "../../../tests/fixtures/qeet-id-console";
 import { expectAccessible } from "../../../tests/support/axe";
 import { screenshotEveryMode } from "../../../tests/support/screenshots";
 import { settled } from "../../../tests/support/settled";
+import { TopBar } from "../top-bar/top-bar";
 import { AppShell } from "./app-shell";
 
 const nav = () => document.querySelector("[data-slot=app-shell-nav]") as HTMLElement;
@@ -64,11 +65,12 @@ describe("AppShell", () => {
     await expect.poll(() => nav().hasAttribute("data-peek")).toBe(false);
   });
 
-  it("opens an end-edge panel from its toolbar, one at a time", async () => {
+  it("opens an end-edge panel from the bar's tools, one at a time", async () => {
     await page.viewport(1440, 900);
     const onActiveDrawerChange = vi.fn();
     await render(
       <AppShell
+        topBar={<TopBar product="Qeet ID" />}
         drawers={[
           { id: "help", label: "Help", icon: CircleQuestionMarkIcon, content: "Help text" },
           { id: "activity", label: "Activity", icon: ActivityIcon, content: "Recent changes" },

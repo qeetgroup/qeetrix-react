@@ -8,4 +8,5 @@ export * from "./breadcrumb";
 export * from "./empty-state";
 export * from "./page-header";
 export * from "./sidebar";
+export * from "./stat";
 export * from "./top-bar";

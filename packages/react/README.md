@@ -165,9 +165,30 @@ Components and patterns in their first product ship from `@qeetrix/react/experim
 change in a patch release until they're Ready.
 
 ```tsx
-import { AppShell, Breadcrumb, BreadcrumbItem, Sidebar, SidebarGroup, SidebarItem } from "@qeetrix/react/experimental";
+import {
+  AppShell, PageContent, PageHeader, Sidebar, SidebarGroup, SidebarItem, Stat, StatGroup,
+  TopBar, TopBarSearch, TopBarSwitcher,
+} from "@qeetrix/react/experimental";
+import { Menu, MenuContent, MenuItem, MenuTrigger } from "@qeetrix/react";
 
 <AppShell
+  topBar={
+    <TopBar
+      logo={<QeetLogo variant="dark" height={20} />}
+      product="Qeet ID"
+      context={
+        <>
+          <Menu>
+            <MenuTrigger render={<TopBarSwitcher mark="AC" label="Acme Pvt Ltd" />} />
+            <MenuContent>{organisations}</MenuContent>
+          </Menu>
+          <TopBarSwitcher status="success" label="Production" />
+        </>
+      }
+      search={<TopBarSearch placeholder="Search or jump to…" shortcut={["⌘", "K"]} onClick={openPalette} />}
+      account={accountMenu}
+    />
+  }
   sidebar={
     <Sidebar label="Qeet ID">
       <SidebarGroup label="Directory">
@@ -175,14 +196,25 @@ import { AppShell, Breadcrumb, BreadcrumbItem, Sidebar, SidebarGroup, SidebarIte
       </SidebarGroup>
     </Sidebar>
   }
-  header={<Breadcrumb><BreadcrumbItem current>Users</BreadcrumbItem></Breadcrumb>}
+  drawers={[{ id: "help", label: "Help", icon: CircleQuestionMarkIcon, content: help }]}
 >
-  {page}
+  <PageHeader
+    title="Users"
+    actions={<Button icon={PlusIcon}>Invite users</Button>}
+    summary={
+      <StatGroup>
+        <Stat label="Total users" value={1284} note="+38 this week" tone="positive" trend={weekly} />
+      </StatGroup>
+    }
+  />
+  <PageContent>{table}</PageContent>
 </AppShell>
 ```
 
-Also there: `EmptyState` and `DataState` (loading, error, empty, content). Colour-scheme switching
-lives in `QeetrixProvider` (`defaultColorScheme="system"`, `useColorScheme()`).
+The bar is black in light and dark, topped by a 2px Ember line; the navigation collapses to a 48px
+rail that expands while hovered. Also there: `Breadcrumb`, `EmptyState` and `DataState` (loading,
+error, empty, content). Colour-scheme switching lives in `QeetrixProvider`
+(`defaultColorScheme="system"`, `useColorScheme()`).
 
 ## Overlays
 

@@ -9,9 +9,10 @@ import { Badge } from "../../badge/badge";
 import { Button } from "../../button/button";
 import { Tab, Tabs, TabsList } from "../../tabs/tabs";
 import { Breadcrumb, BreadcrumbItem } from "../breadcrumb/breadcrumb";
+import { Stat, StatGroup } from "../stat/stat";
 import { PageContent, PageHeader } from "./page-header";
 
-function Header() {
+function Header({ tabs = true }: { tabs?: boolean }) {
   return (
     <Tabs defaultValue="all">
       <PageHeader
@@ -33,11 +34,19 @@ function Header() {
             <Button icon={PlusIcon}>Invite users</Button>
           </>
         }
+        summary={
+          <StatGroup>
+            <Stat label="Total users" value={1284} note="+38 this week" tone="positive" />
+            <Stat label="Pending invitations" value={64} note="9 expire this week" tone="warning" />
+          </StatGroup>
+        }
         tabs={
-          <TabsList>
-            <Tab value="all">All users</Tab>
-            <Tab value="invitations">Invitations</Tab>
-          </TabsList>
+          tabs ? (
+            <TabsList>
+              <Tab value="all">All users</Tab>
+              <Tab value="invitations">Invitations</Tab>
+            </TabsList>
+          ) : undefined
         }
       />
       <PageContent>content</PageContent>
@@ -47,13 +56,33 @@ function Header() {
 
 describe("PageHeader", () => {
   it("has the page's one h1, with its count formatted", async () => {
-    await render(<Header />);
+    const { container } = await render(<Header />);
     await expect.element(page.getByRole("heading", { level: 1, name: "Users" })).toBeVisible();
-    await expect.element(page.getByText("1,284")).toBeVisible();
+    expect(container.querySelector("[data-slot=page-header-count]")?.textContent).toBe("1,284");
+  });
+
+  it("runs its summary edge to edge, with the first number on the page gutter", async () => {
+    await page.viewport(1000, 400);
+    const { container } = await render(<Header />);
+    const header = container.querySelector("[data-slot=page-header]") as HTMLElement;
+    const summary = container.querySelector("[data-slot=page-header-summary]") as HTMLElement;
+    expect(summary.getBoundingClientRect().left).toBe(header.getBoundingClientRect().left);
+    expect(summary.getBoundingClientRect().width).toBe(header.getBoundingClientRect().width);
+    const first = summary.querySelector("[data-slot=stat]") as HTMLElement;
+    expect(getComputedStyle(first).paddingInlineStart).toBe(
+      getComputedStyle(header).paddingInlineStart,
+    );
+  });
+
+  it("ends on its summary's rule when there are no tabs", async () => {
+    const { container } = await render(<Header tabs={false} />);
+    const header = container.querySelector("[data-slot=page-header]") as HTMLElement;
+    expect(header.dataset.foot).toBe("summary");
+    expect(getComputedStyle(header).borderBottomWidth).toBe("0px");
   });
 
   it("is accessible and looks right in both schemes", async () => {
-    await page.viewport(1000, 260);
+    await page.viewport(1000, 360);
     const { container } = await render(<Header />);
     await expectAccessible(container);
     await screenshotSchemes("PageHeader", "[data-slot=page-header]");

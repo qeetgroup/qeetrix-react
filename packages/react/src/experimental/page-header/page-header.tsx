@@ -16,6 +16,8 @@ export interface PageHeaderProps extends Omit<ComponentProps<"div">, "title"> {
   description?: ReactNode;
   /** Buttons at the end: the primary last; at most one solid and one soft, the rest in a menu. */
   actions?: ReactNode;
+  /** Key numbers for the page: a StatGroup, ruled edge to edge under the title. */
+  summary?: ReactNode;
   /** A TabsList, attached to the header's foot. */
   tabs?: ReactNode;
 }
@@ -28,8 +30,9 @@ export interface PageContentProps extends ComponentProps<"div"> {
 }
 
 /**
- * The head of a console page (07-components.md, C1): breadcrumb, title with its count and status,
- * actions, and tabs, on a ruled band above the work surface. Server-safe.
+ * The head of a console page (07-components.md, C1 · Ruled): breadcrumb, title with its count and
+ * status, actions, an optional strip of key numbers, and tabs, on a ruled band above the work
+ * surface. Server-safe.
  */
 export function PageHeader({
   breadcrumb,
@@ -38,6 +41,7 @@ export function PageHeader({
   status,
   description,
   actions,
+  summary,
   tabs,
   className,
   ...props
@@ -47,13 +51,13 @@ export function PageHeader({
       {...props}
       className={cx("qx-page-header", className)}
       data-slot="page-header"
-      data-tabs={tabs != null ? "" : undefined}
+      data-foot={tabs != null ? "tabs" : summary != null ? "summary" : undefined}
     >
       {breadcrumb != null && <div className="qx-page-header-breadcrumb">{breadcrumb}</div>}
       <div className="qx-page-header-row">
         <div className="qx-page-header-titles">
           <div className="qx-page-header-title">
-            <Heading level={1} size="heading-sm">
+            <Heading level={1} size="title-lg">
               {title}
             </Heading>
             {count != null && (
@@ -75,6 +79,11 @@ export function PageHeader({
           </div>
         )}
       </div>
+      {summary != null && (
+        <div className="qx-page-header-summary" data-slot="page-header-summary">
+          {summary}
+        </div>
+      )}
       {tabs != null && <div className="qx-page-header-tabs">{tabs}</div>}
     </div>
   );

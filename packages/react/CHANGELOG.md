@@ -6,18 +6,31 @@ The first Phase 5 increment (C1, the console frame), from `@qeetrix/react/experi
 parts may change in a patch release; each moves to the root export once it has shipped in its
 product (07-components.md).
 
-- **`AppShell`:**
-  - the frame of every Qeet console: a skip link, the sidebar column, a sticky ruled header (a
-    neutral toggle, `header` at the start, `actions` at the end) and the page;
-  - from 840px the sidebar collapses to a 48px icon rail (`sidebarCollapsed` /
-    `defaultSidebarCollapsed` / `onSidebarCollapsedChange`);
-  - below 840px it opens as a drawer from the start edge, which closes when a link is followed;
-  - `useAppShell()` tells the sidebar's header and footer when they're in the rail.
+- **`AppShell`** (design B · Ruled, chosen from three researched concepts; 07-components.md):
+  - the frame of every Qeet console: a skip link, the sticky TopBar across the full width, the
+    navigation column on the canvas tone, the page, and an end-edge panel; every seam a 1px rule;
+  - from 840px the navigation collapses to a 48px rail (`sidebarCollapsed` /
+    `defaultSidebarCollapsed` / `onSidebarCollapsedChange`) that expands over the page while hovered
+    or focused; below 840px it opens as a drawer from the start edge;
+  - `drawers` (help, assistant, activity), opened from the TopBar's tools: one at a time, pushing
+    the page from 1200px; `notifications` above the page; `density`, compact by default;
+  - `useAppShell()` tells content inside the frame when the sidebar is a rail.
+- **`TopBar`, `TopBarSwitcher`, `TopBarSearch`:**
+  - black in light and dark (the dark scheme on itself), topped by a 2px Ember line;
+  - product to global, left to right: launcher cell, product, the scope path with drawn slashes,
+    centred search, panel triggers and utilities, account;
+  - `TopBarSwitcher` is a step of the path (organisation mark, environment status dot, always a
+    word) and works as a Menu trigger; `TopBarSearch` is a field-shaped button with its shortcut.
+- **`PageHeader`, `PageContent`:** breadcrumb, `title.lg` title with count and status, actions, a
+  `summary` strip bled to the page edges, and tabs at the foot; a 32px page gutter.
+- **`Stat`, `StatGroup`:** key numbers in ruled cells; numeric values formatted for the locale; an
+  optional decorative trend line whose last point is the Ember mark. Server-safe.
 - **`Sidebar`, `SidebarGroup`, `SidebarItem`:**
   - links only, one level of nesting, every item in the Tab order;
-  - the current page gets `aria-current`, the 3px Ember bar and an Ember (optionally filled) icon;
-  - categories start open when they hold the current page, and carry its mark while closed;
-  - in the rail, labels become tooltips.
+  - square rows edge to edge with round icons; the current page gets `aria-current`, the 3px Ember
+    bar, weight 600 and an Ember (optionally filled) icon;
+  - groups between hairlines under uppercase labels; an optional `title`, `filter` and `footer`;
+  - in the rail, icons stay where they are and labels become tooltips.
 - **`Breadcrumb`, `BreadcrumbItem`:** server-safe; mirrored chevrons; long labels truncate and keep a
   title.
 - **`EmptyState`:** a 24px icon, a title (a heading when given a `level`), a description and actions,
@@ -31,9 +44,9 @@ product (07-components.md).
 - **`Button` and `IconButton`:**
   - a `neutral` tone for ghost utility actions in toolbars and headers, whose icons stay neutral
     (design rules §16);
-  - a Button's icon sits in its own square zone (the new `button-zone` slot), behind a 1px
-    full-height rule in the label's colour (design rules §7).
-- **Strings:** new `appShell`, `breadcrumb` and `dataState` groups, in English and Hindi.
+  - a Button's icon sits in its own zone (the new `button-zone` slot), behind a 1px rule as tall as
+    the icon, in the label's colour (design rules §7).
+- **Strings:** new `appShell`, `sidebar`, `breadcrumb` and `dataState` groups, in English and Hindi.
 - **Platform:**
   - the CSS build, the dist check and the screenshot coverage test understand
     `src/experimental/<family>/`;

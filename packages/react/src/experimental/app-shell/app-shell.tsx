@@ -52,7 +52,7 @@ export interface AppShellProps extends Omit<ComponentProps<"div">, "children"> {
   topBar?: ReactNode;
   /** The navigation: a Sidebar. */
   sidebar?: ReactNode;
-  /** End-edge panels, opened from a toolbar on the end edge. */
+  /** End-edge panels: help, the assistant, activity. Their triggers sit in the TopBar. */
   drawers?: AppShellDrawer[];
   /** The open panel's id, or `null`, controlled. */
   activeDrawer?: string | null;
@@ -136,9 +136,10 @@ export function useAppShell(): AppShellState {
 }
 
 /**
- * The frame of a Qeet console (07-components.md, C1), after the consoles enterprises run on: a
- * full-width dark global bar; the navigation, which collapses to an icon rail that expands while
- * hovered; the page; and panels on the end edge. Compact by default.
+ * The frame of a Qeet console (07-components.md, C1 · Ruled): the black scope bar across the full
+ * width; the ruled navigation column, which collapses to a 48px icon rail that expands while
+ * hovered or focused; the page; and a panel on the end edge that the bar's tools open. Seams are
+ * 1px rules, never shadows. Compact by default.
  */
 export function AppShell({
   topBar,
@@ -272,51 +273,27 @@ export function AppShell({
           )}
           {children}
         </main>
-        {drawers.length > 0 && (
-          <div className="qx-app-shell-tools" data-slot="app-shell-tools">
-            {panel && (
-              <aside
-                className="qx-app-shell-panel"
-                data-slot="app-shell-panel"
-                aria-labelledby={panelTitle}
-              >
-                <div className="qx-app-shell-panel-header">
-                  <h2 id={panelTitle} className="qx-app-shell-panel-title">
-                    {panel.label}
-                  </h2>
-                  <IconButton
-                    icon={XIcon}
-                    aria-label={strings.closePanel}
-                    size="sm"
-                    tone="neutral"
-                    tooltip={false}
-                    onClick={() => setActive(null)}
-                  />
-                </div>
-                <div className="qx-app-shell-panel-body">{panel.content}</div>
-              </aside>
-            )}
-            {wide && (
-              // biome-ignore lint/a11y/useSemanticElements: a fieldset is for form controls; this is a set of buttons
-              <div role="group" aria-label={strings.tools} className="qx-app-shell-toolbar">
-                {drawers.map((drawer) => (
-                  <span
-                    key={drawer.id}
-                    className="qx-app-shell-trigger"
-                    data-badge={drawer.badge ? "" : undefined}
-                  >
-                    <IconButton
-                      icon={drawer.icon}
-                      aria-label={drawer.label}
-                      aria-pressed={active === drawer.id}
-                      tone="neutral"
-                      onClick={() => shell.toggleDrawer(drawer.id)}
-                    />
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
+        {panel && (
+          <aside
+            className="qx-app-shell-panel"
+            data-slot="app-shell-panel"
+            aria-labelledby={panelTitle}
+          >
+            <div className="qx-app-shell-panel-header">
+              <h2 id={panelTitle} className="qx-app-shell-panel-title">
+                {panel.label}
+              </h2>
+              <IconButton
+                icon={XIcon}
+                aria-label={strings.closePanel}
+                size="sm"
+                tone="neutral"
+                tooltip={false}
+                onClick={() => setActive(null)}
+              />
+            </div>
+            <div className="qx-app-shell-panel-body">{panel.content}</div>
+          </aside>
         )}
         {sidebar != null && (
           <BaseDrawer.Root
