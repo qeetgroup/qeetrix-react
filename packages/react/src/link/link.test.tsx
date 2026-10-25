@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
+import { tab } from "../../tests/support/keyboard";
 import { screenshotSchemes } from "../../tests/support/screenshots";
 import { Stage } from "../../tests/support/stage";
 import { Stack } from "../stack/stack";
@@ -25,7 +26,7 @@ describe("Link", () => {
 
   it("shows the Ember focus frame 2px outside", async () => {
     await render(<Link href="#x">Pricing</Link>);
-    await userEvent.keyboard("{Tab}");
+    await tab();
     const style = getComputedStyle(page.getByRole("link", { name: "Pricing" }).element());
     expect(style.outlineStyle).toBe("solid");
     expect(style.outlineOffset).toBe("2px");

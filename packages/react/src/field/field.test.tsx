@@ -47,10 +47,16 @@ describe("Field", () => {
   });
 
   it("shows the browser's message when validation fails", async () => {
+    // A next field to Tab to: Firefox keeps focus on the only control in the frame.
     const { container } = await render(
-      <Field label="Work email" validationMode="onBlur">
-        <Input type="email" required />
-      </Field>,
+      <>
+        <Field label="Work email" validationMode="onBlur">
+          <Input type="email" required />
+        </Field>
+        <Field label="Company">
+          <Input />
+        </Field>
+      </>,
     );
     await userEvent.click(page.getByRole("textbox", { name: "Work email" }));
     await userEvent.keyboard("priya");

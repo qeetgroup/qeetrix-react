@@ -91,9 +91,10 @@ describe("Menu", () => {
   });
 
   it("marks the highlighted item with a 2px Ember start bar", async () => {
-    await render(<RowMenu defaultOpen />);
+    await render(<RowMenu />);
+    await page.getByRole("button", { name: "Invoice actions" }).click();
+    await userEvent.keyboard("{ArrowDown}");
     const edit = page.getByRole("menuitem", { name: "Edit" });
-    await edit.hover();
     await expect.element(edit).toHaveAttribute("data-highlighted");
     const bar = getComputedStyle(edit.element(), "::before");
     expect(bar.width).toBe("2px");

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
+import { tab } from "../../tests/support/keyboard";
 import { screenshotSchemes } from "../../tests/support/screenshots";
 import { Stage } from "../../tests/support/stage";
 import { Stack } from "../stack/stack";
@@ -24,7 +25,7 @@ describe("Slider", () => {
     );
     const thumb = page.getByRole("slider", { name: "Discount" });
     await expect.element(thumb).toHaveAttribute("aria-valuenow", "0.1");
-    await userEvent.keyboard("{Tab}");
+    await tab();
     await expect.element(thumb).toHaveFocus();
     await userEvent.keyboard("{ArrowRight}");
     expect(onValueChange).toHaveBeenLastCalledWith(0.15, expect.anything());

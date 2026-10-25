@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
+import { tab } from "../../tests/support/keyboard";
 import { SkipLink } from "./skip-link";
 
 describe("SkipLink", () => {
@@ -19,7 +20,7 @@ describe("SkipLink", () => {
     const element = link.element() as HTMLElement;
     expect(element.getBoundingClientRect().width).toBeLessThanOrEqual(1);
 
-    await userEvent.keyboard("{Tab}");
+    await tab();
     await expect.element(link).toHaveFocus();
     expect(element.getBoundingClientRect().width).toBeGreaterThan(40);
     expect(getComputedStyle(element).outlineStyle).toBe("solid");

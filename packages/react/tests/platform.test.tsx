@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { Probe } from "./fixtures/probe";
 import { expectAccessible } from "./support/axe";
+import { tab } from "./support/keyboard";
 import { screenshotEveryMode } from "./support/screenshots";
 import { Stage } from "./support/stage";
 
@@ -11,7 +12,7 @@ describe("platform: real browser", () => {
     await render(<Probe />);
     const button = page.getByRole("button", { name: "Save changes" });
     await expect.element(button).toBeVisible();
-    await userEvent.keyboard("{Tab}");
+    await tab();
     await expect.element(button).toHaveFocus();
   });
 

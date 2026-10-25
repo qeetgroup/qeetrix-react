@@ -64,8 +64,10 @@ jobs:
         if: github.event_name == 'pull_request'
         run: node scripts/check-api-version.mjs "origin/${{ github.base_ref }}"
 
+      # V8 coverage reads Chromium's engine only, so the nightly Firefox and WebKit run tests
+      # without it; every pull request still measures coverage in Chromium.
       - name: tests (real browser and server), coverage and screenshots
-        run: bun run test:coverage
+        run: bun run ${{ github.event_name == 'schedule' && 'test' || 'test:coverage' }}
         env:
           QX_BROWSERS: ${{ github.event_name == 'schedule' && 'chromium,firefox,webkit' || 'chromium' }}
           # Screenshots upload to Argos once the repository is connected (repo variable
