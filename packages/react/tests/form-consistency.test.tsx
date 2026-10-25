@@ -3,6 +3,7 @@
  * password and code fields span the column at the same height, and the Alert above and the
  * full-width Button below share their edges, in every density.
  */
+import { ArrowRightIcon } from "@qeetrix/icons/icons/arrow-right";
 import { describe, expect, it } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
@@ -54,7 +55,7 @@ function Form() {
         <Field label="Verification code">
           <OTPInput defaultValue="4817" />
         </Field>
-        <Button fullWidth size="lg">
+        <Button fullWidth size="lg" icon={ArrowRightIcon}>
           Save and continue
         </Button>
       </Stack>
