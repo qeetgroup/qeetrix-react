@@ -167,7 +167,7 @@ function ToastList({ closeLabel }: { closeLabel: string }): ReactElement[] {
         ) : (
           <Icon
             shape="sharp"
-            size={18}
+            size={16}
             aria-hidden
             className="qx-toast-icon"
             data-slot="toast-icon"

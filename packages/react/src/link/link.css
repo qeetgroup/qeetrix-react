@@ -32,5 +32,9 @@
   .qx-link-icon {
     margin-inline-start: 2px;
     vertical-align: middle;
+    /* "Opens elsewhere" leaves toward the reading end: up and to the left in right-to-left. */
+    [dir="rtl"] & {
+      scale: -1 1;
+    }
   }
 }

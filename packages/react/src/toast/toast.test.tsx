@@ -87,6 +87,24 @@ describe("Toast", () => {
     expect(toasts()[0]?.dataset.tone).toBe("success");
   });
 
+  it("draws its icon at 16px, Alert's size, centred on the title line", async () => {
+    await render(
+      <ToastProvider>
+        <Trigger options={{ title: "Passkey added", description: "On Priya's MacBook Pro" }} />
+      </ToastProvider>,
+    );
+    await page.getByRole("button", { name: "Show" }).click();
+    await expect.element(page.getByText("Passkey added")).toBeVisible();
+    await settled();
+    const toast = toasts()[0] as HTMLElement;
+    const icon = slot("toast-icon", toast).getBoundingClientRect();
+    const title = slot("toast-title", toast);
+    const line = Number.parseFloat(getComputedStyle(title).lineHeight);
+    expect([icon.width, icon.height]).toEqual([16, 16]);
+    const titleTop = title.getBoundingClientRect().top;
+    expect(Math.abs(icon.top + icon.height / 2 - (titleTop + line / 2))).toBeLessThanOrEqual(0.5);
+  });
+
   it("closes after its timeout, except danger toasts", async () => {
     await render(
       <ToastProvider>

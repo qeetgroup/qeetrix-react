@@ -1,5 +1,29 @@
 # @qeetrix/react
 
+## 0.1.1
+
+Right-to-left arrows and a consistent message icon, from the Storybook review. Nothing is removed or
+renamed.
+
+### New
+
+- **`mirrorInRtl(Icon)`:** an icon that points a reading direction, mirrored under `dir="rtl"`:
+  `<Button icon={mirrorInRtl(ArrowRightIcon)}>Continue</Button>` points forward in both directions.
+  `@qeetrix/icons` draws arrows and chevrons in their physical orientation and never mirrors them,
+  so whether one means forward or back is decided at the call site, once per icon. It returns the
+  same component for the same icon, and it's server-safe.
+
+### Fixed
+
+- **Link:** the external-link arrow mirrors in right to left, pointing up and toward the reading end.
+- **Toast:** its icon is 16px, Alert's size for the same job (it was 18px, off the icon scale), and
+  sits centred on the title line (the 18px icon sat 2px high). The loading spinner's box follows.
+
+### Security
+
+- **Link:** the last word is found with a scan, not a regular expression that backtracked on a long
+  run of text without spaces (CodeQL `js/polynomial-redos`).
+
 ## 0.1.0
 
 Fixes and new variants from the Storybook review of 0.0.8: every bug, accessibility and alignment
