@@ -41,6 +41,7 @@ export const messages = {
     capsLock: "Caps Lock is on",
   },
   otpInput: { character: "Character {index} of {length}" },
+  numberField: { increment: "Increase", decrement: "Decrease", roleDescription: "Number field" },
   combobox: {
     empty: "No matches",
     clear: "Clear",

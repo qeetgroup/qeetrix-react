@@ -44,6 +44,7 @@ export const hi: QeetrixMessages = {
     capsLock: "कैप्स लॉक चालू है",
   },
   otpInput: { character: "{length} में से अक्षर {index}" },
+  numberField: { increment: "बढ़ाएँ", decrement: "घटाएँ", roleDescription: "संख्या फ़ील्ड" },
   combobox: {
     empty: "कोई मिलान नहीं",
     clear: "साफ़ करें",

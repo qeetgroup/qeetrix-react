@@ -3,6 +3,7 @@
  * sign-in on a welcoming page (OTPInput, an urgent Alert), and a console page where a new client
  * secret is shown once (PasswordInput, CopyButton, Alerts, including AppShell's notifications).
  */
+import { ArrowRightIcon } from "@qeetrix/icons/icons/arrow-right";
 import { PlusIcon } from "@qeetrix/icons/icons/plus";
 import { describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
@@ -69,7 +70,7 @@ function TwoStep({ failed = false }: { failed?: boolean }) {
                 {/* A failed attempt clears the code. */}
                 <OTPInput key={String(failed)} size="lg" defaultValue={failed ? "" : "4817"} />
               </Field>
-              <Button type="submit" fullWidth size="lg">
+              <Button type="submit" fullWidth size="lg" icon={ArrowRightIcon}>
                 Verify
               </Button>
               <Link href="#recovery">Use a recovery code instead</Link>

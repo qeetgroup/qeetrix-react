@@ -15,6 +15,7 @@ import {
   Combobox,
   CopyButton,
   EmptyState,
+  NumberField,
   OTPInput,
   PasswordInput,
   Sidebar,
@@ -76,6 +77,12 @@ describe("experimental components on the server", () => {
     expect(out).toContain('role="combobox"');
     expect(out).toContain('aria-label="Fruit"');
     expect(out).not.toContain('role="listbox"');
+  });
+
+  it("NumberField renders its formatted value on the server", () => {
+    const out = html(<NumberField aria-label="Users" defaultValue={128400} locale="en-IN" />);
+    expect(out).toContain('value="1,28,400"');
+    expect(out).toContain('aria-roledescription="Number field"');
   });
 
   it("AppShell renders the wide layout, its landmarks and no drawer", () => {

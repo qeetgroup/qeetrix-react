@@ -9,6 +9,7 @@ export * from "./breadcrumb";
 export * from "./combobox";
 export * from "./copy-button";
 export * from "./empty-state";
+export * from "./number-field";
 export * from "./otp-input";
 export * from "./page-header";
 export * from "./password-input";

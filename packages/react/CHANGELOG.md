@@ -11,8 +11,14 @@ Tier 1 of the design-system gap review (07-components.md, "Gap review"), from
   values as removable pills (Backspace removes the last; the arrow keys reach the rest, as the
   input's description says). A clear button appears only when there's a value. Strings in English
   and Hindi.
+- **`NumberField`:** a number, typed or stepped, on Base UI's Number Field. The same field as Input,
+  with units as affixes ("minutes", ₹) and − and + steppers at the end (they can be turned off).
+  Arrow keys step, Shift or Page Up/Down by ten; `min`/`max` stop the steppers. It formats for the
+  locale (en-IN groups in lakhs: 1,28,400) and takes `format` for currency or percent. Strings,
+  including its spoken role description, in English and Hindi.
 - **Form consistency:** the test that every field shares its edges and height now includes
-  Combobox.
+  Combobox and NumberField, and the form's main button carries its trailing arrow (as does the
+  two-step sign-in's Verify).
 
 ## 0.0.3
 
