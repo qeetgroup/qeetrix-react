@@ -40,7 +40,7 @@ describe("source check", () => {
     "src/unsafe/unsafe.tsx":
       'export const Unsafe = () => <div dangerouslySetInnerHTML={{ __html: "" }} id={String(Math.random())} data-x={localStorage.length} />;\n',
     "src/paint/paint.css":
-      ".qx-paint { color: #ff0000; border-radius: 8px; z-index: 50; transition-duration: 200ms; }\n.qx-loud { margin: 0 !important; }\n.button { display: block; }\n",
+      ".qx-paint { color: #ff0000; border-radius: 8px; z-index: 50; transition-duration: 200ms; box-shadow: 0 2px 4px var(--qx-color-border-default); }\n.qx-loud { margin: 0 !important; }\n.button { display: block; }\n",
   });
   const { status, output } = run("node", [join(pkg, "scripts/check-source.mjs"), root]);
 
@@ -58,6 +58,10 @@ describe("source check", () => {
     ["raw radius", /border-radius: 8px — must come from --qx-\* tokens/],
     ["raw z-index", /z-index: 50 — must come from --qx-\* tokens/],
     ["raw duration", /transition-duration: 200ms — must come from --qx-\* tokens/],
+    [
+      "raw shadow offsets",
+      /box-shadow: 0 2px 4px var\(--qx-color-border-default\) — must come from --qx-\* tokens/,
+    ],
     ["!important", /paint\.css: uses !important/],
     ["class without the qx- prefix", /class \.button must start with qx-/],
   ])("catches a %s", (_, message) => expect(output).toMatch(message));

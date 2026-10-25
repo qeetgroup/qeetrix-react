@@ -1,0 +1,140 @@
+/* Button and IconButton (06-component-specs.md §1; design rules §7). Label first, icon last; the
+   focus frame is drawn inside, with a surface-coloured gap. */
+.qx-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  block-size: var(--qx-size-control-md);
+  padding-inline: 14px 12px;
+  border: 0;
+  border-radius: var(--qx-radius-control);
+  font: var(--qx-typography-label-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  transition-property: background-color, color, box-shadow;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &:not([data-icon]):not([data-loading]) {
+    padding-inline: 14px;
+  }
+
+  &[data-size="sm"] {
+    block-size: var(--qx-size-control-sm);
+    gap: 16px;
+    padding-inline: 10px 8px;
+    font-size: var(--qx-typography-label-sm-font-size);
+    line-height: var(--qx-typography-label-sm-line-height);
+  }
+  &[data-size="sm"]:not([data-icon]):not([data-loading]) {
+    padding-inline: 10px;
+  }
+  &[data-size="lg"] {
+    block-size: var(--qx-size-control-lg);
+    gap: 32px;
+    padding-inline: 16px 14px;
+  }
+  &[data-size="lg"]:not([data-icon]):not([data-loading]) {
+    padding-inline: 16px;
+  }
+  &[data-full-width] {
+    inline-size: 100%;
+  }
+
+  /* Emphasis (§7): one solid and one soft per region; everything else ghost. */
+  &[data-variant="solid"] {
+    background: var(--qx-color-bg-brand-bold);
+    color: var(--qx-color-text-on-brand);
+    &:hover:not([data-disabled]) {
+      background: var(--qx-color-bg-brand-bold-hover);
+    }
+    &:active:not([data-disabled]) {
+      background: var(--qx-color-bg-brand-bold-pressed);
+    }
+  }
+  &[data-variant="soft"] {
+    background: var(--qx-color-bg-neutral-bold);
+    color: var(--qx-color-text-inverse);
+    &:hover:not([data-disabled]) {
+      background: var(--qx-color-bg-neutral-bold-hover);
+    }
+    &:active:not([data-disabled]) {
+      background: var(--qx-color-bg-neutral-bold-pressed);
+    }
+  }
+  &[data-variant="ghost"] {
+    background: transparent;
+    color: var(--qx-color-text-brand);
+    &:hover:not([data-disabled]) {
+      background: var(--qx-color-bg-brand-subtle);
+    }
+    &:active:not([data-disabled]) {
+      background: var(--qx-color-bg-brand-subtle-pressed);
+    }
+  }
+  &[data-tone="danger"]:not([data-variant="ghost"]) {
+    background: var(--qx-color-bg-danger-bold);
+    color: var(--qx-color-text-on-bold);
+    &:hover:not([data-disabled]) {
+      background: var(--qx-color-bg-danger-bold-hover);
+    }
+    &:active:not([data-disabled]) {
+      background: var(--qx-color-bg-danger-bold-pressed);
+    }
+  }
+  &[data-tone="danger"][data-variant="ghost"] {
+    color: var(--qx-color-text-danger);
+    &:hover:not([data-disabled]) {
+      background: var(--qx-color-bg-danger-subtle);
+    }
+  }
+
+  &[data-disabled]:not([data-loading]) {
+    background: var(--qx-color-bg-disabled);
+    color: var(--qx-color-text-disabled);
+    cursor: not-allowed;
+  }
+  &[data-variant="ghost"][data-disabled]:not([data-loading]) {
+    background: transparent;
+  }
+  &[data-loading] {
+    cursor: progress;
+  }
+
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+    box-shadow: inset 0 0 0 calc(var(--qx-focus-ring-width) + var(--qx-border-width-default))
+      var(--qx-color-surface-default);
+  }
+
+  .qx-button-label {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .qx-button-icon {
+    flex: none;
+  }
+}
+
+.qx-icon-button {
+  justify-content: center;
+  inline-size: var(--qx-size-control-md);
+  padding-inline: 0;
+  &[data-size="sm"] {
+    inline-size: var(--qx-size-control-sm);
+    padding-inline: 0;
+  }
+  &[data-size="lg"] {
+    inline-size: var(--qx-size-control-lg);
+    padding-inline: 0;
+  }
+  &:not([data-icon]):not([data-loading]) {
+    padding-inline: 0;
+  }
+}

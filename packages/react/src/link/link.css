@@ -1,0 +1,35 @@
+/* Link: navigation (06-component-specs.md, increment 2). */
+.qx-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  border-radius: var(--qx-radius-sm);
+  color: var(--qx-color-text-link);
+  text-decoration-line: underline;
+  text-decoration-thickness: var(--qx-border-width-default);
+  text-underline-offset: 3px;
+  transition-property: color, text-decoration-thickness;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &:hover {
+    color: var(--qx-color-text-link-hover);
+    text-decoration-thickness: var(--qx-border-width-strong);
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
+  }
+  &[data-tone="subtle"] {
+    color: var(--qx-color-text-subtle);
+  }
+  &[data-tone="subtle"]:hover {
+    color: var(--qx-color-text-default);
+  }
+  &[data-tone="inherit"] {
+    color: inherit;
+  }
+  .qx-link-icon {
+    flex: none;
+    align-self: center;
+  }
+}

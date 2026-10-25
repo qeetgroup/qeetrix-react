@@ -1,0 +1,37 @@
+/* Avatar (06-component-specs.md, increment 6): a circle with the photo, or initials on a neutral
+   fill while it loads or when it fails. */
+.qx-avatar {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: 32px;
+  block-size: 32px;
+  overflow: hidden;
+  border-radius: var(--qx-radius-full);
+  background: var(--qx-color-bg-neutral-subtle-pressed);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  vertical-align: middle;
+  user-select: none;
+  &[data-size="sm"] {
+    inline-size: 24px;
+    block-size: 24px;
+    font-size: var(--qx-typography-label-sm-font-size);
+  }
+  &[data-size="lg"] {
+    inline-size: 40px;
+    block-size: 40px;
+    font: var(--qx-typography-label-md);
+  }
+  &[data-size="xl"] {
+    inline-size: 48px;
+    block-size: 48px;
+    font: var(--qx-typography-label-md);
+  }
+}
+.qx-avatar-image {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}

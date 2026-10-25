@@ -1,0 +1,95 @@
+/* Input and Textarea (06-component-specs.md §2): a filled box with a bottom line, 4px top corners
+   and a square bottom. The Input box takes its states from its <input> through :has(); a Textarea is
+   the box itself. Focus shows on any focus, not only the keyboard's: the caret needs the context. */
+.qx-input {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  min-inline-size: 0;
+  block-size: var(--qx-size-control-lg);
+  padding-inline: var(--qx-space-inset-md);
+  border: 0;
+  border-start-start-radius: var(--qx-radius-control);
+  border-start-end-radius: var(--qx-radius-control);
+  background: var(--qx-color-bg-neutral-subtle);
+  box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-strong);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-default);
+  cursor: text;
+  transition-property: background-color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+
+  &:hover {
+    background: var(--qx-color-bg-neutral-subtle-hover);
+  }
+  &:has(> .qx-input-control[data-invalid]),
+  &.qx-textarea[data-invalid] {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-danger);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+    box-shadow: none;
+  }
+  &:has(> .qx-input-control:focus),
+  &.qx-textarea:focus {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+    box-shadow: none;
+    background: var(--qx-color-bg-neutral-subtle);
+  }
+  &:has(> .qx-input-control[readonly]),
+  &.qx-textarea[readonly] {
+    background: transparent;
+    box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-subtle);
+  }
+  &:has(> .qx-input-control:disabled),
+  &.qx-textarea:disabled {
+    background: var(--qx-color-bg-disabled);
+    box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-disabled);
+    color: var(--qx-color-text-disabled);
+    cursor: not-allowed;
+  }
+}
+
+.qx-input-control {
+  flex: 1;
+  min-inline-size: 0;
+  block-size: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: inherit;
+}
+.qx-input-control::placeholder,
+.qx-textarea::placeholder {
+  color: var(--qx-color-text-subtlest);
+  opacity: 1;
+}
+.qx-input-icon {
+  flex: none;
+  color: var(--qx-color-icon-subtle);
+}
+.qx-input-adornment {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  color: var(--qx-color-text-subtle);
+}
+
+/* Rows of the body line height, plus the padding that centres one line in an Input's height. */
+.qx-textarea {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  min-block-size: calc(var(--qx-textarea-rows) * 1lh + var(--qx-size-control-lg) - 1lh);
+  padding-block: calc((var(--qx-size-control-lg) - 1lh) / 2);
+  field-sizing: content;
+  resize: vertical;
+  &[data-max-rows] {
+    max-block-size: calc(var(--qx-textarea-max-rows) * 1lh + var(--qx-size-control-lg) - 1lh);
+  }
+}

@@ -1,0 +1,45 @@
+/* Badge (06-component-specs.md §10, design rules §14): a pill with a tinted fill and the status
+   colour as text. */
+.qx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  max-inline-size: 100%;
+  padding: 2px 8px;
+  border-radius: var(--qx-radius-chip);
+  background: var(--qx-color-bg-neutral-subtle-pressed);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  white-space: nowrap;
+  vertical-align: middle;
+  /* bg.brand.subtle, not -pressed: Ember text on the pressed tint is 4.26:1 in light mode. */
+  &[data-tone="brand"] {
+    background: var(--qx-color-bg-brand-subtle);
+    color: var(--qx-color-text-brand);
+  }
+  &[data-tone="info"] {
+    background: var(--qx-color-bg-info-subtle);
+    color: var(--qx-color-text-info);
+  }
+  &[data-tone="success"] {
+    background: var(--qx-color-bg-success-subtle);
+    color: var(--qx-color-text-success);
+  }
+  &[data-tone="warning"] {
+    background: var(--qx-color-bg-warning-subtle);
+    color: var(--qx-color-text-warning);
+  }
+  &[data-tone="danger"] {
+    background: var(--qx-color-bg-danger-subtle);
+    color: var(--qx-color-text-danger);
+  }
+}
+.qx-badge-icon {
+  flex: none;
+}
+.qx-badge-label {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -14,7 +14,7 @@ repository:
   product: qeetrix
   type: library
   role: primary
-  status: development         # Phase 3, engineering platform
+  status: development         # Phase 4, primitives in increments
   visibility: public
   default_branch: main
   production_branch: main

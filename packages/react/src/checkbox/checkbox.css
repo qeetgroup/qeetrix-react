@@ -1,0 +1,48 @@
+/* Checkbox (06-component-specs.md §3): a 16px box with 2px corners. On and mixed fill it with
+   Ember and show a white 12px sharp tick or dash. Focus is the Ember frame, 2px outside. */
+.qx-checkbox {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: 16px;
+  block-size: 16px;
+  border: var(--qx-border-width-default) solid var(--qx-color-border-strong);
+  border-radius: var(--qx-radius-sm);
+  background: var(--qx-color-bg-input);
+  color: var(--qx-color-icon-on-brand);
+  cursor: pointer;
+  transition-property: background-color, border-color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+
+  &:hover:not([data-disabled], [data-readonly]) {
+    border-color: var(--qx-color-border-strong-hover);
+  }
+  &[data-invalid] {
+    border-color: var(--qx-color-border-danger);
+  }
+  &:is([data-checked], [data-indeterminate]) {
+    border-color: var(--qx-color-bg-brand-bold);
+    background: var(--qx-color-bg-brand-bold);
+    &:hover:not([data-disabled], [data-readonly]) {
+      border-color: var(--qx-color-bg-brand-bold-hover);
+      background: var(--qx-color-bg-brand-bold-hover);
+    }
+  }
+  &[data-disabled] {
+    border-color: var(--qx-color-border-disabled);
+    background: var(--qx-color-bg-disabled);
+    color: var(--qx-color-icon-disabled);
+    cursor: not-allowed;
+  }
+  &[data-readonly] {
+    cursor: default;
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
+  }
+}
+.qx-checkbox-mark {
+  display: flex;
+}

@@ -1,0 +1,150 @@
+/* Select (06-component-specs.md §4): the trigger looks like a field, with a trailing chevron; the
+   list is a menu surface below it, and the chosen option carries an Ember check. */
+.qx-select-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  inline-size: 100%;
+  min-inline-size: 0;
+  block-size: var(--qx-size-control-lg);
+  padding-inline: var(--qx-space-inset-md);
+  border: 0;
+  border-start-start-radius: var(--qx-radius-control);
+  border-start-end-radius: var(--qx-radius-control);
+  background: var(--qx-color-bg-neutral-subtle);
+  box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-strong);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  text-align: start;
+  cursor: pointer;
+  transition-property: background-color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &:hover {
+    background: var(--qx-color-bg-neutral-subtle-hover);
+  }
+  &[data-invalid] {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-danger);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+    box-shadow: none;
+  }
+  &:focus-visible,
+  &[data-popup-open] {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+    box-shadow: none;
+    background: var(--qx-color-bg-neutral-subtle);
+  }
+  &[data-readonly] {
+    background: transparent;
+    box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-subtle);
+    cursor: default;
+  }
+  &[data-disabled] {
+    background: var(--qx-color-bg-disabled);
+    box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-disabled);
+    color: var(--qx-color-text-disabled);
+    cursor: not-allowed;
+  }
+}
+.qx-select-value {
+  flex: 1;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  &[data-placeholder] {
+    color: var(--qx-color-text-subtlest);
+  }
+}
+.qx-select-icon {
+  display: flex;
+  flex: none;
+  color: var(--qx-color-icon-default);
+  [data-disabled] > & {
+    color: var(--qx-color-icon-disabled);
+  }
+}
+
+.qx-select-positioner {
+  z-index: var(--qx-z-popover);
+}
+.qx-select-popup {
+  min-inline-size: var(--anchor-width);
+  max-inline-size: var(--available-width);
+  max-block-size: min(320px, var(--available-height));
+  overflow-y: auto;
+  padding-block: 4px;
+  border: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  border-radius: var(--qx-radius-overlay);
+  background: var(--qx-color-surface-overlay);
+  box-shadow: var(--qx-shadow-overlay);
+  color: var(--qx-color-text-default);
+  outline: 0;
+  transition-property: opacity, translate;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-enter);
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+  &[data-side="bottom"]:is([data-starting-style], [data-ending-style]) {
+    translate: 0 -4px;
+  }
+  &[data-side="top"]:is([data-starting-style], [data-ending-style]) {
+    translate: 0 4px;
+  }
+  &[data-ending-style] {
+    transition-duration: var(--qx-motion-duration-fast);
+    transition-timing-function: var(--qx-motion-easing-exit);
+  }
+}
+.qx-select-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  block-size: var(--qx-size-control-md);
+  padding-inline: var(--qx-space-inset-md);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  cursor: default;
+  user-select: none;
+  outline: 0;
+  &[data-highlighted] {
+    background: var(--qx-color-bg-neutral-subtle-hover);
+    &::before {
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      inline-size: var(--qx-border-width-strong);
+      background: var(--qx-color-border-brand);
+    }
+  }
+  &[data-selected] {
+    font-weight: var(--qx-typography-label-md-font-weight);
+  }
+  &[data-disabled] {
+    color: var(--qx-color-text-disabled);
+  }
+}
+.qx-select-option-text {
+  flex: 1;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qx-select-option-check {
+  display: flex;
+  flex: none;
+  color: var(--qx-color-icon-brand);
+}
+.qx-select-group-label {
+  padding: 8px var(--qx-space-inset-md) 4px;
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+}

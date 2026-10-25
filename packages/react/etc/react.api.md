@@ -4,6 +4,1039 @@
 
 ```ts
 
+import { Accordion as Accordion_2 } from '@base-ui/react/accordion';
+import { Avatar as Avatar_2 } from '@base-ui/react/avatar';
+import { Button as Button_2 } from '@base-ui/react/button';
+import { Checkbox as Checkbox_2 } from '@base-ui/react/checkbox';
+import { CheckboxGroup as CheckboxGroup_2 } from '@base-ui/react/checkbox-group';
+import { Collapsible as Collapsible_2 } from '@base-ui/react/collapsible';
+import { ComponentProps } from 'react';
+import { ComponentType } from 'react';
+import { CSSProperties } from 'react';
+import { Dialog as Dialog_2 } from '@base-ui/react/dialog';
+import { Drawer as Drawer_2 } from '@base-ui/react/drawer';
+import { Field as Field_2 } from '@base-ui/react/field';
+import { Fieldset as Fieldset_2 } from '@base-ui/react/fieldset';
+import { IconProps } from '@qeetrix/icons';
+import { Input as Input_2 } from '@base-ui/react/input';
+import { Menu as Menu_2 } from '@base-ui/react/menu';
+import { Meter as Meter_2 } from '@base-ui/react/meter';
+import { Popover as Popover_2 } from '@base-ui/react/popover';
+import { Progress as Progress_2 } from '@base-ui/react/progress';
+import { Radio as Radio_2 } from '@base-ui/react/radio';
+import { RadioGroup as RadioGroup_2 } from '@base-ui/react/radio-group';
+import { ReactElement } from 'react';
+import { ReactNode } from 'react';
+import { Ref } from 'react';
+import { ScrollArea as ScrollArea_2 } from '@base-ui/react/scroll-area';
+import { Select as Select_2 } from '@base-ui/react/select';
+import { Slider as Slider_2 } from '@base-ui/react/slider';
+import { Switch as Switch_2 } from '@base-ui/react/switch';
+import { Tabs as Tabs_2 } from '@base-ui/react/tabs';
+import { Toggle as Toggle_2 } from '@base-ui/react/toggle';
+import { ToggleGroup as ToggleGroup_2 } from '@base-ui/react/toggle-group';
+import { Tooltip as Tooltip_2 } from '@base-ui/react/tooltip';
+
+// @public
+export function Accordion<Value = string>(input: AccordionProps<Value>): ReactElement;
+
+// @public
+export function AccordionItem(input: AccordionItemProps): ReactElement;
+
+// @public (undocumented)
+export interface AccordionItemProps extends Omit<Accordion_2.Item.Props, "className" | "style" | "title" | "children"> {
+    children?: ReactNode;
+    // (undocumented)
+    className?: string;
+    headingLevel?: Exclude<HeadingLevel, 1>;
+    // (undocumented)
+    style?: CSSProperties;
+    title: ReactNode;
+}
+
+// @public (undocumented)
+export interface AccordionProps<Value = string> extends Omit<Accordion_2.Root.Props<Value>, "className" | "style"> {
+    className?: string;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+export function Avatar(input: AvatarProps): ReactElement;
+
+// @public (undocumented)
+export interface AvatarProps extends Omit<Avatar_2.Root.Props, "className" | "style" | "children"> {
+    // (undocumented)
+    className?: string;
+    decorative?: boolean;
+    name: string;
+    size?: AvatarSize;
+    src?: string;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public (undocumented)
+export type AvatarSize = "sm" | "md" | "lg" | "xl";
+
+// @public
+export function Badge(input: BadgeProps): ReactElement;
+
+// @public (undocumented)
+export interface BadgeProps extends ComponentProps<"span"> {
+    icon?: QeetrixIcon;
+    tone?: BadgeTone;
+}
+
+// @public (undocumented)
+export type BadgeTone = "neutral" | "brand" | "info" | "success" | "warning" | "danger";
+
+// @public
+export function Box(input: BoxProps): ReactElement;
+
+// @public (undocumented)
+export type BoxBackground = "canvas" | "default" | "raised" | "sunken" | "overlay" | "inverse" | "neutral" | "brand" | "selected";
+
+// @public (undocumented)
+export type BoxBorder = "none" | "subtle" | "default" | "strong";
+
+// @public (undocumented)
+export interface BoxProps extends ComponentProps<"div"> {
+    background?: BoxBackground;
+    border?: BoxBorder;
+    padding?: Inset;
+    paddingBlock?: Inset;
+    paddingInline?: Inset;
+    radius?: BoxRadius;
+    render?: RenderProp;
+}
+
+// @public (undocumented)
+export type BoxRadius = "none" | "sm" | "control" | "surface" | "overlay" | "modal" | "chip" | "full";
+
+// @public
+export function Button(input: ButtonProps): ReactElement;
+
+// Warning: (ae-forgotten-export) The symbol "ButtonBaseProps" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export interface ButtonProps extends ButtonBaseProps {
+    children?: ReactNode;
+    fullWidth?: boolean;
+    icon?: QeetrixIcon;
+}
+
+// @public (undocumented)
+export type ButtonTone = "brand" | "danger";
+
+// @public (undocumented)
+export type ButtonVariant = "solid" | "soft" | "ghost";
+
+// @public
+export function Card(input: CardProps): ReactElement;
+
+// Warning: (ae-forgotten-export) The symbol "CardOwnProps" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "CardTitle" needs to be exported by the entry point index.d.ts
+//
+// @public
+export type CardProps = CardOwnProps & CardTitle;
+
+// @public
+export function Checkbox(input: CheckboxProps): ReactElement;
+
+// @public
+export function CheckboxGroup(input: CheckboxGroupProps): ReactElement;
+
+// @public (undocumented)
+export interface CheckboxGroupProps extends Omit<CheckboxGroup_2.Props, "className" | "style" | "render">, FieldMessageProps {
+    className?: string;
+    label: ReactNode;
+    name?: string;
+    orientation?: ChoiceOrientation;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// Warning: (ae-forgotten-export) The symbol "CheckboxOwnProps" needs to be exported by the entry point index.d.ts
+//
+// @public
+export type CheckboxProps = CheckboxOwnProps & ChoiceLabelProps;
+
+// @public
+export type ChoiceLabelProps = {
+    label: ReactNode;
+    "aria-label"?: string;
+    "aria-labelledby"?: string;
+} | {
+    label?: undefined;
+    "aria-label": string;
+    "aria-labelledby"?: string;
+} | {
+    label?: undefined;
+    "aria-label"?: string;
+    "aria-labelledby": string;
+};
+
+// @public
+export type ChoiceOrientation = "vertical" | "horizontal";
+
+// @public
+export function Collapsible(props: CollapsibleProps): ReactElement;
+
+// @public
+export function CollapsiblePanel(input: CollapsiblePanelProps): ReactElement;
+
+// @public (undocumented)
+export interface CollapsiblePanelProps extends Omit<Collapsible_2.Panel.Props, "className" | "style"> {
+    // (undocumented)
+    className?: string;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public (undocumented)
+export type CollapsibleProps = Collapsible_2.Root.Props;
+
+// @public
+export function CollapsibleTrigger(props: CollapsibleTriggerProps): ReactElement;
+
+// @public (undocumented)
+export type CollapsibleTriggerProps = Collapsible_2.Trigger.Props;
+
+// @public
+export type ControlSize = "sm" | "md" | "lg";
+
+// @public
+export function Dialog(input: DialogProps): ReactElement;
+
+// @public
+export function DialogBody(input: DialogBodyProps): ReactElement;
+
+// @public (undocumented)
+export interface DialogBodyProps extends ComponentProps<"div"> {}
+
+// @public
+export function DialogClose(props: DialogCloseProps): ReactElement;
+
+// @public (undocumented)
+export type DialogCloseProps = Dialog_2.Close.Props;
+
+// @public
+export function DialogContent(input: DialogContentProps): ReactElement;
+
+// @public (undocumented)
+export interface DialogContentProps extends Omit<Dialog_2.Popup.Props, "className" | "style" | "title" | "children"> {
+    children?: ReactNode;
+    className?: string;
+    description?: ReactNode;
+    size?: DialogSize;
+    // (undocumented)
+    style?: CSSProperties;
+    title: ReactNode;
+}
+
+// @public
+export function DialogFooter(input: DialogFooterProps): ReactElement;
+
+// @public (undocumented)
+export interface DialogFooterProps extends ComponentProps<"div"> {}
+
+// @public
+export type DialogIntent = "standard" | "danger" | "warning";
+
+// @public (undocumented)
+export interface DialogProps extends Omit<Dialog_2.Root.Props, "disablePointerDismissal" | "handle"> {
+    dismissible?: boolean;
+    intent?: DialogIntent;
+}
+
+// @public (undocumented)
+export type DialogSize = "sm" | "md" | "lg";
+
+// @public
+export function DialogTrigger(props: DialogTriggerProps): ReactElement;
+
+// @public (undocumented)
+export type DialogTriggerProps = Omit<Dialog_2.Trigger.Props, "handle" | "payload">;
+
+// @public
+export function Drawer(input: DrawerProps): ReactElement;
+
+// @public
+export function DrawerBody(input: DrawerBodyProps): ReactElement;
+
+// @public (undocumented)
+export interface DrawerBodyProps extends Omit<Drawer_2.Content.Props, "className"> {
+    // (undocumented)
+    className?: string;
+}
+
+// @public
+export function DrawerClose(props: DrawerCloseProps): ReactElement;
+
+// @public (undocumented)
+export type DrawerCloseProps = Drawer_2.Close.Props;
+
+// @public
+export function DrawerContent(input: DrawerContentProps): ReactElement;
+
+// @public (undocumented)
+export interface DrawerContentProps extends Omit<Drawer_2.Popup.Props, "className" | "style" | "title" | "children"> {
+    children?: ReactNode;
+    className?: string;
+    description?: ReactNode;
+    size?: DrawerSize;
+    // (undocumented)
+    style?: CSSProperties;
+    title: ReactNode;
+}
+
+// @public
+export function DrawerFooter(input: DrawerFooterProps): ReactElement;
+
+// @public (undocumented)
+export interface DrawerFooterProps extends ComponentProps<"div"> {}
+
+// @public (undocumented)
+export interface DrawerProps extends Omit<Drawer_2.Root.Props, "swipeDirection"> {
+    side?: DrawerSide;
+}
+
+// @public
+export type DrawerSide = "start" | "end";
+
+// @public (undocumented)
+export type DrawerSize = "sm" | "md" | "lg";
+
+// @public
+export function DrawerTrigger(props: DrawerTriggerProps): ReactElement;
+
+// @public (undocumented)
+export type DrawerTriggerProps = Drawer_2.Trigger.Props;
+
+// @public
+export function Field(input: FieldProps): ReactElement;
+
+// @public
+export interface FieldMessageProps {
+    description?: ReactNode;
+    error?: ReactNode;
+}
+
+// @public (undocumented)
+export interface FieldProps extends Omit<Field_2.Root.Props, "className" | "style" | "render" | "children">, FieldMessageProps {
+    children?: ReactNode;
+    className?: string;
+    hideLabel?: boolean;
+    label: ReactNode;
+    optional?: boolean;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+export function Fieldset(input: FieldsetProps): ReactElement;
+
+// @public (undocumented)
+export interface FieldsetProps extends Omit<Fieldset_2.Root.Props, "className" | "style" | "children"> {
+    children?: ReactNode;
+    className?: string;
+    description?: ReactNode;
+    legend: ReactNode;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public (undocumented)
+export type FlowJustify = "start" | "center" | "end" | "between";
+
+// @public
+export function Grid(input: GridProps): ReactElement;
+
+// @public (undocumented)
+export type GridAlign = "start" | "center" | "end" | "stretch";
+
+// @public (undocumented)
+export type GridColumnCount = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+
+// @public
+export interface GridColumns {
+    base?: GridColumnCount;
+    expanded?: GridColumnCount;
+    large?: GridColumnCount;
+    medium?: GridColumnCount;
+    xlarge?: GridColumnCount;
+}
+
+// @public (undocumented)
+export interface GridProps extends ComponentProps<"div"> {
+    align?: GridAlign;
+    columns?: GridColumnCount | GridColumns;
+    gap?: Space;
+    render?: RenderProp;
+}
+
+// @public
+export function Heading(input: HeadingProps): ReactElement;
+
+// @public (undocumented)
+export type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+
+// @public (undocumented)
+export interface HeadingProps extends ComponentProps<"h2"> {
+    align?: TextAlign;
+    level: HeadingLevel;
+    render?: RenderProp;
+    size?: HeadingSize;
+    tone?: HeadingTone;
+    truncate?: Truncate;
+}
+
+// @public (undocumented)
+export type HeadingSize = "display-lg" | "display-md" | "display-sm" | "heading-lg" | "heading-md" | "heading-sm" | "title-lg" | "title-md" | "title-sm";
+
+// @public (undocumented)
+export type HeadingTone = "default" | "subtle" | "inverse";
+
+// @public
+export function IconButton(input: IconButtonProps): ReactElement;
+
+// @public (undocumented)
+export interface IconButtonProps extends ButtonBaseProps {
+    "aria-label": string;
+    icon: QeetrixIcon;
+    tooltip?: ReactNode | false;
+}
+
+// @public
+export function Inline(input: InlineProps): ReactElement;
+
+// @public (undocumented)
+export type InlineAlign = "start" | "center" | "end" | "baseline" | "stretch";
+
+// @public (undocumented)
+export interface InlineProps extends ComponentProps<"div"> {
+    align?: InlineAlign;
+    gap?: Space;
+    justify?: FlowJustify;
+    render?: RenderProp;
+    wrap?: boolean;
+}
+
+// @public
+export function Input(input: InputProps): ReactElement;
+
+// @public (undocumented)
+export interface InputProps extends Omit<Input_2.Props, "className" | "style" | "render"> {
+    className?: string;
+    endAdornment?: ReactNode;
+    icon?: QeetrixIcon;
+    startAdornment?: ReactNode;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+export type Inset = "none" | "xs" | "sm" | "md" | "lg" | "xl";
+
+// @public
+export function Link(input: LinkProps): ReactElement;
+
+// @public (undocumented)
+export interface LinkProps extends ComponentProps<"a"> {
+    external?: boolean;
+    render?: RenderProp;
+    tone?: LinkTone;
+}
+
+// @public (undocumented)
+export type LinkTone = "default" | "subtle" | "inherit";
+
+// @public
+export function Menu(props: MenuProps): ReactElement;
+
+// @public
+export function MenuCheckboxItem(input: MenuCheckboxItemProps): ReactElement;
+
+// Warning: (ae-forgotten-export) The symbol "ItemLookProps" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export interface MenuCheckboxItemProps extends Omit<Menu_2.CheckboxItem.Props, "className" | "style">, ItemLookProps {}
+
+// @public
+export function MenuContent(input: MenuContentProps): ReactElement;
+
+// @public (undocumented)
+export interface MenuContentProps extends Omit<Menu_2.Popup.Props, "className" | "style" | "children"> {
+    align?: Menu_2.Positioner.Props["align"];
+    // (undocumented)
+    children?: ReactNode;
+    className?: string;
+    side?: Menu_2.Positioner.Props["side"];
+    sideOffset?: number;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+export function MenuGroup(props: MenuGroupProps): ReactElement;
+
+// @public
+export function MenuGroupLabel(input: MenuGroupLabelProps): ReactElement;
+
+// @public (undocumented)
+export interface MenuGroupLabelProps extends Omit<Menu_2.GroupLabel.Props, "className"> {
+    // (undocumented)
+    className?: string;
+}
+
+// @public (undocumented)
+export type MenuGroupProps = Menu_2.Group.Props;
+
+// @public
+export function MenuItem(input: MenuItemProps): ReactElement;
+
+// @public (undocumented)
+export interface MenuItemProps extends Omit<Menu_2.Item.Props, "className" | "style">, ItemLookProps {
+    icon?: QeetrixIcon;
+    tone?: MenuItemTone;
+}
+
+// @public (undocumented)
+export type MenuItemTone = "default" | "danger";
+
+// @public (undocumented)
+export type MenuProps = Menu_2.Root.Props;
+
+// @public
+export function MenuRadioGroup(props: MenuRadioGroupProps): ReactElement;
+
+// @public (undocumented)
+export type MenuRadioGroupProps = Menu_2.RadioGroup.Props;
+
+// @public
+export function MenuRadioItem(input: MenuRadioItemProps): ReactElement;
+
+// @public (undocumented)
+export interface MenuRadioItemProps extends Omit<Menu_2.RadioItem.Props, "className" | "style">, ItemLookProps {}
+
+// @public
+export function MenuSeparator(input: MenuSeparatorProps): ReactElement;
+
+// @public (undocumented)
+export interface MenuSeparatorProps extends Omit<Menu_2.Separator.Props, "className"> {
+    // (undocumented)
+    className?: string;
+}
+
+// @public
+export function MenuSubmenu(props: MenuSubmenuProps): ReactElement;
+
+// @public (undocumented)
+export type MenuSubmenuProps = Menu_2.SubmenuRoot.Props;
+
+// @public
+export function MenuSubmenuTrigger(input: MenuSubmenuTriggerProps): ReactElement;
+
+// @public (undocumented)
+export interface MenuSubmenuTriggerProps extends Omit<Menu_2.SubmenuTrigger.Props, "className" | "style"> {
+    // (undocumented)
+    className?: string;
+    icon?: QeetrixIcon;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+export function MenuTrigger(props: MenuTriggerProps): ReactElement;
+
+// @public (undocumented)
+export type MenuTriggerProps = Menu_2.Trigger.Props;
+
+// @public
+export function Meter(input: MeterProps): ReactElement;
+
+// Warning: (ae-forgotten-export) The symbol "BarLook" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export interface MeterProps extends Omit<Meter_2.Root.Props, "className" | "style" | "children">, BarLook {
+    tone?: MeterTone;
+}
+
+// @public (undocumented)
+export type MeterTone = "brand" | "success" | "warning" | "danger";
+
+// @public
+export function Popover(props: PopoverProps): ReactElement;
+
+// @public
+export function PopoverClose(props: PopoverCloseProps): ReactElement;
+
+// @public (undocumented)
+export type PopoverCloseProps = Popover_2.Close.Props;
+
+// @public
+export function PopoverContent(input: PopoverContentProps): ReactElement;
+
+// @public (undocumented)
+export interface PopoverContentProps extends Omit<Popover_2.Popup.Props, "className" | "style" | "title" | "children"> {
+    align?: Popover_2.Positioner.Props["align"];
+    // (undocumented)
+    children?: ReactNode;
+    className?: string;
+    description?: ReactNode;
+    side?: Popover_2.Positioner.Props["side"];
+    sideOffset?: number;
+    // (undocumented)
+    style?: CSSProperties;
+    title?: ReactNode;
+}
+
+// @public (undocumented)
+export type PopoverProps = Popover_2.Root.Props;
+
+// @public
+export function PopoverTrigger(props: PopoverTriggerProps): ReactElement;
+
+// @public (undocumented)
+export type PopoverTriggerProps = Popover_2.Trigger.Props;
+
+// @public
+export function Progress(input: ProgressProps): ReactElement;
+
+// @public (undocumented)
+export interface ProgressProps extends Omit<Progress_2.Root.Props, "className" | "style" | "children">, BarLook {}
+
+// @public
+export type QeetrixIcon = ComponentType<IconProps<"outline">>;
+
+// @public
+export function Radio<Value = string>(input: RadioProps<Value>): ReactElement;
+
+// @public
+export function RadioGroup<Value = string>(input: RadioGroupProps<Value>): ReactElement;
+
+// @public (undocumented)
+export interface RadioGroupProps<Value = string> extends Omit<RadioGroup_2.Props<Value>, "className" | "style" | "render">, FieldMessageProps {
+    className?: string;
+    label: ReactNode;
+    orientation?: ChoiceOrientation;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// Warning: (ae-forgotten-export) The symbol "RadioOwnProps" needs to be exported by the entry point index.d.ts
+//
+// @public
+export type RadioProps<Value = string> = RadioOwnProps<Value> & ChoiceLabelProps;
+
+// @public
+export type RenderProp = ReactElement<Record<string, unknown>>;
+
+// @public
+export function ScrollArea(input: ScrollAreaProps): ReactElement;
+
+// @public (undocumented)
+export type ScrollAreaOrientation = "vertical" | "horizontal" | "both";
+
+// @public (undocumented)
+export interface ScrollAreaProps extends Omit<ScrollArea_2.Root.Props, "className" | "style" | "children"> {
+    // (undocumented)
+    children?: ReactNode;
+    className?: string;
+    orientation?: ScrollAreaOrientation;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+export function Select<Value, Multiple extends boolean | undefined = false>(input: SelectProps<Value, Multiple>): ReactElement;
+
+// @public
+export interface SelectItem<Value> {
+    // (undocumented)
+    disabled?: boolean;
+    // (undocumented)
+    label: ReactNode;
+    // (undocumented)
+    value: Value;
+}
+
+// @public
+export interface SelectItemGroup<Value> {
+    // (undocumented)
+    items: ReadonlyArray<SelectItem<Value>>;
+    // (undocumented)
+    label: ReactNode;
+}
+
+// @public (undocumented)
+export interface SelectProps<Value, Multiple extends boolean | undefined = false> extends Omit<Select_2.Root.Props<Value, Multiple>, "items" | "children" | "id"> {
+    // (undocumented)
+    "aria-describedby"?: string;
+    "aria-label"?: string;
+    // (undocumented)
+    "aria-labelledby"?: string;
+    className?: string;
+    id?: string;
+    items: ReadonlyArray<SelectItem<Value> | SelectItemGroup<Value>>;
+    placeholder?: ReactNode;
+    ref?: Ref<HTMLButtonElement>;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+export function Separator(input: SeparatorProps): ReactElement;
+
+// @public (undocumented)
+export type SeparatorOrientation = "horizontal" | "vertical";
+
+// @public (undocumented)
+export interface SeparatorProps extends ComponentProps<"div"> {
+    decorative?: boolean;
+    orientation?: SeparatorOrientation;
+    render?: RenderProp;
+    tone?: SeparatorTone;
+}
+
+// @public (undocumented)
+export type SeparatorTone = "subtle" | "default" | "strong";
+
+// @public
+export function Skeleton(input: SkeletonProps): ReactElement;
+
+// @public (undocumented)
+export interface SkeletonProps extends ComponentProps<"span"> {
+    variant?: SkeletonVariant;
+}
+
+// @public (undocumented)
+export type SkeletonVariant = "text" | "block" | "circle";
+
+// @public
+export function SkipLink(input: SkipLinkProps): ReactElement;
+
+// @public (undocumented)
+export interface SkipLinkProps extends ComponentProps<"a"> {
+    href?: string;
+    render?: RenderProp;
+}
+
+// @public
+export function Slider<Value extends number | readonly number[] = number>(input: SliderProps<Value>): ReactElement;
+
+// @public (undocumented)
+export interface SliderProps<Value extends number | readonly number[] = number> extends Omit<Slider_2.Root.Props<Value>, "className" | "style" | "children"> {
+    className?: string;
+    label?: ReactNode;
+    showValue?: boolean;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+export type Space = "none" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
+
+// @public
+export function Spinner(input: SpinnerProps): ReactElement;
+
+// @public (undocumented)
+export interface SpinnerProps extends Omit<ComponentProps<"span">, "children"> {
+    decorative?: boolean;
+    label?: string;
+    size?: SpinnerSize;
+    tone?: SpinnerTone;
+}
+
+// @public (undocumented)
+export type SpinnerSize = "sm" | "md" | "lg" | "xl";
+
+// @public (undocumented)
+export type SpinnerTone = "default" | "brand";
+
+// @public
+export function Stack(input: StackProps): ReactElement;
+
+// @public (undocumented)
+export type StackAlign = "start" | "center" | "end" | "stretch";
+
+// @public (undocumented)
+export interface StackProps extends ComponentProps<"div"> {
+    align?: StackAlign;
+    gap?: Space;
+    justify?: FlowJustify;
+    render?: RenderProp;
+}
+
+// @public
+export function Switch(input: SwitchProps): ReactElement;
+
+// Warning: (ae-forgotten-export) The symbol "SwitchOwnProps" needs to be exported by the entry point index.d.ts
+//
+// @public
+export type SwitchProps = SwitchOwnProps & ChoiceLabelProps;
+
+// @public
+export function Tab(input: TabProps): ReactElement;
+
+// @public
+export function Table(input: TableProps): ReactElement;
+
+// @public (undocumented)
+export type TableAlign = "start" | "center" | "end";
+
+// @public
+export function TableBody(input: TableBodyProps): ReactElement;
+
+// @public (undocumented)
+export interface TableBodyProps extends ComponentProps<"tbody"> {}
+
+// @public
+export function TableCaption(input: TableCaptionProps): ReactElement;
+
+// @public (undocumented)
+export interface TableCaptionProps extends ComponentProps<"caption"> {}
+
+// @public
+export function TableCell(input: TableCellProps): ReactElement;
+
+// Warning: (ae-forgotten-export) The symbol "CellLook" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export interface TableCellProps extends Omit<ComponentProps<"td">, "align">, CellLook {}
+
+// @public
+export function TableHead(input: TableHeadProps): ReactElement;
+
+// @public
+export function TableHeader(input: TableHeaderProps): ReactElement;
+
+// @public (undocumented)
+export interface TableHeaderProps extends ComponentProps<"thead"> {}
+
+// @public (undocumented)
+export interface TableHeadProps extends Omit<ComponentProps<"th">, "align">, CellLook {}
+
+// @public (undocumented)
+export interface TableProps extends ComponentProps<"table"> {}
+
+// @public
+export function TableRow(input: TableRowProps): ReactElement;
+
+// @public (undocumented)
+export interface TableRowProps extends ComponentProps<"tr"> {
+    selected?: boolean;
+}
+
+// @public (undocumented)
+export interface TabProps extends Omit<Tabs_2.Tab.Props, "className" | "style" | "children"> {
+    children?: ReactNode;
+    // (undocumented)
+    className?: string;
+    filledWhenSelected?: boolean;
+    icon?: QeetrixIcon;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+export function Tabs(input: TabsProps): ReactElement;
+
+// @public
+export function TabsList(input: TabsListProps): ReactElement;
+
+// @public (undocumented)
+export interface TabsListProps extends Omit<Tabs_2.List.Props, "className" | "style"> {
+    activateOnFocus?: boolean;
+    // (undocumented)
+    className?: string;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+export function TabsPanel(input: TabsPanelProps): ReactElement;
+
+// @public (undocumented)
+export interface TabsPanelProps extends Omit<Tabs_2.Panel.Props, "className" | "style"> {
+    // (undocumented)
+    className?: string;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public (undocumented)
+export interface TabsProps extends Omit<Tabs_2.Root.Props, "className" | "style"> {
+    className?: string;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public
+function Text_2(input: TextProps): ReactElement;
+export { Text_2 as Text }
+
+// @public
+export type TextAlign = "start" | "center" | "end";
+
+// @public
+export function Textarea(input: TextareaProps): ReactElement;
+
+// @public (undocumented)
+export interface TextareaProps extends Omit<ComponentProps<"textarea">, "defaultValue" | "value" | "rows" | "children"> {
+    defaultValue?: string;
+    maxRows?: number;
+    onValueChange?: Input_2.Props["onValueChange"];
+    rows?: number;
+    value?: string;
+}
+
+// @public
+export function TextField(input: TextFieldProps): ReactElement;
+
+// Warning: (ae-forgotten-export) The symbol "FieldOnly" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export interface TextFieldProps extends Omit<InputProps, "className" | "style">, FieldOnly {
+    className?: string;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public (undocumented)
+export interface TextProps extends ComponentProps<"span"> {
+    align?: TextAlign;
+    mono?: boolean;
+    render?: RenderProp;
+    size?: TextSize;
+    tone?: TextTone;
+    truncate?: Truncate;
+    weight?: TextWeight;
+}
+
+// @public (undocumented)
+export type TextSize = "sm" | "md" | "lg";
+
+// @public
+export type TextTone = "default" | "subtle" | "subtlest" | "disabled" | "inverse" | "brand" | "danger" | "success" | "warning" | "info";
+
+// @public (undocumented)
+export type TextWeight = "regular" | "medium" | "semibold";
+
+// @public (undocumented)
+export interface ToastApi {
+    add: (options: ToastOptions) => string;
+    close: (id?: string) => void;
+    promise: <Value>(promise: Promise<Value>, options: ToastPromiseOptions<Value>) => Promise<Value>;
+    update: (id: string, options: Partial<ToastOptions>) => void;
+}
+
+// @public (undocumented)
+export interface ToastOptions {
+    action?: {
+        label: string;
+        onClick: () => void;
+    };
+    description?: ReactNode;
+    id?: string;
+    onClose?: () => void;
+    timeout?: number;
+    title: ReactNode;
+    tone?: ToastTone;
+}
+
+// @public (undocumented)
+export interface ToastPromiseOptions<Value> {
+    // (undocumented)
+    error: ToastOptions | ((error: unknown) => ToastOptions);
+    // (undocumented)
+    loading: ToastOptions;
+    // (undocumented)
+    success: ToastOptions | ((value: Value) => ToastOptions);
+}
+
+// @public
+export function ToastProvider(input: ToastProviderProps): ReactElement;
+
+// @public (undocumented)
+export interface ToastProviderProps {
+    children?: ReactNode;
+    limit?: number;
+    timeout?: number;
+}
+
+// @public (undocumented)
+export type ToastTone = "info" | "success" | "warning" | "danger";
+
+// @public
+export function Toggle(input: ToggleProps): ReactElement;
+
+// @public
+export function ToggleGroup(input: ToggleGroupProps): ReactElement;
+
+// @public (undocumented)
+export interface ToggleGroupProps extends Omit<ComponentProps<"div">, "defaultValue" | "onChange" | "dir"> {
+    defaultValue?: readonly string[];
+    disabled?: boolean;
+    multiple?: boolean;
+    onValueChange?: ToggleGroup_2.Props["onValueChange"];
+    orientation?: "horizontal" | "vertical";
+    size?: ControlSize;
+    value?: readonly string[];
+    variant?: ToggleGroupVariant;
+}
+
+// @public (undocumented)
+export type ToggleGroupVariant = "segmented" | "separate";
+
+// @public (undocumented)
+export interface ToggleProps extends Omit<ComponentProps<"button">, "value" | "defaultValue" | "onChange" | "children"> {
+    children?: ReactNode;
+    defaultPressed?: boolean;
+    filledWhenPressed?: boolean;
+    icon?: QeetrixIcon;
+    onPressedChange?: Toggle_2.Props["onPressedChange"];
+    pressed?: boolean;
+    render?: Toggle_2.Props["render"];
+    size?: ControlSize;
+    value?: string;
+}
+
+// @public
+export function Tooltip(input: TooltipProps): ReactElement;
+
+// @public (undocumented)
+export interface TooltipProps extends Omit<Tooltip_2.Root.Props, "children"> {
+    // (undocumented)
+    align?: Tooltip_2.Positioner.Props["align"];
+    children: ReactElement;
+    closeDelay?: number;
+    content: ReactNode;
+    delay?: number;
+    side?: Tooltip_2.Positioner.Props["side"];
+}
+
+// @public
+export function TooltipProvider(input: TooltipProviderProps): ReactElement;
+
+// @public (undocumented)
+export interface TooltipProviderProps extends Tooltip_2.Provider.Props {}
+
+// @public
+export type Truncate = boolean | number;
+
+// @public
+export function useToast(): ToastApi;
+
+// @public
+export function VisuallyHidden(input: VisuallyHiddenProps): ReactElement;
+
+// @public (undocumented)
+export interface VisuallyHiddenProps extends ComponentProps<"span"> {
+    render?: RenderProp;
+}
+
 // (No @packageDocumentation comment for this package)
 
 ```

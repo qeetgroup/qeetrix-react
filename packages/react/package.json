@@ -1,6 +1,6 @@
 {
   "name": "@qeetrix/react",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Qeetrix React components: accessible, token-driven primitives on Base UI for every Qeet product.",
   "keywords": [
     "qeetrix",
@@ -35,6 +35,154 @@
       "style": "./dist/styles.css",
       "default": "./dist/index.js"
     },
+    "./accordion": {
+      "types": "./dist/accordion/index.d.ts",
+      "default": "./dist/accordion/index.js"
+    },
+    "./avatar": {
+      "types": "./dist/avatar/index.d.ts",
+      "default": "./dist/avatar/index.js"
+    },
+    "./badge": {
+      "types": "./dist/badge/index.d.ts",
+      "default": "./dist/badge/index.js"
+    },
+    "./box": {
+      "types": "./dist/box/index.d.ts",
+      "default": "./dist/box/index.js"
+    },
+    "./button": {
+      "types": "./dist/button/index.d.ts",
+      "default": "./dist/button/index.js"
+    },
+    "./card": {
+      "types": "./dist/card/index.d.ts",
+      "default": "./dist/card/index.js"
+    },
+    "./checkbox": {
+      "types": "./dist/checkbox/index.d.ts",
+      "default": "./dist/checkbox/index.js"
+    },
+    "./dialog": {
+      "types": "./dist/dialog/index.d.ts",
+      "default": "./dist/dialog/index.js"
+    },
+    "./drawer": {
+      "types": "./dist/drawer/index.d.ts",
+      "default": "./dist/drawer/index.js"
+    },
+    "./field": {
+      "types": "./dist/field/index.d.ts",
+      "default": "./dist/field/index.js"
+    },
+    "./fieldset": {
+      "types": "./dist/fieldset/index.d.ts",
+      "default": "./dist/fieldset/index.js"
+    },
+    "./grid": {
+      "types": "./dist/grid/index.d.ts",
+      "default": "./dist/grid/index.js"
+    },
+    "./heading": {
+      "types": "./dist/heading/index.d.ts",
+      "default": "./dist/heading/index.js"
+    },
+    "./inline": {
+      "types": "./dist/inline/index.d.ts",
+      "default": "./dist/inline/index.js"
+    },
+    "./input": {
+      "types": "./dist/input/index.d.ts",
+      "default": "./dist/input/index.js"
+    },
+    "./link": {
+      "types": "./dist/link/index.d.ts",
+      "default": "./dist/link/index.js"
+    },
+    "./menu": {
+      "types": "./dist/menu/index.d.ts",
+      "default": "./dist/menu/index.js"
+    },
+    "./popover": {
+      "types": "./dist/popover/index.d.ts",
+      "default": "./dist/popover/index.js"
+    },
+    "./progress": {
+      "types": "./dist/progress/index.d.ts",
+      "default": "./dist/progress/index.js"
+    },
+    "./radio": {
+      "types": "./dist/radio/index.d.ts",
+      "default": "./dist/radio/index.js"
+    },
+    "./scroll-area": {
+      "types": "./dist/scroll-area/index.d.ts",
+      "default": "./dist/scroll-area/index.js"
+    },
+    "./select": {
+      "types": "./dist/select/index.d.ts",
+      "default": "./dist/select/index.js"
+    },
+    "./separator": {
+      "types": "./dist/separator/index.d.ts",
+      "default": "./dist/separator/index.js"
+    },
+    "./skeleton": {
+      "types": "./dist/skeleton/index.d.ts",
+      "default": "./dist/skeleton/index.js"
+    },
+    "./skip-link": {
+      "types": "./dist/skip-link/index.d.ts",
+      "default": "./dist/skip-link/index.js"
+    },
+    "./slider": {
+      "types": "./dist/slider/index.d.ts",
+      "default": "./dist/slider/index.js"
+    },
+    "./spinner": {
+      "types": "./dist/spinner/index.d.ts",
+      "default": "./dist/spinner/index.js"
+    },
+    "./stack": {
+      "types": "./dist/stack/index.d.ts",
+      "default": "./dist/stack/index.js"
+    },
+    "./switch": {
+      "types": "./dist/switch/index.d.ts",
+      "default": "./dist/switch/index.js"
+    },
+    "./table": {
+      "types": "./dist/table/index.d.ts",
+      "default": "./dist/table/index.js"
+    },
+    "./tabs": {
+      "types": "./dist/tabs/index.d.ts",
+      "default": "./dist/tabs/index.js"
+    },
+    "./text": {
+      "types": "./dist/text/index.d.ts",
+      "default": "./dist/text/index.js"
+    },
+    "./text-field": {
+      "types": "./dist/text-field/index.d.ts",
+      "default": "./dist/text-field/index.js"
+    },
+    "./toast": {
+      "types": "./dist/toast/index.d.ts",
+      "default": "./dist/toast/index.js"
+    },
+    "./toggle": {
+      "types": "./dist/toggle/index.d.ts",
+      "default": "./dist/toggle/index.js"
+    },
+    "./tooltip": {
+      "types": "./dist/tooltip/index.d.ts",
+      "default": "./dist/tooltip/index.js"
+    },
+    "./visually-hidden": {
+      "types": "./dist/visually-hidden/index.d.ts",
+      "default": "./dist/visually-hidden/index.js"
+    },
     "./styles.css": "./dist/styles.css",
     "./css/*": "./dist/css/*",
     "./package.json": "./package.json"
@@ -53,7 +201,11 @@
     "check:package": "publint --strict && attw --pack . --profile esm-only --exclude-entrypoints ./styles.css ./css/*",
     "prepack": "bun run build"
   },
+  "dependencies": {
+    "@qeetrix/icons": "^1.0.12"
+  },
   "peerDependencies": {
+    "@base-ui/react": "^1.9.0",
     "@qeetrix/tokens": "^0.0.5",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

@@ -1,0 +1,63 @@
+/* Card (06-component-specs.md §9): raised, a 1px line and 4px corners, no shadow; a ruled header
+   and footer. A table directly in the body runs edge to edge and meets the header's rule. */
+.qx-card {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+  overflow: hidden;
+  border: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  border-radius: var(--qx-radius-surface);
+  background: var(--qx-color-surface-raised);
+  color: var(--qx-color-text-default);
+}
+.qx-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--qx-space-gap-md);
+  padding: var(--qx-space-inset-lg);
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
+}
+.qx-card-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qx-space-gap-xs);
+  min-inline-size: 0;
+}
+.qx-card-description {
+  margin: 0;
+  font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+}
+.qx-card-actions {
+  display: flex;
+  flex: none;
+  gap: var(--qx-space-gap-sm);
+  margin-block: -4px;
+}
+.qx-card-body {
+  flex: 1;
+  min-inline-size: 0;
+  padding: var(--qx-space-inset-lg);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  & > :is(.qx-table, .qx-scroll-area) {
+    inline-size: calc(100% + 2 * var(--qx-space-inset-lg));
+    margin-inline: calc(-1 * var(--qx-space-inset-lg));
+  }
+  & > :is(.qx-table, .qx-scroll-area):first-child {
+    margin-block-start: calc(-1 * var(--qx-space-inset-lg));
+  }
+  & > :is(.qx-table, .qx-scroll-area):last-child {
+    margin-block-end: calc(-1 * var(--qx-space-inset-lg));
+  }
+}
+.qx-card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--qx-space-gap-sm);
+  padding: var(--qx-space-inset-md);
+  border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+}

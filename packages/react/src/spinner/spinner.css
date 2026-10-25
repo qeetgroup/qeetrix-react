@@ -1,0 +1,51 @@
+/* Spinner: an indeterminate wait (06-component-specs.md, increment 2). */
+.qx-spinner {
+  display: inline-block;
+  flex: none;
+  inline-size: 16px;
+  block-size: 16px;
+  border: 2px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: var(--qx-radius-full);
+  animation-name: qx-spinner-turn;
+  animation-duration: calc(2 * var(--qx-motion-duration-slower));
+  animation-timing-function: var(--qx-motion-easing-linear);
+  animation-iteration-count: infinite;
+  &[data-size="sm"] {
+    inline-size: 14px;
+    block-size: 14px;
+  }
+  &[data-size="lg"] {
+    inline-size: 20px;
+    block-size: 20px;
+  }
+  &[data-size="xl"] {
+    inline-size: 24px;
+    block-size: 24px;
+  }
+  &[data-tone="brand"] {
+    color: var(--qx-color-icon-brand);
+  }
+}
+
+@keyframes qx-spinner-turn {
+  to {
+    rotate: 1turn;
+  }
+}
+
+/* Under reduced motion the tokens set every duration to 0, which would stop the spinner and hide the
+   wait. It stops turning and fades instead; the fade's duration is deliberately not a token, so it
+   stays visible. */
+@media (prefers-reduced-motion: reduce) {
+  .qx-spinner {
+    border-inline-end-color: currentColor;
+    animation: qx-spinner-fade 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes qx-spinner-fade {
+  50% {
+    opacity: 0.35;
+  }
+}

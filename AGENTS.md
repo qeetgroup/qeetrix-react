@@ -12,8 +12,8 @@ successor to `@qeetrix/ui`, which keeps working unchanged until every product ha
 - **Stack:** React 19, Base UI (peer), `@qeetrix/tokens` (peer), TypeScript 7, bun.
 - **Shape:** one bun workspace; the core package lives in `packages/react`. Heavy components get
   their own packages under `packages/` **only after the owner approves each one**.
-- **Status:** `0.0.x`, Phase 3 (engineering platform). No components yet. Primitives arrive in
-  Phase 4 increments.
+- **Status:** `0.0.x`, Phase 4. Increment 1 (the foundation primitives) is in; actions, form
+  controls, overlays, selection and display follow (02-inventory.md).
 
 It is a **library, not an app**: everything it exports is someone's dependency.
 
@@ -67,7 +67,7 @@ deliberately broken example by `tests/gates.server.test.ts`, which runs on every
 | API version | A removed or changed API without a raised minor (`scripts/check-api-version.mjs`) |
 | Package | publint and Are the Types Wrong? on the packed tarball |
 | Tests | Real-browser interaction, keyboard and axe (WCAG A/AA, contrast on); server rendering; coverage floor (90% lines) |
-| Screenshots | Every component in both colour schemes × three densities, compared on Argos (once connected) |
+| Screenshots | Compared on Argos (once connected). Light and dark for every component; all three densities too for components whose CSS uses a density token, enforced by `tests/screenshot-coverage.server.test.ts` |
 | Nightly | The browser tests again in Firefox and WebKit |
 
 Releases: `release.yml` re-runs the gate on `main`, then waits for an approver in the
@@ -81,7 +81,8 @@ packages/react/
   src/index.ts            the public entry; every export is API
   src/<family>/           one folder per family: <family>.tsx, <family>.css, index.ts, tests
   src/styles/base.css     the qx.base layer
-  scripts/build-css.mjs   compiles each <family>.css into the qx.components layer
+  scripts/build-css.mjs   compiles each <family>.css into the qx.components layer; dist/css/<family>.css
+                          also @imports base.css and every family it renders, found from its imports
   tsdown.config.ts        JS + declarations, unbundled
 packages/react/tests/      platform tests, the gate self-tests, and support (axe, screenshots, stage)
 packages/react/etc/        react.api.md, the public-API report
