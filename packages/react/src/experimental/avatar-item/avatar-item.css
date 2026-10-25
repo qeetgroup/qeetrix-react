@@ -1,6 +1,7 @@
-/* AvatarItem (07-components.md): the avatar, then the name over a second line. Both lines are one
-   line high on the small text's line height (16px), so the pair is 32px: a md avatar's height and
-   a compact row's. Each line ends with an ellipsis where the space runs out. */
+/* AvatarItem: the avatar, then the name over a second line. Both lines are one line high on the
+   small text's line height (16px), so the pair is 32px: a md avatar's height and a compact row's.
+   Each line ends with an ellipsis where the space runs out. The `font` shorthand resets
+   font-variation-settings, so each line sets the geometry after its font. */
 .qx-avatar-item {
   display: flex;
   align-items: center;
@@ -15,12 +16,12 @@
 .qx-avatar-item-name,
 .qx-avatar-item-description {
   overflow: hidden;
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 .qx-avatar-item-name {
   font: var(--qx-typography-label-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
   /* The second line's height, 16px: its size times its line height (a ratio). */
   line-height: calc(
     var(--qx-typography-body-sm-font-size) *
@@ -30,5 +31,6 @@
 }
 .qx-avatar-item-description {
   font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
   color: var(--qx-color-text-subtle);
 }

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
+import { tokenColor } from "../../tests/support/color";
 import { screenshotSchemes } from "../../tests/support/screenshots";
 import { Button } from "../button/button";
 import { Stack } from "../stack/stack";
@@ -38,6 +39,24 @@ function EditDrawer(props: Omit<DrawerProps, "children">) {
 
 const popupBox = () =>
   (document.querySelector("[data-slot=drawer-popup]") as HTMLElement).getBoundingClientRect();
+const body = () => document.querySelector("[data-slot=drawer-body]") as HTMLElement;
+const header = () => document.querySelector("[data-slot=drawer-header]") as HTMLElement;
+
+/** Read-only details: a long body with nothing focusable in it. */
+function DetailsDrawer() {
+  return (
+    <Drawer defaultOpen>
+      <DrawerContent title="Audit event" description="evt_8f2k1" size="sm">
+        <DrawerBody>
+          {Array.from({ length: 30 }, (_, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: a fixed list
+            <p key={index}>Field {index + 1}: unchanged</p>
+          ))}
+        </DrawerBody>
+      </DrawerContent>
+    </Drawer>
+  );
+}
 
 describe("Drawer", () => {
   it("opens at the end edge, labelled, with focus on the first field", async () => {
@@ -63,6 +82,65 @@ describe("Drawer", () => {
     await userEvent.keyboard("{Escape}");
     await expect.element(page.getByRole("dialog")).not.toBeInTheDocument();
     await expect.element(trigger).toHaveFocus();
+  });
+
+  it("draws its close button in the neutral tone, as a utility icon", async () => {
+    await render(<EditDrawer defaultOpen />);
+    const close = page.getByRole("button", { name: "Close" });
+    await expect.element(close).toHaveAttribute("data-tone", "neutral");
+    expect(getComputedStyle(close.element()).color).toBe(tokenColor("--qx-color-text-subtle"));
+  });
+
+  it("a scrolling body with nothing focusable takes focus, and scrolls from the keyboard", async () => {
+    await page.viewport(800, 480);
+    await render(<DetailsDrawer />);
+    await expect.poll(() => body().getAttribute("tabindex")).toBe("0");
+    // Nothing in the body takes focus, so the drawer opens on the body itself.
+    await expect.poll(() => document.activeElement).toBe(body());
+    await userEvent.keyboard("{PageDown}");
+    await expect.poll(() => body().scrollTop).toBeGreaterThan(0);
+    await expectAccessible(document.body);
+  });
+
+  it("a body that holds a field stays out of the tab order", async () => {
+    await page.viewport(800, 480);
+    await render(<EditDrawer defaultOpen />);
+    await expect.element(page.getByRole("textbox", { name: "Trade name" })).toHaveFocus();
+    expect(body().hasAttribute("tabindex")).toBe(false);
+  });
+
+  it("not dismissible: no close button, and neither Escape nor an outside click closes it", async () => {
+    await page.viewport(1000, 600);
+    await render(<EditDrawer dismissible={false} defaultOpen />);
+    const drawer = page.getByRole("dialog", { name: "Edit customer" });
+    await expect.element(drawer).toBeVisible();
+    expect(document.querySelector("[data-slot=drawer-close]")).toBeNull();
+    // Without the close button, the header's text runs to the 24px padding.
+    expect(getComputedStyle(header()).paddingInlineEnd).toBe("24px");
+    await userEvent.keyboard("{Escape}");
+    await expect.element(drawer).toBeVisible();
+    await page.elementLocator(document.body).click({ position: { x: 40, y: 300 } });
+    await expect.element(drawer).toBeVisible();
+    await page.getByRole("button", { name: "Cancel" }).click();
+    await expect.element(drawer).not.toBeInTheDocument();
+  });
+
+  it("dismissible by default: room for the close button, and an outside click closes it", async () => {
+    await page.viewport(1000, 600);
+    await render(<EditDrawer defaultOpen />);
+    const drawer = page.getByRole("dialog");
+    await expect.element(drawer).toBeVisible();
+    expect(getComputedStyle(header()).paddingInlineEnd).toBe("56px");
+    await page.elementLocator(document.body).click({ position: { x: 40, y: 300 } });
+    await expect.element(drawer).not.toBeInTheDocument();
+  });
+
+  it("looks right when not dismissible", async () => {
+    await page.viewport(800, 480);
+    await render(<EditDrawer dismissible={false} defaultOpen />);
+    await expect.element(page.getByRole("dialog")).toBeVisible();
+    await expectAccessible(document.body);
+    await screenshotSchemes("Drawer · not dismissible", null);
   });
 
   it("is accessible and looks right in both schemes", async () => {

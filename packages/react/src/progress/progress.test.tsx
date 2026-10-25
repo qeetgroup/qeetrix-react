@@ -48,6 +48,62 @@ describe("Meter", () => {
   });
 });
 
+describe("tones", () => {
+  it("colours a finished or failed task's Progress; brand while it runs", async () => {
+    const { container } = await render(
+      <Stack gap="md">
+        <Progress aria-label="Uploading" value={40} />
+        <Progress aria-label="Uploaded" value={100} tone="success" />
+        <Progress aria-label="Upload failed" value={70} tone="danger" />
+      </Stack>,
+    );
+    const colours = [...container.querySelectorAll("[data-slot=progress-indicator]")].map(
+      (indicator) => getComputedStyle(indicator).backgroundColor,
+    );
+    expect(colours).toEqual([
+      tokenColor("--qx-color-bg-brand-bold"),
+      tokenColor("--qx-color-bg-success-bold"),
+      tokenColor("--qx-color-bg-danger-bold"),
+    ]);
+  });
+
+  it("gives Meter Badge's tones, neutral and info included", async () => {
+    const tones = ["brand", "neutral", "info", "success", "warning", "danger"] as const;
+    const { container } = await render(
+      <Stack gap="md">
+        {tones.map((tone) => (
+          <Meter key={tone} aria-label={tone} value={50} tone={tone} />
+        ))}
+      </Stack>,
+    );
+    const colours = [...container.querySelectorAll("[data-slot=meter-indicator]")].map(
+      (indicator) => getComputedStyle(indicator).backgroundColor,
+    );
+    expect(colours).toEqual(tones.map((tone) => tokenColor(`--qx-color-bg-${tone}-bold`)));
+  });
+
+  it("are accessible in every tone, and look right in both schemes", async () => {
+    const { container } = await render(
+      <Stage>
+        <Stack gap="lg" style={{ inlineSize: 280 }}>
+          <Progress label="Uploaded invoices.csv" showValue value={100} tone="success" />
+          <Progress label="Couldn't import customers" showValue value={70} tone="danger" />
+          <Meter label="Seats used" showValue value={18} max={25} tone="neutral" />
+          <Meter
+            label="Storage"
+            showValue
+            value={48}
+            tone="info"
+            format={{ style: "unit", unit: "gigabyte" }}
+          />
+        </Stack>
+      </Stage>,
+    );
+    await expectAccessible(container);
+    await screenshotSchemes("Progress · tones");
+  });
+});
+
 describe("Progress and Meter", () => {
   it("are accessible and look right in both schemes", async () => {
     const { container } = await render(

@@ -1,4 +1,4 @@
-/* Steps (07-components.md): 24px square markers with 4px corners: done filled Ember with a tick,
+/* Steps: 24px square markers with 4px corners: done filled Ember with a tick,
    current outlined Ember (2px) with its number, upcoming outlined grey with a subtle number. A 1px
    line joins each step to the next, Ember once that step is done. Horizontal: equal columns, each
    label centred under its marker, wrapping within its column; under 24rem only the current step's

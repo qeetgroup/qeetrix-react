@@ -66,6 +66,13 @@
     color: var(--qx-color-icon-danger);
   }
 }
+/* A pending `promise` toast: a spinner in the icon's 18px box, centred where the icon would be. */
+.qx-toast-spinner {
+  display: grid;
+  place-items: center;
+  inline-size: 18px;
+  block-size: 18px;
+}
 .qx-toast-content {
   display: flex;
   flex: 1;

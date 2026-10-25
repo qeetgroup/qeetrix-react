@@ -14,6 +14,7 @@ import {
   type MouseEvent,
   type ReactElement,
   type ReactNode,
+  type Ref,
   use,
   useId,
   useRef,
@@ -55,7 +56,8 @@ export interface SidebarGroupProps extends Omit<ComponentProps<"div">, "children
   children?: ReactNode;
 }
 
-export interface SidebarItemProps {
+export interface SidebarItemProps
+  extends Omit<ComponentProps<"a">, "children" | "className" | "style" | "onClick" | "ref"> {
   /** The item's text. In the rail it becomes the tooltip and stays the accessible name. */
   label: string;
   /** Where it goes. A category (an item with children) takes no `href`. */
@@ -75,18 +77,29 @@ export interface SidebarItemProps {
   badge?: ReactNode;
   /** A category's initial state. By default it starts open when it holds the current page. */
   defaultOpen?: boolean;
+  /**
+   * Shown but not available, e.g. outside the plan: greyed, out of the Tab order and not followed.
+   * A link stays a link, with `aria-disabled`, so screen readers still find it. Default `false`.
+   */
+  disabled?: boolean;
   /** Called when the link is followed. */
   onClick?: (event: MouseEvent<HTMLElement>) => void;
   /** One level of nested SidebarItems: the item becomes a category. */
   children?: ReactNode;
+  /** Placement of the item's row (its `<li>`). */
   className?: string;
+  /** Placement of the item's row (its `<li>`). */
   style?: CSSProperties;
+  /**
+   * The link, or a category's button. The element's other props (`id`, `aria-*`, `data-*`,
+   * `target`) go there too.
+   */
+  ref?: Ref<HTMLElement>;
 }
 
 /**
- * A console's navigation (07-components.md, C1): links only, one level of nesting, every item in
- * the Tab order. Inside an AppShell it follows the shell: a rail when collapsed, a drawer on narrow
- * screens.
+ * A console's navigation: links only, one level of nesting, every item in the Tab order. Inside an
+ * AppShell it follows the shell: a rail when collapsed, a drawer on narrow screens.
  */
 export function Sidebar({
   label,
@@ -190,10 +203,12 @@ export function SidebarItem({
   current,
   badge,
   defaultOpen,
+  disabled = false,
   onClick,
   className,
   style,
   children,
+  ...props
 }: SidebarItemProps): ReactElement | null {
   const shell = useShellState();
   const query = use(FilterContext);
@@ -235,8 +250,15 @@ export function SidebarItem({
           className="qx-sidebar-icon qx-sidebar-icon-filled"
         />
       )}
-      <span className="qx-sidebar-label">{label}</span>
-      {badge != null && <span className="qx-sidebar-badge">{badge}</span>}
+      {/* The label and its count on one baseline; the pair is centred on the row. */}
+      <span className="qx-sidebar-text">
+        <span className="qx-sidebar-label">{label}</span>
+        {badge != null && (
+          <span className="qx-sidebar-badge" data-slot="sidebar-item-badge">
+            {badge}
+          </span>
+        )}
+      </span>
       {isCategory && (
         <ChevronDownIcon shape="round" size={16} aria-hidden className="qx-sidebar-chevron" />
       )}
@@ -245,12 +267,15 @@ export function SidebarItem({
 
   let control: ReactElement = isCategory ? (
     <button
+      {...(props as ComponentProps<"button">)}
       type="button"
       className="qx-sidebar-item"
       aria-expanded={expanded}
       aria-controls={panelId}
+      disabled={disabled}
       data-current={marked ? "" : undefined}
       data-open={expanded ? "" : undefined}
+      data-disabled={disabled ? "" : undefined}
       onClick={() => {
         if (rail) {
           shell.expand();
@@ -264,11 +289,21 @@ export function SidebarItem({
     </button>
   ) : (
     renderElement("a", render, {
-      href,
+      ...props,
+      // Disabled, it keeps the link role without an href, so it can't be followed or tabbed to.
+      ...(disabled
+        ? { role: "link", "aria-disabled": true, tabIndex: render ? -1 : undefined }
+        : { href }),
       className: "qx-sidebar-item",
       "aria-current": current ? "page" : undefined,
       "data-current": current ? "" : undefined,
+      "data-disabled": disabled ? "" : undefined,
       onClick: (event: MouseEvent<HTMLElement>) => {
+        if (disabled) {
+          // A router link checks this before it navigates.
+          event.preventDefault();
+          return;
+        }
         onClick?.(event);
         if (shell.inDrawer) shell.closeDrawer();
       },

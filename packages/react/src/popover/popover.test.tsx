@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
@@ -23,6 +23,10 @@ function FilterPopover({ defaultOpen }: { defaultOpen?: boolean }) {
   );
 }
 
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
 describe("Popover", () => {
   it("opens from its trigger, labelled by its title, with focus inside", async () => {
     await render(<FilterPopover />);
@@ -44,8 +48,50 @@ describe("Popover", () => {
 
   it("stacks above dialogs", async () => {
     await render(<FilterPopover defaultOpen />);
-    const positioner = document.querySelector(".qx-popover-positioner") as HTMLElement;
+    const positioner = document.querySelector("[data-slot=popover-positioner]") as HTMLElement;
+    expect(positioner.classList).toContain("qx-popover-positioner");
     expect(getComputedStyle(positioner).zIndex).toBe("1500");
+  });
+
+  it("without a title, is named by aria-label or aria-labelledby", async () => {
+    await render(
+      <>
+        <Popover defaultOpen>
+          <PopoverTrigger render={<Button>Columns</Button>} />
+          <PopoverContent aria-label="Visible columns">
+            <Checkbox label="Amount" defaultChecked />
+          </PopoverContent>
+        </Popover>
+        <h2 id="share-heading">Share invoice</h2>
+        <Popover defaultOpen>
+          <PopoverTrigger render={<Button>Share</Button>} />
+          <PopoverContent aria-labelledby="share-heading" side="top">
+            <Checkbox label="Anyone with the link" />
+          </PopoverContent>
+        </Popover>
+      </>,
+    );
+    await expect.element(page.getByRole("dialog", { name: "Visible columns" })).toBeVisible();
+    await expect.element(page.getByRole("dialog", { name: "Share invoice" })).toBeVisible();
+  });
+
+  it("warns in development when it has no name", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await render(<FilterPopover />);
+    await render(
+      <Popover>
+        <PopoverTrigger render={<Button>Columns</Button>} />
+        <PopoverContent aria-label="Visible columns" />
+      </Popover>,
+    );
+    expect(warn).not.toHaveBeenCalled();
+    await render(
+      <Popover>
+        <PopoverTrigger render={<Button>Columns</Button>} />
+        <PopoverContent />
+      </Popover>,
+    );
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("aria-labelledby"));
   });
 
   it("is accessible and looks right in both schemes", async () => {

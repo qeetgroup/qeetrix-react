@@ -1,5 +1,155 @@
 # @qeetrix/react
 
+## 0.1.0
+
+Fixes and new variants from the Storybook review of 0.0.8: every bug, accessibility and alignment
+finding on the React side, the variants an enterprise console needs, and consistency across
+components. Pair it with `@qeetrix/tokens` 0.0.8, which fixes the colour-contrast findings.
+
+**Migration:** none needed. Nothing was removed or renamed. A few unions gained values
+(`DialogSize`, `MeterTone`, `SpinnerTone`), which only matters to code that switches over them
+exhaustively. Behaviour changes are listed under **Changed**.
+
+**Why 0.1.0:** CI's API check needs a minor bump whenever a public type changes, and these
+unions changed. Nothing breaks.
+
+### New
+
+- **`Avatar` `shape`:** `"circle"` (default) or `"square"`, for organisations, applications and
+  tenants; passed through `AvatarGroup` and `AvatarItem`.
+- **`Badge` `variant` and `size`:** `variant="solid"` (the bold fill, AA in every tone and scheme)
+  next to `subtle`, and `size="sm"` (16px) next to `md`.
+- **`Card` `variant` and `tone`:** `variant="subdued"` (the sunken surface) for secondary panels,
+  and `tone="danger"` (a danger border and title) for destructive settings.
+- **`GridItem`:** a Grid cell that spans columns, `span` and `start`, both responsive by window
+  size class, for a main column and a side column. Server-safe.
+- **`Table` clickable rows:**
+  - `rowHref`, `renderRowLink` (for a router) and `onRowClick`, with `primary` on a column;
+  - the primary cell holds the row's one link or button, and a click anywhere else on the row
+    follows it (not on its controls, its menu, or selected text).
+- **`TreeNode` `disabled`:** skipped by the keys, never selected or ticked.
+- **`Timeline` tones:** `brand` and `info`, matching Badge.
+- **`Stat` `loading`:** placeholders that hold the value's place.
+- **`Meter` and `Progress` tones:** Meter gains `neutral` and `info`; Progress gains `tone`
+  (`brand`, `success`, `danger`).
+- **`Skeleton` `lines` and `size`:** a paragraph preset, and circles that match Avatar's sizes.
+- **`formatDate` and `formatDateTime`:** Gregorian, `en-IN` by default, India time by default, from
+  a Date, a timestamp, "YYYY-MM-DD" or an ISO date-time.
+- **`Dialog` sizes:** `xl` (1120px) and `fullscreen`.
+- **`Drawer` `dismissible`:** like Dialog's.
+- **`ContextMenu`, `ContextMenuTrigger`:** right-click, Shift+F10 and the context-menu key, with
+  every Menu part.
+- **`MenuItem` `description`:** a second, subtle line under the label, also on checkbox and radio
+  items.
+- **Tooltip placement:** `Tooltip` `sideOffset`; `IconButton` and `Toggle` `tooltipSide`; `Toggle`
+  `tooltip`.
+- **`PopoverContent` naming:** `aria-label` and `aria-labelledby`, for a popover without a title.
+- **`TextField` `help`:** the ⓘ explanation, like Field's.
+- **`Slider` `description` and `error`:** like the choice groups.
+- **`ErrorSummary` and `Form` headings:** ErrorSummary gets `headingLevel` and `autoFocus`, and
+  Form gets `summaryHeadingLevel`.
+- **`Tabs`:** `TabsList` `variant="contained"`, a segmented strip, and `Tab` `badge`, a count
+  formatted for the locale.
+- **`PageHeader` `back` and `PageHeaderBack`:** a back link above the title, router-friendly.
+- **`TopBar` compact layout:**
+  - below 840px the scope path collapses into one switcher;
+  - below 600px the product name hides behind the logo and the panel tools gather in one menu.
+- **`SidebarItem` element props and `disabled`.**
+- **`Calendar` and `RangeCalendar`:** `disabled` and `readOnly`.
+- **`DateRangePicker` `presets`:** quick ranges beside the calendar (today, the last 7, 30 or 90
+  days, this month, last month, or your own), cut to `min` and `max`.
+- **`Combobox` server search:** `onSearch`, `searchDelay` and `loading` ("Searching…"), with
+  `filter={null}` for results the server has already matched. A chosen value keeps its label when
+  new results leave it out.
+- **`SkipLink` and `TopBar` `messages`.**
+- **`Spinner` `tone="neutral"`:** the consistent name for `default`, which stays as a deprecated
+  alias.
+
+### Fixed
+
+- **Form:**
+  - **ErrorSummary:**
+    - it listed only Field rows; it now lists TextField, CheckboxGroup, RadioGroup and Slider
+      errors too, and links each to its control;
+    - it's an alert with a real heading, and takes focus when it appears.
+  - **Field:** an error now replaces the description for screen readers too.
+  - **Fieldset:** its description is linked to the group.
+  - **Disabled fields:** they dim their description as well as their label.
+- **Checkbox:** a `parent` checkbox draws a dash, not a tick, while it's mixed.
+- **OTPInput:**
+  - its name now reaches every slot, and the Base UI warning is gone;
+  - the slots shrink to fit narrow columns.
+- **Slider:** range thumbs are named after the label ("Seats, minimum").
+- **Choice tiles:** a two-line title no longer runs into its description.
+- **Table:**
+  - **Refreshing:**
+    - while it refreshes, rows stay readable (they faded to 2.7:1), with a busy line under the
+      header;
+    - refreshes are announced.
+  - **Selecting:** in a Card, the header no longer jumps 8px when the first row is ticked.
+  - **Count:** the selection count is formatted for the locale.
+- **TreeView:** passes the caller's `ref`.
+- **Timeline:** the compact dot sits on the title's line, in the event's tone.
+- **Stat:** a wrapped StatGroup keeps the gutter, with no stray rules.
+- **`formatRelativeTime`:** it rounds before choosing the unit, so it no longer says "60 minutes
+  ago" or "12 months ago".
+- **Spinner:** a standalone Spinner reads QeetrixProvider's language, and stays server-safe.
+- **EmptyState:** renders its `children`.
+- **DataState:** it no longer jumps in height between loading and error, and its error is
+  announced.
+- **Page banner:** a wrapped banner keeps its icon and Dismiss on the first line, and forced colours
+  no longer box it.
+- **Tooltip:**
+  - it describes its trigger (`role="tooltip"`, `aria-describedby`), without repeating a label it
+    shows;
+  - TooltipProvider's `delay` now applies.
+- **Dialog and Drawer:** a scrolling body with nothing focusable can be scrolled from the keyboard.
+- **Toast:**
+  - a danger toast passes axe and is still announced assertively;
+  - a rejected promise shows as danger;
+  - `useToast` is stable.
+- **CopyButton:** with a visible label it keeps its tooltip and its "Copied" message.
+- **Card:** the footer lines up with the body (it was 4px off).
+- **Stack, Inline, Grid:** rendered as `ul`/`ol`, they reset list styles and keep list semantics.
+- **ScrollArea:** its name and `role="region"` sit on the focusable viewport.
+- **Accordion:** panel text uses Qeet Sans on a page that sets no font.
+- **QeetrixProvider:** restores the colour scheme on unmount; nested scheme providers no longer
+  overwrite each other.
+- **AppShell:** without a top bar, the frame leaves no empty band.
+- **PageHeader:**
+  - its tabs sit on the gutter, with the rule edge to edge;
+  - `count` follows the provider's locale.
+- **Link:** wraps with its sentence, with the external arrow kept on the last word.
+- **Label baselines:** 12px counts sit on the label's baseline in Sidebar, Tab and CommandPalette.
+- **CommandPalette:** results share one leading column.
+- **Pagination:** the range reads correctly right to left.
+- **Breadcrumb and Pagination:** accept an `aria-label` override.
+- **Steps:** names have no stray space.
+- **Calendar:** its header and days share one width in a stretching layout.
+- **RangeCalendar:** keeps disabled days grey inside a range.
+- **DatePicker and DateRangePicker:** buttons are named after their field ("Choose date for
+  Joining date").
+- **Combobox:** Clear is named after its field.
+- **CodeBlock:** wrapped lines keep their indent, and the number column fits three-digit lines.
+- **Fonts:** Qeet Sans's geometry axis is kept after `font` shorthands (Avatar, Table, Timeline,
+  TreeView, OTPInput, EmptyState).
+- **Component names:** components keep their names in the build (`Button`, not `Button$1`) in
+  DevTools and code snippets. `check:dist` now guards this.
+
+### Changed
+
+- **Table:** rows no longer dim while loading; the busy line shows instead.
+- **Close buttons:** in Dialog, Drawer and Toast they use the neutral tone, not Ember.
+- **Card footers:** they use `inset-lg` padding (8px taller), except under an edge-to-edge table.
+- **Link:** it's inline.
+- **ScrollArea:** its name moves to the viewport.
+- **Locale defaults:** `Stat`'s `locale` and PageHeader's `count` follow the provider (they were
+  always en-IN).
+- **Spinner:** without a label, its server markup uses `aria-labelledby` with a hidden label.
+- **`formatRelativeTime`:** output changes at unit edges (59 min 40 s is "1 hour ago").
+- **Nested QeetrixProvider:** a nested provider with a colour scheme defers to the outermost.
+- **Picker names:** DatePicker and DateRangePicker button names include the field's label.
+
 ## 0.0.8
 
 Four reusable parts from the gap review, each mocked up and approved first: choice tiles,

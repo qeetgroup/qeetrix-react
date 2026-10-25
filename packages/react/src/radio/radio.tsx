@@ -22,13 +22,14 @@ interface RadioOwnProps<Value>
   icon?: QeetrixIcon;
   /** Placement of the row (or of the control alone, with no label) only. */
   className?: string;
+  /** Placement only, like `className`. */
   style?: CSSProperties;
 }
 
 /** Radio props: Base UI's (`value` required), plus `label` — or a required `aria-label`. */
 export type RadioProps<Value = string> = RadioOwnProps<Value> & ChoiceLabelProps;
 
-/** One option of a RadioGroup (06-component-specs.md §3). The 5px Ember ring is its border. */
+/** One option of a RadioGroup. The 5px Ember ring is its border. */
 export function Radio<Value = string>({
   label,
   description,
@@ -62,14 +63,18 @@ export interface RadioGroupProps<Value = string>
     FieldMessageProps {
   /** The question, shown as the group's legend. */
   label: ReactNode;
-  /** `vertical` (default) or `horizontal` for short options. */
+  /** `vertical`, or `horizontal` for short options. Default `vertical`. */
   orientation?: ChoiceOrientation;
-  /** `default` rows, or `tile`s: boxes with an icon, a title and a line, the whole tile clickable. */
+  /**
+   * `default` rows, or `tile`s: boxes with an icon, a title and a line, the whole tile clickable.
+   * Default `default`.
+   */
   variant?: ChoiceVariant;
-  /** For tiles: the most columns, fewer where there isn't room. Default 1. */
+  /** For tiles: the most columns, fewer where there isn't room. Default `1`. */
   columns?: 1 | 2 | 3 | 4;
   /** Placement only (margin, width, grid placement). */
   className?: string;
+  /** Placement only, like `className`. */
   style?: CSSProperties;
 }
 

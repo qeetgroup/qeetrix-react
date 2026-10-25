@@ -1,6 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
+import { QeetIdFrame } from "../../../tests/fixtures/qeet-id-console";
 import { expectAccessible } from "../../../tests/support/axe";
 import { tokenColor } from "../../../tests/support/color";
 import { screenshotEveryMode } from "../../../tests/support/screenshots";
@@ -47,7 +48,20 @@ function darkToken(token: `--qx-${string}`): string {
   return color;
 }
 
+/** The bar's controls on screen, left to right. */
+function controls(): DOMRect[] {
+  const bar = document.querySelector("[data-slot=top-bar]") as HTMLElement;
+  return [...bar.querySelectorAll<HTMLElement>("a, button")]
+    .map((element) => element.getBoundingClientRect())
+    .filter((box) => box.width > 1 && box.height > 1)
+    .sort((a, b) => a.left - b.left);
+}
+
 describe("TopBar", () => {
+  beforeEach(async () => {
+    await page.viewport(1100, 200);
+  });
+
   it("is the banner, with the product's name linking home", async () => {
     await render(<Bar />);
     await expect.element(page.getByRole("banner")).toBeVisible();
@@ -91,7 +105,6 @@ describe("TopBar", () => {
   });
 
   it("opens search from a button named by its prompt, showing the shortcut", async () => {
-    await page.viewport(1100, 200);
     const onSearch = vi.fn();
     await render(<Bar onSearch={onSearch} />);
     const search = page.getByRole("button", { name: "Search or jump to…" });
@@ -112,9 +125,94 @@ describe("TopBar", () => {
   });
 
   it("is accessible and looks right in every mode", async () => {
-    await page.viewport(1100, 200);
     const { container } = await render(<Bar />);
     await expectAccessible(container);
     await screenshotEveryMode("TopBar", "[data-slot=top-bar]");
+  });
+});
+
+describe("TopBar, compact (below 840px)", () => {
+  it("overlaps nothing at 390 and 768px, at every density", async () => {
+    for (const width of [390, 768]) {
+      await page.viewport(width, 400);
+      const screen = await render(<QeetIdFrame>page</QeetIdFrame>);
+      const bar = (
+        document.querySelector("[data-slot=top-bar]") as HTMLElement
+      ).getBoundingClientRect();
+      for (const density of ["compact", "default", "comfortable"]) {
+        // The frame sets compact density; its default is what the page inherits.
+        const shell = document.querySelector("[data-slot=app-shell]") as HTMLElement;
+        shell.dataset.qxDensity = density;
+        const boxes = controls();
+        const where = `${width}px, ${density}`;
+        for (const [index, box] of boxes.entries()) {
+          expect(box.left, where).toBeGreaterThanOrEqual(bar.left);
+          expect(box.right, where).toBeLessThanOrEqual(bar.right);
+          const next = boxes[index + 1];
+          if (next) expect(next.left, where).toBeGreaterThanOrEqual(box.right - 0.5);
+        }
+        // At the consoles' compact density, the one switcher's label shows whole even at 390px;
+        // in roomier densities it's what gives way, with an ellipsis.
+        const label = document.querySelector(
+          "[data-slot=top-bar-scope] .qx-top-bar-switcher-label",
+        ) as HTMLElement;
+        if (density === "compact" || width === 768)
+          expect(label.scrollWidth, where).toBeLessThanOrEqual(label.clientWidth + 1);
+        else expect(getComputedStyle(label).textOverflow, where).toBe("ellipsis");
+      }
+      await screen.unmount();
+    }
+  });
+
+  it("collapses the scope path into one switcher showing its innermost step", async () => {
+    await page.viewport(768, 400);
+    await render(<QeetIdFrame>page</QeetIdFrame>);
+    const scope = page.getByRole("button", { name: "Scope Production" });
+    await expect.element(scope).toBeVisible();
+    expect(scope.element().querySelector(".qx-top-bar-status")?.getAttribute("data-status")).toBe(
+      "success",
+    );
+    // One slash, before the one switcher; the full path is a tap away.
+    expect(document.querySelectorAll("[data-slot=top-bar] .qx-top-bar-slash")).toHaveLength(1);
+    await scope.click();
+    const path = page.getByRole("dialog", { name: "Scope" });
+    await expect.element(path).toBeVisible();
+    // Each step is its own switcher, still opening its own menu.
+    await path.getByRole("button", { name: "Acme Pvt Ltd" }).click();
+    await page.getByRole("menuitem", { name: "Acme Labs" }).click();
+    await expect.element(page.getByRole("menuitem")).not.toBeInTheDocument();
+  });
+
+  it("keeps the product's name for its link on a phone, showing the logo alone", async () => {
+    await page.viewport(390, 400);
+    await render(<QeetIdFrame>page</QeetIdFrame>);
+    const home = page.getByRole("link", { name: "Qeet ID" });
+    await expect.element(home).toBeVisible();
+    const name = home.element().querySelector(".qx-top-bar-product") as HTMLElement;
+    expect(name.getBoundingClientRect().width).toBeLessThanOrEqual(1);
+    // From 600px the name shows again.
+    await page.viewport(768, 400);
+    await expect.poll(() => name.getBoundingClientRect().width).toBeGreaterThan(20);
+  });
+
+  it("collapses the panel triggers into one Tools menu on a phone", async () => {
+    await page.viewport(390, 600);
+    await render(<QeetIdFrame>page</QeetIdFrame>);
+    expect(page.getByRole("button", { name: "Help" }).query()).toBeNull();
+    const tools = page.getByRole("button", { name: "Tools" });
+    await tools.click();
+    await page.getByRole("menuitemcheckbox", { name: "Help" }).click();
+    await expect.element(page.getByRole("complementary", { name: "Help" })).toBeVisible();
+    await tools.click();
+    await expect
+      .element(page.getByRole("menuitemcheckbox", { name: "Help" }))
+      .toHaveAttribute("aria-checked", "true");
+  });
+
+  it("is accessible and looks right in every mode", async () => {
+    await page.viewport(390, 200);
+    const { container } = await render(<Bar />);
+    await expectAccessible(container);
+    await screenshotEveryMode("TopBar · compact", "[data-slot=top-bar]");
   });
 });

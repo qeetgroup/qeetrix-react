@@ -82,6 +82,59 @@ describe("Button", () => {
     expect(onClick).not.toHaveBeenCalled();
   });
 
+  it("loading: the spinner carries button-spinner and sits where the icon was, at every density", async () => {
+    const centre = (element: Element) => {
+      const box = element.getBoundingClientRect();
+      return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+    };
+    const screen = await render(
+      <Inline gap="sm">
+        <Button icon={ArrowRightIcon}>Pay</Button>
+        <IconButton icon={DownloadIcon} aria-label="Download" tooltip={false} />
+        <Button size="lg" icon={ArrowRightIcon}>
+          Pay now
+        </Button>
+      </Inline>,
+    );
+    const icons: Record<string, { x: number; y: number }[]> = {};
+    for (const density of ["compact", "default", "comfortable"]) {
+      html.dataset.qxDensity = density;
+      icons[density] = [...screen.container.querySelectorAll("[data-slot=button-icon]")].map(
+        centre,
+      );
+    }
+    await screen.rerender(
+      <Inline gap="sm">
+        <Button icon={ArrowRightIcon} loading>
+          Pay
+        </Button>
+        <IconButton icon={DownloadIcon} aria-label="Download" tooltip={false} loading />
+        <Button size="lg" icon={ArrowRightIcon} loading>
+          Pay now
+        </Button>
+      </Inline>,
+    );
+    const spinners = [...screen.container.querySelectorAll("[data-slot=button-spinner]")];
+    expect(spinners).toHaveLength(3);
+    for (const spinner of spinners) {
+      // Spinner keeps its own slot inside the button's.
+      expect(spinner.querySelector(":scope > [data-slot=spinner]")).not.toBeNull();
+    }
+    for (const density of ["compact", "default", "comfortable"]) {
+      html.dataset.qxDensity = density;
+      const spun = spinners.map((spinner) => centre(spinner.firstElementChild as Element));
+      spun.forEach((at, index) => {
+        expect(Math.abs(at.x - (icons[density]?.[index]?.x ?? Number.NaN))).toBeLessThanOrEqual(
+          0.5,
+        );
+        expect(Math.abs(at.y - (icons[density]?.[index]?.y ?? Number.NaN))).toBeLessThanOrEqual(
+          0.5,
+        );
+      });
+    }
+    delete html.dataset.qxDensity;
+  });
+
   it("IconButton is square and named by its aria-label", async () => {
     await render(<IconButton icon={DownloadIcon} aria-label="Download invoice" />);
     const button = page.getByRole("button", { name: "Download invoice" }).element() as HTMLElement;

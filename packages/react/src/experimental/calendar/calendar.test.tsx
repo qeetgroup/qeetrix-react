@@ -4,8 +4,10 @@ import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../../tests/support/axe";
 import { screenshotEveryMode } from "../../../tests/support/screenshots";
 import { Stage } from "../../../tests/support/stage";
+import { Grid } from "../../grid/grid";
 import { hi } from "../../locales/hi";
 import { QeetrixProvider } from "../../provider/provider";
+import { Stack } from "../../stack/stack";
 import { Calendar } from "./calendar";
 
 const TODAY = "2026-10-25"; // a Sunday
@@ -231,6 +233,127 @@ describe("Calendar", () => {
     await expect.element(page.getByRole("button", { name: `${title()}, साल चुनें` })).toBeVisible();
   });
 
+  it("shares one width between its header and its grid where the parent stretches it, at every density", async () => {
+    await page.viewport(960, 520);
+    await render(
+      <div style={{ display: "grid", gridTemplateColumns: "420px 420px", gap: 24, padding: 16 }}>
+        <Stack>
+          <Calendar today={TODAY} />
+        </Stack>
+        <Grid columns={1}>
+          <Calendar today={TODAY} />
+        </Grid>
+      </div>,
+    );
+    const html = document.documentElement;
+    for (const density of ["compact", "default", "comfortable"]) {
+      html.dataset.qxDensity = density;
+      for (const root of document.querySelectorAll<HTMLElement>("[data-slot=calendar]")) {
+        const box = (slot: string) =>
+          (root.querySelector(`[data-slot=${slot}]`) as HTMLElement).getBoundingClientRect();
+        const [header, grid, next] = [
+          box("calendar-header"),
+          box("calendar-grid"),
+          box("calendar-next"),
+        ];
+        const saturday = (
+          root.querySelector('[data-date="2026-10-31"]') as HTMLElement
+        ).getBoundingClientRect();
+        // The calendar keeps its own size instead of the parent's 420px.
+        expect(root.getBoundingClientRect().width, density).toBeLessThan(400);
+        expect(Math.abs(header.left - grid.left), density).toBeLessThan(0.5);
+        expect(Math.abs(header.right - grid.right), density).toBeLessThan(0.5);
+        // The next-month arrow ends where the days do, give or take their 1px gutter.
+        expect(next.right - saturday.right, density).toBeGreaterThanOrEqual(-0.5);
+        expect(next.right - saturday.right, density).toBeLessThan(1.5);
+      }
+    }
+    delete html.dataset.qxDensity;
+  });
+
+  it("follows a width set from outside: the grid fills it, under the header", async () => {
+    await render(<Calendar today={TODAY} style={{ inlineSize: 400 }} />);
+    const header = document.querySelector("[data-slot=calendar-header]")?.getBoundingClientRect();
+    const grid = document.querySelector("[data-slot=calendar-grid]")?.getBoundingClientRect();
+    expect(grid?.width).toBe(400);
+    expect(header?.width).toBe(400);
+  });
+
+  it("can be disabled: nothing is chosen and the month stays put, though the date can be read", async () => {
+    const onValueChange = vi.fn();
+    const { container } = await render(
+      <Calendar today={TODAY} defaultValue="2026-10-14" disabled onValueChange={onValueChange} />,
+    );
+    const grid = container.querySelector("[data-slot=calendar-grid]") as HTMLElement;
+    expect(grid.getAttribute("aria-disabled")).toBe("true");
+    expect(day("2026-10-12").getAttribute("aria-disabled")).toBe("true");
+    await userEvent.click(day("2026-10-12"), { force: true });
+    expect(onValueChange).not.toHaveBeenCalled();
+    for (const name of ["Previous month", "Next month", "October 2026, choose year"]) {
+      const button = page.getByRole("button", { name });
+      await expect.element(button).toHaveAttribute("aria-disabled", "true");
+      await button.click({ force: true });
+    }
+    expect(title()).toBe("October 2026");
+    // The day stays in the Tab order, so the chosen date can still be read; keys don't move it.
+    expect(container.querySelectorAll('[data-date][tabindex="0"]')).toHaveLength(1);
+    day("2026-10-14").focus();
+    await userEvent.keyboard("{ArrowRight}{PageDown}{Enter}");
+    expect(focusedDate()).toBe("2026-10-14");
+    expect(title()).toBe("October 2026");
+    expect(onValueChange).not.toHaveBeenCalled();
+    await expectAccessible(container);
+  });
+
+  it("can be read-only: the months can be browsed, but nothing is chosen", async () => {
+    const onValueChange = vi.fn();
+    const { container } = await render(
+      <Calendar today={TODAY} defaultValue="2026-10-14" readOnly onValueChange={onValueChange} />,
+    );
+    const grid = container.querySelector("[data-slot=calendar-grid]") as HTMLElement;
+    expect(grid.getAttribute("aria-readonly")).toBe("true");
+    expect(day("2026-10-12").hasAttribute("aria-disabled")).toBe(false);
+    await userEvent.click(day("2026-10-12"));
+    await userEvent.keyboard("{ArrowRight}{Enter}");
+    expect(focusedDate()).toBe("2026-10-13");
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(day("2026-10-14").closest("td")?.getAttribute("aria-selected")).toBe("true");
+    await page.getByRole("button", { name: "Next month" }).click();
+    expect(title()).toBe("November 2026");
+    await expectAccessible(container);
+  });
+
+  it("marks each part with its own data-slot", async () => {
+    await render(<Calendar today={TODAY} />);
+    const slots = [
+      "calendar",
+      "calendar-header",
+      "calendar-previous",
+      "calendar-title",
+      "calendar-zoom",
+      "calendar-next",
+      "calendar-body",
+      "calendar-grid",
+      "calendar-weekday",
+      "calendar-cell",
+      "calendar-day",
+    ];
+    for (const slot of slots)
+      expect(document.querySelector(`[data-slot=${slot}]`), slot).not.toBeNull();
+    await expect
+      .element(page.getByRole("button", { name: "Previous month" }))
+      .toHaveAttribute("data-slot", "calendar-previous");
+    await expect
+      .element(page.getByRole("button", { name: "Next month" }))
+      .toHaveAttribute("data-slot", "calendar-next");
+    expect(day(TODAY).dataset.slot).toBe("calendar-day");
+    await page.getByRole("button", { name: "October 2026, choose year" }).click();
+    expect(document.querySelector("[data-slot=calendar-panel]")).not.toBeNull();
+    expect(document.querySelector('[data-year="2026"]')?.getAttribute("data-slot")).toBe(
+      "calendar-option",
+    );
+  });
+
   it("is accessible and looks right in every mode", async () => {
     const { container } = await render(
       <Stage>
@@ -246,5 +369,16 @@ describe("Calendar", () => {
     await page.getByRole("button", { name: "2026", exact: true }).click();
     await expectAccessible(container);
     await screenshotEveryMode("Calendar · months", "[data-qx-stage]");
+  });
+
+  it("looks disabled and read-only in every mode", async () => {
+    const { container } = await render(
+      <Stage>
+        <Calendar today={TODAY} defaultValue="2026-10-14" disabled />
+        <Calendar today={TODAY} defaultValue="2026-10-14" readOnly />
+      </Stage>,
+    );
+    await expectAccessible(container);
+    await screenshotEveryMode("Calendar · disabled and read-only", "[data-qx-stage]");
   });
 });

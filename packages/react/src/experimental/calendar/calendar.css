@@ -1,12 +1,14 @@
-/* Calendar (07-components.md): the month and its arrows above a grid of days, each
-   `size.control.md` tall with 4px corners: square at the calendar's own size, wider when a picker
-   stretches the grid to its field. The title opens the years and then the months, in a 3-column
-   panel over the days, the same size. Today (and this month and year) has a thin Ember outline;
-   the chosen one is filled Ember, and the fill takes over the outline; those outside the range are
-   disabled grey. */
+/* Calendar: the month and its arrows above a grid of days, each `size.control.md` tall with 4px
+   corners: square at the calendar's own size, wider when a picker stretches the grid to its field.
+   The title opens the years and then the months, in a 3-column panel over the days, the same size.
+   Today (and this month and year) has a thin Ember outline; the chosen one is filled Ember, and the
+   fill takes over the outline; those outside the range are disabled grey. */
 .qx-calendar {
   display: inline-flex;
   flex-direction: column;
+  /* Its own size, even where the parent stretches its children (a Stack, a Grid cell); the header
+     and the grid share that one width, so the arrows line up with the days. */
+  inline-size: fit-content;
   gap: var(--qx-space-gap-sm);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
@@ -42,22 +44,30 @@
   transition-property: background-color;
   transition-duration: var(--qx-motion-duration-fast);
   transition-timing-function: var(--qx-motion-easing-standard);
-  &:hover {
+  &:hover:not([aria-disabled]) {
     background: var(--qx-color-overlay-hover);
   }
   &:focus-visible {
     outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
     outline-offset: calc(-1 * var(--qx-focus-ring-width));
   }
+  &[aria-disabled] {
+    color: var(--qx-color-text-disabled);
+    cursor: not-allowed;
+  }
 }
 .qx-calendar-zoom-icon {
   flex: none;
   color: var(--qx-color-icon-subtle);
+  [aria-disabled] > & {
+    color: var(--qx-color-icon-disabled);
+  }
 }
 [dir="rtl"] .qx-calendar-step .qx-button-icon {
   scale: -1 1;
 }
 .qx-calendar-grid {
+  inline-size: 100%;
   border-collapse: collapse;
 }
 .qx-calendar-weekday {
@@ -145,6 +155,29 @@
       box-shadow: inset 0 0 0 calc(var(--qx-focus-ring-width) + var(--qx-border-width-default))
         var(--qx-color-surface-default);
     }
+  }
+}
+/* Read-only: the days look as they are, but nothing reacts to the pointer. */
+.qx-calendar[data-readonly] .qx-calendar-day {
+  cursor: default;
+  &:hover {
+    background: transparent;
+  }
+}
+.qx-calendar[data-readonly] [aria-selected]:not([data-range="middle"]) > .qx-calendar-day:hover {
+  background: var(--qx-color-bg-brand-bold);
+}
+/* Disabled: everything is grey, the chosen day and today's outline too. */
+.qx-calendar[data-disabled] {
+  & .qx-calendar-weekday {
+    color: var(--qx-color-text-disabled);
+  }
+  & .qx-calendar-day[data-today] {
+    box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-disabled);
+  }
+  & [aria-selected]:not([data-range="middle"]) > .qx-calendar-day {
+    background: var(--qx-color-bg-disabled);
+    color: var(--qx-color-text-disabled);
   }
 }
 

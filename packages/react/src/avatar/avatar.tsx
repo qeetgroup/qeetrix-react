@@ -6,17 +6,30 @@ import { cx } from "../internal/cx";
 
 export type AvatarSize = "sm" | "md" | "lg" | "xl";
 
+/** `circle` for a person; `square` for an organisation, an application or a tenant. */
+export type AvatarShape = "circle" | "square";
+
 export interface AvatarProps
   extends Omit<BaseAvatar.Root.Props, "className" | "style" | "children"> {
-  /** The person's name: the image's text alternative, and the source of the initials. */
+  /**
+   * The name of the person, organisation or application: the image's text alternative, and the
+   * source of the initials.
+   */
   name: string;
-  /** The photo. The initials show while it loads, and if it fails. */
+  /** The photo or logo. The initials show while it loads, and if it fails. */
   src?: string;
-  /** `sm` 24, `md` 32 (default), `lg` 40 or `xl` 48px. */
+  /** `sm` 24, `md` 32, `lg` 40 or `xl` 48px. Default `md`. */
   size?: AvatarSize;
+  /**
+   * `circle` for a person. `square`, with the 4px corners of controls, for an organisation, an
+   * application or a tenant, so they never read as people. Default `circle`.
+   */
+  shape?: AvatarShape;
   /** The name is shown beside it: hide the avatar from assistive technology. */
   decorative?: boolean;
+  /** Classes for layout, such as margins. */
   className?: string;
+  /** Inline styles for layout. */
   style?: CSSProperties;
 }
 
@@ -40,13 +53,15 @@ function initials(name: string): string {
 }
 
 /**
- * A person: their photo, or their initials (06-component-specs.md, increment 6). A circle, since
- * people are one of the two soft shapes. It's named by `name`, unless `decorative`.
+ * A person, or an organisation, application or tenant: their photo or logo, or their initials. A
+ * person is a circle, since people are one of the two soft shapes; anything else is a square. It's
+ * named by `name`, unless `decorative`.
  */
 export function Avatar({
   name,
   src,
   size = "md",
+  shape = "circle",
   decorative,
   className,
   ...props
@@ -60,9 +75,12 @@ export function Avatar({
       className={cx("qx-avatar", className)}
       data-slot="avatar"
       data-size={size}
+      data-shape={shape}
     >
-      {src && <BaseAvatar.Image src={src} alt="" className="qx-avatar-image" />}
-      <BaseAvatar.Fallback className="qx-avatar-fallback" aria-hidden>
+      {src && (
+        <BaseAvatar.Image src={src} alt="" className="qx-avatar-image" data-slot="avatar-image" />
+      )}
+      <BaseAvatar.Fallback className="qx-avatar-fallback" data-slot="avatar-fallback" aria-hidden>
         {initials(name)}
       </BaseAvatar.Fallback>
     </BaseAvatar.Root>

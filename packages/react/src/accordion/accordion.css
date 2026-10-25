@@ -58,6 +58,11 @@
     block-size: 0;
   }
 }
+/* The panel sets body text itself, as Card's body does, so its content never falls back to the
+   browser's default font. */
 .qx-accordion-content {
   padding-block-end: var(--qx-space-inset-lg);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
 }

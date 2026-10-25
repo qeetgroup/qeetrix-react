@@ -11,6 +11,7 @@ import {
   parseLocalDate,
   toISODate,
 } from "../../internal/date";
+import { useLabelText } from "../../internal/label-text";
 import type { QeetrixMessages } from "../../internal/messages";
 import { mergeRefs } from "../../internal/refs";
 import { fill } from "../../internal/template";
@@ -26,7 +27,7 @@ export interface DatePickerProps
   > {
   /** The date, "YYYY-MM-DD", or `null` for none; controlled. */
   value?: string | null;
-  /** The date when uncontrolled. */
+  /** The date when uncontrolled. Default `null`. */
   defaultValue?: string | null;
   /** Called with the new date, or `null` when the field is cleared or what's typed isn't a date. */
   onValueChange?: (value: string | null) => void;
@@ -36,9 +37,9 @@ export interface DatePickerProps
   max?: string;
   /** Rule out more dates, e.g. weekends or holidays. */
   isDateDisabled?: (date: string) => boolean;
-  /** Today, "YYYY-MM-DD", for tests and screenshots. Default: the browser's today. */
+  /** Today, "YYYY-MM-DD", for tests and screenshots; when not set, the browser's today. */
   today?: string;
-  /** Default: QeetrixProvider's locale. It sets the date order, the language and the week. */
+  /** The date order, the language and the week; when not set, QeetrixProvider's locale. */
   locale?: string;
   /** This picker's strings, over QeetrixProvider's and the English defaults. */
   messages?: Partial<QeetrixMessages["datePicker"]>;
@@ -50,10 +51,14 @@ export interface PickerFieldProps
   /** The `<input>`, for its validity. */
   input: RefObject<HTMLInputElement | null>;
   typed: TypedValue;
-  /** The calendar button's and the dialog's name. */
+  /** The calendar button's tooltip, and its name while the field has no label: "Choose date". */
   label: string;
+  /** The button's and the dialog's name, with the field's label: "Choose date for {label}". */
+  labelFor: string;
   /** Hidden inputs that submit the value. */
   hiddenInputs?: ReactNode;
+  /** Something beside the calendar, such as presets: the popup may grow wider than the field. */
+  wide?: boolean;
   /** The calendar, given a ref for its root and a way to close the popover. */
   children: (calendar: RefObject<HTMLDivElement | null>, close: () => void) => ReactNode;
 }
@@ -61,13 +66,16 @@ export interface PickerFieldProps
 /**
  * The Input box with a calendar button at its end, and a calendar in a popover exactly as wide as
  * the field. The button, or Alt+Down in the field, opens it with focus on the calendar's day;
- * choosing, Escape or Tab closes it, and focus returns to where it was opened from.
+ * choosing, Escape or Tab closes it, and focus returns to where it was opened from. The button and
+ * the dialog are named after the field's label, so two pickers on a form can be told apart.
  */
 export function PickerField({
   input,
   typed,
   label,
+  labelFor,
   hiddenInputs,
+  wide = false,
   children,
   disabled,
   readOnly,
@@ -83,6 +91,9 @@ export function PickerField({
   // Opened from the field with Alt+Down, focus goes back to the field; from the button, the button.
   const returnTo = useRef<HTMLElement | null>(null);
   const locked = disabled || readOnly;
+  // The field's label, read from the page once it's there; before that, its own aria-label.
+  const field = useLabelText(input) || props["aria-label"];
+  const name = field ? fill(labelFor, { label: field }) : label;
 
   return (
     <Popover
@@ -122,7 +133,8 @@ export function PickerField({
               render={
                 <IconButton
                   icon={CalendarIcon}
-                  aria-label={label}
+                  aria-label={name}
+                  tooltip={label}
                   size="sm"
                   tone="neutral"
                   disabled={locked}
@@ -138,28 +150,31 @@ export function PickerField({
         anchor={() => input.current?.parentElement ?? null}
         align="start"
         sideOffset={4}
-        aria-label={label}
+        aria-label={name}
         initialFocus={() =>
           calendar.current?.querySelector<HTMLElement>('[data-date][tabindex="0"]') ?? true
         }
         finalFocus={() => returnTo.current ?? true}
         className="qx-date-picker-popup"
+        data-wide={wide ? "" : undefined}
       >
-        {children(calendar, () => setOpen(false))}
+        <div className="qx-date-picker-panel" data-slot="date-picker-panel">
+          {children(calendar, () => setOpen(false))}
+        </div>
       </PopoverContent>
     </Popover>
   );
 }
 
 /**
- * A date field (07-components.md): type the date in the locale's order (25/10/2026 for India) or
- * choose it from a Calendar in a popover (the WAI-ARIA date picker dialog). Typed text is read when
- * the field loses focus or on Enter; a date that can't be read or isn't allowed keeps its text and
- * makes the field invalid through the browser's own validity, so Field shows why and Form stops
- * the submit. The calendar button, or Alt+Down in the field, opens the calendar on the field's date;
- * choosing a date, Escape or Tab closes it, and focus returns to where it was opened from. With
- * `name`, a hidden input submits "YYYY-MM-DD"; Base UI Form's `onFormSubmit` values read the
- * field's text instead.
+ * A date field: type the date in the locale's order (25/10/2026 for India) or choose it from a
+ * Calendar in a popover (the WAI-ARIA date picker dialog). Typed text is read when the field loses
+ * focus or on Enter; a date that can't be read or isn't allowed keeps its text and makes the field
+ * invalid through the browser's own validity, so Field shows why and Form stops the submit. The
+ * calendar button, named after the field ("Choose date for Joining date"), or Alt+Down in the
+ * field, opens the calendar on the field's date; choosing a date, Escape or Tab closes it, and focus
+ * returns to where it was opened from. With `name`, a hidden input submits "YYYY-MM-DD"; Base UI
+ * Form's `onFormSubmit` values read the field's text instead.
  */
 export function DatePicker({
   value,
@@ -213,6 +228,7 @@ export function DatePicker({
       input={input}
       typed={typed}
       label={strings.choose}
+      labelFor={strings.chooseFor}
       placeholder={placeholder ?? fill(strings.example, { date: example })}
       hiddenInputs={
         name !== undefined && (

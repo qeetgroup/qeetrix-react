@@ -182,13 +182,19 @@
     transition-timing-function: var(--qx-motion-easing-exit);
   }
 }
+/* "Searching…" and "No matches": rows of quiet text. Both are live regions, so they stay in the
+   page while empty, only without height, and what appears in them is announced. */
+.qx-combobox-status,
 .qx-combobox-empty {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
   padding: var(--qx-space-inset-sm) var(--qx-space-inset-md);
   font: var(--qx-typography-body-md);
   font-variation-settings: "GEOM" var(--qx-font-geometry-body);
   color: var(--qx-color-text-subtle);
   &:empty {
-    display: none;
+    padding: 0;
   }
 }
 .qx-combobox-option {

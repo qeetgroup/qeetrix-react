@@ -1,6 +1,7 @@
 /* Form and ErrorSummary (07-components.md). Fields stand `space.form-gap` apart (it follows the
-   density). The summary is the danger Alert; when it takes focus it shows the Ember frame, and
-   its items are links, one per line, worded as the fields' own errors. */
+   density). The summary is the danger Alert inside a focusable wrapper; when it takes focus it
+   shows the Ember frame, its title is a heading in the Alert's title style, and its items are
+   links, one per line, worded as the fields' own errors. */
 .qx-form {
   display: flex;
   flex-direction: column;
@@ -11,6 +12,10 @@
 .qx-error-summary:focus {
   outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
   outline-offset: calc(-1 * var(--qx-focus-ring-width));
+}
+.qx-error-summary-title {
+  margin: 0;
+  font: inherit;
 }
 .qx-error-summary-list {
   display: flex;

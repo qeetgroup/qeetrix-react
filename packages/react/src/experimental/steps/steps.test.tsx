@@ -23,6 +23,9 @@ const SAML = [
 const items = () => [...document.querySelectorAll<HTMLElement>(".qx-step")];
 const box = (element: Element | null | undefined) =>
   (element as HTMLElement).getBoundingClientRect();
+/** What a screen reader reads for a step: its label and status, in one run of hidden text. */
+const spoken = (item: Element | undefined) =>
+  item?.querySelector("[data-slot=visually-hidden]")?.textContent;
 
 describe("Steps", () => {
   it("is an ordered list: the current step marked, the rest read as Completed or Not started", async () => {
@@ -32,9 +35,21 @@ describe("Steps", () => {
     expect(list.element().tagName).toBe("OL");
     const [done, current, next] = items();
     expect(current?.getAttribute("aria-current")).toBe("step");
-    expect(done?.textContent).toBe("Choose type, Completed");
     // The number is hidden from assistive technology; the label and its status are read.
-    expect(next?.textContent).toMatch(/Assign users, Not started$/);
+    expect(spoken(done)).toBe("Choose type, Completed");
+    expect(spoken(next)).toBe("Assign users, Not started");
+    expect(current?.querySelector("[data-slot=visually-hidden]")).toBeNull();
+  });
+
+  it("names a done step 'Configure, Completed', with no space before the comma", async () => {
+    await render(<Steps steps={ADD_APP} current={2} onStepSelect={() => {}} />);
+    const back = page.getByRole("button", { name: "Configure, Completed", exact: true });
+    await expect.element(back).toBeVisible();
+    await expect.element(back).toHaveAccessibleName("Configure, Completed");
+    // The visible label is hidden from the name, so it isn't read twice.
+    expect(back.element().querySelector(".qx-step-label > [aria-hidden]")?.textContent).toBe(
+      "Configure",
+    );
   });
 
   it("fills done steps Ember with a tick, outlines the current one, and greys the rest", async () => {
@@ -97,9 +112,7 @@ describe("Steps", () => {
     const texts = items().map((item) => box(item.querySelector(".qx-step-text")));
     expect(texts[1]?.width).toBeGreaterThan(1);
     expect(texts[0]?.width).toBeLessThanOrEqual(1);
-    await expect
-      .element(page.getByRole("listitem").first())
-      .toHaveTextContent("Choose type, Completed");
+    expect(spoken(items()[0])).toBe("Choose type, Completed");
   });
 
   it("speaks Hindi through QeetrixProvider", async () => {
@@ -109,7 +122,7 @@ describe("Steps", () => {
       </QeetrixProvider>,
     );
     await expect.element(page.getByRole("list", { name: "प्रगति" })).toBeVisible();
-    await expect.element(page.getByRole("listitem").first()).toHaveTextContent("प्रकार, पूरा हुआ");
+    expect(spoken(items()[0])).toBe("प्रकार, पूरा हुआ");
   });
 
   it("is accessible and looks right in both colour schemes", async () => {

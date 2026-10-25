@@ -2,7 +2,7 @@
 
 import { Field as BaseField } from "@base-ui/react/field";
 import type { CSSProperties, ReactElement } from "react";
-import { FieldMessages, type FieldProps, labelText } from "../field/field";
+import { FieldLabel, FieldMessages, type FieldProps } from "../field/field";
 import { Input, type InputProps } from "../input/input";
 import { cx } from "../internal/cx";
 import { useMessages } from "../provider/provider";
@@ -14,6 +14,7 @@ type FieldOnly = Pick<
   | "error"
   | "optional"
   | "hideLabel"
+  | "help"
   | "invalid"
   | "validate"
   | "validationMode"
@@ -27,12 +28,13 @@ type FieldOnly = Pick<
 export interface TextFieldProps extends Omit<InputProps, "className" | "style">, FieldOnly {
   /** Placement of the whole row only (margin, width, grid placement). */
   className?: string;
+  /** Placement of the whole row only, like `className`. */
   style?: CSSProperties;
 }
 
 /**
- * Field + Input in one: the default way to build a text row (D-12). `name`, `disabled` and
- * validation go to the Field; `ref`, `required`, `readOnly` and every other prop go to the input.
+ * Field + Input in one: the default way to build a text row. `name`, `disabled` and validation go
+ * to the Field; `ref`, `required`, `readOnly` and every other prop go to the input.
  */
 export function TextField({
   label,
@@ -40,6 +42,7 @@ export function TextField({
   error,
   optional,
   hideLabel,
+  help,
   invalid,
   validate,
   validationMode,
@@ -70,13 +73,13 @@ export function TextField({
       style={style}
       data-slot="text-field"
     >
-      <BaseField.Label
-        className="qx-field-label"
-        data-slot="field-label"
-        data-hidden={hideLabel ? "" : undefined}
-      >
-        {labelText(label, optional, strings.optional)}
-      </BaseField.Label>
+      <FieldLabel
+        label={label}
+        optional={optional}
+        hideLabel={hideLabel}
+        help={help}
+        strings={strings}
+      />
       <Input {...inputProps} />
       <FieldMessages description={description} error={error} />
     </BaseField.Root>

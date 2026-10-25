@@ -20,7 +20,7 @@ export interface RangeCalendarProps
   extends Omit<CalendarProps, "value" | "defaultValue" | "onValueChange"> {
   /** The chosen range, controlled. */
   value?: DateRange | null;
-  /** The chosen range when uncontrolled. */
+  /** The chosen range when uncontrolled. Default `null`. */
   defaultValue?: DateRange | null;
   /** Called with the range once both ends are chosen. */
   onValueChange?: (value: DateRange) => void;
@@ -31,8 +31,8 @@ const order = (a: DateParts, b: DateParts): [DateParts, DateParts] =>
   compareDates(a, b) <= 0 ? [a, b] : [b, a];
 
 /**
- * A Calendar that chooses a range (07-components.md): the first day picked is one end, and until
- * the second is picked the range follows the pointer or focus; picking a day before the first
+ * A Calendar that chooses a range: the first day picked is one end, and until the second is picked
+ * the range follows the pointer or focus, to days that can end it; picking a day before the first
  * swaps them, and the same day twice is a one-day range. Escape undoes a half-chosen range. The
  * range is a band of the subtle brand fill whose ends are filled Ember, every day in it is
  * selected, and each step is announced. Everything else — keys, years and months, limits — is
@@ -93,6 +93,7 @@ export function RangeCalendar({
     <CalendarCore
       {...props}
       className={cx("qx-range-calendar", className)}
+      rootSlot="range-calendar"
       initial={start}
       chosen={start}
       mark={mark}

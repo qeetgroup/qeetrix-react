@@ -1,4 +1,4 @@
-/* Sidebar (07-components.md, C1 · Ruled): square rows edge to edge on the canvas tone; groups
+/* Sidebar (C1 · Ruled): square rows edge to edge on the canvas tone; groups
    between hairlines under tracked small capitals (typography.label.caps). The current page gets the 3px Ember bar on its
    start edge, a neutral tint, weight 600 and an Ember icon. Icons sit in a fixed 16px column from
    the start edge, so in the 48px rail they're centred without moving. */
@@ -127,12 +127,20 @@
     outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
     outline-offset: calc(-1 * var(--qx-focus-ring-width));
   }
+  &[data-disabled] {
+    background: transparent;
+    color: var(--qx-color-text-disabled);
+    cursor: not-allowed;
+  }
 }
 .qx-sidebar-icon {
   flex: none;
   color: var(--qx-color-icon-subtle);
   [data-current] > & {
     color: var(--qx-color-icon-brand);
+  }
+  [data-disabled] > & {
+    color: var(--qx-color-icon-disabled);
   }
 }
 .qx-sidebar-icon-filled,
@@ -142,16 +150,28 @@
 .qx-sidebar-item[data-current] > .qx-sidebar-icon-filled {
   display: block;
 }
+/* The label and its count share a baseline: a 12px count centred on the row would sit 2px high. */
+.qx-sidebar-text {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  gap: 10px;
+  min-inline-size: 0;
+}
 .qx-sidebar-label {
   flex: 1;
   min-inline-size: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* One line of the count's type tall, so a taller Badge pill can't push the label off centre. */
 .qx-sidebar-badge {
   display: inline-flex;
   flex: none;
+  align-items: baseline;
+  block-size: 1lh;
   font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
   font-variant-numeric: tabular-nums;
   color: var(--qx-color-text-subtlest);
 }
@@ -193,6 +213,9 @@
   .qx-sidebar-group-label {
     overflow: hidden;
     visibility: hidden;
+  }
+  .qx-sidebar-text {
+    display: contents;
   }
   .qx-sidebar-label {
     position: absolute;

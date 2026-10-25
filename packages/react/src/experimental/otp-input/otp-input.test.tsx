@@ -12,6 +12,33 @@ import { OTPInput } from "./otp-input";
 const slots = () => [...document.querySelectorAll<HTMLInputElement>("[data-slot=otp-input-slot]")];
 
 describe("OTPInput", () => {
+  // First in the file: Base UI warns once per page, so a later test could hide the warning.
+  it("names a standalone code's group and every slot, with no Base UI warning", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await render(
+      <>
+        <OTPInput aria-label="Verification code" />
+        <span id="recovery-label">Recovery code</span>
+        <OTPInput aria-labelledby="recovery-label" length={4} />
+      </>,
+    );
+    for (const [name, length] of [
+      ["Verification code", 6],
+      ["Recovery code", 4],
+    ] as const) {
+      const group = page.getByRole("group", { name, exact: true });
+      await expect.element(group).toBeVisible();
+      for (let index = 1; index <= length; index++) {
+        const slotName = index === 1 ? name : `Character ${index} of ${length}`;
+        await expect
+          .element(group.getByRole("textbox", { name: slotName, exact: true }))
+          .toBeInTheDocument();
+      }
+    }
+    expect(warn.mock.calls.flat().join("\n")).not.toContain("ignores `aria-label`");
+    warn.mockRestore();
+  });
+
   it("has six slots: the first takes the field's label, the rest say where they are", async () => {
     await render(
       <Field
@@ -84,6 +111,43 @@ describe("OTPInput", () => {
     root.append(probe);
     expect(last.getBoundingClientRect().height).toBe(probe.getBoundingClientRect().height);
     probe.remove();
+  });
+
+  it("shrinks its slots to fit a narrow column: a 10-character recovery code in 400px", async () => {
+    await page.viewport(800, 300);
+    const { container } = await render(
+      <div style={{ inlineSize: 400 }}>
+        <OTPInput
+          aria-label="Recovery code"
+          length={10}
+          groups={[5, 5]}
+          validationType="alphanumeric"
+        />
+      </div>,
+    );
+    const column = container.firstElementChild as HTMLElement;
+    const root = container.querySelector("[data-slot=otp-input]") as HTMLElement;
+    for (const density of ["compact", "default", "comfortable"]) {
+      document.documentElement.dataset.qxDensity = density;
+      const edge = column.getBoundingClientRect();
+      const widths = slots().map((slot) => slot.getBoundingClientRect().width);
+      // Before: 10 slots of size.control.lg ran 88px (128px at comfortable) past the column.
+      const last = (slots()[9] as HTMLElement).getBoundingClientRect();
+      expect(Math.abs(root.getBoundingClientRect().right - edge.right), density).toBeLessThan(0.5);
+      expect(Math.abs(last.right - edge.right), density).toBeLessThan(0.5);
+      expect(root.scrollWidth, density).toBe(root.clientWidth);
+      // The slots share the width equally and stay at least a 24px target.
+      expect(Math.max(...widths) - Math.min(...widths), density).toBeLessThan(0.5);
+      expect(Math.min(...widths), density).toBeGreaterThanOrEqual(24);
+    }
+    delete document.documentElement.dataset.qxDensity;
+  });
+
+  it("keeps Qeet Sans's geometry and tabular figures at lg", async () => {
+    await render(<OTPInput aria-label="Code" size="lg" />);
+    const style = getComputedStyle(slots()[0] as HTMLElement);
+    expect(style.fontVariationSettings).toMatch(/"GEOM"/);
+    expect(style.fontVariantNumeric).toBe("tabular-nums");
   });
 
   it("groups the slots when asked", async () => {

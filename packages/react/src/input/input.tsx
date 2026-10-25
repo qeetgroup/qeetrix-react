@@ -15,12 +15,13 @@ export interface InputProps extends Omit<BaseInput.Props, "className" | "style" 
   endAdornment?: ReactNode;
   /** Placement of the box only (margin, width, grid placement). */
   className?: string;
+  /** Placement of the box only, like `className`. */
   style?: CSSProperties;
 }
 
 /**
- * The single-line text control: a filled box with a bottom line (06-component-specs.md §2). `ref`
- * and every other prop go to the `<input>`; `className` and `style` place the box.
+ * The single-line text control: a filled box with a bottom line. `ref` and every other prop go to
+ * the `<input>`; `className` and `style` place the box.
  */
 export function Input({
   icon: Icon,
@@ -64,7 +65,7 @@ export interface TextareaProps
   defaultValue?: string;
   /** Called with the new value and Base UI's event details. */
   onValueChange?: BaseInput.Props["onValueChange"];
-  /** The height before it grows, in lines. Default 3. */
+  /** The height before it grows, in lines. Default `3`. */
   rows?: number;
   /** The most lines it grows to; after that it scrolls. Default: no limit. */
   maxRows?: number;

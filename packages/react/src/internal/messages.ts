@@ -10,7 +10,12 @@ export const messages = {
   field: { optional: "(optional)", help: "About {label}", helpPlain: "More information" },
   overlay: { close: "Close" },
   toast: { close: "Dismiss", region: "Notifications" },
-  slider: { minimum: "Minimum", maximum: "Maximum" },
+  slider: {
+    minimum: "Minimum",
+    maximum: "Maximum",
+    minimumOf: "{label}, minimum",
+    maximumOf: "{label}, maximum",
+  },
   appShell: {
     collapse: "Collapse",
     expand: "Expand",
@@ -21,6 +26,8 @@ export const messages = {
   },
   sidebar: { filter: "Filter navigation", noMatches: "No pages match" },
   breadcrumb: { label: "Breadcrumb" },
+  pageHeader: { back: "Back", backTo: "Back to {page}" },
+  topBar: { scope: "Scope" },
   dataState: {
     errorTitle: "Couldn't load this",
     errorDescription: "Try again, or check your connection.",
@@ -66,6 +73,7 @@ export const messages = {
   },
   datePicker: {
     choose: "Choose date",
+    chooseFor: "Choose date for {label}",
     example: "e.g. {date}",
     invalid: "Enter a date like {date}",
     tooEarly: "Choose {date} or later",
@@ -94,6 +102,7 @@ export const messages = {
   avatarGroup: { label: "{count} people: {names}", more: "{count} more" },
   codeBlock: { copy: "Copy code", region: "Code", shell: "Shell" },
   descriptionList: { empty: "Not set" },
+  stat: { loading: "Loading" },
   filterTags: { label: "Applied filters", remove: "Remove filter {filter}", clear: "Clear all" },
   fileUpload: {
     dragFile: "Drag a file here, or {browse}",
@@ -115,16 +124,24 @@ export const messages = {
   searchField: { clear: "Clear search" },
   dateRangePicker: {
     choose: "Choose dates",
+    chooseFor: "Choose dates for {label}",
     example: "e.g. {range}",
     invalid: "Enter dates like {range}",
     tooEarly: "Choose {date} or later",
     tooLate: "Choose {date} or earlier",
     unavailable: "{date} isn't available",
+    presets: "Quick ranges",
+    today: "Today",
+    lastDays: "Last {count} days",
+    thisMonth: "This month",
+    lastMonth: "Last month",
   },
   errorSummary: { title: "Fix these to continue" },
   combobox: {
     empty: "No matches",
     clear: "Clear",
+    clearFor: "Clear {label}",
+    loading: "Searching…",
     open: "Show options",
     remove: "Remove {label}",
     removeHint: "Press Backspace or Delete to remove",

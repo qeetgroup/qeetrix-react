@@ -1,6 +1,7 @@
 import { DirectionProvider } from "@base-ui/react/direction-provider";
 import { BuildingIcon } from "@qeetrix/icons/icons/building";
 import { UserGroupIcon } from "@qeetrix/icons/icons/user-group";
+import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
@@ -52,6 +53,26 @@ const PERMISSIONS: TreeNode[] = [
     id: "apps",
     label: "Applications",
     children: [{ id: "apps.view", label: "View applications" }],
+  },
+  { id: "audit", label: "Audit log" },
+];
+
+/** Permissions a support agent's role can't be given: Delete users, and all of Billing. */
+const LOCKED: TreeNode[] = [
+  {
+    id: "users",
+    label: "Users",
+    children: [
+      { id: "users.view", label: "View users" },
+      { id: "users.delete", label: "Delete users", disabled: true },
+      { id: "users.mfa", label: "Reset MFA" },
+    ],
+  },
+  {
+    id: "billing",
+    label: "Billing",
+    disabled: true,
+    children: [{ id: "billing.refund", label: "Issue refunds" }],
   },
   { id: "audit", label: "Audit log" },
 ];
@@ -153,6 +174,137 @@ describe("TreeView", () => {
     await userEvent.keyboard(" ");
     await expect.element(item("View users")).toHaveAttribute("aria-checked", "false");
     expect(onCheckedChange).toHaveBeenLastCalledWith(["audit"]);
+  });
+
+  it("passes the caller's ref to the tree, and still moves focus itself", async () => {
+    const ref = createRef<HTMLUListElement>();
+    let called: HTMLUListElement | null = null;
+    const { rerender } = await render(
+      <TreeView ref={ref} label="Organisation units" items={UNITS} defaultExpanded={["acme"]} />,
+    );
+    expect(ref.current).toBe(page.getByRole("tree").element());
+    (item("Acme Pvt Ltd").element() as HTMLElement).focus();
+    await userEvent.keyboard("{ArrowDown}");
+    expect(focused()).toBe("eng");
+    await rerender(
+      <TreeView
+        ref={(node) => {
+          called = node;
+        }}
+        label="Organisation units"
+        items={UNITS}
+        defaultExpanded={["acme"]}
+      />,
+    );
+    expect(called).toBe(page.getByRole("tree").element());
+  });
+
+  it("skips a disabled node: the keys pass over it, and a click neither selects nor opens it", async () => {
+    const onSelectedChange = vi.fn();
+    const onExpandedChange = vi.fn();
+    await render(
+      <TreeView
+        label="Permissions"
+        items={LOCKED}
+        defaultExpanded={["users"]}
+        onSelectedChange={onSelectedChange}
+        onExpandedChange={onExpandedChange}
+      />,
+    );
+    await expect.element(item("Delete users")).toHaveAttribute("aria-disabled", "true");
+    await expect.element(item("Billing")).toHaveAttribute("aria-disabled", "true");
+    expect(item("View users").element().hasAttribute("aria-disabled")).toBe(false);
+    (item("View users").element() as HTMLElement).focus();
+    await userEvent.keyboard("{ArrowDown}");
+    expect(focused()).toBe("users.mfa");
+    await userEvent.keyboard("{ArrowDown}");
+    expect(focused()).toBe("audit");
+    await userEvent.keyboard("{ArrowUp}");
+    expect(focused()).toBe("users.mfa");
+    // Typing a letter doesn't land on it either: "d" finds no other node.
+    await userEvent.keyboard("d");
+    expect(focused()).toBe("users.mfa");
+    await userEvent.keyboard("b");
+    expect(focused()).toBe("users.mfa");
+    await (item("Delete users").element().querySelector(".qx-tree-row") as HTMLElement).click();
+    await (item("Billing").element().querySelector(".qx-tree-toggle") as HTMLElement).click();
+    expect(onSelectedChange).not.toHaveBeenCalled();
+    expect(onExpandedChange).not.toHaveBeenCalled();
+    await expect.element(item("Billing")).toHaveAttribute("aria-expanded", "false");
+    expect(focused()).toBe("users.mfa");
+    const row = item("Delete users").element().querySelector(".qx-tree-row") as HTMLElement;
+    expect(getComputedStyle(row).color).toBe(tokenColor("--qx-color-text-disabled"));
+    expect(getComputedStyle(row).cursor).toBe("not-allowed");
+  });
+
+  it("starts the Tab stop on the first node that isn't disabled", async () => {
+    await render(
+      <TreeView label="Permissions" items={[LOCKED[1] as TreeNode, LOCKED[2] as TreeNode]} />,
+    );
+    await expect.element(item("Audit log")).toHaveAttribute("tabindex", "0");
+    await expect.element(item("Billing")).toHaveAttribute("tabindex", "-1");
+  });
+
+  it("never ticks a disabled node: not by a click, nor through its parent", async () => {
+    const onCheckedChange = vi.fn();
+    await render(
+      <TreeView
+        label="Permissions"
+        items={LOCKED}
+        checkable
+        defaultExpanded={["users", "billing"]}
+        onCheckedChange={onCheckedChange}
+      />,
+    );
+    await expect.element(item("Issue refunds")).toHaveAttribute("aria-disabled", "true");
+    await (item("Delete users").element().querySelector(".qx-tree-row") as HTMLElement).click();
+    expect(onCheckedChange).not.toHaveBeenCalled();
+    (item("Users").element() as HTMLElement).focus();
+    await userEvent.keyboard(" ");
+    expect(onCheckedChange).toHaveBeenLastCalledWith(["users.view", "users.mfa"]);
+    // Everything it can tick is on; the disabled one keeps the parent mixed.
+    await expect.element(item("Users")).toHaveAttribute("aria-checked", "mixed");
+    await expect.element(item("Delete users")).toHaveAttribute("aria-checked", "false");
+    await userEvent.keyboard(" ");
+    expect(onCheckedChange).toHaveBeenLastCalledWith([]);
+  });
+
+  it("is accessible with disabled nodes, and looks right in every mode", async () => {
+    await page.viewport(900, 420);
+    const { container } = await render(
+      <div
+        data-qx-stage=""
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 24,
+          alignItems: "start",
+          padding: 16,
+          inlineSize: 860,
+          background: "var(--qx-color-surface-canvas)",
+        }}
+      >
+        <Card title="Role: Support agent" level={2}>
+          <TreeView
+            label="Permissions"
+            items={LOCKED}
+            checkable
+            defaultExpanded={["users", "billing"]}
+            defaultChecked={["users.view", "users.delete"]}
+          />
+        </Card>
+        <Card title="Role: Viewer" level={2}>
+          <TreeView
+            label="Areas"
+            items={LOCKED}
+            defaultExpanded={["users"]}
+            defaultSelected="audit"
+          />
+        </Card>
+      </div>,
+    );
+    await expectAccessible(container);
+    await screenshotEveryMode("TreeView · disabled", "[data-qx-stage]");
   });
 
   it("is accessible and looks right in every mode", async () => {

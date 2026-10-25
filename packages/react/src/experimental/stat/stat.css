@@ -1,14 +1,19 @@
-/* Stat and StatGroup (07-components.md, C1): key numbers in equal cells with 1px rules between
-   them. The value is large tabular figures; the trend is a quiet graphite line whose last point is
-   the one Ember mark, the current value. A PageHeader's summary sets --qx-stat-group-inset so the
-   first and last cells line up with the page gutter. */
+/* Stat and StatGroup: key numbers in equal cells with 1px rules between them. The value is large
+   tabular figures; the trend is a quiet graphite line whose last point is the one Ember mark, the
+   current value. A PageHeader's summary sets --qx-stat-group-inset so the cells at the start and
+   end of the strip line up with the page gutter. */
 .qx-stat-group {
+  container: qx-stat-group / inline-size;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
   margin: 0;
+  /* A rule between wrapped rows runs on to the strip's end, past a short last row. */
+  overflow: clip;
   color: var(--qx-color-text-default);
 }
 .qx-stat {
+  --qx-stat-inset: var(--qx-stat-group-inset, var(--qx-space-inset-lg));
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-content: start;
@@ -16,13 +21,119 @@
   min-inline-size: 0;
   padding: var(--qx-space-inset-md) var(--qx-space-inset-lg);
   &:first-child {
-    padding-inline-start: var(--qx-stat-group-inset, var(--qx-space-inset-lg));
+    padding-inline-start: var(--qx-stat-inset);
   }
   &:last-child {
-    padding-inline-end: var(--qx-stat-group-inset, var(--qx-space-inset-lg));
+    padding-inline-end: var(--qx-stat-inset);
   }
   & + & {
     border-inline-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  }
+}
+
+/* Wrapped: the cells are at least 200px, so a strip W wide has floor(W / 200) columns, and wraps when
+   it holds more Stats than that. Then each row starts at the gutter with no rule before it, ends at
+   the gutter, and a rule runs above it across the strip. One query per column count, up to six. */
+.qx-stat::before {
+  content: none;
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 100cqi;
+  border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+}
+@container qx-stat-group (width < 400px) {
+  .qx-stat-group:has(> .qx-stat:nth-child(2)) > .qx-stat {
+    padding-inline: var(--qx-stat-inset);
+    border-inline-start: 0;
+    &:nth-child(n + 2)::before {
+      content: "";
+    }
+  }
+}
+@container qx-stat-group (400px <= width < 600px) {
+  .qx-stat-group:has(> .qx-stat:nth-child(3)) > .qx-stat {
+    &:nth-child(2n + 1) {
+      padding-inline-start: var(--qx-stat-inset);
+      border-inline-start: 0;
+    }
+    &:last-child {
+      padding-inline-end: var(--qx-space-inset-lg);
+    }
+    &:nth-child(2n) {
+      padding-inline-end: var(--qx-stat-inset);
+    }
+    &:nth-child(n + 3)::before {
+      content: "";
+    }
+  }
+}
+@container qx-stat-group (600px <= width < 800px) {
+  .qx-stat-group:has(> .qx-stat:nth-child(4)) > .qx-stat {
+    &:nth-child(3n + 1) {
+      padding-inline-start: var(--qx-stat-inset);
+      border-inline-start: 0;
+    }
+    &:last-child {
+      padding-inline-end: var(--qx-space-inset-lg);
+    }
+    &:nth-child(3n) {
+      padding-inline-end: var(--qx-stat-inset);
+    }
+    &:nth-child(n + 4)::before {
+      content: "";
+    }
+  }
+}
+@container qx-stat-group (800px <= width < 1000px) {
+  .qx-stat-group:has(> .qx-stat:nth-child(5)) > .qx-stat {
+    &:nth-child(4n + 1) {
+      padding-inline-start: var(--qx-stat-inset);
+      border-inline-start: 0;
+    }
+    &:last-child {
+      padding-inline-end: var(--qx-space-inset-lg);
+    }
+    &:nth-child(4n) {
+      padding-inline-end: var(--qx-stat-inset);
+    }
+    &:nth-child(n + 5)::before {
+      content: "";
+    }
+  }
+}
+@container qx-stat-group (1000px <= width < 1200px) {
+  .qx-stat-group:has(> .qx-stat:nth-child(6)) > .qx-stat {
+    &:nth-child(5n + 1) {
+      padding-inline-start: var(--qx-stat-inset);
+      border-inline-start: 0;
+    }
+    &:last-child {
+      padding-inline-end: var(--qx-space-inset-lg);
+    }
+    &:nth-child(5n) {
+      padding-inline-end: var(--qx-stat-inset);
+    }
+    &:nth-child(n + 6)::before {
+      content: "";
+    }
+  }
+}
+@container qx-stat-group (1200px <= width < 1400px) {
+  .qx-stat-group:has(> .qx-stat:nth-child(7)) > .qx-stat {
+    &:nth-child(6n + 1) {
+      padding-inline-start: var(--qx-stat-inset);
+      border-inline-start: 0;
+    }
+    &:last-child {
+      padding-inline-end: var(--qx-space-inset-lg);
+    }
+    &:nth-child(6n) {
+      padding-inline-end: var(--qx-stat-inset);
+    }
+    &:nth-child(n + 7)::before {
+      content: "";
+    }
   }
 }
 .qx-stat-label {
@@ -66,6 +177,17 @@
 .qx-stat-trend-end {
   fill: var(--qx-color-border-brand);
 }
+/* Loading: placeholders on the value's and the note's lines, the lines' own heights, so nothing moves
+   when the number arrives. */
+.qx-stat-value > .qx-skeleton,
+.qx-stat-note > .qx-skeleton {
+  inline-size: min(100%, 5em);
+  block-size: 1em;
+  margin-block: calc((1lh - 1em) / 2);
+}
+.qx-stat-note > .qx-skeleton {
+  inline-size: min(100%, 10em);
+}
 .qx-stat-note {
   grid-column: 1 / -1;
   margin: 2px 0 0;
@@ -86,6 +208,9 @@
 @media (forced-colors: active) {
   .qx-stat + .qx-stat {
     border-inline-start-color: CanvasText;
+  }
+  .qx-stat::before {
+    border-block-start-color: CanvasText;
   }
   .qx-stat-trend-line {
     stroke: CanvasText;

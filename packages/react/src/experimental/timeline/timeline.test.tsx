@@ -1,6 +1,10 @@
+import { CircleCheckIcon } from "@qeetrix/icons/icons/circle-check";
 import { CircleXIcon } from "@qeetrix/icons/icons/circle-x";
 import { FingerprintPatternIcon } from "@qeetrix/icons/icons/fingerprint-pattern";
+import { InfoIcon } from "@qeetrix/icons/icons/info";
+import { KeyIcon } from "@qeetrix/icons/icons/key";
 import { LogInIcon } from "@qeetrix/icons/icons/log-in";
+import { TriangleAlertIcon } from "@qeetrix/icons/icons/triangle-alert";
 import { UserCogIcon } from "@qeetrix/icons/icons/user-cog";
 import { describe, expect, it } from "vitest";
 import { page } from "vitest/browser";
@@ -9,7 +13,40 @@ import { expectAccessible } from "../../../tests/support/axe";
 import { tokenColor } from "../../../tests/support/color";
 import { screenshotSchemes } from "../../../tests/support/screenshots";
 import { Card } from "../../card/card";
-import { Timeline, TimelineGroup, TimelineItem, type TimelineVariant } from "./timeline";
+import type { QeetrixIcon } from "../../internal/control";
+import {
+  Timeline,
+  TimelineGroup,
+  TimelineItem,
+  type TimelineTone,
+  type TimelineVariant,
+} from "./timeline";
+
+const TONES: [TimelineTone, string, QeetrixIcon][] = [
+  ["neutral", "Viewed the invoice", LogInIcon],
+  ["brand", "Invited to Acme", KeyIcon],
+  ["info", "Exported 1,284 users", InfoIcon],
+  ["success", "Payment received", CircleCheckIcon],
+  ["warning", "Card expires soon", TriangleAlertIcon],
+  ["danger", "Payment failed", CircleXIcon],
+];
+
+function Tones({ variant }: { variant?: TimelineVariant }) {
+  return (
+    <Timeline aria-label="Tones" {...(variant ? { variant } : {})}>
+      {TONES.map(([tone, title, icon]) => (
+        <TimelineItem
+          key={tone}
+          tone={tone}
+          icon={icon}
+          title={title}
+          description={`tone="${tone}"`}
+          time="09:12"
+        />
+      ))}
+    </Timeline>
+  );
+}
 
 function Activity({ variant }: { variant?: TimelineVariant }) {
   return (
@@ -82,6 +119,84 @@ describe("Timeline", () => {
     const marker = document.querySelector(".qx-timeline-marker") as HTMLElement;
     expect(marker.getBoundingClientRect().width).toBe(6);
     expect(getComputedStyle(marker.querySelector("svg") as SVGElement).display).toBe("none");
+  });
+
+  it("centres the compact dot on the title's line, not on the two-line event", async () => {
+    await render(
+      <div style={{ inlineSize: 320, font: "var(--qx-typography-body-md)" }}>
+        <Activity variant="compact" />
+      </div>,
+    );
+    for (const item of document.querySelectorAll<HTMLElement>(".qx-timeline-item")) {
+      const dot = (
+        item.querySelector("[data-slot=timeline-marker]") as HTMLElement
+      ).getBoundingClientRect();
+      const title = (
+        item.querySelector("[data-slot=timeline-title]") as HTMLElement
+      ).getBoundingClientRect();
+      const event = item.getBoundingClientRect();
+      // Two lines: the title over its description.
+      expect(event.height).toBeGreaterThan(title.height * 1.5);
+      expect(title.height).toBe(20);
+      expect(
+        Math.abs(dot.top + dot.height / 2 - (title.top + title.height / 2)),
+      ).toBeLessThanOrEqual(0.5);
+    }
+  });
+
+  it("colours the marker for every tone, compact dots included, as Badge names them", async () => {
+    const { rerender } = await render(<Tones />);
+    const markers = () => [
+      ...document.querySelectorAll<HTMLElement>("[data-slot=timeline-marker]"),
+    ];
+    const expected = (tone: TimelineTone) =>
+      tone === "neutral" ? "--qx-color-icon-subtle" : (`--qx-color-icon-${tone}` as const);
+    markers().forEach((marker, index) => {
+      const tone = TONES[index]?.[0] ?? "neutral";
+      expect(getComputedStyle(marker).color, tone).toBe(tokenColor(expected(tone)));
+    });
+    await rerender(<Tones variant="compact" />);
+    markers().forEach((marker, index) => {
+      const tone = TONES[index]?.[0] ?? "neutral";
+      expect(getComputedStyle(marker).backgroundColor, tone).toBe(
+        tokenColor(tone === "neutral" ? "--qx-color-border-strong" : expected(tone)),
+      );
+    });
+    // Only a failure colours its title.
+    const titles = [...document.querySelectorAll<HTMLElement>("[data-slot=timeline-title]")];
+    expect(getComputedStyle(titles[5] as HTMLElement).color).toBe(
+      tokenColor("--qx-color-text-danger"),
+    );
+    expect(getComputedStyle(titles[3] as HTMLElement).color).toBe(
+      tokenColor("--qx-color-text-default"),
+    );
+  });
+
+  it("is accessible in every tone, and looks right in both colour schemes", async () => {
+    await page.viewport(900, 520);
+    const { container } = await render(
+      <div
+        data-qx-stage=""
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1.3fr 1fr",
+          gap: 24,
+          alignItems: "start",
+          padding: 16,
+          inlineSize: 860,
+          background: "var(--qx-color-surface-canvas)",
+        }}
+      >
+        <Card title="Tones" level={2}>
+          <Tones />
+        </Card>
+        <Card title="Compact" level={2}>
+          <Tones variant="compact" />
+        </Card>
+      </div>,
+    );
+    await expectAccessible(container);
+    await screenshotSchemes("Timeline · tones", "[data-qx-stage]");
   });
 
   it("is accessible and looks right in both colour schemes", async () => {

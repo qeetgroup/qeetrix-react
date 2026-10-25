@@ -20,8 +20,9 @@ import { VisuallyHidden } from "../../visually-hidden/visually-hidden";
 
 export interface PasswordInputProps extends Omit<InputProps, "type"> {
   /**
-   * `current-password` (default) to sign in, `new-password` to create one, so password managers
-   * fill or suggest; `off` for a secret that isn't the user's password, such as an API key.
+   * `current-password` to sign in, `new-password` to create one, so password managers fill or
+   * suggest; `off` for a secret that isn't the user's password, such as an API key. Default
+   * `current-password`.
    */
   autoComplete?: "current-password" | "new-password" | "off";
   /** Whether the value shows as text, controlled. */
@@ -37,9 +38,9 @@ export interface PasswordInputProps extends Omit<InputProps, "type"> {
 }
 
 /**
- * A password or secret field (07-components.md, C2): an Input with a Show password toggle. It
- * hides again when its form is submitted, so the browser never stores it as plain text; spelling
- * and capitalisation tools stay off; paste always works, and there's no length cap.
+ * A password or secret field: an Input with a Show password toggle. It hides again when its form
+ * is submitted, so the browser never stores it as plain text; spelling and capitalisation tools
+ * stay off; paste always works, and there's no length cap.
  */
 export function PasswordInput({
   autoComplete = "current-password",

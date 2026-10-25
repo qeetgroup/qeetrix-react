@@ -6,12 +6,14 @@ import { describe, expect, it } from "vitest";
 import {
   addDays,
   addMonths,
+  clampRange,
   compareDates,
   dateOrder,
   daysInMonth,
   firstDayOfWeek,
   formatLocalDate,
   formatLocalRange,
+  namedRange,
   parseISODate,
   parseLocalDate,
   parseLocalRange,
@@ -99,5 +101,34 @@ describe("calendar dates", () => {
     expect(parseLocalRange("01/12/2026", "en-IN")).toBeNull();
     expect(parseLocalRange("01/12/2026 – 31/02/2026", "en-IN")).toBeNull();
     expect(parseLocalRange("1 Dec 2026 to 31 Dec 2026", "en-IN")).toBeNull();
+  });
+
+  it("work out the named ranges from today: the last days include it, months are whole", () => {
+    const today = d("2026-03-05");
+    expect(namedRange("today", today)).toEqual({ start: "2026-03-05", end: "2026-03-05" });
+    expect(namedRange("last7Days", today)).toEqual({ start: "2026-02-27", end: "2026-03-05" });
+    expect(namedRange("last30Days", today)).toEqual({ start: "2026-02-04", end: "2026-03-05" });
+    expect(namedRange("last90Days", today)).toEqual({ start: "2025-12-06", end: "2026-03-05" });
+    expect(namedRange("thisMonth", today)).toEqual({ start: "2026-03-01", end: "2026-03-31" });
+    expect(namedRange("lastMonth", today)).toEqual({ start: "2026-02-01", end: "2026-02-28" });
+    expect(namedRange("lastMonth", d("2026-01-15"))).toEqual({
+      start: "2025-12-01",
+      end: "2025-12-31",
+    });
+  });
+
+  it("cut a range to its limits, or give none when it's wholly outside them", () => {
+    const october = { start: "2026-10-01", end: "2026-10-31" };
+    expect(clampRange(october, undefined, undefined)).toEqual(october);
+    expect(clampRange(october, "2026-10-10", "2026-10-25")).toEqual({
+      start: "2026-10-10",
+      end: "2026-10-25",
+    });
+    expect(clampRange(october, "2026-11-01", undefined)).toBeNull();
+    expect(clampRange(october, undefined, "2026-09-30")).toBeNull();
+    expect(clampRange(october, "2026-10-31", undefined)).toEqual({
+      start: "2026-10-31",
+      end: "2026-10-31",
+    });
   });
 });

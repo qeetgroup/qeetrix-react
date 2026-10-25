@@ -1,14 +1,22 @@
 import type { ComponentProps, ReactElement, ReactNode } from "react";
-import { formatNumber } from "../../format/format";
 import { Heading } from "../../heading/heading";
 import { cx } from "../../internal/cx";
+import { ProvidedNumber } from "../../internal/provided";
 
 export interface PageHeaderProps extends Omit<ComponentProps<"div">, "title"> {
+  /**
+   * A link back to the parent page, above the title: a PageHeaderBack. For a page one level down;
+   * use it instead of a breadcrumb there.
+   */
+  back?: ReactNode;
   /** Where the page sits: a Breadcrumb. */
   breadcrumb?: ReactNode;
   /** The page title: the page's one `<h1>`. */
   title: ReactNode;
-  /** A number beside the title, e.g. the table's total; numbers are formatted in `en-IN`. */
+  /**
+   * A number beside the title, e.g. the table's total. A number is formatted in QeetrixProvider's
+   * locale (`en-IN` without one).
+   */
   count?: ReactNode;
   /** A Badge beside the title. */
   status?: ReactNode;
@@ -18,23 +26,27 @@ export interface PageHeaderProps extends Omit<ComponentProps<"div">, "title"> {
   actions?: ReactNode;
   /** Key numbers for the page: a StatGroup, ruled edge to edge under the title. */
   summary?: ReactNode;
-  /** A TabsList, attached to the header's foot. */
+  /**
+   * A TabsList, attached to the header's foot: the first label on the page gutter, its rule edge to
+   * edge.
+   */
   tabs?: ReactNode;
 }
 
 export type PageContentWidth = "full" | "narrow";
 
 export interface PageContentProps extends ComponentProps<"div"> {
-  /** `full` (default) for tables and dashboards; `narrow` (800px) for forms and settings. */
+  /** `full` for tables and dashboards; `narrow` (800px) for forms and settings. Default `full`. */
   width?: PageContentWidth;
 }
 
 /**
- * The head of a console page (07-components.md, C1 · Ruled): breadcrumb, title with its count and
+ * The head of a console page (C1 · Ruled): a back link or breadcrumb, title with its count and
  * status, actions, an optional strip of key numbers, and tabs, on a ruled band above the work
- * surface. Server-safe.
+ * surface. Server-safe: the count's locale comes from QeetrixProvider through a client leaf.
  */
 export function PageHeader({
+  back,
   breadcrumb,
   title,
   count,
@@ -53,6 +65,7 @@ export function PageHeader({
       data-slot="page-header"
       data-foot={tabs != null ? "tabs" : summary != null ? "summary" : undefined}
     >
+      {back != null && <div className="qx-page-header-back-row">{back}</div>}
       {breadcrumb != null && <div className="qx-page-header-breadcrumb">{breadcrumb}</div>}
       <div className="qx-page-header-row">
         <div className="qx-page-header-titles">
@@ -62,7 +75,7 @@ export function PageHeader({
             </Heading>
             {count != null && (
               <span className="qx-page-header-count" data-slot="page-header-count">
-                {typeof count === "number" ? formatNumber(count) : count}
+                {typeof count === "number" ? <ProvidedNumber value={count} /> : count}
               </span>
             )}
             {status}

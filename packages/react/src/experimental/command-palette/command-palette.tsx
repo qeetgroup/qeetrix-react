@@ -28,6 +28,7 @@ export interface CommandItem {
   shortcut?: readonly string[];
   /** More words it's found by: "MFA" for "Two-step sign-in". */
   keywords?: readonly string[];
+  /** Shown, but it can't be chosen: greyed, skipped by the arrows and by Enter. */
   disabled?: boolean;
 }
 
@@ -42,8 +43,11 @@ export interface CommandPaletteProps {
   groups: readonly CommandGroup[];
   /** Called with the chosen item; the palette then closes. */
   onSelect: (item: CommandItem) => void;
+  /** Whether the palette is open, controlled: wire it to the TopBar's search. */
   open?: boolean;
+  /** Whether the palette starts open, uncontrolled. Default `false`. */
   defaultOpen?: boolean;
+  /** Called with the new state when the palette opens or closes: ⌘K, Escape, a choice. */
   onOpenChange?: (open: boolean) => void;
   /** Open and close with ⌘K or Ctrl+K anywhere on the page. Default `true`. */
   hotkey?: boolean;
@@ -52,9 +56,9 @@ export interface CommandPaletteProps {
    * as given, not filtered.
    */
   onQueryChange?: (query: string) => void;
-  /** Results are on their way, for `onQueryChange`. */
+  /** Results are on their way, for `onQueryChange`: shows "Searching…". Default `false`. */
   loading?: boolean;
-  /** The search box's placeholder. Default "Search or jump to…". */
+  /** The search box's placeholder. Default `Search or jump to…`. */
   placeholder?: string;
   /** This palette's strings, over QeetrixProvider's and the English defaults. */
   messages?: Partial<QeetrixMessages["commandPalette"]>;
@@ -89,7 +93,7 @@ const Key = ({ children }: { children: ReactNode }) => (
 );
 
 /**
- * Search or jump to (07-components.md): a dialog over the page, opened from the top bar's search or
+ * Search or jump to: a dialog over the page, opened from the top bar's search or
  * ⌘K / Ctrl+K, with a search box and grouped results to go to. Arrows move through the results,
  * Enter opens the highlighted one, Escape closes and returns focus. Results filter as you type
  * (label, description and keywords), or the app searches with `onQueryChange`. Every console shares
@@ -215,32 +219,46 @@ export function CommandPalette({
                           data-slot="command-item"
                           onClick={() => choose(item)}
                         >
-                          {item.avatar ? (
-                            <Avatar
-                              name={item.avatar.name}
-                              size="sm"
-                              decorative
-                              {...(item.avatar.src ? { src: item.avatar.src } : {})}
-                            />
-                          ) : (
-                            Icon && (
-                              <Icon
-                                shape="sharp"
-                                size={16}
-                                aria-hidden
-                                className="qx-command-item-icon"
-                              />
-                            )
+                          {/* One leading column, as wide as the avatar: labels after an
+                              avatar and after an icon start at the same place. */}
+                          {(item.avatar || Icon) && (
+                            <span
+                              className="qx-command-item-leading"
+                              data-slot="command-item-leading"
+                            >
+                              {item.avatar ? (
+                                <Avatar
+                                  name={item.avatar.name}
+                                  size="sm"
+                                  decorative
+                                  {...(item.avatar.src ? { src: item.avatar.src } : {})}
+                                />
+                              ) : (
+                                Icon && (
+                                  <Icon
+                                    shape="sharp"
+                                    size={16}
+                                    aria-hidden
+                                    className="qx-command-item-icon"
+                                  />
+                                )
+                              )}
+                            </span>
                           )}
-                          <span className="qx-command-text">
-                            <span className="qx-command-label">{marked(item.label, query)}</span>
-                            {item.description && (
-                              <span className="qx-command-description">{item.description}</span>
+                          {/* The meta sits on the label's baseline, not centred on the row. */}
+                          <span className="qx-command-body">
+                            <span className="qx-command-text">
+                              <span className="qx-command-label">{marked(item.label, query)}</span>
+                              {item.description && (
+                                <span className="qx-command-description">{item.description}</span>
+                              )}
+                            </span>
+                            {item.meta != null && (
+                              <span className="qx-command-meta" data-slot="command-item-meta">
+                                {item.meta}
+                              </span>
                             )}
                           </span>
-                          {item.meta != null && (
-                            <span className="qx-command-meta">{item.meta}</span>
-                          )}
                           {item.shortcut && (
                             <span className="qx-command-keys">
                               {item.shortcut.map((key) => (

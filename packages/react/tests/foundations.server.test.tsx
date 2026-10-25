@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 import {
   Box,
   Grid,
+  GridItem,
   Heading,
   Inline,
   Separator,
@@ -53,6 +54,24 @@ describe("foundations render on the server", () => {
     expect(responsive).not.toContain("--qx-grid-expanded");
     // Values arrive from props, so they are never trusted as-is.
     expect(html(<Grid columns={99 as 12} />)).toContain("--qx-grid-base:12");
+  });
+
+  it("GridItem: span and start become CSS variables, clamped to 1–12", () => {
+    expect(html(<GridItem />)).toBe('<div class="qx-grid-item" data-slot="grid-item"></div>');
+    expect(html(<GridItem span={{ base: 1, large: 2 }} start={3} />)).toContain(
+      'style="--qx-grid-span-base:1;--qx-grid-span-large:2;--qx-grid-start-base:3"',
+    );
+    expect(html(<GridItem span={0 as 1} start={40 as 12} />)).toContain(
+      "--qx-grid-span-base:1;--qx-grid-start-base:12",
+    );
+  });
+
+  it("Stack, Inline and Grid: rendered as a list, they keep the list role", () => {
+    expect(html(<Stack render={<ul />} />)).toContain('<ul role="list" class="qx-stack"');
+    expect(html(<Inline render={<ol />} />)).toContain('<ol role="list" class="qx-inline"');
+    expect(html(<Grid render={<ul />} />)).toContain('<ul role="list" class="qx-grid"');
+    expect(html(<Grid render={<ul role="presentation" />} />)).toContain('role="presentation"');
+    expect(html(<Stack render={<section />} />)).not.toContain("role=");
   });
 
   it("Text: a span by default, a paragraph through render", () => {
@@ -106,6 +125,13 @@ describe("foundations render on the server", () => {
     expect(html(<SkipLink href="#content">Zum Inhalt springen</SkipLink>)).toContain(
       'href="#content" class="qx-skip-link" data-slot="skip-link">Zum Inhalt springen</a>',
     );
+    // Server-safe: the label comes from a client leaf, so SkipLink itself has no directive.
+    expect(html(<SkipLink messages={{ label: "मुख्य सामग्री पर जाएँ" }} />)).toContain(
+      'data-slot="skip-link">मुख्य सामग्री पर जाएँ</a>',
+    );
+    expect(
+      readFileSync(new URL("../src/skip-link/skip-link.tsx", import.meta.url), "utf8"),
+    ).not.toMatch(/^["']use client["']/);
   });
 });
 

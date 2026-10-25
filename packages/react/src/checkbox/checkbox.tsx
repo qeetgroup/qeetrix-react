@@ -24,15 +24,27 @@ interface CheckboxOwnProps
   icon?: QeetrixIcon;
   /** Placement of the row (or of the control alone, with no label) only. */
   className?: string;
+  /** Placement only, like `className`. */
   style?: CSSProperties;
 }
 
 /** Checkbox props: Base UI's, plus `label` — or, with no visible label, a required `aria-label`. */
 export type CheckboxProps = CheckboxOwnProps & ChoiceLabelProps;
 
+/** The tick, or the dash while mixed: from Base UI's state, so a `parent` checkbox shows it too. */
+const mark: NonNullable<BaseCheckbox.Indicator.Props["render"]> = (props, state) => {
+  const Mark = state.indeterminate ? MinusIcon : CheckIcon;
+  return (
+    <span {...props}>
+      <Mark shape="sharp" size={12} strokeWidth={3} aria-hidden />
+    </span>
+  );
+};
+
 /**
- * Turns one option on or off, or picks several inside a CheckboxGroup (06-component-specs.md §3).
- * `ref` and Base UI props go to the control; the label makes the whole row the click target.
+ * Turns one option on or off, or picks several inside a CheckboxGroup. `ref` and Base UI props go
+ * to the control; the label makes the whole row the click target. Mixed (`indeterminate`, or a
+ * `parent` whose group is partly checked) shows a dash.
  */
 export function Checkbox({
   label,
@@ -40,10 +52,8 @@ export function Checkbox({
   icon,
   className,
   style,
-  indeterminate,
   ...props
 }: CheckboxProps): ReactElement {
-  const Mark = indeterminate ? MinusIcon : CheckIcon;
   return (
     <ChoiceRow
       kind="checkbox"
@@ -56,14 +66,15 @@ export function Checkbox({
     >
       <BaseCheckbox.Root
         {...props}
-        indeterminate={indeterminate}
         className={cx("qx-checkbox", label == null ? className : undefined)}
         style={label == null ? style : undefined}
         data-slot="checkbox-indicator"
       >
-        <BaseCheckbox.Indicator className="qx-checkbox-mark" data-slot="checkbox-mark">
-          <Mark shape="sharp" size={12} strokeWidth={3} aria-hidden />
-        </BaseCheckbox.Indicator>
+        <BaseCheckbox.Indicator
+          className="qx-checkbox-mark"
+          data-slot="checkbox-mark"
+          render={mark}
+        />
       </BaseCheckbox.Root>
     </ChoiceRow>
   );
@@ -76,14 +87,18 @@ export interface CheckboxGroupProps
   label: ReactNode;
   /** The field name the checked values submit under. */
   name?: string;
-  /** `vertical` (default) or `horizontal` for short options. */
+  /** `vertical`, or `horizontal` for short options. Default `vertical`. */
   orientation?: ChoiceOrientation;
-  /** `default` rows, or `tile`s: boxes with an icon, a title and a line, the whole tile clickable. */
+  /**
+   * `default` rows, or `tile`s: boxes with an icon, a title and a line, the whole tile clickable.
+   * Default `default`.
+   */
   variant?: ChoiceVariant;
-  /** For tiles: the most columns, fewer where there isn't room. Default 1. */
+  /** For tiles: the most columns, fewer where there isn't room. Default `1`. */
   columns?: 1 | 2 | 3 | 4;
   /** Placement only (margin, width, grid placement). */
   className?: string;
+  /** Placement only, like `className`. */
   style?: CSSProperties;
 }
 

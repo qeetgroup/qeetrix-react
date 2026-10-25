@@ -1,4 +1,4 @@
-/* Pagination (07-components.md): one row: rows per page at the start, then the range in tabular
+/* Pagination: one row: rows per page at the start, then the range in tabular
    figures and the step buttons at the end. It sits in a Card's footer under a table, or after a
    list. The chevrons mirror in right-to-left layouts, where "previous" points right. */
 .qx-pagination {

@@ -3,18 +3,28 @@ import { describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
+import { baseline } from "../../tests/support/baseline";
 import { tokenColor } from "../../tests/support/color";
 import { screenshotEveryMode } from "../../tests/support/screenshots";
 import { settled } from "../../tests/support/settled";
 import { Stage } from "../../tests/support/stage";
-import { Tab, Tabs, TabsList, TabsPanel } from "./tabs";
+import { Badge } from "../badge/badge";
+import { hi } from "../locales/hi";
+import { QeetrixProvider } from "../provider/provider";
+import { Tab, Tabs, TabsList, TabsPanel, type TabsVariant } from "./tabs";
 
 const html = document.documentElement;
 
-function Invoices({ onValueChange }: { onValueChange?: (value: unknown) => void }) {
+function Invoices({
+  onValueChange,
+  variant,
+}: {
+  onValueChange?: (value: unknown) => void;
+  variant?: TabsVariant;
+}) {
   return (
     <Tabs defaultValue="all" onValueChange={onValueChange}>
-      <TabsList>
+      <TabsList variant={variant ?? "line"}>
         <Tab value="all" icon={LayoutGridIcon} filledWhenSelected>
           All
         </Tab>
@@ -88,11 +98,136 @@ describe("Tabs", () => {
     expect(padding).toEqual({ compact: "12px", default: "16px", comfortable: "16px" });
   });
 
+  it("shows a count after the label, on its baseline, at every density", async () => {
+    await render(
+      <Tabs defaultValue="all">
+        <TabsList>
+          <Tab value="all" badge={1284}>
+            All users
+          </Tab>
+          <Tab value="invited" badge={<Badge tone="warning">9</Badge>}>
+            Invitations
+          </Tab>
+          <Tab value="blocked">
+            Blocked <Badge>3</Badge>
+          </Tab>
+        </TabsList>
+      </Tabs>,
+    );
+    await expect.element(page.getByRole("tab", { name: "All users 1,284" })).toBeVisible();
+    const tabs = [...document.querySelectorAll<HTMLElement>("[data-slot=tab]")];
+    for (const density of ["compact", "default", "comfortable"]) {
+      html.dataset.qxDensity = density;
+      for (const tab of tabs) {
+        const label = tab.querySelector("[data-slot=tab-label]") as HTMLElement;
+        const count = tab.querySelector("[data-slot=badge-label]");
+        expect(
+          Math.abs(baseline(count) - baseline(label)),
+          `${tab.textContent}, ${density}`,
+        ).toBeLessThanOrEqual(0.5);
+      }
+      // With the badge prop, the label stays centred on the tab.
+      for (const tab of tabs.slice(0, 2)) {
+        const box = tab.getBoundingClientRect();
+        const text = (
+          tab.querySelector("[data-slot=tab-label]") as HTMLElement
+        ).getBoundingClientRect();
+        expect(
+          Math.abs(text.top + text.height / 2 - (box.top + box.height / 2)),
+        ).toBeLessThanOrEqual(0.5);
+      }
+    }
+    delete html.dataset.qxDensity;
+  });
+
+  it("formats a count for QeetrixProvider's locale", async () => {
+    await render(
+      <QeetrixProvider locale="hi-IN" messages={hi}>
+        <Tabs defaultValue="all">
+          <TabsList>
+            <Tab value="all" badge={128400}>
+              सभी
+            </Tab>
+          </TabsList>
+        </Tabs>
+      </QeetrixProvider>,
+    );
+    expect(document.querySelector("[data-slot=tab-badge]")?.textContent).toBe("1,28,400");
+  });
+
+  it("contained: a joined strip on the neutral fill, the selected segment on the page", async () => {
+    await render(<Invoices variant="contained" />);
+    await settled();
+    const list = document.querySelector("[data-slot=tabs-list]") as HTMLElement;
+    expect(list.dataset.variant).toBe("contained");
+    const style = getComputedStyle(list);
+    expect(style.borderTopWidth).toBe("1px");
+    expect(style.borderTopLeftRadius).toBe("4px");
+    expect(style.backgroundColor).toBe(tokenColor("--qx-color-bg-neutral-subtle"));
+    expect(style.boxShadow).toBe("none");
+    const all = page.getByRole("tab", { name: "All" }).element() as HTMLElement;
+    const paid = page.getByRole("tab", { name: "Paid" }).element() as HTMLElement;
+    expect(getComputedStyle(all).backgroundColor).toBe(tokenColor("--qx-color-surface-default"));
+    expect(getComputedStyle(paid).borderInlineStartWidth).toBe("1px");
+    // The strip is as tall as a line tab, at every density; the bar sits on its inner foot.
+    for (const density of ["compact", "default", "comfortable"]) {
+      html.dataset.qxDensity = density;
+      const control = Number.parseFloat(
+        getComputedStyle(html).getPropertyValue("--qx-size-control-lg"),
+      );
+      expect(list.getBoundingClientRect().height, density).toBe(control * 16);
+    }
+    delete html.dataset.qxDensity;
+    const bar = indicator().getBoundingClientRect();
+    expect(Math.round(bar.bottom)).toBe(Math.round(list.getBoundingClientRect().bottom - 1));
+    expect(Math.round(bar.left)).toBe(Math.round(all.getBoundingClientRect().left));
+    await paid.click();
+    await settled();
+    expect(Math.round(indicator().getBoundingClientRect().left)).toBe(
+      Math.round(paid.getBoundingClientRect().left),
+    );
+  });
+
+  it("contained is accessible and looks right in every mode", async () => {
+    const { container } = await render(
+      <Stage>
+        <div style={{ inlineSize: 360 }}>
+          <Tabs defaultValue="all">
+            <TabsList variant="contained">
+              <Tab value="all">All</Tab>
+              <Tab value="overdue" badge={12}>
+                Overdue
+              </Tab>
+              <Tab value="paid">Paid</Tab>
+              <Tab value="void" disabled>
+                Void
+              </Tab>
+            </TabsList>
+          </Tabs>
+        </div>
+      </Stage>,
+    );
+    await expectAccessible(container);
+    await screenshotEveryMode("Tabs · contained");
+  });
+
   it("is accessible and looks right in every mode", async () => {
     const { container } = await render(
       <Stage>
         <div style={{ inlineSize: 360 }}>
           <Invoices />
+        </div>
+        <div style={{ inlineSize: 360 }}>
+          <Tabs defaultValue="all">
+            <TabsList>
+              <Tab value="all" badge={1284}>
+                All users
+              </Tab>
+              <Tab value="invited" badge={<Badge tone="warning">9</Badge>}>
+                Invitations
+              </Tab>
+            </TabsList>
+          </Tabs>
         </div>
       </Stage>,
     );

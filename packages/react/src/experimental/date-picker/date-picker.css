@@ -1,7 +1,8 @@
-/* DatePicker (07-components.md): the Input box with the calendar button at its end, and the
-   Calendar in a popover exactly as wide as the field, flush with both its edges. The seven day
-   columns share that width; the popover is never narrower than the calendar's own size. Two
-   classes, to win over the Popover's own width and padding. */
+/* DatePicker: the Input box with the calendar button at its end, and the Calendar in a popover
+   exactly as wide as the field, flush with both its edges. The seven day columns share that width;
+   the popover is never narrower than the calendar's own size. Two classes, to win over the
+   Popover's own width and padding. With something beside the calendar (DateRangePicker's presets),
+   the popover keeps the field's start edge and grows wider when it needs to. */
 .qx-date-picker {
   padding-inline-end: var(--qx-space-gap-xs);
 }
@@ -11,11 +12,33 @@
   min-inline-size: calc(7 * (var(--qx-size-control-md) + 2px) + 2 * var(--qx-space-inset-md));
   max-inline-size: var(--available-width);
   padding: var(--qx-space-inset-md);
+  &[data-wide] {
+    inline-size: max-content;
+    min-inline-size: min(var(--anchor-width), var(--available-width));
+  }
   & .qx-calendar {
     display: flex;
+    flex: 1 1 auto;
+    inline-size: auto;
+    /* Never narrower than its own size: seven days with their 1px gutters. */
+    min-inline-size: calc(7 * (var(--qx-size-control-md) + 2px));
+  }
+  /* The days fill the calendar in equal columns. A fixed table would ask for the popover's whole
+     width when it sizes to its content (beside presets), so the body doesn't size by the table. */
+  & .qx-calendar-body {
+    contain: inline-size;
   }
   & .qx-calendar-grid {
-    inline-size: 100%;
     table-layout: fixed;
+  }
+}
+.qx-date-picker-panel {
+  display: flex;
+  gap: var(--qx-space-gap-md);
+}
+/* A compact window has no room beside the calendar: what was beside it goes below. */
+@media (width < 600px) {
+  .qx-date-picker-panel {
+    flex-direction: column;
   }
 }

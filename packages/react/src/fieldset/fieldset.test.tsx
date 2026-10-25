@@ -20,6 +20,37 @@ describe("Fieldset", () => {
     await expect.element(page.getByRole("textbox", { name: "City" })).toBeDisabled();
   });
 
+  it("describes the group by its description, alongside any description of the caller's", async () => {
+    const { rerender } = await render(
+      <Fieldset legend="Billing address" description="Where invoices are sent.">
+        <TextField label="City" />
+      </Fieldset>,
+    );
+    const group = page.getByRole("group", { name: "Billing address" });
+    await expect.element(group).toHaveAccessibleDescription("Where invoices are sent.");
+    await rerender(
+      <>
+        <p id="gst-note">Must match your GST registration.</p>
+        <Fieldset
+          legend="Billing address"
+          description="Where invoices are sent."
+          aria-describedby="gst-note"
+        >
+          <TextField label="City" />
+        </Fieldset>
+      </>,
+    );
+    await expect
+      .element(group)
+      .toHaveAccessibleDescription("Must match your GST registration. Where invoices are sent.");
+    await rerender(
+      <Fieldset legend="Billing address">
+        <TextField label="City" />
+      </Fieldset>,
+    );
+    await expect.element(group).not.toHaveAttribute("aria-describedby");
+  });
+
   it("spaces fields by the density's form gap: 12, 16 and 20px", async () => {
     const { container } = await render(
       <Fieldset legend="Company">

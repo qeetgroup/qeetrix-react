@@ -7,6 +7,8 @@ import { ArrowRightIcon } from "@qeetrix/icons/icons/arrow-right";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Button, IconButton, Link, Spinner, Toggle, ToggleGroup } from "../src/index";
+import { hi } from "../src/locales/hi";
+import { QeetrixProvider } from "../src/provider/provider";
 
 const html = (node: React.ReactElement) => renderToString(node);
 
@@ -27,6 +29,8 @@ describe("actions render on the server", () => {
     expect(out).toContain('aria-disabled="true"');
     expect(out).toContain('data-slot="spinner"');
     expect(out).not.toMatch(/ disabled=""/);
+    // The spinner sits in its own slot in the button, keeping Spinner's slot inside it.
+    expect(out).toMatch(/data-slot="button-spinner"><span[^>]*data-slot="spinner"/);
   });
 
   it("IconButton: named by its aria-label", () => {
@@ -38,6 +42,10 @@ describe("actions render on the server", () => {
   it("Toggle and ToggleGroup", () => {
     expect(html(<Toggle defaultPressed>Bold</Toggle>)).toContain('aria-pressed="true"');
     expect(html(<ToggleGroup aria-label="View" />)).toContain('data-variant="segmented"');
+    // An icon-only toggle's tooltip adds no element of its own.
+    expect(html(<Toggle icon={ArrowRightIcon} aria-label="Next" />)).toMatch(
+      /^<button[^>]*aria-label="Next"[^>]*data-slot="toggle"[^>]*data-icon-only=""/,
+    );
   });
 
   it("Link: external adds rel, target and the screen-reader note", () => {
@@ -52,10 +60,25 @@ describe("actions render on the server", () => {
   });
 
   it("Spinner: a named status, or hidden when decorative", () => {
-    expect(html(<Spinner />)).toBe(
-      '<span role="status" aria-label="Loading" class="qx-spinner" data-slot="spinner"></span>',
+    const out = html(<Spinner />);
+    const id = out.match(/aria-labelledby="([^"]+)"/)?.[1];
+    expect(out).toMatch(/^<span role="status" aria-labelledby="[^"]+" class="qx-spinner"/);
+    expect(out).toContain(`<span id="${id}" hidden="" data-slot="spinner-label">Loading</span>`);
+    expect(html(<Spinner label="Loading invoices" />)).toBe(
+      '<span role="status" aria-label="Loading invoices" class="qx-spinner" data-slot="spinner"></span>',
     );
     expect(html(<Spinner decorative />)).toContain('aria-hidden="true"');
+  });
+
+  it("Spinner stays server-safe, and says the provider's language when rendered on the server", () => {
+    const source = readFileSync(new URL("../src/spinner/spinner.tsx", import.meta.url), "utf8");
+    expect(source).not.toMatch(/^["']use client["']/);
+    const out = html(
+      <QeetrixProvider locale="hi-IN" messages={hi}>
+        <Spinner />
+      </QeetrixProvider>,
+    );
+    expect(out).toContain(">लोड हो रहा है</span>");
   });
 
   it("Spinner keeps the wait visible under reduced motion", () => {

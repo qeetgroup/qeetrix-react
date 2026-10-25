@@ -61,3 +61,9 @@
     justify-content: space-between;
   }
 }
+/* Rendered as a list (`render={<ul />}`), it drops the browser's bullets and indent. */
+.qx-inline:where(ul, ol) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

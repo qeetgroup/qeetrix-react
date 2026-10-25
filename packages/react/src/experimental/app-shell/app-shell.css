@@ -10,6 +10,10 @@
   min-block-size: 100dvh;
   background: var(--qx-color-surface-default);
   color: var(--qx-color-text-default);
+  /* Without a bar, the navigation and the panel start at the window's top and fill its height. */
+  &:not(:has(> .qx-app-shell-top)) {
+    --qx-app-shell-top: 0px;
+  }
 }
 .qx-app-shell-top {
   position: sticky;

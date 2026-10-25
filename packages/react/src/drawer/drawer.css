@@ -69,8 +69,11 @@
   flex-direction: column;
   gap: var(--qx-space-gap-xs);
   padding: var(--qx-space-inset-xl);
-  padding-inline-end: 56px;
   border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+}
+/* Room for the close button at the top end. */
+.qx-drawer[data-dismissible] .qx-drawer-header {
+  padding-inline-end: 56px;
 }
 .qx-drawer-title {
   margin: 0;
@@ -87,6 +90,12 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: var(--qx-space-inset-xl);
+  outline: 0;
+  /* A scrolling body with nothing focusable in it takes focus itself: the frame is drawn inside. */
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
 }
 .qx-drawer-footer {
   display: flex;

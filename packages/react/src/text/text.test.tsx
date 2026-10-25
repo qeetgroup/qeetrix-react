@@ -1,3 +1,4 @@
+import axe from "axe-core";
 import { describe, expect, it } from "vitest";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
@@ -39,6 +40,27 @@ describe("Text", () => {
     expect(styleOf(one.container).textOverflow).toBe("ellipsis");
     const three = await render(<Text truncate={3}>Long text</Text>);
     expect(styleOf(three.container).webkitLineClamp).toBe("3");
+  });
+
+  it("keeps the disabled tone to inactive controls: exempt there, a contrast failure elsewhere", async () => {
+    // WCAG 1.4.3 exempts the text of an inactive component; plain Text isn't one. The check stays
+    // on: the tone passes where the control says it's inactive, and fails where nothing does.
+    const { container } = await render(
+      <Stage>
+        <Stack gap="xs">
+          <button type="button" aria-disabled="true">
+            <Text tone="disabled">Enterprise plan (contact sales)</Text>
+          </button>
+          <button type="button" disabled>
+            <Text tone="disabled">Export</Text>
+          </button>
+        </Stack>
+      </Stage>,
+    );
+    await expectAccessible(container);
+    const loose = await render(<Text tone="disabled">Not part of any control</Text>);
+    const result = await axe.run(loose.container, { runOnly: ["color-contrast"] });
+    expect(result.violations.map((violation) => violation.id)).toEqual(["color-contrast"]);
   });
 
   it("is accessible and looks right in every mode", async () => {

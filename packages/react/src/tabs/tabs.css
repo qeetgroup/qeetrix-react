@@ -1,5 +1,6 @@
-/* Tabs (06-component-specs.md §8): a 2px line under the list and the 3px Ember bar under the selected
-   tab, which slides between tabs. Vertical tabs carry both on the start edge. */
+/* Tabs: a 2px line under the list and the 3px Ember bar under the selected tab, which slides between
+   tabs. Vertical tabs carry both on the start edge. The contained variant is a joined strip of
+   segments instead, ruled between them, with the bar under the selected one. */
 .qx-tabs {
   display: flex;
   flex-direction: column;
@@ -9,6 +10,9 @@
   }
 }
 .qx-tabs-list {
+  /* A tab's inline padding: 12px at compact density, 16px otherwise, from the control height alone.
+     A container that lines the first label up with something reads it here (PageHeader). */
+  --qx-tabs-inset: clamp(12px, var(--qx-size-control-lg) - 20px, 16px);
   position: relative;
   display: flex;
   min-inline-size: 0;
@@ -30,8 +34,7 @@
   align-items: center;
   gap: var(--qx-space-gap-sm);
   block-size: var(--qx-size-control-lg);
-  /* 12px at compact density, 16px otherwise, from the control height alone. */
-  padding-inline: clamp(12px, var(--qx-size-control-lg) - 20px, 16px);
+  padding-inline: var(--qx-tabs-inset);
   border: 0;
   background: transparent;
   color: var(--qx-color-text-subtle);
@@ -61,6 +64,21 @@
 .qx-tab-icon {
   flex: none;
 }
+/* The label and a trailing count share a baseline; the pair is centred on the tab. */
+.qx-tab-label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--qx-space-gap-sm);
+}
+/* One line of the count's type tall, so a taller Badge pill can't push the label off centre. */
+.qx-tab-badge {
+  display: inline-flex;
+  align-items: baseline;
+  block-size: 1lh;
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variant-numeric: tabular-nums;
+}
 .qx-tab-icon-filled,
 .qx-tab:has(> .qx-tab-icon-filled)[data-active] > .qx-tab-icon-outline {
   display: none;
@@ -87,6 +105,39 @@
     translate: 0 var(--active-tab-top);
   }
 }
+/* Contained: a segmented strip with 4px outer corners, as tall as a line tab. The selected segment
+   takes the page surface and the Ember bar; the others sit on the neutral fill. */
+.qx-tabs-list[data-variant="contained"] {
+  max-inline-size: 100%;
+  inline-size: fit-content;
+  border: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  border-radius: var(--qx-radius-control);
+  background: var(--qx-color-bg-neutral-subtle);
+  box-shadow: none;
+  > .qx-tab {
+    block-size: calc(var(--qx-size-control-lg) - 2 * var(--qx-border-width-default));
+    transition-property: color, background-color;
+  }
+  > .qx-tab + .qx-tab {
+    border-inline-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  }
+  > .qx-tab:hover:not([data-active], [data-disabled]) {
+    background: var(--qx-color-bg-neutral-subtle-hover);
+  }
+  > .qx-tab[data-active] {
+    background: var(--qx-color-surface-default);
+  }
+  &[data-orientation="vertical"] {
+    > .qx-tab + .qx-tab {
+      border-inline-start: 0;
+      border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+    }
+    > .qx-tabs-indicator {
+      inset-inline-start: 0;
+    }
+  }
+}
+
 .qx-tabs-panel {
   min-inline-size: 0;
   outline: 0;
@@ -98,8 +149,12 @@
 
 /* Forced colours: the Ember bar is a fill, so it's drawn in the system highlight. */
 @media (forced-colors: active) {
-  .qx-tabs-list:not([data-orientation="vertical"]) {
+  .qx-tabs-list:not([data-orientation="vertical"], [data-variant="contained"]) {
     border-block-end: var(--qx-border-width-strong) solid CanvasText;
+  }
+  .qx-tabs-list[data-variant="contained"],
+  .qx-tabs-list[data-variant="contained"] > .qx-tab {
+    border-color: CanvasText;
   }
   .qx-tabs-indicator {
     forced-color-adjust: none;

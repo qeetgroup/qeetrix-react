@@ -97,6 +97,57 @@ export function weekday(date: DateParts): number {
   return toUTC(date).getUTCDay();
 }
 
+/** The views of a calendar: a month's days, a year's months, or a decade's years. */
+export type CalendarView = "day" | "month" | "year";
+
+/**
+ * Where a key moves a calendar's focus, or `null` for keys it leaves alone. Days: arrows by day and
+ * week (mirrored right-to-left), Home and End to the week's ends (it starts on `firstDay`), Page Up
+ * and Page Down by month, with Shift by year. Months and years sit in rows of three: arrows by one
+ * and by a row, Home and End to the row's ends, Page Up and Page Down by a year or a decade.
+ */
+export function keyTarget(
+  view: CalendarView,
+  key: string,
+  shift: boolean,
+  focused: DateParts,
+  firstDay: number,
+  rtl: boolean,
+): DateParts | null {
+  const step = rtl ? -1 : 1;
+  if (view === "day") {
+    const offset = (weekday(focused) - firstDay + 7) % 7;
+    const days: Record<string, number> = {
+      ArrowLeft: -step,
+      ArrowRight: step,
+      ArrowUp: -7,
+      ArrowDown: 7,
+      Home: -offset,
+      End: 6 - offset,
+    };
+    const pages: Record<string, number> = { PageUp: -1, PageDown: 1 };
+    if (key in days) return addDays(focused, days[key] ?? 0);
+    return key in pages ? addMonths(focused, (pages[key] ?? 0) * (shift ? 12 : 1)) : null;
+  }
+  // A step is a month or a year, a page a year or a decade; a decade's page starts a year early.
+  const unit = view === "month" ? 1 : 12;
+  const column =
+    (view === "month" ? focused.month - 1 : focused.year - Math.floor(focused.year / 10) * 10 + 1) %
+    3;
+  const page = view === "month" ? 12 : 10;
+  const steps: Record<string, number> = {
+    ArrowLeft: -step,
+    ArrowRight: step,
+    ArrowUp: -3,
+    ArrowDown: 3,
+    Home: -column,
+    End: 2 - column,
+    PageUp: -page,
+    PageDown: page,
+  };
+  return key in steps ? addMonths(focused, (steps[key] ?? 0) * unit) : null;
+}
+
 /** Today in the browser's own time zone. */
 export function today(): DateParts {
   const now = new Date();
@@ -207,8 +258,52 @@ export function parseLocalDate(text: string, locale: string): string | null {
 
 /** A range of calendar dates, both ends included, "YYYY-MM-DD", `start` never after `end`. */
 export interface DateRange {
+  /** The first day, "YYYY-MM-DD". */
   start: string;
+  /** The last day, "YYYY-MM-DD", never before `start`. */
   end: string;
+}
+
+/** The ranges DateRangePicker offers by name, worked out from today; the labels are in the catalogue. */
+export type DateRangePresetName =
+  | "today"
+  | "last7Days"
+  | "last30Days"
+  | "last90Days"
+  | "thisMonth"
+  | "lastMonth";
+
+/** How many days the "last …" ranges run back, today included. */
+const RANGE_DAYS: Partial<Record<DateRangePresetName, number>> = {
+  today: 1,
+  last7Days: 7,
+  last30Days: 30,
+  last90Days: 90,
+};
+
+/**
+ * A named range on a given day: "last7Days" is the 7 days ending today, today included;
+ * "thisMonth" and "lastMonth" are whole calendar months.
+ */
+export function namedRange(name: DateRangePresetName, today: DateParts): DateRange {
+  const days = RANGE_DAYS[name];
+  if (days) return { start: toISODate(addDays(today, 1 - days)), end: toISODate(today) };
+  const { year, month } = addMonths(today, name === "lastMonth" ? -1 : 0);
+  return {
+    start: toISODate({ year, month, day: 1 }),
+    end: toISODate({ year, month, day: daysInMonth(year, month) }),
+  };
+}
+
+/** The part of a range inside `min` and `max`, or `null` when none of it is. */
+export function clampRange(
+  range: DateRange,
+  min: string | undefined,
+  max: string | undefined,
+): DateRange | null {
+  const start = min && range.start < min ? min : range.start;
+  const end = max && range.end > max ? max : range.end;
+  return start <= end ? { start, end } : null;
 }
 
 /** A range in the locale's all-number form, joined by an en dash: "01/12/2026 – 31/12/2026". */

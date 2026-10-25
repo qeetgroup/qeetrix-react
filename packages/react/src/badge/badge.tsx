@@ -4,28 +4,61 @@ import { cx } from "../internal/cx";
 
 export type BadgeTone = "neutral" | "brand" | "info" | "success" | "warning" | "danger";
 
+/** `subtle`, the tinted pill, for most statuses; `solid`, the bold fill, for the one that must stand out. */
+export type BadgeVariant = "subtle" | "solid";
+
+/** `md` 20px; `sm` 16px, for tight rows and beside small text. */
+export type BadgeSize = "sm" | "md";
+
 export interface BadgeProps extends ComponentProps<"span"> {
-  /** Default `neutral`. The word carries the meaning; the tone only reinforces it. */
+  /** The word carries the meaning; the tone only reinforces it. Default `neutral`. */
   tone?: BadgeTone;
+  /**
+   * `subtle`: the tone's tint with the tone's text. `solid`: the tone's bold fill with white text
+   * (dark text on warning), for the one status in a view that must stand out, such as "Overdue".
+   * Default `subtle`.
+   */
+  variant?: BadgeVariant;
+  /** `md` (20px) or `sm` (16px), for tight rows and beside small text. Default `md`. */
+  size?: BadgeSize;
   /** A leading icon from `@qeetrix/icons`: sharp, 12px, decorative. */
   icon?: QeetrixIcon;
 }
 
 /**
- * A short, static status or count: one or two words (06-component-specs.md §10). It truncates with
- * an ellipsis; pass `title` with the full text where it may be cut. Server-safe.
+ * A short, static status or count: one or two words. It truncates with an ellipsis; pass `title`
+ * with the full text where it may be cut. Server-safe.
  */
 export function Badge({
   tone = "neutral",
+  variant = "subtle",
+  size = "md",
   icon: Icon,
   className,
   children,
   ...props
 }: BadgeProps): ReactElement {
   return (
-    <span {...props} className={cx("qx-badge", className)} data-slot="badge" data-tone={tone}>
-      {Icon && <Icon shape="sharp" size={12} aria-hidden className="qx-badge-icon" />}
-      <span className="qx-badge-label">{children}</span>
+    <span
+      {...props}
+      className={cx("qx-badge", className)}
+      data-slot="badge"
+      data-tone={tone}
+      data-variant={variant}
+      data-size={size}
+    >
+      {Icon && (
+        <Icon
+          shape="sharp"
+          size={12}
+          aria-hidden
+          className="qx-badge-icon"
+          data-slot="badge-icon"
+        />
+      )}
+      <span className="qx-badge-label" data-slot="badge-label">
+        {children}
+      </span>
     </span>
   );
 }

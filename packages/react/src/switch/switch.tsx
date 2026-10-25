@@ -10,16 +10,14 @@ interface SwitchOwnProps extends Omit<BaseSwitch.Root.Props, "className" | "styl
   description?: ReactNode;
   /** Placement of the row (or of the control alone, with no label) only. */
   className?: string;
+  /** Placement only, like `className`. */
   style?: CSSProperties;
 }
 
 /** Switch props: Base UI's, plus `label` — or, with no visible label, a required `aria-label`. */
 export type SwitchProps = SwitchOwnProps & ChoiceLabelProps;
 
-/**
- * Turns a setting on or off immediately (06-component-specs.md §3). A setting that waits for a Save
- * button is a Checkbox.
- */
+/** Turns a setting on or off immediately. A setting that waits for a Save button is a Checkbox. */
 export function Switch({
   label,
   description,

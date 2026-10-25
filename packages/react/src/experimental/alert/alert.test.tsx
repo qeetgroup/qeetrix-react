@@ -6,6 +6,7 @@ import { render } from "vitest-browser-react";
 import { QeetIdFrame } from "../../../tests/fixtures/qeet-id-console";
 import { expectAccessible } from "../../../tests/support/axe";
 import { tokenColor } from "../../../tests/support/color";
+import { canEmulateMedia, emulateMedia } from "../../../tests/support/media";
 import { screenshotEveryMode } from "../../../tests/support/screenshots";
 import { Button } from "../../button/button";
 import { hi } from "../../locales/hi";
@@ -232,6 +233,60 @@ describe("Alert as a page banner", () => {
     expect(style.backgroundColor).toBe(tokenColor("--qx-color-bg-danger-subtle"));
   });
 
+  it("keeps the icon, the actions and Dismiss on the first line when it wraps, at every density", async () => {
+    // Regression: a wrapped banner centred its icon and Dismiss on the whole block.
+    await page.viewport(390, 760);
+    for (const density of ["compact", "default", "comfortable"] as const) {
+      const screen = await render(<BannerPage density={density} />);
+      for (const banner of banners()) {
+        const title = banner.querySelector("[data-slot=alert-title]") as HTMLElement;
+        const text = banner.querySelector(".qx-alert-text") as HTMLElement;
+        const firstLine = title.getClientRects()[0] as DOMRect;
+        const which = `${density}: ${title.textContent}`;
+        // It does wrap at this width: the text runs to more than one line.
+        expect(rect(text).height, which).toBeGreaterThan(
+          rect(banner.querySelector("button") ?? title).height,
+        );
+        const middle = centre(firstLine);
+        near(centre(rect(banner.querySelector(".qx-alert-icon"))), middle);
+        const dismiss = banner.querySelector(".qx-alert-dismiss");
+        if (dismiss) near(centre(rect(dismiss)), middle);
+        // The first line is centred in a small button's height, as a one-line banner is.
+        const control = getComputedStyle(banner).getPropertyValue("--qx-size-control-sm");
+        expect(control, which).toMatch(/rem$/);
+        const padding = Number.parseFloat(getComputedStyle(banner).paddingBlockStart);
+        near(middle - rect(banner).top, padding + (Number.parseFloat(control) * 16) / 2);
+      }
+      await screen.unmount();
+    }
+  });
+
+  it("keeps only its rule in forced colours, not the status edge or a box", async () => {
+    if (!canEmulateMedia) return;
+    await render(
+      <>
+        <Alert variant="banner" tone="danger" title="Your trial ends in 3 days." />
+        <Alert tone="danger" title="Sign-in failed" />
+      </>,
+    );
+    const reset = await emulateMedia({ "forced-colors": "active" });
+    try {
+      const [banner, inPage] = [...document.querySelectorAll<HTMLElement>("[data-slot=alert]")].map(
+        (alert) => getComputedStyle(alert),
+      );
+      expect(banner?.borderInlineStartWidth).toBe("0px");
+      expect(banner?.borderBlockStartWidth).toBe("0px");
+      expect(banner?.borderInlineEndWidth).toBe("0px");
+      expect(banner?.borderBlockEndWidth).toBe("1px");
+      expect(banner?.borderBlockEndStyle).toBe("solid");
+      // An alert in the page keeps its edge and its status edge.
+      expect(inPage?.borderInlineStartWidth).toBe("3px");
+      expect(inPage?.borderBlockStartWidth).toBe("1px");
+    } finally {
+      await reset();
+    }
+  });
+
   it("says its tone in words, takes its own icon, and can be dismissed", async () => {
     const onDismiss = vi.fn();
     await page.viewport(1280, 640);
@@ -251,5 +306,12 @@ describe("Alert as a page banner", () => {
     const { container } = await render(<BannerPage density="inherit" />);
     await expectAccessible(container);
     await screenshotEveryMode("Page banner", null);
+  });
+
+  it("is accessible and looks right wrapped on a phone, in every mode", async () => {
+    await page.viewport(390, 560);
+    const { container } = await render(<BannerPage density="inherit" />);
+    await expectAccessible(container);
+    await screenshotEveryMode("Page banner · phone", null);
   });
 });

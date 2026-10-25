@@ -1,6 +1,6 @@
 {
   "name": "@qeetrix/react",
-  "version": "0.0.8",
+  "version": "0.1.0",
   "description": "Qeetrix React components: accessible, token-driven primitives on Base UI for every Qeet product.",
   "keywords": [
     "qeetrix",
@@ -222,7 +222,7 @@
   },
   "peerDependencies": {
     "@base-ui/react": "^1.9.0",
-    "@qeetrix/tokens": "^0.0.7",
+    "@qeetrix/tokens": "^0.0.7 || ^0.0.8",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

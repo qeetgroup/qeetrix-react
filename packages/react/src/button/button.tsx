@@ -5,7 +5,7 @@ import type { ComponentProps, ReactElement, ReactNode } from "react";
 import { type ControlSize, iconSize, type QeetrixIcon } from "../internal/control";
 import { cx } from "../internal/cx";
 import { Spinner } from "../spinner/spinner";
-import { Tooltip } from "../tooltip/tooltip";
+import { Tooltip, type TooltipProps } from "../tooltip/tooltip";
 
 export type ButtonVariant = "solid" | "soft" | "ghost";
 export type ButtonTone = "brand" | "danger" | "neutral";
@@ -15,19 +15,26 @@ interface ButtonBaseProps extends Omit<ComponentProps<"button">, "children"> {
   variant?: ButtonVariant;
   /**
    * `danger` for the confirming action of a destructive flow. `neutral` for ghost utility actions
-   * in toolbars and headers, whose icons stay neutral (design rules §16); a solid or soft neutral
-   * button looks like the soft one.
+   * in toolbars and headers, whose icons stay neutral; a solid or soft neutral button looks like
+   * the soft one. Default `brand`.
    */
   tone?: ButtonTone;
   /** Height from the density tokens. Default `md`. */
   size?: ControlSize;
-  /** Busy: a spinner replaces the icon, clicks are ignored and `aria-busy` is set. */
+  /**
+   * Busy: a spinner replaces the icon, clicks are ignored and `aria-busy` is set. Default `false`.
+   */
   loading?: boolean;
   /** Render a different element through Base UI, e.g. a router link. */
   render?: BaseButton.Props["render"];
 }
 
 export interface ButtonProps extends ButtonBaseProps {
+  /**
+   * Emphasis: `solid` (primary, Ember), `soft` (secondary, graphite), `ghost` (tertiary). Default
+   * `solid`.
+   */
+  variant?: ButtonVariant;
   /** The label. Write it as a verb: "Create invoice". */
   children?: ReactNode;
   /** A trailing icon from `@qeetrix/icons`; rendered in the sharp shape. */
@@ -37,19 +44,32 @@ export interface ButtonProps extends ButtonBaseProps {
 }
 
 export interface IconButtonProps extends ButtonBaseProps {
+  /**
+   * Emphasis: `ghost` (tertiary), `soft` (secondary, graphite) or `solid` (primary, Ember). Default
+   * `ghost`.
+   */
+  variant?: ButtonVariant;
   /** The icon, from `@qeetrix/icons`; rendered in the sharp shape. */
   icon: QeetrixIcon;
   /** Required: an icon-only button has no visible label. */
   "aria-label": string;
   /**
-   * The tooltip, which shows the `aria-label` by default (06-component-specs.md §1). Pass other text
-   * to show that instead, or `false` where the label is visible nearby.
+   * The tooltip, which shows the `aria-label` by default. Pass other text to show that instead, or
+   * `false` where the label is visible nearby.
    */
   tooltip?: ReactNode | false;
+  /** The side its tooltip opens on. Default `top`; it flips when there is no room. */
+  tooltipSide?: TooltipProps["side"];
 }
 
 function content(icon: QeetrixIcon | undefined, size: ControlSize, loading: boolean): ReactNode {
-  if (loading) return <Spinner decorative size={size === "lg" ? "lg" : "md"} />;
+  if (loading) {
+    return (
+      <span className="qx-button-spinner" data-slot="button-spinner">
+        <Spinner decorative size={size === "lg" ? "lg" : "md"} />
+      </span>
+    );
+  }
   if (!icon) return null;
   const Icon = icon;
   return (
@@ -64,8 +84,8 @@ function content(icon: QeetrixIcon | undefined, size: ControlSize, loading: bool
 }
 
 /**
- * An action. One `solid` and one `soft` per region, everything else `ghost` (design rules §7).
- * Disabled buttons stay focusable, so the reason they're disabled can be read.
+ * An action. One `solid` and one `soft` per region, everything else `ghost`. Disabled buttons stay
+ * focusable, so the reason they're disabled can be read.
  */
 export function Button({
   variant = "solid",
@@ -118,6 +138,7 @@ export function IconButton({
   icon,
   loading = false,
   tooltip,
+  tooltipSide = "top",
   disabled,
   className,
   type = "button",
@@ -142,5 +163,9 @@ export function IconButton({
     </BaseButton>
   );
   if (tooltip === false) return button;
-  return <Tooltip content={tooltip ?? props["aria-label"]}>{button}</Tooltip>;
+  return (
+    <Tooltip content={tooltip ?? props["aria-label"]} side={tooltipSide}>
+      {button}
+    </Tooltip>
+  );
 }

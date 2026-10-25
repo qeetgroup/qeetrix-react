@@ -13,23 +13,23 @@ export interface SearchFieldProps
   extends Omit<InputProps, "type" | "icon" | "value" | "defaultValue" | "onValueChange"> {
   /** The text, controlled. */
   value?: string;
-  /** The text when uncontrolled. */
+  /** The text when uncontrolled. Default `""`. */
   defaultValue?: string;
   /** Called on every keystroke. */
   onValueChange?: (value: string) => void;
   /** Run the search: when typing pauses, on Enter, and with "" when cleared. */
   onSearch?: (value: string) => void;
-  /** How long typing must pause before `onSearch`, in ms. Default 300. */
+  /** How long typing must pause before `onSearch`, in ms. Default `300`. */
   searchDelay?: number;
   /** This field's strings, over QeetrixProvider's and the English defaults. */
   messages?: Partial<QeetrixMessages["searchField"]>;
 }
 
 /**
- * A search box for a list (07-components.md): the Input box with a search icon, `type="search"`
- * (a searchbox), and a Clear button while there's text. Escape clears it, and only then lets the
- * key through. `onSearch` runs when typing pauses (`searchDelay`), at once on Enter, and with ""
- * when cleared, so a server-searched list asks once per pause, not per key.
+ * A search box for a list: the Input box with a search icon, `type="search"` (a searchbox), and a
+ * Clear search button while there's text. Escape clears it, and only then lets the key through.
+ * `onSearch` runs when typing pauses (`searchDelay`), at once on Enter, and with "" when cleared, so
+ * a server-searched list asks once per pause, not per key.
  */
 export function SearchField({
   value,

@@ -105,6 +105,7 @@ describe("dist check", () => {
     "dist/widget/index.js": '"use client";\nexport * from "./widget.js";\n',
     "dist/widget/widget.js": "export const Widget = 1;\n",
     "dist/Extra.js": "export {};\n",
+    "dist/named.js": "function Button$1() {}\nexport { Button$1 as Button };\n",
     "dist/styles.css": "@layer qx.base { .qx-a { display: block; } }\n",
   });
   const { status, output } = run("node", [join(pkg, "scripts/check-dist.mjs"), root]);
@@ -121,6 +122,10 @@ describe("dist check", () => {
       /exports Notification, which shadows a browser global/,
     ],
     ["a size over budget", /over its 0\.001 kB budget/],
+    [
+      "a component renamed by the build",
+      /exports Button as Button\$1; its name won't show as Button/,
+    ],
   ])("catches %s", (_, message) => expect(output).toMatch(message));
 });
 

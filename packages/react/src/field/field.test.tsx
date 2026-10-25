@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
+import { tokenColor } from "../../tests/support/color";
 import { screenshotEveryMode } from "../../tests/support/screenshots";
 import { Stage } from "../../tests/support/stage";
 import { Input } from "../input/input";
@@ -45,8 +46,68 @@ describe("Field", () => {
     const error = container.querySelector("[data-slot=field-error]") as HTMLElement;
     expect(error.textContent).toBe("PAN has 10 characters.");
     expect(error.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
-    const description = container.querySelector("[data-slot=field-description]") as HTMLElement;
-    expect(getComputedStyle(description).display).toBe("none");
+    // The error replaces the description for assistive technology too, not only on screen.
+    expect(container.querySelector("[data-slot=field-description]")).toBeNull();
+    await expect.element(input).toHaveAttribute("aria-describedby", error.id);
+    await expect.element(input).toHaveAccessibleDescription("PAN has 10 characters.");
+  });
+
+  it("swaps the description for a validation error and back, for assistive technology too", async () => {
+    await render(
+      <Field
+        label="PAN"
+        description="10 characters."
+        validationMode="onChange"
+        validate={(value) =>
+          typeof value === "string" && value.length === 10 ? null : "PAN has 10 characters."
+        }
+      >
+        <Input />
+      </Field>,
+    );
+    const input = page.getByRole("textbox", { name: "PAN" });
+    await expect.element(input).toHaveAccessibleDescription("10 characters.");
+    await userEvent.type(input, "ABCDE12");
+    await expect.element(input).toHaveAccessibleDescription("PAN has 10 characters.");
+    expect(document.querySelector("[data-slot=field-description]")).toBeNull();
+    await userEvent.type(input, "34F");
+    await expect.element(input).toHaveAccessibleDescription("10 characters.");
+    await expect.element(page.getByText("10 characters.", { exact: true })).toBeVisible();
+  });
+
+  it("keeps the description when the field is invalid with no message to replace it", async () => {
+    await render(
+      <Field label="Verification code" description="6 digits." invalid>
+        <Input />
+      </Field>,
+    );
+    const input = page.getByRole("textbox", { name: "Verification code" });
+    await expect.element(input).toHaveAttribute("aria-invalid", "true");
+    await expect.element(input).toHaveAccessibleDescription("6 digits.");
+    await expect.element(page.getByText("6 digits.")).toBeVisible();
+  });
+
+  it("dims a disabled field's description with its label, keeping it readable", async () => {
+    const { container } = await render(
+      <>
+        <Field label="Legacy code" disabled description="Retired in 2025.">
+          <Input />
+        </Field>
+        <Field label="Current code" description="Used on invoices.">
+          <Input />
+        </Field>
+      </>,
+    );
+    const [disabled, enabled] = [
+      ...container.querySelectorAll<HTMLElement>("[data-slot=field-description]"),
+    ];
+    expect(getComputedStyle(disabled as HTMLElement).color).toBe(
+      tokenColor("--qx-color-text-subtlest"),
+    );
+    expect(getComputedStyle(enabled as HTMLElement).color).toBe(
+      tokenColor("--qx-color-text-subtle"),
+    );
+    await expectAccessible(container);
   });
 
   it("shows the browser's message when validation fails", async () => {

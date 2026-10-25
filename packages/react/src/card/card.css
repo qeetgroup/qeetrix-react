@@ -89,11 +89,30 @@
     padding-inline-end: var(--qx-space-inset-sm);
   }
 }
+/* The footer keeps the header's and body's inset, so its actions line up with the fields above
+   them. Under an edge-to-edge table it takes the table's cell inset instead, so Pagination lines up
+   with the columns. */
 .qx-card-footer {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--qx-space-gap-sm);
-  padding: var(--qx-space-inset-md);
+  padding: var(--qx-space-inset-lg);
   border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  .qx-card-body:has(> .qx-table:last-child, > .qx-scroll-area:last-child .qx-table) + & {
+    padding: var(--qx-space-inset-md);
+  }
+}
+
+/* Subdued: the sunken tone, for a secondary panel. Still ruled, still no shadow (design rules §12). */
+.qx-card[data-variant="subdued"] {
+  background: var(--qx-color-surface-sunken);
+}
+/* Danger: a danger zone. The border and the title take the danger colour; the rules inside stay
+   neutral, as a section's inner lines do. The title's words carry the meaning. */
+.qx-card[data-tone="danger"] {
+  border-color: var(--qx-color-border-danger);
+  & > .qx-card-header > .qx-card-heading > .qx-heading {
+    color: var(--qx-color-text-danger);
+  }
 }

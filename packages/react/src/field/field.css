@@ -42,14 +42,18 @@
   color: var(--qx-color-text-subtlest);
 }
 
+/* While an error shows, FieldMessages doesn't render the description at all, so the error replaces
+   it for assistive technology too. A disabled field's description dims with its label, to the
+   subtlest text colour rather than the disabled one: it often says why the field is disabled, and
+   unlike the label it isn't exempt from contrast (subtlest keeps 4.5:1 on every surface). */
 .qx-field-description {
   margin: 0;
   font: var(--qx-typography-body-sm);
   font-variation-settings: "GEOM" var(--qx-font-geometry-body);
   color: var(--qx-color-text-subtle);
-}
-.qx-field[data-invalid] > .qx-field-description {
-  display: none;
+  &[data-disabled] {
+    color: var(--qx-color-text-subtlest);
+  }
 }
 
 .qx-field-error {
@@ -97,6 +101,9 @@
   font: var(--qx-typography-body-sm);
   font-variation-settings: "GEOM" var(--qx-font-geometry-body);
   color: var(--qx-color-text-subtle);
+  &[data-disabled] {
+    color: var(--qx-color-text-subtlest);
+  }
 }
 .qx-choice[data-slot="switch"] .qx-choice-description {
   padding-inline-start: 40px;
@@ -178,8 +185,11 @@
       box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-disabled);
     }
   }
+  /* The whole tile is the target, so the label needs no 24px minimum: it's as tall as the title,
+     and the description starts under the title's last line. */
   & .qx-choice-label {
     inline-size: 100%;
+    min-block-size: 0;
     gap: var(--qx-space-gap-md);
     padding-block: 0;
     &::after {
@@ -192,10 +202,16 @@
       order: 3;
     }
   }
+  /* The icon's box hangs below the title's first line rather than setting the row's height, so
+     the description follows the title however many lines it wraps to; the tile keeps room for it. */
+  & .qx-choice:has(.qx-choice-icon) {
+    min-block-size: calc(36px + 2 * var(--qx-space-inset-md));
+  }
   & .qx-choice-icon {
     order: 1;
     inline-size: 36px;
     block-size: 36px;
+    margin-block-end: calc(1lh - 36px);
     border-radius: var(--qx-radius-control);
     background: var(--qx-color-bg-neutral-subtle);
   }
@@ -214,6 +230,5 @@
   }
   & .qx-choice:has(.qx-choice-icon) .qx-choice-description {
     padding-inline-start: calc(36px + var(--qx-space-gap-md));
-    margin-block-start: calc(-36px + 1lh + var(--qx-space-gap-xs));
   }
 }

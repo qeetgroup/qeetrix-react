@@ -19,9 +19,39 @@ import { type FieldMessageProps, FieldMessages, InFieldContext } from "./field";
  * in a table row — by `aria-label` or `aria-labelledby`, which the type then requires.
  */
 export type ChoiceLabelProps =
-  | { label: ReactNode; "aria-label"?: string; "aria-labelledby"?: string }
-  | { label?: undefined; "aria-label": string; "aria-labelledby"?: string }
-  | { label?: undefined; "aria-label"?: string; "aria-labelledby": string };
+  | {
+      /**
+       * The visible label, after the control. It names the control, and with it the whole row is
+       * the click target. Without one, `aria-label` or `aria-labelledby` is required.
+       */
+      label: ReactNode;
+      /** The control's accessible name when it has no visible `label`, e.g. in a table row. */
+      "aria-label"?: string;
+      /** The id of the element that names the control when it has no visible `label`. */
+      "aria-labelledby"?: string;
+    }
+  | {
+      /**
+       * The visible label, after the control. It names the control, and with it the whole row is
+       * the click target. Without one, `aria-label` or `aria-labelledby` is required.
+       */
+      label?: undefined;
+      /** The control's accessible name when it has no visible `label`, e.g. in a table row. */
+      "aria-label": string;
+      /** The id of the element that names the control when it has no visible `label`. */
+      "aria-labelledby"?: string;
+    }
+  | {
+      /**
+       * The visible label, after the control. It names the control, and with it the whole row is
+       * the click target. Without one, `aria-label` or `aria-labelledby` is required.
+       */
+      label?: undefined;
+      /** The control's accessible name when it has no visible `label`, e.g. in a table row. */
+      "aria-label"?: string;
+      /** The id of the element that names the control when it has no visible `label`. */
+      "aria-labelledby": string;
+    };
 
 /** Options stacked (`vertical`) or in a wrapping row (`horizontal`, for short options). */
 export type ChoiceOrientation = "vertical" | "horizontal";

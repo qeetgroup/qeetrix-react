@@ -56,7 +56,7 @@ export interface AppShellProps extends Omit<ComponentProps<"div">, "children"> {
   drawers?: AppShellDrawer[];
   /** The open panel's id, or `null`, controlled. */
   activeDrawer?: string | null;
-  /** The open panel when uncontrolled. Default none. */
+  /** The open panel's id when uncontrolled, or `null` for none. Default `null`. */
   defaultActiveDrawer?: string | null;
   /** Called with the panel that opens, or `null` when it closes. */
   onActiveDrawerChange?: (id: string | null) => void;
@@ -141,10 +141,10 @@ export function useAppShell(): AppShellState {
 }
 
 /**
- * The frame of a Qeet console (07-components.md, C1 · Ruled): the black scope bar across the full
- * width; the ruled navigation column, which collapses to a 48px icon rail that expands while
- * hovered or focused; the page; and a panel on the end edge that the bar's tools open. Seams are
- * 1px rules, never shadows. Compact by default.
+ * The frame of a Qeet console: the black scope bar across the full width; the ruled navigation
+ * column, which collapses to a 48px icon rail that expands while hovered or focused; the page; and
+ * a panel on the end edge that the bar's tools open. Seams are 1px rules, never shadows. Compact by
+ * default. Without a `topBar`, the navigation and the panel start at the top of the window.
  */
 export function AppShell({
   topBar,
@@ -223,6 +223,7 @@ export function AppShell({
     <button
       type="button"
       className="qx-app-shell-collapse"
+      data-slot="app-shell-collapse"
       aria-expanded={!collapsed}
       onClick={() => {
         endPeek();
@@ -247,7 +248,11 @@ export function AppShell({
         data-drawer-open={panel ? "" : undefined}
       >
         <SkipLink href={`#${mainId}`}>{skip.label}</SkipLink>
-        {topBar != null && <div className="qx-app-shell-top">{topBar}</div>}
+        {topBar != null && (
+          <div className="qx-app-shell-top" data-slot="app-shell-top">
+            {topBar}
+          </div>
+        )}
         {sidebar != null && (
           // biome-ignore lint/a11y/noStaticElementInteractions: hover and focus only preview the rail; every action is on the links and buttons inside
           <div
@@ -261,9 +266,11 @@ export function AppShell({
               if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setPeek(false);
             }}
           >
-            <div className="qx-app-shell-nav-panel">
-              <div className="qx-app-shell-nav-body">{sidebar}</div>
-              <div className="qx-app-shell-nav-foot">
+            <div className="qx-app-shell-nav-panel" data-slot="app-shell-nav-panel">
+              <div className="qx-app-shell-nav-body" data-slot="app-shell-nav-body">
+                {sidebar}
+              </div>
+              <div className="qx-app-shell-nav-foot" data-slot="app-shell-nav-foot">
                 <Tooltip content={strings.expand} side="inline-end" disabled={!collapsed || peek}>
                   {collapseControl}
                 </Tooltip>
@@ -290,8 +297,12 @@ export function AppShell({
             data-slot="app-shell-panel"
             aria-labelledby={panelTitle}
           >
-            <div className="qx-app-shell-panel-header">
-              <h2 id={panelTitle} className="qx-app-shell-panel-title">
+            <div className="qx-app-shell-panel-header" data-slot="app-shell-panel-header">
+              <h2
+                id={panelTitle}
+                className="qx-app-shell-panel-title"
+                data-slot="app-shell-panel-title"
+              >
                 {panel.label}
               </h2>
               <IconButton
@@ -303,7 +314,9 @@ export function AppShell({
                 onClick={() => setActive(null)}
               />
             </div>
-            <div className="qx-app-shell-panel-body">{panel.content}</div>
+            <div className="qx-app-shell-panel-body" data-slot="app-shell-panel-body">
+              {panel.content}
+            </div>
           </aside>
         )}
         {sidebar != null && (
