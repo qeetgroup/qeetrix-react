@@ -342,6 +342,7 @@ export interface FieldMessageProps {
 export interface FieldProps extends Omit<Field_2.Root.Props, "className" | "style" | "render" | "children">, FieldMessageProps {
     children?: ReactNode;
     className?: string;
+    help?: ReactNode;
     hideLabel?: boolean;
     label: ReactNode;
     messages?: Partial<QeetrixMessages["field"]>;
@@ -607,6 +608,7 @@ export function PopoverContent(input: PopoverContentProps): ReactElement;
 // @public (undocumented)
 export interface PopoverContentProps extends Omit<Popover_2.Popup.Props, "className" | "style" | "title" | "children"> {
     align?: Popover_2.Positioner.Props["align"];
+    anchor?: Popover_2.Positioner.Props["anchor"];
     // (undocumented)
     children?: ReactNode;
     className?: string;
@@ -788,6 +790,9 @@ export interface SliderProps<Value extends number | readonly number[] = number> 
     style?: CSSProperties;
 }
 
+// @public (undocumented)
+export type SortDirection = "ascending" | "descending";
+
 // @public
 export type Space = "none" | "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl";
 
@@ -834,52 +839,53 @@ export type SwitchProps = SwitchOwnProps & ChoiceLabelProps;
 export function Tab(input: TabProps): ReactElement;
 
 // @public
-export function Table(input: TableProps): ReactElement;
+export function Table<Row>(input: TableProps<Row>): ReactElement;
 
-// @public (undocumented)
+// @public
 export type TableAlign = "start" | "center" | "end";
 
+// @public (undocumented)
+export interface TableColumn<Row> {
+    align?: TableAlign;
+    cell: (row: Row) => ReactNode;
+    header: ReactNode;
+    id: string;
+    numeric?: boolean;
+    sortable?: boolean;
+    sortFirst?: SortDirection;
+    width?: number | string;
+}
+
+// @public (undocumented)
+export interface TableProps<Row> extends Omit<ComponentProps<"div">, "children" | "onChange"> {
+    bulkActions?: (ids: string[]) => ReactNode;
+    // (undocumented)
+    columns: readonly TableColumn<Row>[];
+    defaultSelected?: readonly string[];
+    defaultSort?: TableSort | null;
+    empty?: ReactNode;
+    error?: ReactNode;
+    label: string;
+    loading?: boolean;
+    loadingRows?: number;
+    messages?: Partial<QeetrixMessages["table"]>;
+    onSelectedChange?: (ids: string[]) => void;
+    onSortChange?: (sort: TableSort | null) => void;
+    rowActions?: (row: Row) => ReactNode;
+    rowId: (row: Row) => string;
+    rowLabel: (row: Row) => string;
+    rows: readonly Row[];
+    selectable?: boolean;
+    selected?: readonly string[];
+    sort?: TableSort | null;
+    toolbar?: ReactNode;
+}
+
 // @public
-export function TableBody(input: TableBodyProps): ReactElement;
-
-// @public (undocumented)
-export interface TableBodyProps extends ComponentProps<"tbody"> {}
-
-// @public
-export function TableCaption(input: TableCaptionProps): ReactElement;
-
-// @public (undocumented)
-export interface TableCaptionProps extends ComponentProps<"caption"> {}
-
-// @public
-export function TableCell(input: TableCellProps): ReactElement;
-
-// Warning: (ae-forgotten-export) The symbol "CellLook" needs to be exported by the entry point index.d.ts
-//
-// @public (undocumented)
-export interface TableCellProps extends Omit<ComponentProps<"td">, "align">, CellLook {}
-
-// @public
-export function TableHead(input: TableHeadProps): ReactElement;
-
-// @public
-export function TableHeader(input: TableHeaderProps): ReactElement;
-
-// @public (undocumented)
-export interface TableHeaderProps extends ComponentProps<"thead"> {}
-
-// @public (undocumented)
-export interface TableHeadProps extends Omit<ComponentProps<"th">, "align">, CellLook {}
-
-// @public (undocumented)
-export interface TableProps extends ComponentProps<"table"> {}
-
-// @public
-export function TableRow(input: TableRowProps): ReactElement;
-
-// @public (undocumented)
-export interface TableRowProps extends ComponentProps<"tr"> {
-    selected?: boolean;
+export interface TableSort {
+    column: string;
+    // (undocumented)
+    direction: SortDirection;
 }
 
 // @public (undocumented)

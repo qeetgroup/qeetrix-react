@@ -1,30 +1,20 @@
 /**
- * Display and status on the server: Card, Table, Badge and Skeleton carry no client code, and the
- * Base UI ones (Avatar, Progress, Meter) still render their roles and values into the HTML.
+ * Display and status on the server: Card, Badge and Skeleton carry no client code; Table (which
+ * holds sort and selection state) and the Base UI ones (Avatar, Progress, Meter) still render their
+ * roles and values into the HTML.
  */
 import { readFileSync } from "node:fs";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import {
-  Avatar,
-  Badge,
-  Card,
-  Meter,
-  Progress,
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableRow,
-} from "../src/index";
+import { Avatar, Badge, Card, Meter, Progress, Skeleton, Table } from "../src/index";
 
 const html = (node: React.ReactElement) => renderToString(node);
 const source = (family: string) =>
   readFileSync(new URL(`../src/${family}/${family}.tsx`, import.meta.url), "utf8");
 
 describe("display and status render on the server", () => {
-  it("Card, Table, Badge and Skeleton are server-safe", () => {
-    for (const family of ["card", "table", "badge", "skeleton"]) {
+  it("Card, Badge and Skeleton are server-safe", () => {
+    for (const family of ["card", "badge", "skeleton"]) {
       expect(source(family), family).not.toMatch(/^["']use client["']/);
     }
   });
@@ -40,16 +30,29 @@ describe("display and status render on the server", () => {
     expect(out).toContain(`aria-labelledby="${id}"`);
   });
 
-  it("a Table row and cell carry their states", () => {
+  it("a Table renders its rows, states and sort on the server", () => {
     const out = html(
-      <Table>
-        <TableBody>
-          <TableRow selected>
-            <TableCell numeric>₹8,200</TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>,
+      <Table
+        label="Invoices"
+        rows={[{ id: "INV-0043", amount: "₹8,200" }]}
+        rowId={(row) => row.id}
+        rowLabel={(row) => row.id}
+        columns={[
+          {
+            id: "amount",
+            header: "Amount",
+            cell: (row) => row.amount,
+            numeric: true,
+            sortable: true,
+          },
+        ]}
+        selectable
+        defaultSelected={["INV-0043"]}
+        defaultSort={{ column: "amount", direction: "descending" }}
+      />,
     );
+    expect(out).toContain('aria-label="Invoices"');
+    expect(out).toContain('aria-sort="descending"');
     expect(out).toContain('data-selected=""');
     expect(out).toContain('data-numeric=""');
   });

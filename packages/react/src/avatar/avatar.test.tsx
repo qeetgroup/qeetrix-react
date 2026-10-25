@@ -2,12 +2,31 @@ import { describe, expect, it } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
+import { inkOffset } from "../../tests/support/ink";
 import { screenshotSchemes } from "../../tests/support/screenshots";
 import { Stage } from "../../tests/support/stage";
 import { Inline } from "../inline/inline";
 import { Avatar } from "./avatar";
 
 describe("Avatar", () => {
+  it("centres the initials' letters in the circle, at every size", async () => {
+    document.documentElement.dataset.qxColorScheme = "light";
+    await render(
+      <div style={{ zoom: 8, display: "flex", gap: 2, padding: 2 }}>
+        {(["sm", "md", "lg", "xl"] as const).map((size) => (
+          <Avatar key={size} name="Priya Sharma" size={size} />
+        ))}
+      </div>,
+    );
+    for (const avatar of document.querySelectorAll<HTMLElement>("[data-slot=avatar]")) {
+      const { vertical, horizontal } = await inkOffset(avatar, 8);
+      // A quarter of a pixel at most: the eye can't tell.
+      expect(Math.abs(vertical), `${avatar.dataset.size} vertical`).toBeLessThanOrEqual(0.25);
+      expect(Math.abs(horizontal), `${avatar.dataset.size} horizontal`).toBeLessThanOrEqual(0.25);
+    }
+    delete document.documentElement.dataset.qxColorScheme;
+  });
+
   it("is an image named for the person, showing their initials", async () => {
     await render(<Avatar name="Priya Sharma" />);
     const avatar = page.getByRole("img", { name: "Priya Sharma" });

@@ -1,21 +1,25 @@
-/* Table (design rules §15): a neutral header band, rows at the density's row height with 1px lines
-   between them, a neutral tint on hover and the Ember tint when selected. */
+/* Table (07-components.md; design rules §15): a neutral header band, rows at the density's row
+   height with 1px lines between them, a neutral tint on hover and the selected tint when chosen.
+   A bar above the table holds the toolbar (search, filters); while rows are selected it turns the
+   selected tint and holds the count, the bulk actions and Clear. The header sticks while the page
+   scrolls; the checkbox and actions columns shrink to their controls. */
 .qx-table {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qx-space-gap-sm);
+  min-inline-size: 0;
+}
+.qx-table-element {
   inline-size: 100%;
   border-collapse: collapse;
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
   font-variation-settings: "GEOM" var(--qx-font-geometry-body);
 }
-.qx-table-caption {
-  padding-block-end: var(--qx-space-gap-sm);
-  caption-side: top;
-  font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
-  color: var(--qx-color-text-subtle);
-  text-align: start;
-}
 .qx-table-head {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--qx-z-sticky);
   background: var(--qx-color-bg-neutral-subtle);
   font: var(--qx-typography-label-sm);
   font-weight: var(--qx-typography-title-sm-font-weight);
@@ -25,10 +29,12 @@
 .qx-table-cell {
   border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
 }
+/* A row is the density's row height; content taller than one line, such as an AvatarItem, keeps
+   room above and below rather than touching the lines. */
 .qx-table-head,
 .qx-table-cell {
   block-size: var(--qx-size-row);
-  padding-block: 0;
+  padding-block: var(--qx-space-gap-xs);
   padding-inline: var(--qx-space-inset-sm);
   text-align: start;
   vertical-align: middle;
@@ -48,10 +54,94 @@
     font-variant-numeric: tabular-nums;
   }
 }
-/* A selected row keeps its Ember tint under the pointer. */
+.qx-table-select,
+.qx-table-actions {
+  inline-size: 1px;
+  white-space: nowrap;
+}
+/* A block, so the cell centres it: inline, a checkbox sits on the text's baseline, a little high. */
+.qx-table-select > .qx-checkbox {
+  display: grid;
+}
+/* A message row (empty, error) is one cell across the table, sized by its content. */
+.qx-table-message > .qx-table-cell {
+  block-size: auto;
+  padding-block: var(--qx-space-inset-lg);
+}
+.qx-table-empty {
+  margin: 0;
+  color: var(--qx-color-text-subtle);
+  text-align: center;
+}
+/* A selected row keeps its tint under the pointer; messages and placeholders get none. */
 .qx-table-row[data-selected] > .qx-table-cell {
   background: var(--qx-color-bg-selected);
 }
-.qx-table-body > .qx-table-row:not([data-selected]):hover > .qx-table-cell {
+.qx-table-body
+  > .qx-table-row:not([data-selected], .qx-table-message, .qx-table-placeholder):hover
+  > .qx-table-cell {
   background: var(--qx-color-bg-neutral-subtle);
+}
+/* While a new page or sort loads, the rows on show are stale: they dim until it arrives. */
+.qx-table[data-loading] .qx-table-body {
+  opacity: var(--qx-opacity-disabled);
+}
+
+.qx-table-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  min-block-size: var(--qx-size-control-lg);
+  &[data-selected] {
+    padding-inline: var(--qx-space-inset-md) var(--qx-space-inset-sm);
+    background: var(--qx-color-bg-selected);
+  }
+}
+.qx-table-count {
+  font: var(--qx-typography-label-md);
+  font-weight: var(--qx-typography-title-sm-font-weight);
+  white-space: nowrap;
+}
+.qx-table-bulk {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+}
+
+/* A sortable header is a quiet button: the header text and an arrow, the up-down mark while the
+   column isn't sorted. Its hover fill reaches a little past the text. */
+.qx-table-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  block-size: var(--qx-size-control-sm);
+  margin-block: 0;
+  margin-inline: calc(-1 * var(--qx-space-gap-xs));
+  padding-block: 0;
+  padding-inline: var(--qx-space-gap-xs);
+  border: 0;
+  border-radius: var(--qx-radius-control);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  transition-property: background-color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &:hover {
+    background: var(--qx-color-overlay-hover);
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+}
+.qx-table-sort-icon {
+  flex: none;
+  color: var(--qx-color-icon-subtle);
+  [data-sorted] & {
+    color: var(--qx-color-icon-default);
+  }
 }

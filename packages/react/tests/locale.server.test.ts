@@ -8,6 +8,9 @@ import { formatCurrency, formatNumber, formatRelativeTime } from "../src/format/
 import { messages } from "../src/internal/messages";
 import { hi } from "../src/locales/hi";
 
+/** A string with no words, only slots and punctuation ("{start}–{end}"), may read the same. */
+const wordless = (text: string) => !/\p{L}/u.test(text.replace(/\{\w+\}/g, ""));
+
 const keys = (catalogue: object) =>
   Object.entries(catalogue).flatMap(([group, strings]) =>
     Object.keys(strings as object).map((key) => `${group}.${key}`),
@@ -19,7 +22,8 @@ describe("locale packs", () => {
     for (const [group, strings] of Object.entries(hi)) {
       for (const [key, value] of Object.entries(strings as Record<string, string>)) {
         const english = (messages as Record<string, Record<string, string>>)[group]?.[key];
-        expect(value, `${group}.${key}`).not.toBe(english);
+        if (english === undefined || !wordless(english))
+          expect(value, `${group}.${key}`).not.toBe(english);
         expect(value.trim(), `${group}.${key}`).not.toBe("");
       }
     }

@@ -1,0 +1,50 @@
+/* FilterTags (07-components.md): a wrapping row of tags, each a small neutral box with a 1px rule
+   and 4px corners, `size.control.sm` tall: the filter's name in the subtle colour, its value, and a
+   remove button at the end. Clear all follows; the summary sits at the far end. */
+.qx-filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  min-inline-size: 0;
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+}
+.qx-filter-tags-list {
+  display: contents;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.qx-filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  max-inline-size: 100%;
+  block-size: var(--qx-size-control-sm);
+  padding-inline-start: var(--qx-space-gap-sm);
+  border-radius: var(--qx-radius-control);
+  background: var(--qx-color-bg-neutral-subtle);
+  box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-subtle);
+}
+.qx-filter-tag-label {
+  flex: none;
+  color: var(--qx-color-text-subtle);
+}
+.qx-filter-tag-value {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.qx-filter-tags-summary {
+  margin-inline-start: auto;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}
+
+@media (forced-colors: active) {
+  .qx-filter-tag {
+    border: var(--qx-border-width-default) solid CanvasText;
+  }
+}

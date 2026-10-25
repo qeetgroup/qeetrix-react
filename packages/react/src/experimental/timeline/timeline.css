@@ -1,0 +1,129 @@
+/* Timeline (07-components.md): events down a column. Default: a 28px square marker with the event's
+   icon, a 1px line down to the next event, the title and description beside it, the time at the
+   end; groups under small-caps day labels, the line breaking between them. Compact: a 6px dot and
+   tighter rows. Danger colours the marker's icon (or dot) and the title. */
+.qx-timeline,
+.qx-timeline-events {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.qx-timeline {
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+}
+.qx-timeline-group + .qx-timeline-group {
+  margin-block-start: var(--qx-space-gap-md);
+}
+.qx-timeline-group-label {
+  display: block;
+  margin-block-end: var(--qx-space-gap-sm);
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-label-caps);
+  letter-spacing: var(--qx-typography-label-caps-letter-spacing);
+  text-transform: uppercase;
+}
+.qx-timeline-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  column-gap: var(--qx-space-gap-md);
+  padding-block-end: var(--qx-space-gap-lg);
+  &:last-child {
+    padding-block-end: 0;
+  }
+  &:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    inset-block: calc(28px + var(--qx-space-gap-xs)) var(--qx-space-gap-xs);
+    inset-inline-start: calc(14px - var(--qx-border-width-default) / 2);
+    inline-size: var(--qx-border-width-default);
+    background: var(--qx-color-border-subtle);
+  }
+}
+.qx-timeline-marker {
+  display: grid;
+  place-items: center;
+  inline-size: 28px;
+  block-size: 28px;
+  border-radius: var(--qx-radius-control);
+  background: var(--qx-color-bg-neutral-subtle);
+  box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-subtle);
+  color: var(--qx-color-icon-subtle);
+  [data-tone="danger"] > & {
+    color: var(--qx-color-icon-danger);
+  }
+  [data-tone="success"] > & {
+    color: var(--qx-color-icon-success);
+  }
+  [data-tone="warning"] > & {
+    color: var(--qx-color-icon-warning);
+  }
+}
+/* The title's first line centred on the marker; the time on the same line. */
+.qx-timeline-body,
+.qx-timeline-time {
+  padding-block-start: calc((28px - 1lh) / 2);
+}
+.qx-timeline-body {
+  display: grid;
+  min-inline-size: 0;
+}
+.qx-timeline-title {
+  font-weight: var(--qx-typography-label-md-font-weight);
+  [data-tone="danger"] & {
+    color: var(--qx-color-text-danger);
+  }
+}
+.qx-timeline-description,
+.qx-timeline-time {
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}
+.qx-timeline-time {
+  white-space: nowrap;
+}
+
+.qx-timeline[data-variant="compact"] {
+  & .qx-timeline-item {
+    grid-template-columns: 6px minmax(0, 1fr) auto;
+    align-items: baseline;
+    column-gap: var(--qx-space-gap-sm);
+    padding-block-end: var(--qx-space-gap-sm);
+  }
+  & .qx-timeline-item:last-child {
+    padding-block-end: 0;
+  }
+  & .qx-timeline-item::after {
+    content: none;
+  }
+  & .qx-timeline-marker {
+    align-self: center;
+    inline-size: 6px;
+    block-size: 6px;
+    border-radius: var(--qx-radius-full);
+    background: var(--qx-color-border-strong);
+    box-shadow: none;
+    & > svg {
+      display: none;
+    }
+  }
+  & [data-tone="danger"] > .qx-timeline-marker {
+    background: var(--qx-color-icon-danger);
+  }
+  & .qx-timeline-body,
+  & .qx-timeline-time {
+    padding-block-start: 0;
+  }
+  & .qx-timeline-title {
+    font-weight: inherit;
+  }
+}
+
+@media (forced-colors: active) {
+  .qx-timeline[data-variant="compact"] .qx-timeline-marker {
+    background: CanvasText;
+  }
+}

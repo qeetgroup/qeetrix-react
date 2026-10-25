@@ -1,0 +1,21 @@
+/* DatePicker (07-components.md): the Input box with the calendar button at its end, and the
+   Calendar in a popover exactly as wide as the field, flush with both its edges. The seven day
+   columns share that width; the popover is never narrower than the calendar's own size. Two
+   classes, to win over the Popover's own width and padding. */
+.qx-date-picker {
+  padding-inline-end: var(--qx-space-gap-xs);
+}
+.qx-popover.qx-date-picker-popup {
+  inline-size: var(--anchor-width);
+  /* The calendar's own size: seven days with their 1px gutters, and the padding. */
+  min-inline-size: calc(7 * (var(--qx-size-control-md) + 2px) + 2 * var(--qx-space-inset-md));
+  max-inline-size: var(--available-width);
+  padding: var(--qx-space-inset-md);
+  & .qx-calendar {
+    display: flex;
+  }
+  & .qx-calendar-grid {
+    inline-size: 100%;
+    table-layout: fixed;
+  }
+}

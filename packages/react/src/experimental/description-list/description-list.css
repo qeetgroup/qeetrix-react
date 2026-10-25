@@ -1,0 +1,73 @@
+/* DescriptionList (07-components.md): terms in the small label style, values in body text.
+   `rows`: the term column beside the value, rows at least the density's row height with a line
+   between them; under 24rem the term moves above the value. `columns`: term above value, at most
+   `--qx-description-columns` columns of at least 8rem. */
+.qx-description-list {
+  container-type: inline-size;
+  display: grid;
+  min-inline-size: 0;
+  margin: 0;
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+}
+.qx-description-term {
+  margin: 0;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+}
+.qx-description-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  min-inline-size: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.qx-description-empty {
+  color: var(--qx-color-text-subtlest);
+}
+
+/* At most N columns, each at least 8rem: fewer columns where there isn't room. */
+.qx-description-list[data-layout="columns"] {
+  grid-template-columns: repeat(
+      auto-fill,
+      minmax(
+        max(
+          8rem,
+          calc(
+            (100% - (var(--qx-description-columns) - 1) * var(--qx-space-gap-xl)) /
+            var(--qx-description-columns)
+          )
+        ),
+        1fr
+      )
+    );
+  gap: var(--qx-space-gap-lg) var(--qx-space-gap-xl);
+  & > .qx-description-item {
+    display: grid;
+    align-content: start;
+    gap: var(--qx-space-gap-xs);
+  }
+}
+
+.qx-description-list[data-layout="rows"] > .qx-description-item {
+  display: grid;
+  grid-template-columns: minmax(8rem, 30%) minmax(0, 1fr);
+  /* The term sits on the value's first line, however many lines the value runs to. */
+  align-items: baseline;
+  column-gap: var(--qx-space-gap-md);
+  row-gap: var(--qx-space-gap-xs);
+  min-block-size: var(--qx-size-row);
+  padding-block: var(--qx-space-gap-sm);
+  & + .qx-description-item {
+    border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  }
+}
+@container (width < 24rem) {
+  .qx-description-list[data-layout="rows"] > .qx-description-item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
