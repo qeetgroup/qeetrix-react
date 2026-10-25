@@ -11,7 +11,8 @@ import {
   type ReactNode,
 } from "react";
 import { cx } from "../internal/cx";
-import { messages } from "../internal/messages";
+import type { QeetrixMessages } from "../internal/messages";
+import { useMessages } from "../provider/provider";
 
 /**
  * True inside a Field or a choice group. A checkbox, radio or switch there is an item of that field
@@ -39,6 +40,8 @@ export interface FieldProps
   optional?: boolean;
   /** Hides the label visually and keeps it for assistive technology. Only for a toolbar search. */
   hideLabel?: boolean;
+  /** This field's strings, over QeetrixProvider's and the English defaults. */
+  messages?: Partial<QeetrixMessages["field"]>;
   /** Placement only (margin, width, grid placement). */
   className?: string;
   style?: CSSProperties;
@@ -77,13 +80,17 @@ export function FieldMessages({ description, error }: FieldMessageProps): ReactE
 }
 
 /** The label text, with "(optional)" when the field may be left empty. */
-export function labelText(label: ReactNode, optional: boolean | undefined): ReactNode {
+export function labelText(
+  label: ReactNode,
+  optional: boolean | undefined,
+  optionalText: string,
+): ReactNode {
   if (!optional) return label;
   return (
     <>
       {label}{" "}
       <span className="qx-field-optional" data-slot="field-optional">
-        {messages.field.optional}
+        {optionalText}
       </span>
     </>
   );
@@ -97,10 +104,12 @@ export function Field({
   optional,
   hideLabel,
   invalid,
+  messages,
   className,
   children,
   ...props
 }: FieldProps): ReactElement {
+  const strings = useMessages("field", messages);
   return (
     <BaseField.Root
       {...props}
@@ -113,7 +122,7 @@ export function Field({
         data-slot="field-label"
         data-hidden={hideLabel ? "" : undefined}
       >
-        {labelText(label, optional)}
+        {labelText(label, optional, strings.optional)}
       </BaseField.Label>
       <InFieldContext value>{children}</InFieldContext>
       <FieldMessages description={description} error={error} />

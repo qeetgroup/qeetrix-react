@@ -3,7 +3,8 @@
 ## 0.0.2
 
 Every primitive, in six increments: the foundation, actions, form controls, overlays, selection and
-disclosure, and display and status.
+disclosure, and display and status. Then the Phase 4 close-out: localisation, forced colours,
+right-to-left, reduced motion and the sign-in exit screen.
 
 ### Foundation
 
@@ -160,7 +161,42 @@ content part that assembles the portal, positioner and popup.
 - **`Skeleton`:** `text`, `block` or `circle`. It pulses, holds still under reduced motion, and is
   always hidden from assistive technology. Server-safe.
 
+### Phase 4 close-out
+
+- **`QeetrixProvider`:**
+  - `locale` (default `en-IN`) for formatting;
+  - `direction`, which wraps Base UI's DirectionProvider;
+  - `messages`, merged over the English defaults group by group.
+  - Nested providers inherit what they don't set. `useLocale()` reads the locale.
+- **Strings:**
+  - every library string comes from one typed catalogue (`QeetrixMessages`);
+  - Field, TextField, DialogContent, DrawerContent, ToastProvider, Slider and Link take a `messages`
+    prop that wins over the provider;
+  - Link stays server-safe, so it takes its string per instance.
+- **Locale packs:** Hindi (`@qeetrix/react/locales/hi`) is the first. It's a separate entry point,
+  typed as the complete catalogue, and uses Qeet ID's own Hindi words.
+- **Formatting:** `formatNumber`, `formatCurrency` (lakh and crore grouping by default) and
+  `formatRelativeTime`. They're pure, server-safe and cache their formatters. Slider, Progress and
+  Meter format in the provider's locale.
+- **Forced colours (Windows High Contrast):**
+  - surfaces that showed only a fill or a shadow get a system-colour edge;
+  - on states use `Highlight`: pressed Toggle, Switch, checked Checkbox, the Slider and Progress
+    fills, the Tabs bar, and highlighted Menu and Select items;
+  - separators and the tab list's base line stay visible.
+- **Right-to-left:** tests cover arrow keys in Tabs, ToggleGroup, RadioGroup, Slider and the Menu
+  submenu, plus the Drawer edge, the Menu bar side and the Input adornment order.
+- **Reduced motion:** a test checks that durations collapse and that Spinner and indeterminate
+  Progress fade instead.
+- **Slider:** a slider named by `aria-label` (no visible label) now passes the name on to its
+  thumbs, which are what carry the slider role. A range adds Minimum and Maximum.
+- **Sign-in exit screen:** built from primitives alone. Its keyboard order, axe, and its light,
+  dark, right-to-left and forced-colours screenshots are all tested.
+
 ### Platform
+
+- **Source check:**
+  - it bans physical CSS properties and system colours outside forced-colours blocks;
+  - it ignores comments when looking for client-only code.
 
 - Each family's stylesheet (`css/<family>.css`) now imports the base layer and the stylesheets of
   the families it renders, so it works on its own.

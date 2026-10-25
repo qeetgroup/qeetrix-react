@@ -12,6 +12,8 @@
  * CSS (src/<family>/<family>.css)
  *   - colours, corners, shadows, type, motion and stacking come from var(--qx-*) tokens;
  *   - no raw colour literals, no !important;
+ *   - CSS system colours only inside @media (forced-colors: active), where they're the palette;
+ *   - logical properties only (right-to-left, D-13): no margin-left, left, text-align: right…;
  *   - every class selector starts with qx-.
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
@@ -51,12 +53,14 @@ for (const file of files.filter((f) => /\.tsx?$/.test(f) && !isTest(f))) {
   const directiveCount = (code.match(/^\s*["']use client["'];?\s*$/gm) ?? []).length;
   if (directiveCount > 0 && !hasDirectiveFirst)
     report(file, '"use client" must be the first statement');
+  // Signs are looked for in code, not comments: a doc comment may name a hook.
+  const bare = code.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
   if (!hasDirectiveFirst) {
     for (const [pattern, why] of CLIENT_SIGNS) {
-      if (pattern.test(code)) report(file, `${why} but does not start with "use client"`);
+      if (pattern.test(bare)) report(file, `${why} but does not start with "use client"`);
     }
   }
-  for (const [pattern, why] of FORBIDDEN) if (pattern.test(code)) report(file, why);
+  for (const [pattern, why] of FORBIDDEN) if (pattern.test(bare)) report(file, why);
 }
 
 // ---- CSS -----------------------------------------------------------------------------------
@@ -71,21 +75,67 @@ const TOKEN_ONLY = [
 const KEYWORDS =
   /^(inherit|initial|unset|revert|revert-layer|currentcolor|transparent|none|0|auto|normal)$/i;
 const RAW_COLOUR = /#[0-9a-f]{3,8}\b|\b(rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\(/i;
+// CSS system colours: the palette forced colours (Windows High Contrast) paints with.
+const SYSTEM_COLOUR =
+  /\b(Canvas|CanvasText|LinkText|VisitedText|ActiveText|ButtonFace|ButtonText|ButtonBorder|Field|FieldText|Highlight|HighlightText|SelectedItem|SelectedItemText|Mark|MarkText|GrayText|AccentColor|AccentColorText)\b/gi;
+// Right-to-left (D-13): logical properties only.
+const PHYSICAL =
+  /^((margin|padding|border)-(left|right)(-[a-z]+)?|left|right|border-(top|bottom)-(left|right)-radius|float|clear)$/;
+const FORCED = /@media\s*\(\s*forced-colors\s*:\s*active\s*\)\s*\{/g;
 
-for (const file of files.filter((f) => f.endsWith(".css"))) {
-  const css = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
-  if (/!important/.test(css)) report(file, "uses !important");
+/** Split a stylesheet into its forced-colours blocks and everything else. */
+function splitForced(css) {
+  const inside = [];
+  let outside = "";
+  let from = 0;
+  for (const match of css.matchAll(FORCED)) {
+    if (match.index < from) continue;
+    let depth = 1;
+    let i = match.index + match[0].length;
+    while (i < css.length && depth > 0) {
+      if (css[i] === "{") depth++;
+      else if (css[i] === "}") depth--;
+      i++;
+    }
+    outside += css.slice(from, match.index);
+    inside.push(css.slice(match.index + match[0].length, i - 1));
+    from = i;
+  }
+  return { outside: outside + css.slice(from), inside: inside.join("\n") };
+}
+
+function checkDeclarations(file, css, forced) {
   for (const match of css.matchAll(/(?:^|[;{\s])([a-z-]+)\s*:\s*([^;{}]+)(?=;|})/g)) {
     const [, property, raw] = match;
     const value = raw.trim();
     if (property.startsWith("--")) continue;
+    if (PHYSICAL.test(property)) {
+      report(
+        file,
+        `${property} — a physical property; use its logical form (inset-inline, margin-inline…)`,
+      );
+    }
+    if (property === "text-align" && /^(left|right)$/.test(value)) {
+      report(file, `text-align: ${value} — use start or end`);
+    }
+    // Token names can contain a system colour's word (surface-canvas), so look past them.
+    const hasSystemColour =
+      value.replace(/var\(--qx-[a-z0-9-]+\)/g, "").match(SYSTEM_COLOUR) !== null;
+    if (hasSystemColour && !forced) {
+      report(
+        file,
+        `${property}: ${value} — system colours belong inside @media (forced-colors: active)`,
+      );
+      continue;
+    }
     if (RAW_COLOUR.test(value))
       report(file, `${property}: ${value} — raw colour; use a --qx-* token`);
     else if (TOKEN_ONLY.some((p) => p.test(property))) {
-      // In a shadow, `inset` and zero offsets are structure, not design values.
-      const structural = /shadow$/.test(property)
-        ? value.replace(/\binset\b|(^|\s)0(?=\s)/g, " ")
-        : value;
+      // In a shadow, `inset` and zero offsets are structure, not design values. In forced colours,
+      // system colours are the design values.
+      const structural = (
+        /shadow$/.test(property) ? value.replace(/\binset\b|(^|\s)0(?=\s)/g, " ") : value
+      ).replace(forced ? SYSTEM_COLOUR : /$^/, "");
       const withoutTokens = structural
         .replace(/var\(--qx-[a-z0-9-]+\)/g, "")
         .replace(/calc\(|\)|[\s,*+/-]/g, "");
@@ -96,6 +146,14 @@ for (const file of files.filter((f) => f.endsWith(".css"))) {
       }
     }
   }
+}
+
+for (const file of files.filter((f) => f.endsWith(".css"))) {
+  const css = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  if (/!important/.test(css)) report(file, "uses !important");
+  const { outside, inside } = splitForced(css);
+  checkDeclarations(file, outside, false);
+  checkDeclarations(file, inside, true);
   for (const match of css.matchAll(/\.(-?[a-zA-Z_][\w-]*)/g)) {
     if (!match[1].startsWith("qx-")) report(file, `class .${match[1]} must start with qx-`);
   }

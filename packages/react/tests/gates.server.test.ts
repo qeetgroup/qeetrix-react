@@ -40,7 +40,7 @@ describe("source check", () => {
     "src/unsafe/unsafe.tsx":
       'export const Unsafe = () => <div dangerouslySetInnerHTML={{ __html: "" }} id={String(Math.random())} data-x={localStorage.length} />;\n',
     "src/paint/paint.css":
-      ".qx-paint { color: #ff0000; border-radius: 8px; z-index: 50; transition-duration: 200ms; box-shadow: 0 2px 4px var(--qx-color-border-default); }\n.qx-loud { margin: 0 !important; }\n.button { display: block; }\n",
+      ".qx-paint { color: #ff0000; border-radius: 8px; z-index: 50; transition-duration: 200ms; box-shadow: 0 2px 4px var(--qx-color-border-default); }\n.qx-loud { margin: 0 !important; }\n.button { display: block; }\n.qx-side { margin-left: 4px; text-align: right; background: Highlight; }\n@media (forced-colors: active) { .qx-fine { background: Highlight; color: HighlightText; border: 1px solid CanvasText; } .qx-raw { color: #000; } }\n",
   });
   const { status, output } = run("node", [join(pkg, "scripts/check-source.mjs"), root]);
 
@@ -64,7 +64,18 @@ describe("source check", () => {
     ],
     ["!important", /paint\.css: uses !important/],
     ["class without the qx- prefix", /class \.button must start with qx-/],
+    ["physical property", /margin-left — a physical property/],
+    ["physical text alignment", /text-align: right — use start or end/],
+    [
+      "system colour outside forced colours",
+      /background: Highlight — system colours belong inside @media \(forced-colors: active\)/,
+    ],
+    ["raw colour even in forced colours", /color: #000 — raw colour/],
   ])("catches a %s", (_, message) => expect(output).toMatch(message));
+  it("allows system colours inside forced colours", () => {
+    expect(output).not.toMatch(/HighlightText — /);
+    expect(output.match(/background: Highlight/g)).toHaveLength(1);
+  });
 });
 
 describe("dist check", () => {

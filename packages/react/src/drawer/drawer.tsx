@@ -15,8 +15,9 @@ import {
 } from "react";
 import { IconButton } from "../button/button";
 import { cx } from "../internal/cx";
-import { messages } from "../internal/messages";
+import type { QeetrixMessages } from "../internal/messages";
 import { mergeRefs } from "../internal/refs";
+import { useMessages } from "../provider/provider";
 
 /** The edge a drawer opens from, in the text direction: `end` is the right edge in English. */
 export type DrawerSide = "start" | "end";
@@ -43,6 +44,8 @@ export interface DrawerContentProps
   description?: ReactNode;
   /** Width: `sm` 400, `md` 560 (default) or `lg` 800px. */
   size?: DrawerSize;
+  /** The close button's label, over QeetrixProvider's and the English default. */
+  messages?: Partial<QeetrixMessages["overlay"]>;
   /** Placement only. */
   className?: string;
   style?: CSSProperties;
@@ -87,6 +90,7 @@ export function DrawerContent({
   title,
   description,
   size = "md",
+  messages,
   initialFocus,
   ref,
   className,
@@ -94,6 +98,7 @@ export function DrawerContent({
   ...props
 }: DrawerContentProps): ReactElement {
   const side = use(SideContext);
+  const strings = useMessages("overlay", messages);
   const popup = useRef<HTMLDivElement>(null);
   const firstInBody: DrawerContentProps["initialFocus"] = (type) =>
     type === "touch" ||
@@ -127,7 +132,7 @@ export function DrawerContent({
           {children}
           <div className="qx-drawer-close" data-slot="drawer-close">
             <BaseDrawer.Close
-              render={<IconButton icon={XIcon} aria-label={messages.overlay.close} size="sm" />}
+              render={<IconButton icon={XIcon} aria-label={strings.close} size="sm" />}
             />
           </div>
         </BaseDrawer.Popup>

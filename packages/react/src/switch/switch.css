@@ -66,3 +66,32 @@
 .qx-choice-label > .qx-switch {
   margin-block: 1px;
 }
+
+/* Forced colours: the thumb and the on track are fills, so they're drawn in system colours. */
+@media (forced-colors: active) {
+  .qx-switch,
+  .qx-switch-thumb {
+    forced-color-adjust: none;
+  }
+  .qx-switch {
+    border-color: CanvasText;
+    background: Canvas;
+  }
+  .qx-switch-thumb {
+    background: CanvasText;
+  }
+  .qx-switch[data-checked] {
+    border-color: Highlight;
+    background: Highlight;
+  }
+  .qx-switch-thumb[data-checked] {
+    background: HighlightText;
+  }
+  .qx-switch[data-disabled] {
+    border-color: GrayText;
+    background: Canvas;
+  }
+  .qx-switch-thumb[data-disabled] {
+    background: GrayText;
+  }
+}

@@ -127,6 +127,38 @@ import { Checkbox, CheckboxGroup, Fieldset, Radio, RadioGroup, TextField } from 
 </Fieldset>
 ```
 
+## Locale, direction and strings
+
+Wrap the app in `QeetrixProvider` to set the locale (used for formatting), the reading direction and
+the library's own strings ("Close", "(optional)", "Loading"…). Locale packs are separate imports, so
+a language you don't use never ships:
+
+```tsx
+import { QeetrixProvider } from "@qeetrix/react";
+import { hi } from "@qeetrix/react/locales/hi";
+
+<QeetrixProvider locale="hi-IN" messages={hi}>{app}</QeetrixProvider>
+```
+
+- **Override one string:** pass a `messages` prop to the component, e.g.
+  `<Field messages={{ optional: "(if any)" }}>`.
+- **Right-to-left:** use `direction="rtl"`, and set `dir="rtl"` on `<html>` too.
+- **Server-safe components** (Link, Spinner, SkipLink) can't read the provider. Pass their strings
+  per instance.
+
+Formatting helpers are plain functions and work on the server too:
+
+```ts
+import { formatCurrency, formatNumber, formatRelativeTime } from "@qeetrix/react";
+
+formatCurrency(124500, "INR");        // "₹1,24,500.00"
+formatNumber(1234567);                // "12,34,567"
+formatRelativeTime(updatedAt, "en-IN", now); // "2 minutes ago"
+```
+
+Every primitive also works in Windows High Contrast (forced colours) and under reduced motion. Tests
+emulate both.
+
 ## Overlays
 
 Overlays share one shape: a root that holds the state, a trigger that renders your control, and a

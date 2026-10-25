@@ -9,7 +9,8 @@ import { XIcon } from "@qeetrix/icons/icons/x";
 import type { ReactElement, ReactNode } from "react";
 import { Button, IconButton } from "../button/button";
 import type { QeetrixIcon } from "../internal/control";
-import { messages } from "../internal/messages";
+import type { QeetrixMessages } from "../internal/messages";
+import { useMessages } from "../provider/provider";
 
 export type ToastTone = "info" | "success" | "warning" | "danger";
 
@@ -54,6 +55,8 @@ export interface ToastProviderProps {
   limit?: number;
   /** Default milliseconds before a toast closes. Default 5000. */
   timeout?: number;
+  /** The region's name and the close label, over QeetrixProvider's and the English defaults. */
+  messages?: Partial<QeetrixMessages["toast"]>;
 }
 
 const ICONS: Record<ToastTone, QeetrixIcon> = {
@@ -103,7 +106,7 @@ export function useToast(): ToastApi {
   };
 }
 
-function ToastList(): ReactElement[] {
+function ToastList({ closeLabel }: { closeLabel: string }): ReactElement[] {
   const { toasts } = BaseToast.useToastManager();
   return toasts.map((toast) => {
     const tone = (toast.type ?? "info") as ToastTone;
@@ -128,9 +131,7 @@ function ToastList(): ReactElement[] {
           />
         )}
         <BaseToast.Close
-          render={
-            <IconButton icon={XIcon} aria-label={messages.toast.close} size="sm" tooltip={false} />
-          }
+          render={<IconButton icon={XIcon} aria-label={closeLabel} size="sm" tooltip={false} />}
         />
       </BaseToast.Root>
     );
@@ -145,7 +146,9 @@ export function ToastProvider({
   children,
   limit = 3,
   timeout = 5000,
+  messages,
 }: ToastProviderProps): ReactElement {
+  const strings = useMessages("toast", messages);
   return (
     <BaseToast.Provider limit={limit} timeout={timeout}>
       {children}
@@ -153,9 +156,9 @@ export function ToastProvider({
         <BaseToast.Viewport
           className="qx-toast-viewport"
           data-slot="toast-viewport"
-          aria-label={messages.toast.region}
+          aria-label={strings.region}
         >
-          <ToastList />
+          <ToastList closeLabel={strings.close} />
         </BaseToast.Viewport>
       </BaseToast.Portal>
     </BaseToast.Provider>

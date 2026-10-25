@@ -88,3 +88,11 @@
   flex: none;
   margin-block: -2px;
 }
+
+/* Forced colours: the shadow is dropped, so the toast gets an edge; the status edge stays wider. */
+@media (forced-colors: active) {
+  .qx-toast {
+    border: var(--qx-border-width-default) solid CanvasText;
+    border-inline-start-width: var(--qx-border-width-accent);
+  }
+}

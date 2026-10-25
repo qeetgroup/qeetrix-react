@@ -138,3 +138,14 @@
     padding-inline: 0;
   }
 }
+
+/* Forced colours: the fill is dropped, so a system-colour edge keeps the button visible. */
+@media (forced-colors: active) {
+  .qx-button {
+    border: var(--qx-border-width-default) solid ButtonText;
+  }
+  .qx-button[data-disabled]:not([data-loading]) {
+    border-color: GrayText;
+    color: GrayText;
+  }
+}

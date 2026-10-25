@@ -102,3 +102,11 @@
   inset-block-start: 12px;
   inset-inline-end: 12px;
 }
+
+/* Forced colours: the shadow is dropped, so the dialog gets an edge on every side. */
+@media (forced-colors: active) {
+  .qx-dialog {
+    border: var(--qx-border-width-default) solid CanvasText;
+    border-block-start-width: var(--qx-border-width-accent);
+  }
+}

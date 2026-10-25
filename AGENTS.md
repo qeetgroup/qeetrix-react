@@ -61,7 +61,7 @@ deliberately broken example by `tests/gates.server.test.ts`, which runs on every
 | Typecheck | Type errors; exports without explicit types (`isolatedDeclarations`) |
 | Biome | Lint and formatting |
 | Compiler lint | Code the React Compiler can't optimise, e.g. reading a ref during render |
-| Source check | A client module without `"use client"`; `dangerouslySetInnerHTML`, `Math.random`, `localStorage`; CSS with raw colours, radii, shadows, type, motion or z-index; `!important`; classes without the `qx-` prefix |
+| Source check | A client module without `"use client"`; `dangerouslySetInnerHTML`, `Math.random`, `localStorage`; CSS with raw colours, radii, shadows, type, motion or z-index; system colours outside `@media (forced-colors: active)`; physical properties (`margin-left`, `left`, `text-align: right`…); `!important`; classes without the `qx-` prefix |
 | Built-output check | A lost `"use client"`; uppercase or colliding paths; a family without an export; exports to missing files or JS wildcards; names that shadow browser globals; size budgets (`size-budget.json`) |
 | API report | `etc/react.api.md` out of date with the code |
 | API version | A removed or changed API without a raised minor (`scripts/check-api-version.mjs`) |

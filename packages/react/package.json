@@ -79,6 +79,10 @@
       "types": "./dist/fieldset/index.d.ts",
       "default": "./dist/fieldset/index.js"
     },
+    "./format": {
+      "types": "./dist/format/index.d.ts",
+      "default": "./dist/format/index.js"
+    },
     "./grid": {
       "types": "./dist/grid/index.d.ts",
       "default": "./dist/grid/index.js"
@@ -110,6 +114,10 @@
     "./progress": {
       "types": "./dist/progress/index.d.ts",
       "default": "./dist/progress/index.js"
+    },
+    "./provider": {
+      "types": "./dist/provider/index.d.ts",
+      "default": "./dist/provider/index.js"
     },
     "./radio": {
       "types": "./dist/radio/index.d.ts",
@@ -182,6 +190,10 @@
     "./visually-hidden": {
       "types": "./dist/visually-hidden/index.d.ts",
       "default": "./dist/visually-hidden/index.js"
+    },
+    "./locales/hi": {
+      "types": "./dist/locales/hi.d.ts",
+      "default": "./dist/locales/hi.js"
     },
     "./styles.css": "./dist/styles.css",
     "./css/*": "./dist/css/*",

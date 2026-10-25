@@ -3,14 +3,17 @@
 import { Slider as BaseSlider } from "@base-ui/react/slider";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import { cx } from "../internal/cx";
-import { messages } from "../internal/messages";
+import type { QeetrixMessages } from "../internal/messages";
+import { useLocale, useMessages } from "../provider/provider";
 
 export interface SliderProps<Value extends number | readonly number[] = number>
   extends Omit<BaseSlider.Root.Props<Value>, "className" | "style" | "children"> {
   /** The visible label. Without one, give the slider an `aria-label`. */
   label?: ReactNode;
-  /** Show the formatted value at the end of the header. */
+  /** Show the formatted value at the end of the header, in `locale` (default: QeetrixProvider's). */
   showValue?: boolean;
+  /** A range's thumb names, over QeetrixProvider's and the English defaults. */
+  messages?: Partial<QeetrixMessages["slider"]>;
   /** Placement only. */
   className?: string;
   style?: CSSProperties;
@@ -23,19 +26,26 @@ export interface SliderProps<Value extends number | readonly number[] = number>
 export function Slider<Value extends number | readonly number[] = number>({
   label,
   showValue,
+  messages,
+  "aria-label": ariaLabel,
+  locale,
   className,
   value,
   defaultValue,
   ...props
 }: SliderProps<Value>): ReactElement {
+  const strings = useMessages("slider", messages);
+  const providerLocale = useLocale();
   const initial = value ?? defaultValue;
   const thumbs = Array.isArray(initial) ? initial.length : 1;
   const range = thumbs > 1;
   return (
     <BaseSlider.Root
       {...props}
+      aria-label={ariaLabel}
       value={value}
       defaultValue={defaultValue}
+      locale={locale ?? providerLocale}
       className={cx("qx-slider", className)}
       data-slot="slider"
     >
@@ -57,8 +67,17 @@ export function Slider<Value extends number | readonly number[] = number>({
               // biome-ignore lint/suspicious/noArrayIndexKey: a thumb is its index
               key={index}
               index={index}
+              // A visible label names the thumbs through Base UI; an aria-label is passed on to
+              // them, since the thumb, not the group, is what has the slider role.
               getAriaLabel={
-                range ? (i) => (i === 0 ? messages.slider.minimum : messages.slider.maximum) : null
+                range
+                  ? (i) => {
+                      const bound = i === 0 ? strings.minimum : strings.maximum;
+                      return ariaLabel ? `${ariaLabel}, ${bound}` : bound;
+                    }
+                  : ariaLabel
+                    ? () => ariaLabel
+                    : null
               }
               className="qx-slider-thumb"
               data-slot="slider-thumb"

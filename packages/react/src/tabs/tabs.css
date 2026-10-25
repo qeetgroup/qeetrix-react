@@ -95,3 +95,14 @@
     outline-offset: var(--qx-focus-ring-offset);
   }
 }
+
+/* Forced colours: the Ember bar is a fill, so it's drawn in the system highlight. */
+@media (forced-colors: active) {
+  .qx-tabs-list:not([data-orientation="vertical"]) {
+    border-block-end: var(--qx-border-width-strong) solid CanvasText;
+  }
+  .qx-tabs-indicator {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+}

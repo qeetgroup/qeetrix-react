@@ -19,3 +19,11 @@
     background: var(--qx-color-border-strong);
   }
 }
+
+/* Forced colours: the line is a fill, so it's drawn in the text colour. */
+@media (forced-colors: active) {
+  .qx-separator {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+}
