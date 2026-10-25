@@ -24,6 +24,45 @@ describe("Link", () => {
     );
   });
 
+  it("wraps with its sentence, its arrow tied to the last word", async () => {
+    const { container } = await render(
+      <Text render={<p />} style={{ inlineSize: 240, margin: 0 }}>
+        Read the{" "}
+        <Link href="https://qeet.in/docs" external>
+          integration guide for single sign-on with SAML
+        </Link>{" "}
+        first.
+      </Text>,
+    );
+    const paragraph = container.querySelector("p") as HTMLElement;
+    const link = page.getByRole("link").element() as HTMLElement;
+    const icon = link.querySelector("[data-slot=link-icon]") as SVGElement;
+    // Inline, not a box: the link starts on the sentence's first line and breaks across lines.
+    const lines = link.getClientRects();
+    expect(getComputedStyle(link).display).toBe("inline");
+    expect(lines.length).toBeGreaterThan(1);
+    expect((lines[0]?.top ?? 0) - paragraph.getBoundingClientRect().top).toBeLessThan(4);
+    // At every width, the arrow stays on the last word's line, just after it.
+    const walker = document.createTreeWalker(link, NodeFilter.SHOW_TEXT);
+    let text = walker.nextNode();
+    while (text && !text.textContent?.includes("SAML")) text = walker.nextNode();
+    const word = document.createRange();
+    word.selectNodeContents(text as Node);
+    word.setStart(text as Node, (text?.textContent ?? "").indexOf("SAML"));
+    expect(link.textContent).toBe(
+      "integration guide for single sign-on with SAML (opens in a new tab)",
+    );
+    for (let width = 120; width <= 420; width += 2) {
+      paragraph.style.inlineSize = `${width}px`;
+      const last = word.getBoundingClientRect();
+      const arrow = icon.getBoundingClientRect();
+      expect(arrow.top, `${width}px`).toBeGreaterThanOrEqual(last.top - 1);
+      expect(arrow.bottom, `${width}px`).toBeLessThanOrEqual(last.bottom + 1);
+      expect(arrow.left - last.right, `${width}px`).toBeGreaterThanOrEqual(0);
+      expect(arrow.left - last.right, `${width}px`).toBeLessThanOrEqual(4);
+    }
+  });
+
   it("shows the Ember focus frame 2px outside", async () => {
     await render(<Link href="#x">Pricing</Link>);
     await tab();
@@ -46,7 +85,8 @@ describe("Link", () => {
   it("is accessible and looks right in both schemes", async () => {
     const { container } = await render(
       <Stage>
-        <Stack gap="xs">
+        {/* Standalone links need room around them (WCAG 2.5.8); links in a sentence are exempt. */}
+        <Stack gap="sm">
           <Text>
             Read the <Link href="#guide">integration guide</Link> first.
           </Text>

@@ -19,6 +19,7 @@ import { cx } from "../../internal/cx";
 import {
   addDays,
   addMonths,
+  type CalendarView,
   clampDate,
   compareDates,
   type DateParts,
@@ -27,6 +28,7 @@ import {
   daysInMonth,
   firstDayOfWeek,
   isOutside,
+  keyTarget,
   today as localToday,
   parseISODate,
   toISODate,
@@ -42,7 +44,7 @@ export interface CalendarProps
   extends Omit<ComponentProps<"div">, "defaultValue" | "onChange" | "children"> {
   /** The chosen date, "YYYY-MM-DD", controlled. */
   value?: string | null;
-  /** The chosen date when uncontrolled. */
+  /** The chosen date when uncontrolled. Default `null`. */
   defaultValue?: string | null;
   /** Called with the chosen date, "YYYY-MM-DD". */
   onValueChange?: (value: string) => void;
@@ -52,24 +54,32 @@ export interface CalendarProps
   max?: string | undefined;
   /** Rule out more dates, e.g. weekends or holidays. */
   isDateDisabled?: ((date: string) => boolean) | undefined;
-  /** The month shown first when nothing is chosen, "YYYY-MM". Default: today's. */
+  /** The month shown first when nothing is chosen, "YYYY-MM"; when not set, today's month. */
   defaultMonth?: string;
-  /** Today, "YYYY-MM-DD", for tests and screenshots. Default: the browser's today. */
+  /** Today, "YYYY-MM-DD", for tests and screenshots; when not set, the browser's today. */
   today?: string | undefined;
-  /** Default: QeetrixProvider's locale. It sets the language and the first day of the week. */
+  /**
+   * The language and the first day of the week (Sunday for India); when not set,
+   * QeetrixProvider's locale.
+   */
   locale?: string | undefined;
-  /** Put focus on the focusable day when it mounts, e.g. when a picker opens. */
+  /** Put focus on the focusable day when it mounts, e.g. when a picker opens. Default `false`. */
   autoFocus?: boolean;
+  /**
+   * Nothing can be chosen and the month stays put: the days, the arrows and the title are dimmed
+   * and do nothing. They stay focusable, so the date can still be read. Default `false`.
+   */
+  disabled?: boolean | undefined;
+  /** The date shows and the months can be browsed, but no day can be chosen. Default `false`. */
+  readOnly?: boolean | undefined;
   /** This calendar's strings, over QeetrixProvider's and the English defaults. */
   messages?: Partial<QeetrixMessages["calendar"]>;
 }
 
-/** The first year of a date's decade: the year view shows it, with a year either side. */
+// The first year of a date's decade: the year view shows it, with a year either side.
 const decadeOf = (year: number) => Math.floor(year / 10) * 10;
 
-type View = "day" | "month" | "year";
-
-/** The four rows of a 3-column panel of 12: the months, or a decade with the year either side. */
+// The four rows of a 3-column panel of 12: the months, or a decade with the year either side.
 const PANEL_ROWS = [0, 1, 2, 3];
 
 /** What a day is in the selection: the one chosen day, or a range's start, end or middle. */
@@ -92,9 +102,12 @@ export interface CalendarCoreProps
   onEscape?: (() => boolean) | undefined;
   /** After the grid, e.g. a live region. */
   children?: ReactNode;
+  /** The root's `data-slot`. */
+  rootSlot?: string;
 }
 
-/** The month grid, the year and month views, and their keys. Selection belongs to the caller. */
+// The month grid, the year and month views, and their keys. Selection belongs to the caller.
+// Line comments in this module: the build keeps block comments, and the family has a size budget.
 export function CalendarCore({
   initial,
   chosen,
@@ -103,6 +116,9 @@ export function CalendarCore({
   onPoint,
   onEscape,
   children,
+  rootSlot = "calendar",
+  disabled = false,
+  readOnly = false,
   min: minValue,
   max: maxValue,
   isDateDisabled,
@@ -127,7 +143,7 @@ export function CalendarCore({
   const min = parseISODate(minValue);
   const max = parseISODate(maxValue);
   const [now] = useState(() => parseISODate(todayValue) ?? localToday());
-  const [view, setView] = useState<View>("day");
+  const [view, setView] = useState<CalendarView>("day");
   const [focused, setFocused] = useState<DateParts>(() => {
     const month = defaultMonth ? parseISODate(`${defaultMonth}-01`) : null;
     return clampDate(initial ?? month ?? now, min, max);
@@ -140,8 +156,14 @@ export function CalendarCore({
   const yearOutside = (year: number) =>
     isOutside({ year, month: 1, day: 1 }, { year, month: 12, day: 31 }, min, max);
 
+  // Disabled or read-only, nothing is chosen or previewed; disabled, the month and view stay put.
+  const locked = disabled || readOnly;
   const choose = (date: DateParts) => {
-    if (!isDisabled(date)) onPick(date);
+    if (!locked && !isDisabled(date)) onPick(date);
+  };
+  // A range previews only to a day that can end it.
+  const point = (date: DateParts) => {
+    if (!locked && !isDisabled(date)) onPoint?.(date);
   };
 
   const go = (date: DateParts, focus: boolean) => {
@@ -149,8 +171,8 @@ export function CalendarCore({
     setFocused(clampDate(date, min, max));
   };
 
-  /** Show another view, with focus on its item for the focused date. */
-  const show = (next: View, date: DateParts = focused) => {
+  // Show another view, with focus on its item for the focused date.
+  const show = (next: CalendarView, date: DateParts = focused) => {
     moveFocus.current = true;
     setFocused(clampDate(date, min, max));
     setView(next);
@@ -182,42 +204,8 @@ export function CalendarCore({
   );
   const decade = decadeOf(focused.year);
 
-  /** Where a key moves focus, or `null` for keys the grid leaves alone. */
-  const target = (key: string, shift: boolean): DateParts | null => {
-    const step = rtl ? -1 : 1;
-    if (view === "day") {
-      const offset = (weekday(focused) - first + 7) % 7;
-      const days: Record<string, number> = {
-        ArrowLeft: -step,
-        ArrowRight: step,
-        ArrowUp: -7,
-        ArrowDown: 7,
-        Home: -offset,
-        End: 6 - offset,
-      };
-      const pages: Record<string, number> = { PageUp: -1, PageDown: 1 };
-      if (key in days) return addDays(focused, days[key] ?? 0);
-      return key in pages ? addMonths(focused, (pages[key] ?? 0) * (shift ? 12 : 1)) : null;
-    }
-    // Months and years sit in rows of three; a step is a month or a year, a page a year or a decade.
-    const unit = view === "month" ? 1 : 12;
-    const column = (view === "month" ? focused.month - 1 : focused.year - decade + 1) % 3;
-    const page = view === "month" ? 12 : 10;
-    const steps: Record<string, number> = {
-      ArrowLeft: -step,
-      ArrowRight: step,
-      ArrowUp: -3,
-      ArrowDown: 3,
-      Home: -column,
-      End: 2 - column,
-      PageUp: -page,
-      PageDown: page,
-    };
-    return key in steps ? addMonths(focused, (steps[key] ?? 0) * unit) : null;
-  };
-
   const onGridKeyDown = (event: KeyboardEvent<HTMLTableElement>) => {
-    const next = target(event.key, event.shiftKey);
+    const next = disabled ? null : keyTarget(view, event.key, event.shiftKey, focused, first, rtl);
     if (!next) return;
     event.preventDefault();
     go(next, true);
@@ -311,20 +299,23 @@ export function CalendarCore({
       {...props}
       ref={mergeRefs(ref, root)}
       className={cx("qx-calendar", className)}
-      data-slot="calendar"
+      data-slot={rootSlot}
       data-view={view}
+      data-disabled={disabled ? "" : undefined}
+      data-readonly={readOnly ? "" : undefined}
       onKeyDown={onKeyDown}
     >
-      <div className="qx-calendar-header">
+      <div className="qx-calendar-header" data-slot="calendar-header">
         <IconButton
           icon={ChevronLeftIcon}
           aria-label={labels[0] ?? ""}
           tone="neutral"
           size="sm"
           tooltip={false}
-          disabled={previousOut}
+          disabled={disabled || previousOut}
           onClick={() => go(addMonths(focused, -months), false)}
           className="qx-calendar-step"
+          render={<button type="button" data-slot="calendar-previous" />}
         />
         <div className="qx-calendar-title">
           {view === "year" ? (
@@ -334,7 +325,10 @@ export function CalendarCore({
               type="button"
               className="qx-calendar-zoom"
               aria-label={fill(strings.chooseYear, { title })}
-              onClick={() => show("year")}
+              aria-disabled={disabled || undefined}
+              onClick={() => {
+                if (!disabled) show("year");
+              }}
               data-slot="calendar-zoom"
             >
               {heading}
@@ -353,17 +347,21 @@ export function CalendarCore({
           tone="neutral"
           size="sm"
           tooltip={false}
-          disabled={nextOut}
+          disabled={disabled || nextOut}
           onClick={() => go(addMonths(focused, months), false)}
           className="qx-calendar-step"
+          render={<button type="button" data-slot="calendar-next" />}
         />
       </div>
-      <div className="qx-calendar-body">
+      <div className="qx-calendar-body" data-slot="calendar-body">
         <table
           // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: the WAI-ARIA date picker pattern is a table with role="grid"
           role="grid"
           aria-labelledby={titleId}
+          aria-disabled={disabled || undefined}
+          aria-readonly={readOnly || undefined}
           className="qx-calendar-grid"
+          data-slot="calendar-grid"
           // Under the months or years, the days stay in place, unseen, to keep the size.
           data-covered={view === "day" ? undefined : ""}
           onKeyDown={onGridKeyDown}
@@ -377,6 +375,7 @@ export function CalendarCore({
                   scope="col"
                   abbr={dateFormat(locale, { weekday: "long" }).format(day)}
                   className="qx-calendar-weekday"
+                  data-slot="calendar-weekday"
                 >
                   {dateFormat(locale, { weekday: "short" }).format(day)}
                 </th>
@@ -389,8 +388,10 @@ export function CalendarCore({
               <tr key={week}>
                 {cells.slice(week * 7, week * 7 + 7).map((date, index) => {
                   if (!date) {
-                    // biome-ignore lint/suspicious/noArrayIndexKey: blank cells are positions in the week
-                    return <td key={index} className="qx-calendar-cell" />;
+                    return (
+                      // biome-ignore lint/suspicious/noArrayIndexKey: blank cells are positions in the week
+                      <td key={index} className="qx-calendar-cell" data-slot="calendar-cell" />
+                    );
                   }
                   const iso = toISODate(date);
                   const isToday = compareDates(date, now) === 0;
@@ -401,6 +402,7 @@ export function CalendarCore({
                     <td
                       key={iso}
                       className="qx-calendar-cell"
+                      data-slot="calendar-cell"
                       aria-selected={part ? true : undefined}
                       data-range={part === "single" ? undefined : part}
                     >
@@ -408,16 +410,17 @@ export function CalendarCore({
                         type="button"
                         tabIndex={compareDates(date, focused) === 0 ? 0 : -1}
                         aria-label={isToday ? fill(strings.today, { date: label }) : label}
-                        aria-disabled={isDisabled(date) || undefined}
+                        aria-disabled={disabled || isDisabled(date) || undefined}
                         data-date={iso}
                         data-today={isToday ? "" : undefined}
                         className="qx-calendar-day"
+                        data-slot="calendar-day"
                         // Roving focus follows wherever focus lands: a click, a script, a screen reader.
                         onFocus={() => {
                           if (compareDates(date, focused) !== 0) setFocused(date);
-                          onPoint?.(date);
+                          point(date);
                         }}
-                        onMouseEnter={() => onPoint?.(date)}
+                        onMouseEnter={() => point(date)}
                         onClick={() => {
                           go(date, false);
                           choose(date);
@@ -438,6 +441,7 @@ export function CalendarCore({
             role="grid"
             aria-labelledby={titleId}
             className="qx-calendar-grid qx-calendar-panel"
+            data-slot="calendar-panel"
             onKeyDown={onGridKeyDown}
           >
             <tbody>
@@ -448,6 +452,7 @@ export function CalendarCore({
                     <td
                       key={item.key}
                       className="qx-calendar-cell"
+                      data-slot="calendar-cell"
                       aria-selected={item.selected || undefined}
                     >
                       <button
@@ -460,6 +465,7 @@ export function CalendarCore({
                         data-today={item.current ? "" : undefined}
                         data-outside={item.outside ? "" : undefined}
                         className="qx-calendar-option"
+                        data-slot="calendar-option"
                         onFocus={() => {
                           if (!item.focus) setFocused(item.date);
                         }}
@@ -483,7 +489,7 @@ export function CalendarCore({
 }
 
 /**
- * A month of dates to choose from (07-components.md; the WAI-ARIA date picker grid). One day is in
+ * A month of dates to choose from, on the WAI-ARIA date picker's grid. One day is in
  * the Tab order at a time; arrow keys move by day and week (mirrored right-to-left), Home and End
  * to the week's ends, Page Up and Page Down by month (with Shift, by year), Enter or Space choose.
  * Each day is read as its full date. The title opens the years, a decade a page; choosing a year

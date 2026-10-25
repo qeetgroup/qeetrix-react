@@ -1,5 +1,5 @@
-/* Progress and Meter (06-component-specs.md, increment 6): Slider's header, a 4px track and an
-   Ember indicator; Meter can take a status tone. */
+/* Progress and Meter: Slider's header, a 4px track and an Ember indicator. Both take a tone: Progress
+   success or danger for how a task ended, Meter any of Badge's tones. */
 .qx-progress {
   display: flex;
   flex-direction: column;
@@ -35,6 +35,12 @@
   transition-property: inline-size;
   transition-duration: var(--qx-motion-duration-normal);
   transition-timing-function: var(--qx-motion-easing-standard);
+  [data-tone="neutral"] & {
+    background: var(--qx-color-bg-neutral-bold);
+  }
+  [data-tone="info"] & {
+    background: var(--qx-color-bg-info-bold);
+  }
   [data-tone="success"] & {
     background: var(--qx-color-bg-success-bold);
   }

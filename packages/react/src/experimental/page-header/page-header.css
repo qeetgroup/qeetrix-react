@@ -1,6 +1,6 @@
-/* PageHeader and PageContent (07-components.md, C1 · Ruled): a ruled band at the head of the page,
-   then the work surface, on one page gutter. The summary strip runs edge to edge between rules; when
-   the header ends with it, or with tabs, that line is the band's foot. */
+/* PageHeader and PageContent (C1 · Ruled): a ruled band at the head of the page, then the work
+   surface, on one page gutter. The summary strip and the tabs' rule run edge to edge; when the header
+   ends with either, that line is the band's foot. */
 .qx-page-header {
   --qx-page-gutter: var(--qx-space-layout-md);
   display: flex;
@@ -14,8 +14,48 @@
     border-block-end: 0;
   }
 }
-.qx-page-header-breadcrumb {
+.qx-page-header-breadcrumb,
+.qx-page-header-back-row {
   margin-block-end: 6px;
+}
+/* The back link: a subtle link like the breadcrumb's, after an arrow that points the reading way. */
+.qx-page-header-back-row {
+  display: flex;
+}
+.qx-page-header-back-label {
+  max-inline-size: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qx-page-header-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  min-inline-size: 0;
+  border-radius: var(--qx-radius-sm);
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  text-decoration: none;
+  &:hover {
+    color: var(--qx-color-text-default);
+    .qx-page-header-back-label {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
+  }
+}
+.qx-page-header-back-icon {
+  flex: none;
+  color: var(--qx-color-icon-subtle);
+  [dir="rtl"] & {
+    scale: -1 1;
+  }
 }
 .qx-page-header-row {
   display: flex;
@@ -64,11 +104,25 @@
   border-block: var(--qx-border-width-default) solid var(--qx-color-border-default);
   background: var(--qx-color-surface-canvas);
 }
+/* The tabs bleed to the edges, so their rule runs edge to edge like the summary's; the list's
+   padding puts the first label on the gutter, whatever the density does to a tab's padding. */
 .qx-page-header-tabs {
-  margin: var(--qx-space-gap-md) calc(-1 * var(--qx-space-inset-sm)) 0;
+  margin: var(--qx-space-gap-md) calc(-1 * var(--qx-page-gutter)) 0;
   .qx-page-header-summary + & {
     margin-block-start: var(--qx-space-gap-sm);
   }
+  > .qx-tabs-list {
+    padding-inline: calc(var(--qx-page-gutter) - var(--qx-tabs-inset));
+  }
+  /* A contained strip is a control on the gutter, not a rule: the band keeps its own foot. */
+  > .qx-tabs-list[data-variant="contained"] {
+    margin-inline: var(--qx-page-gutter);
+    padding-inline: 0;
+  }
+}
+.qx-page-header[data-foot="tabs"]:has(> .qx-page-header-tabs > [data-variant="contained"]) {
+  padding-block-end: 20px;
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
 }
 
 .qx-page-content {

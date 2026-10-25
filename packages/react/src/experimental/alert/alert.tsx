@@ -19,12 +19,16 @@ export type AlertTone = "info" | "success" | "warning" | "danger";
 export type AlertVariant = "default" | "banner";
 
 export interface AlertProps extends Omit<ComponentProps<"div">, "title"> {
-  /** Default `info`. The icon and a hidden word ("Warning:") carry it, never colour alone. */
+  /**
+   * The status. The icon and a hidden word ("Warning:") carry it, never colour alone.
+   * Default `info`.
+   */
   tone?: AlertTone;
   /**
-   * Default `default`: in the page, with the status edge, the text over its actions. `banner`: a
-   * notice about the whole app (maintenance, a trial ending, viewing as someone else), one line
-   * across the page, its actions at the end.
+   * `default`: in the page, with the status edge, the text over its actions. `banner`: a notice
+   * about the whole app (maintenance, a trial ending, viewing as someone else), one line across the
+   * page, its actions at the end; when it wraps, the icon and Dismiss stay on the first line.
+   * Default `default`.
    */
   variant?: AlertVariant;
   /** In place of the tone's icon, from `@qeetrix/icons`: an eye for "viewing as". */
@@ -55,10 +59,10 @@ const ICONS: Record<AlertTone, QeetrixIcon> = {
 };
 
 /**
- * A message in the page (07-components.md, C2): above a form, inside a card, or across the top of
- * a console page in AppShell's `notifications`. A tinted surface with the 3px status edge on its
- * start side. It never takes focus and never disappears by itself. As a `banner` it's a page
- * banner: the tint edge to edge with a rule in the tone under it, on the page's gutter.
+ * A message in the page: above a form, inside a card, or across the top of a console page in
+ * AppShell's `notifications`. A tinted surface with the 3px status edge on its start side. It never
+ * takes focus and never disappears by itself. As a `banner` it's a page banner: the tint edge to
+ * edge with a rule in the tone under it, on the page's gutter.
  */
 export function Alert({
   tone = "info",
@@ -84,9 +88,9 @@ export function Alert({
       data-tone={tone}
       data-variant={variant}
     >
-      <Icon shape="sharp" size={16} aria-hidden className="qx-alert-icon" />
-      <div className="qx-alert-body">
-        <div className="qx-alert-text">
+      <Icon shape="sharp" size={16} aria-hidden className="qx-alert-icon" data-slot="alert-icon" />
+      <div className="qx-alert-body" data-slot="alert-body">
+        <div className="qx-alert-text" data-slot="alert-text">
           <div className="qx-alert-title" data-slot="alert-title">
             <VisuallyHidden>{`${strings[tone]}: `}</VisuallyHidden>
             {title}

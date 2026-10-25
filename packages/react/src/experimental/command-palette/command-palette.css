@@ -1,4 +1,4 @@
-/* CommandPalette (07-components.md): the scrim, then a 600px panel near the top of the view: the
+/* CommandPalette: the scrim, then a 600px panel near the top of the view: the
    search box on a rule, grouped results in small caps labels, and a footer of key hints. The
    highlighted result has the Select's Ember bar; the typed text is bold in each label. */
 .qx-command-backdrop {
@@ -120,9 +120,29 @@
     cursor: not-allowed;
   }
 }
+/* One leading column for avatars and icons alike, as wide as the small avatar. When any result
+   has one, results without one keep the column empty, so every label starts at the same place. */
+.qx-command-item-leading {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: 24px;
+}
+.qx-command-list:has(.qx-command-item-leading)
+  .qx-command-item:not(:has(> .qx-command-item-leading)) {
+  padding-inline-start: calc(var(--qx-space-inset-md) + 24px + var(--qx-space-gap-sm));
+}
 .qx-command-item-icon {
   flex: none;
   color: var(--qx-color-icon-subtle);
+}
+/* The label and the meta, on one baseline; the pair is centred on the row. */
+.qx-command-body {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  gap: var(--qx-space-gap-sm);
+  min-inline-size: 0;
 }
 .qx-command-text {
   display: grid;

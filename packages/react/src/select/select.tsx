@@ -31,10 +31,13 @@ export interface SelectProps<Value, Multiple extends boolean | undefined = false
   ref?: Ref<HTMLButtonElement>;
   /** Without a Field: the trigger's accessible name. */
   "aria-label"?: string;
+  /** Without a Field: the id of the element that names the trigger, e.g. a visible heading. */
   "aria-labelledby"?: string;
+  /** The id of an element describing the trigger; inside a Field, its help and error join it. */
   "aria-describedby"?: string;
   /** Placement of the trigger only. */
   className?: string;
+  /** Placement of the trigger only, like `className`. */
   style?: CSSProperties;
 }
 
@@ -59,8 +62,8 @@ function Option<Value>({ item }: { item: SelectItem<Value> }): ReactElement {
 }
 
 /**
- * Pick one option, or several with `multiple`, from up to about 15 (06-component-specs.md §4). It
- * looks like a field and opens its list below, like a menu. Wrap it in a Field for its label.
+ * Pick one option, or several with `multiple`, from up to about 15. It looks like a field and opens
+ * its list below, like a menu. Wrap it in a Field for its label.
  */
 export function Select<Value, Multiple extends boolean | undefined = false>({
   items,

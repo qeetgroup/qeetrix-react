@@ -3,8 +3,17 @@
 import { Tabs as BaseTabs } from "@base-ui/react/tabs";
 import type { IconProps } from "@qeetrix/icons";
 import type { ComponentType, CSSProperties, ReactElement, ReactNode } from "react";
+import { Badge } from "../badge/badge";
+import { formatNumber } from "../format/format";
 import type { QeetrixIcon } from "../internal/control";
 import { cx } from "../internal/cx";
+import { useLocale } from "../provider/provider";
+
+/**
+ * `line`: tabs over a 2px rule, the selected one marked by the Ember bar. `contained`: a joined,
+ * ruled strip of segments on a neutral fill, the selected one on the page surface with the bar.
+ */
+export type TabsVariant = "line" | "contained";
 
 export interface TabsProps extends Omit<BaseTabs.Root.Props, "className" | "style"> {
   /** Placement only. */
@@ -13,8 +22,13 @@ export interface TabsProps extends Omit<BaseTabs.Root.Props, "className" | "styl
 }
 
 export interface TabsListProps extends Omit<BaseTabs.List.Props, "className" | "style"> {
-  /** Select a tab as soon as it takes focus. Default `true`; turn it off when panels load slowly. */
+  /** Select a tab as soon as it takes focus; turn it off when panels load slowly. Default `true`. */
   activateOnFocus?: boolean;
+  /**
+   * The look: `line`, tabs over a rule, for the views of a page; `contained`, a segmented strip, for
+   * a few views of one panel or card. Default `line`.
+   */
+  variant?: TabsVariant;
   className?: string;
   style?: CSSProperties;
 }
@@ -26,6 +40,11 @@ export interface TabProps extends Omit<BaseTabs.Tab.Props, "className" | "style"
   filledWhenSelected?: boolean;
   /** The label. */
   children?: ReactNode;
+  /**
+   * A trailing count, on the label's baseline: a number is formatted for the locale and shown as a
+   * neutral Badge; or pass your own Badge, e.g. `<Badge tone="danger">3</Badge>`.
+   */
+  badge?: ReactNode;
   className?: string;
   style?: CSSProperties;
 }
@@ -36,8 +55,8 @@ export interface TabsPanelProps extends Omit<BaseTabs.Panel.Props, "className" |
 }
 
 /**
- * Views of the same context (06-component-specs.md §8): `value` / `defaultValue` /
- * `onValueChange(value, details)`, and `orientation`.
+ * Views of the same context: `value` / `defaultValue` / `onValueChange(value, details)`, and
+ * `orientation`.
  */
 export function Tabs({ className, ...props }: TabsProps): ReactElement {
   return <BaseTabs.Root {...props} className={cx("qx-tabs", className)} data-slot="tabs" />;
@@ -49,6 +68,7 @@ export function Tabs({ className, ...props }: TabsProps): ReactElement {
  */
 export function TabsList({
   activateOnFocus = true,
+  variant = "line",
   className,
   children,
   ...props
@@ -59,6 +79,7 @@ export function TabsList({
       activateOnFocus={activateOnFocus}
       className={cx("qx-tabs-list", className)}
       data-slot="tabs-list"
+      data-variant={variant}
     >
       {children}
       <BaseTabs.Indicator className="qx-tabs-indicator" data-slot="tabs-indicator" />
@@ -66,14 +87,16 @@ export function TabsList({
   );
 }
 
-/** One tab: a label, and optionally a leading icon that fills when selected. */
+/** One tab: a label, and optionally a leading icon that fills when selected and a trailing count. */
 export function Tab({
   icon: Icon,
   filledWhenSelected,
+  badge,
   className,
   children,
   ...props
 }: TabProps): ReactElement {
+  const locale = useLocale();
   const Filled = Icon as ComponentType<IconProps> | undefined;
   return (
     <BaseTabs.Tab {...props} className={cx("qx-tab", className)} data-slot="tab">
@@ -89,7 +112,15 @@ export function Tab({
           className="qx-tab-icon qx-tab-icon-filled"
         />
       )}
-      {children}
+      {/* The label and its count on one baseline, so a 12px count doesn't sit 2px high. */}
+      <span className="qx-tab-label" data-slot="tab-label">
+        {children}
+        {badge != null && (
+          <span className="qx-tab-badge" data-slot="tab-badge">
+            {typeof badge === "number" ? <Badge>{formatNumber(badge, locale)}</Badge> : badge}
+          </span>
+        )}
+      </span>
     </BaseTabs.Tab>
   );
 }

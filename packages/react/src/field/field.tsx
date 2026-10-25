@@ -10,6 +10,8 @@ import {
   createContext,
   type ReactElement,
   type ReactNode,
+  useLayoutEffect,
+  useState,
 } from "react";
 import { IconButton } from "../button/button";
 import { cx } from "../internal/cx";
@@ -40,9 +42,12 @@ export interface FieldProps
     FieldMessageProps {
   /** The label. Required: a placeholder is never a label. */
   label: ReactNode;
-  /** Appends "(optional)". Qeetrix marks optional fields, never required ones. */
+  /** Appends "(optional)". Qeetrix marks optional fields, never required ones. Default `false`. */
   optional?: boolean;
-  /** Hides the label visually and keeps it for assistive technology. Only for a toolbar search. */
+  /**
+   * Hides the label visually and keeps it for assistive technology. Only for a toolbar search.
+   * Default `false`.
+   */
   hideLabel?: boolean;
   /**
    * A short explanation behind an ⓘ button after the label, for a setting that needs one ("How
@@ -54,12 +59,23 @@ export interface FieldProps
   messages?: Partial<QeetrixMessages["field"]>;
   /** Placement only (margin, width, grid placement). */
   className?: string;
+  /** Placement only, like `className`. */
   style?: CSSProperties;
   /** The control: an Input, a Textarea, or any Base UI form control. */
   children?: ReactNode;
 }
 
-function ErrorRow({ children, ...props }: ComponentProps<"div">): ReactElement {
+interface ErrorRowProps extends ComponentProps<"div"> {
+  /** Told when the error appears and when it goes, so the description can make way for it. */
+  onPresence: (shown: boolean) => void;
+}
+
+function ErrorRow({ onPresence, children, ...props }: ErrorRowProps): ReactElement {
+  // Base UI mounts the error only while it shows (its exit transition included).
+  useLayoutEffect(() => {
+    onPresence(true);
+    return () => onPresence(false);
+  }, [onPresence]);
   return (
     <div {...props}>
       <CircleAlertIcon shape="sharp" size={16} aria-hidden className="qx-field-error-icon" />
@@ -68,11 +84,18 @@ function ErrorRow({ children, ...props }: ComponentProps<"div">): ReactElement {
   );
 }
 
-/** The description and error under a control; Base UI links both to it with aria-describedby. */
+/**
+ * The description and error under a control; Base UI links each to it with aria-describedby. The
+ * error replaces the description, on screen and for assistive technology: while an error shows,
+ * the description isn't rendered, so the control is described by the error alone.
+ */
 export function FieldMessages({ description, error }: FieldMessageProps): ReactElement {
+  // An `error` prop shows from the first render, the server's included; a validation message
+  // appears later and reports itself through the error row.
+  const [errorShown, setErrorShown] = useState(error != null);
   return (
     <>
-      {description != null && (
+      {description != null && !errorShown && (
         <BaseField.Description className="qx-field-description" data-slot="field-description">
           {description}
         </BaseField.Description>
@@ -82,7 +105,7 @@ export function FieldMessages({ description, error }: FieldMessageProps): ReactE
         className="qx-field-error"
         data-slot="field-error"
         match={error != null ? true : undefined}
-        render={<ErrorRow />}
+        render={<ErrorRow onPresence={setErrorShown} />}
         {...(error != null ? { children: error } : {})}
       />
     </>
@@ -106,9 +129,61 @@ export function labelText(
   );
 }
 
+interface FieldLabelProps {
+  label: ReactNode;
+  optional: boolean | undefined;
+  hideLabel: boolean | undefined;
+  help: ReactNode;
+  strings: QeetrixMessages["field"];
+}
+
+/** A field's label, with "(optional)", and the ⓘ after it when the field has help. */
+export function FieldLabel({
+  label,
+  optional,
+  hideLabel,
+  help,
+  strings,
+}: FieldLabelProps): ReactElement {
+  const fieldLabel = (
+    <BaseField.Label
+      className="qx-field-label"
+      data-slot="field-label"
+      data-hidden={hideLabel ? "" : undefined}
+    >
+      {labelText(label, optional, strings.optional)}
+    </BaseField.Label>
+  );
+  if (help == null) return fieldLabel;
+  return (
+    <div className="qx-field-label-row" data-slot="field-label-row">
+      {fieldLabel}
+      <Popover>
+        <PopoverTrigger
+          render={
+            <IconButton
+              icon={CircleQuestionMarkIcon}
+              aria-label={
+                typeof label === "string" ? fill(strings.help, { label }) : strings.helpPlain
+              }
+              size="sm"
+              tone="neutral"
+              tooltip={false}
+              className="qx-field-help"
+            />
+          }
+        />
+        <PopoverContent title={label} side="inline-end" align="start" data-slot="field-help">
+          {help}
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
+
 /**
- * The label, help text and error for one control (06-component-specs.md §2), with an optional ⓘ
- * for a longer explanation (07-components.md, Field help).
+ * The label, help text and error for one control, with an optional ⓘ for a longer explanation.
+ * The error replaces the help text while it shows.
  */
 export function Field({
   label,
@@ -124,15 +199,6 @@ export function Field({
   ...props
 }: FieldProps): ReactElement {
   const strings = useMessages("field", messages);
-  const fieldLabel = (
-    <BaseField.Label
-      className="qx-field-label"
-      data-slot="field-label"
-      data-hidden={hideLabel ? "" : undefined}
-    >
-      {labelText(label, optional, strings.optional)}
-    </BaseField.Label>
-  );
   return (
     <BaseField.Root
       {...props}
@@ -140,32 +206,13 @@ export function Field({
       className={cx("qx-field", className)}
       data-slot="field"
     >
-      {help == null ? (
-        fieldLabel
-      ) : (
-        <div className="qx-field-label-row" data-slot="field-label-row">
-          {fieldLabel}
-          <Popover>
-            <PopoverTrigger
-              render={
-                <IconButton
-                  icon={CircleQuestionMarkIcon}
-                  aria-label={
-                    typeof label === "string" ? fill(strings.help, { label }) : strings.helpPlain
-                  }
-                  size="sm"
-                  tone="neutral"
-                  tooltip={false}
-                  className="qx-field-help"
-                />
-              }
-            />
-            <PopoverContent title={label} side="inline-end" align="start" data-slot="field-help">
-              {help}
-            </PopoverContent>
-          </Popover>
-        </div>
-      )}
+      <FieldLabel
+        label={label}
+        optional={optional}
+        hideLabel={hideLabel}
+        help={help}
+        strings={strings}
+      />
       <InFieldContext value>{children}</InFieldContext>
       <FieldMessages description={description} error={error} />
     </BaseField.Root>

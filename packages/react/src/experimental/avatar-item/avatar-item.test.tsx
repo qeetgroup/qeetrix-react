@@ -66,6 +66,26 @@ describe("AvatarItem", () => {
     }
   });
 
+  it("keeps the A11y letterforms on both lines, after each line's font", async () => {
+    // Regression: each line set the `font` shorthand after the geometry, which reset it.
+    const { container } = await render(
+      <AvatarItem name="Priya Sharma" description="priya@acme.in" />,
+    );
+    for (const line of container.querySelectorAll<HTMLElement>(".qx-avatar-item-text > span")) {
+      expect(getComputedStyle(line).fontVariationSettings).toBe('"GEOM" 0');
+    }
+  });
+
+  it("takes a square avatar for an organisation or application", async () => {
+    const { container } = await render(
+      <AvatarItem name="Acme Pvt Ltd" description="acme.qeet.in" shape="square" />,
+    );
+    const avatar = container.querySelector("[data-slot=avatar]") as HTMLElement;
+    expect(avatar.dataset.shape).toBe("square");
+    expect(getComputedStyle(avatar).borderRadius).toBe("4px");
+    expect(avatar.getAttribute("aria-hidden")).toBe("true");
+  });
+
   it("is accessible and looks right in both colour schemes", async () => {
     const { container } = await render(
       <Stage>
@@ -91,5 +111,20 @@ describe("AvatarItem", () => {
     );
     await expectAccessible(container);
     await screenshotSchemes("AvatarItem", "[data-qx-stage]");
+  });
+
+  it("is accessible and looks right with square avatars, in both colour schemes", async () => {
+    const { container } = await render(
+      <Stage>
+        <div style={{ display: "grid", gap: 12, inlineSize: 280 }}>
+          <AvatarItem name="Acme Pvt Ltd" description="acme.qeet.in" shape="square" />
+          <AvatarItem name="Qeet Pay" description="Payments application" shape="square" />
+          <AvatarItem name="Globex Tenant" shape="square" size="sm" />
+          <AvatarItem name="Initech" description="initech.qeet.in" shape="square" size="lg" />
+        </div>
+      </Stage>,
+    );
+    await expectAccessible(container);
+    await screenshotSchemes("AvatarItem · square");
   });
 });

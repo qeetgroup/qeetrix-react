@@ -3,10 +3,14 @@ import type { QeetrixIcon } from "../../internal/control";
 import { cx } from "../../internal/cx";
 
 export type TimelineVariant = "default" | "compact";
-export type TimelineTone = "neutral" | "danger" | "success" | "warning";
+/** The event's colour, as Badge's tones: `danger` for a failure, `success` for a completion. */
+export type TimelineTone = "neutral" | "brand" | "info" | "success" | "warning" | "danger";
 
 export interface TimelineProps extends ComponentProps<"ol"> {
-  /** `default`: an icon per event, a line between them. `compact`: a dot, for a side panel. */
+  /**
+   * `default`: an icon per event, a line between them. `compact`: a dot, for a side panel. Default
+   * `default`.
+   */
   variant?: TimelineVariant;
 }
 
@@ -26,16 +30,18 @@ export interface TimelineItemProps extends Omit<ComponentProps<"li">, "title"> {
   dateTime?: string;
   /** A 16px icon for the kind of event. */
   icon?: QeetrixIcon;
-  /** `danger` for a failure, such as a refused sign-in. Default `neutral`. */
+  /**
+   * Colours the icon or dot: `danger` for a failure, such as a refused sign-in (its title turns
+   * danger too), `success`, `warning`, `info` or `brand`. Default `neutral`.
+   */
   tone?: TimelineTone;
 }
 
 /**
- * What happened, newest first (07-components.md): a user's recent activity, a payment's history, a
- * delivery's attempts. An ordered list of events, optionally grouped by day; each event shows its
- * icon, what happened, where or by whom, and when, joined by a line. Failures take the danger
- * colour. The full audit log stays a Table; this is the short summary on a detail page.
- * Server-safe.
+ * What happened, newest first: a user's recent activity, a payment's history, a delivery's
+ * attempts. An ordered list of events, optionally grouped by day; each event shows its icon, what
+ * happened, where or by whom, and when, joined by a line. Failures take the danger colour. The full
+ * audit log stays a Table; this is the short summary on a detail page. Server-safe.
  */
 export function Timeline({
   variant = "default",
@@ -61,8 +67,12 @@ export function TimelineGroup({
 }: TimelineGroupProps): ReactElement {
   return (
     <li {...props} className={cx("qx-timeline-group", className)} data-slot="timeline-group">
-      <span className="qx-timeline-group-label">{label}</span>
-      <ol className="qx-timeline-events">{children}</ol>
+      <span className="qx-timeline-group-label" data-slot="timeline-group-label">
+        {label}
+      </span>
+      <ol className="qx-timeline-events" data-slot="timeline-events">
+        {children}
+      </ol>
     </li>
   );
 }
@@ -85,20 +95,28 @@ export function TimelineItem({
       data-slot="timeline-item"
       data-tone={tone}
     >
-      <span className="qx-timeline-marker" aria-hidden>
+      <span className="qx-timeline-marker" data-slot="timeline-marker" aria-hidden>
         {Icon && <Icon shape="sharp" size={16} />}
       </span>
-      <span className="qx-timeline-body">
-        <span className="qx-timeline-title">{title}</span>
-        {description != null && <span className="qx-timeline-description">{description}</span>}
+      <span className="qx-timeline-body" data-slot="timeline-body">
+        <span className="qx-timeline-title" data-slot="timeline-title">
+          {title}
+        </span>
+        {description != null && (
+          <span className="qx-timeline-description" data-slot="timeline-description">
+            {description}
+          </span>
+        )}
       </span>
       {time != null &&
         (dateTime ? (
-          <time dateTime={dateTime} className="qx-timeline-time">
+          <time dateTime={dateTime} className="qx-timeline-time" data-slot="timeline-time">
             {time}
           </time>
         ) : (
-          <span className="qx-timeline-time">{time}</span>
+          <span className="qx-timeline-time" data-slot="timeline-time">
+            {time}
+          </span>
         ))}
     </li>
   );

@@ -136,6 +136,12 @@
   .qx-button-icon {
     flex: none;
   }
+  /* The spinner's own box, where the icon would be: exactly the spinner's size. */
+  .qx-button-spinner {
+    display: grid;
+    flex: none;
+    place-items: center;
+  }
 }
 
 /* The icon zone: the icon with even space on both sides, behind a rule as tall as the icon in the

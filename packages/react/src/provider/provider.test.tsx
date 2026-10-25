@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
@@ -19,8 +20,79 @@ function SchemeSwitch() {
   );
 }
 
+function UseLight() {
+  const { setColorScheme } = useColorScheme();
+  return (
+    <button type="button" onClick={() => setColorScheme("light")}>
+      Use light
+    </button>
+  );
+}
+
 function Locale() {
   return <output>{useLocale()}</output>;
+}
+
+/** A provider that manages the scheme, controlled, around a nested one that tries to. */
+function NestedProviders({
+  onOuterChange,
+  onInnerChange,
+}: {
+  onOuterChange: (scheme: string) => void;
+  onInnerChange: (scheme: string) => void;
+}) {
+  const [scheme, setScheme] = useState<"light" | "dark">("dark");
+  return (
+    <QeetrixProvider
+      colorScheme={scheme}
+      onColorSchemeChange={(next) => {
+        onOuterChange(next);
+        if (next !== "system") setScheme(next);
+      }}
+    >
+      <QeetrixProvider colorScheme="light" onColorSchemeChange={onInnerChange} locale="hi-IN">
+        <SchemeSwitch />
+        <UseLight />
+        <Locale />
+      </QeetrixProvider>
+    </QeetrixProvider>
+  );
+}
+
+/** A nested scheme-managing provider that can be removed. */
+function ClosingSection() {
+  const [nested, setNested] = useState(true);
+  return (
+    <QeetrixProvider defaultColorScheme="dark">
+      <button type="button" onClick={() => setNested(false)}>
+        Close section
+      </button>
+      {nested && (
+        <QeetrixProvider defaultColorScheme="light">
+          <SchemeSwitch />
+        </QeetrixProvider>
+      )}
+    </QeetrixProvider>
+  );
+}
+
+/** Two scheme-managing providers side by side; the second can be removed. */
+function SiblingProviders() {
+  const [second, setSecond] = useState(true);
+  return (
+    <>
+      <QeetrixProvider defaultColorScheme="light">
+        <button type="button" onClick={() => setSecond(false)}>
+          Remove second
+        </button>
+      </QeetrixProvider>
+      {second && (
+        <QeetrixProvider defaultColorScheme="dark">
+          <SchemeSwitch />
+        </QeetrixProvider>
+      )}
+    </>
+  );
 }
 
 describe("QeetrixProvider", () => {
@@ -124,6 +196,67 @@ describe("colour scheme", () => {
     );
     await expect.poll(() => html.dataset.qxColorScheme).toBe("dark");
     await expect.element(page.getByRole("button", { name: "system/dark" })).toBeVisible();
+  });
+
+  it("puts back the attribute it found when it unmounts", async () => {
+    html.dataset.qxColorScheme = "dark";
+    const { unmount } = await render(
+      <QeetrixProvider defaultColorScheme="light">
+        <SchemeSwitch />
+      </QeetrixProvider>,
+    );
+    await expect.poll(() => html.dataset.qxColorScheme).toBe("light");
+    await unmount();
+    expect(html.dataset.qxColorScheme).toBe("dark");
+  });
+
+  it("removes the attribute on unmount when there was none", async () => {
+    const { unmount } = await render(
+      <QeetrixProvider colorScheme="dark">
+        <SchemeSwitch />
+      </QeetrixProvider>,
+    );
+    await expect.poll(() => html.dataset.qxColorScheme).toBe("dark");
+    await unmount();
+    expect(html.hasAttribute("data-qx-color-scheme")).toBe(false);
+  });
+
+  it("lets the outermost provider own the scheme: a nested one defers to it", async () => {
+    const outerChange = vi.fn();
+    const innerChange = vi.fn();
+    await render(<NestedProviders onOuterChange={outerChange} onInnerChange={innerChange} />);
+    // The nested provider's colorScheme doesn't reach <html>; useColorScheme reads the outer one.
+    await expect.poll(() => html.dataset.qxColorScheme).toBe("dark");
+    const button = page.getByRole("button", { name: "dark/dark" });
+    await expect.element(button).toBeVisible();
+    // Its other settings still apply.
+    await expect.element(page.getByRole("status")).toHaveTextContent("hi-IN");
+    // setColorScheme beneath it changes the outer provider's scheme.
+    await page.getByRole("button", { name: "Use light" }).click();
+    expect(outerChange).toHaveBeenLastCalledWith("light");
+    expect(innerChange).not.toHaveBeenCalled();
+    await expect.poll(() => html.dataset.qxColorScheme).toBe("light");
+    await expect.element(page.getByRole("button", { name: "light/light" })).toBeVisible();
+  });
+
+  it("leaves the attribute alone when a nested provider unmounts", async () => {
+    const { unmount } = await render(<ClosingSection />);
+    await expect.poll(() => html.dataset.qxColorScheme).toBe("dark");
+    await page.getByRole("button", { name: "Close section" }).click();
+    await expect.element(page.getByRole("button", { name: "dark/dark" })).not.toBeInTheDocument();
+    expect(html.dataset.qxColorScheme).toBe("dark");
+    await unmount();
+    expect(html.hasAttribute("data-qx-color-scheme")).toBe(false);
+  });
+
+  it("hands the page back to the provider that remains when a sibling unmounts", async () => {
+    const { unmount } = await render(<SiblingProviders />);
+    // The most recently mounted shows.
+    await expect.poll(() => html.dataset.qxColorScheme).toBe("dark");
+    await page.getByRole("button", { name: "Remove second" }).click();
+    await expect.poll(() => html.dataset.qxColorScheme).toBe("light");
+    await unmount();
+    expect(html.hasAttribute("data-qx-color-scheme")).toBe(false);
   });
 
   it("leaves <html> alone when no provider manages the scheme", async () => {

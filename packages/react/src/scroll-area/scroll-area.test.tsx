@@ -33,6 +33,53 @@ describe("ScrollArea", () => {
     await expect.poll(() => viewport().scrollTop).toBeGreaterThan(0);
   });
 
+  it("names its focusable viewport: a region landmark with the label, not the root", async () => {
+    const { container } = await render(<Activity />);
+    const region = page.getByRole("region", { name: "Recent invoices" });
+    await expect.element(region).toBeInTheDocument();
+    expect(region.element()).toBe(viewport());
+    expect(viewport().tabIndex).toBe(0);
+    const root = container.querySelector("[data-slot=scroll-area]") as HTMLElement;
+    expect(root.hasAttribute("aria-label")).toBe(false);
+    expect(root.getAttribute("role")).toBe("presentation");
+  });
+
+  it("takes its name from a heading, and has no role while unnamed", async () => {
+    await render(
+      <>
+        <h2 id="activity-title">Activity</h2>
+        <ScrollArea aria-labelledby="activity-title" style={{ blockSize: 80 }}>
+          <p style={{ blockSize: 400, margin: 0 }}>Signed in</p>
+        </ScrollArea>
+        <ScrollArea style={{ blockSize: 80 }}>
+          <p style={{ margin: 0 }}>Short</p>
+        </ScrollArea>
+      </>,
+    );
+    const [named, unnamed] = [
+      ...document.querySelectorAll("[data-slot=scroll-area-viewport]"),
+    ] as HTMLElement[];
+    expect(page.getByRole("region", { name: "Activity" }).element()).toBe(named);
+    expect(unnamed?.hasAttribute("role")).toBe(false);
+  });
+
+  it("marks each part with its slot", async () => {
+    const { container } = await render(
+      <ScrollArea
+        aria-label="Wide table"
+        orientation="both"
+        style={{ blockSize: 80, inlineSize: 80 }}
+      >
+        <div style={{ blockSize: 400, inlineSize: 400 }}>Cells</div>
+      </ScrollArea>,
+    );
+    for (const part of ["scroll-area-viewport", "scroll-area-content", "scroll-area-corner"]) {
+      expect(container.querySelectorAll(`[data-slot=${part}]`), part).toHaveLength(1);
+    }
+    expect(container.querySelectorAll("[data-slot=scroll-area-scrollbar]")).toHaveLength(2);
+    expect(container.querySelectorAll("[data-slot=scroll-area-thumb]")).toHaveLength(2);
+  });
+
   it("shows its scrollbar while hovered", async () => {
     // The pointer starts on a sibling: an earlier test can leave it anywhere.
     const { container } = await render(

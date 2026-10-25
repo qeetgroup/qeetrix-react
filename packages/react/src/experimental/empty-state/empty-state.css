@@ -1,4 +1,5 @@
-/* EmptyState and DataState (07-components.md, C1): centred, at most 480px wide. */
+/* EmptyState and DataState: centred, at most 480px wide. The `font` shorthand resets
+   font-variation-settings, so every rule that sets it sets the geometry after it. */
 .qx-empty-state {
   display: flex;
   flex-direction: column;
@@ -27,6 +28,7 @@
   font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
   [data-size="section"] > & {
     font: var(--qx-typography-title-sm);
+    font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
   }
 }
 .qx-empty-state-description {
@@ -42,8 +44,24 @@
   gap: var(--qx-space-gap-sm);
   margin-block-start: var(--qx-space-gap-sm);
 }
-.qx-data-state {
+/* Under the actions: a link to the docs, or a second way in. */
+.qx-empty-state-footer {
+  font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+}
+
+/* DataState's regions. While loading, the error state sits unseen under the spinner and gives the
+   region its height, so it doesn't jump when a load fails. */
+.qx-data-state[data-state="loading"] {
   display: grid;
-  place-items: center;
-  padding: var(--qx-space-layout-lg);
+  & > * {
+    grid-area: 1 / 1;
+  }
+}
+.qx-data-state-spinner {
+  place-self: center;
+}
+.qx-data-state-reserve {
+  visibility: hidden;
 }

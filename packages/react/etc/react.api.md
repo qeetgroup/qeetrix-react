@@ -12,6 +12,7 @@ import { CheckboxGroup as CheckboxGroup_2 } from '@base-ui/react/checkbox-group'
 import { Collapsible as Collapsible_2 } from '@base-ui/react/collapsible';
 import { ComponentProps } from 'react';
 import { ComponentType } from 'react';
+import { ContextMenu as ContextMenu_2 } from '@base-ui/react/context-menu';
 import { CSSProperties } from 'react';
 import { Dialog as Dialog_2 } from '@base-ui/react/dialog';
 import { Drawer as Drawer_2 } from '@base-ui/react/drawer';
@@ -46,19 +47,21 @@ export function AccordionItem(input: AccordionItemProps): ReactElement;
 // @public (undocumented)
 export interface AccordionItemProps extends Omit<Accordion_2.Item.Props, "className" | "style" | "title" | "children"> {
     children?: ReactNode;
-    // (undocumented)
     className?: string;
     headingLevel?: Exclude<HeadingLevel, 1>;
-    // (undocumented)
     style?: CSSProperties;
     title: ReactNode;
 }
 
 // @public (undocumented)
-export interface AccordionProps<Value = string> extends Omit<Accordion_2.Root.Props<Value>, "className" | "style"> {
+export interface AccordionProps<Value = string> extends Omit<Accordion_2.Root.Props<Value>, "className" | "style" | "value" | "defaultValue" | "onValueChange" | "multiple" | "disabled"> {
     className?: string;
-    // (undocumented)
+    defaultValue?: Value[] | undefined;
+    disabled?: boolean | undefined;
+    multiple?: boolean | undefined;
+    onValueChange?: Accordion_2.Root.Props<Value>["onValueChange"];
     style?: CSSProperties;
+    value?: Value[] | undefined;
 }
 
 // @public
@@ -66,15 +69,17 @@ export function Avatar(input: AvatarProps): ReactElement;
 
 // @public (undocumented)
 export interface AvatarProps extends Omit<Avatar_2.Root.Props, "className" | "style" | "children"> {
-    // (undocumented)
     className?: string;
     decorative?: boolean;
     name: string;
+    shape?: AvatarShape;
     size?: AvatarSize;
     src?: string;
-    // (undocumented)
     style?: CSSProperties;
 }
+
+// @public
+export type AvatarShape = "circle" | "square";
 
 // @public (undocumented)
 export type AvatarSize = "sm" | "md" | "lg" | "xl";
@@ -85,11 +90,19 @@ export function Badge(input: BadgeProps): ReactElement;
 // @public (undocumented)
 export interface BadgeProps extends ComponentProps<"span"> {
     icon?: QeetrixIcon;
+    size?: BadgeSize;
     tone?: BadgeTone;
+    variant?: BadgeVariant;
 }
+
+// @public
+export type BadgeSize = "sm" | "md";
 
 // @public (undocumented)
 export type BadgeTone = "neutral" | "brand" | "info" | "success" | "warning" | "danger";
+
+// @public
+export type BadgeVariant = "subtle" | "solid";
 
 // @public
 export function Box(input: BoxProps): ReactElement;
@@ -124,6 +137,7 @@ export interface ButtonProps extends ButtonBaseProps {
     children?: ReactNode;
     fullWidth?: boolean;
     icon?: QeetrixIcon;
+    variant?: ButtonVariant;
 }
 
 // @public (undocumented)
@@ -142,6 +156,12 @@ export function Card(input: CardProps): ReactElement;
 export type CardProps = CardOwnProps & CardTitle;
 
 // @public
+export type CardTone = "neutral" | "danger";
+
+// @public
+export type CardVariant = "default" | "subdued";
+
+// @public
 export function Checkbox(input: CheckboxProps): ReactElement;
 
 // @public
@@ -154,7 +174,6 @@ export interface CheckboxGroupProps extends Omit<CheckboxGroup_2.Props, "classNa
     label: ReactNode;
     name?: string;
     orientation?: ChoiceOrientation;
-    // (undocumented)
     style?: CSSProperties;
     variant?: ChoiceVariant;
 }
@@ -219,6 +238,20 @@ export interface ColorSchemeState {
 }
 
 // @public
+export function ContextMenu(props: ContextMenuProps): ReactElement;
+
+// @public (undocumented)
+export type ContextMenuProps = ContextMenu_2.Root.Props;
+
+// @public
+export function ContextMenuTrigger(input: ContextMenuTriggerProps): ReactElement;
+
+// @public (undocumented)
+export interface ContextMenuTriggerProps extends Omit<ContextMenu_2.Trigger.Props, "className"> {
+    className?: string;
+}
+
+// @public
 export type ControlSize = "sm" | "md" | "lg";
 
 // @public
@@ -246,7 +279,6 @@ export interface DialogContentProps extends Omit<Dialog_2.Popup.Props, "classNam
     description?: ReactNode;
     messages?: Partial<QeetrixMessages["overlay"]>;
     size?: DialogSize;
-    // (undocumented)
     style?: CSSProperties;
     title: ReactNode;
 }
@@ -266,8 +298,8 @@ export interface DialogProps extends Omit<Dialog_2.Root.Props, "disablePointerDi
     intent?: DialogIntent;
 }
 
-// @public (undocumented)
-export type DialogSize = "sm" | "md" | "lg";
+// @public
+export type DialogSize = "sm" | "md" | "lg" | "xl" | "fullscreen";
 
 // @public
 export function DialogTrigger(props: DialogTriggerProps): ReactElement;
@@ -286,7 +318,6 @@ export function DrawerBody(input: DrawerBodyProps): ReactElement;
 
 // @public (undocumented)
 export interface DrawerBodyProps extends Omit<Drawer_2.Content.Props, "className"> {
-    // (undocumented)
     className?: string;
 }
 
@@ -306,7 +337,6 @@ export interface DrawerContentProps extends Omit<Drawer_2.Popup.Props, "classNam
     description?: ReactNode;
     messages?: Partial<QeetrixMessages["overlay"]>;
     size?: DrawerSize;
-    // (undocumented)
     style?: CSSProperties;
     title: ReactNode;
 }
@@ -319,6 +349,7 @@ export interface DrawerFooterProps extends ComponentProps<"div"> {}
 
 // @public (undocumented)
 export interface DrawerProps extends Omit<Drawer_2.Root.Props, "swipeDirection"> {
+    dismissible?: boolean;
     side?: DrawerSide;
 }
 
@@ -352,7 +383,6 @@ export interface FieldProps extends Omit<Field_2.Root.Props, "className" | "styl
     label: ReactNode;
     messages?: Partial<QeetrixMessages["field"]>;
     optional?: boolean;
-    // (undocumented)
     style?: CSSProperties;
 }
 
@@ -365,7 +395,6 @@ export interface FieldsetProps extends Omit<Fieldset_2.Root.Props, "className" |
     className?: string;
     description?: ReactNode;
     legend: ReactNode;
-    // (undocumented)
     style?: CSSProperties;
 }
 
@@ -374,6 +403,23 @@ export type FlowJustify = "start" | "center" | "end" | "between";
 
 // @public
 export function formatCurrency(value: number, currency: string, locale?: string, options?: Intl.NumberFormatOptions): string;
+
+// @public
+export function formatDate(value: Date | number | string, locale?: string, options?: FormatDateOptions): string;
+
+// @public
+export interface FormatDateOptions {
+    dateStyle?: "short" | "medium" | "long";
+    timeZone?: string;
+}
+
+// @public
+export function formatDateTime(value: Date | number | string, locale?: string, options?: FormatDateTimeOptions): string;
+
+// @public
+export interface FormatDateTimeOptions extends FormatDateOptions {
+    timeStyle?: "short" | "medium";
+}
 
 // @public
 export function formatNumber(value: number, locale?: string, options?: Intl.NumberFormatOptions): string;
@@ -397,6 +443,16 @@ export interface GridColumns {
     large?: GridColumnCount;
     medium?: GridColumnCount;
     xlarge?: GridColumnCount;
+}
+
+// @public
+export function GridItem(input: GridItemProps): ReactElement;
+
+// @public (undocumented)
+export interface GridItemProps extends ComponentProps<"div"> {
+    render?: RenderProp;
+    span?: GridColumnCount | GridColumns;
+    start?: GridColumnCount | GridColumns;
 }
 
 // @public (undocumented)
@@ -437,6 +493,8 @@ export interface IconButtonProps extends ButtonBaseProps {
     "aria-label": string;
     icon: QeetrixIcon;
     tooltip?: ReactNode | false;
+    tooltipSide?: TooltipProps["side"];
+    variant?: ButtonVariant;
 }
 
 // @public
@@ -463,7 +521,6 @@ export interface InputProps extends Omit<Input_2.Props, "className" | "style" | 
     endAdornment?: ReactNode;
     icon?: QeetrixIcon;
     startAdornment?: ReactNode;
-    // (undocumented)
     style?: CSSProperties;
 }
 
@@ -501,12 +558,10 @@ export function MenuContent(input: MenuContentProps): ReactElement;
 // @public (undocumented)
 export interface MenuContentProps extends Omit<Menu_2.Popup.Props, "className" | "style" | "children"> {
     align?: Menu_2.Positioner.Props["align"];
-    // (undocumented)
     children?: ReactNode;
     className?: string;
     side?: Menu_2.Positioner.Props["side"];
     sideOffset?: number;
-    // (undocumented)
     style?: CSSProperties;
 }
 
@@ -518,7 +573,6 @@ export function MenuGroupLabel(input: MenuGroupLabelProps): ReactElement;
 
 // @public (undocumented)
 export interface MenuGroupLabelProps extends Omit<Menu_2.GroupLabel.Props, "className"> {
-    // (undocumented)
     className?: string;
 }
 
@@ -557,7 +611,6 @@ export function MenuSeparator(input: MenuSeparatorProps): ReactElement;
 
 // @public (undocumented)
 export interface MenuSeparatorProps extends Omit<Menu_2.Separator.Props, "className"> {
-    // (undocumented)
     className?: string;
 }
 
@@ -572,10 +625,8 @@ export function MenuSubmenuTrigger(input: MenuSubmenuTriggerProps): ReactElement
 
 // @public (undocumented)
 export interface MenuSubmenuTriggerProps extends Omit<Menu_2.SubmenuTrigger.Props, "className" | "style"> {
-    // (undocumented)
     className?: string;
     icon?: QeetrixIcon;
-    // (undocumented)
     style?: CSSProperties;
 }
 
@@ -591,12 +642,13 @@ export function Meter(input: MeterProps): ReactElement;
 // Warning: (ae-forgotten-export) The symbol "BarLook" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
-export interface MeterProps extends Omit<Meter_2.Root.Props, "className" | "style" | "children">, BarLook {
+export interface MeterProps extends Omit<Meter_2.Root.Props, "className" | "style" | "children" | "value" | "min" | "max" | "format" | "locale">, BarLook {
     tone?: MeterTone;
+    value: number;
 }
 
-// @public (undocumented)
-export type MeterTone = "brand" | "success" | "warning" | "danger";
+// @public
+export type MeterTone = "brand" | "neutral" | "info" | "success" | "warning" | "danger";
 
 // @public
 export function Popover(props: PopoverProps): ReactElement;
@@ -612,15 +664,15 @@ export function PopoverContent(input: PopoverContentProps): ReactElement;
 
 // @public (undocumented)
 export interface PopoverContentProps extends Omit<Popover_2.Popup.Props, "className" | "style" | "title" | "children"> {
+    "aria-label"?: string | undefined;
+    "aria-labelledby"?: string | undefined;
     align?: Popover_2.Positioner.Props["align"];
     anchor?: Popover_2.Positioner.Props["anchor"];
-    // (undocumented)
     children?: ReactNode;
     className?: string;
     description?: ReactNode;
     side?: Popover_2.Positioner.Props["side"];
     sideOffset?: number;
-    // (undocumented)
     style?: CSSProperties;
     title?: ReactNode;
 }
@@ -638,7 +690,13 @@ export type PopoverTriggerProps = Popover_2.Trigger.Props;
 export function Progress(input: ProgressProps): ReactElement;
 
 // @public (undocumented)
-export interface ProgressProps extends Omit<Progress_2.Root.Props, "className" | "style" | "children">, BarLook {}
+export interface ProgressProps extends Omit<Progress_2.Root.Props, "className" | "style" | "children" | "value" | "min" | "max" | "format" | "locale">, BarLook {
+    tone?: ProgressTone;
+    value: number | null;
+}
+
+// @public
+export type ProgressTone = "brand" | "success" | "danger";
 
 // @public
 export type QeetrixIcon = ComponentType<IconProps<"outline">>;
@@ -678,7 +736,6 @@ export interface RadioGroupProps<Value = string> extends Omit<RadioGroup_2.Props
     columns?: 1 | 2 | 3 | 4;
     label: ReactNode;
     orientation?: ChoiceOrientation;
-    // (undocumented)
     style?: CSSProperties;
     variant?: ChoiceVariant;
 }
@@ -702,11 +759,11 @@ export type ScrollAreaOrientation = "vertical" | "horizontal" | "both";
 
 // @public (undocumented)
 export interface ScrollAreaProps extends Omit<ScrollArea_2.Root.Props, "className" | "style" | "children"> {
-    // (undocumented)
+    "aria-label"?: string;
+    "aria-labelledby"?: string;
     children?: ReactNode;
     className?: string;
     orientation?: ScrollAreaOrientation;
-    // (undocumented)
     style?: CSSProperties;
 }
 
@@ -733,17 +790,14 @@ export interface SelectItemGroup<Value> {
 
 // @public (undocumented)
 export interface SelectProps<Value, Multiple extends boolean | undefined = false> extends Omit<Select_2.Root.Props<Value, Multiple>, "items" | "children" | "id"> {
-    // (undocumented)
     "aria-describedby"?: string;
     "aria-label"?: string;
-    // (undocumented)
     "aria-labelledby"?: string;
     className?: string;
     id?: string;
     items: ReadonlyArray<SelectItem<Value> | SelectItemGroup<Value>>;
     placeholder?: ReactNode;
     ref?: Ref<HTMLButtonElement>;
-    // (undocumented)
     style?: CSSProperties;
 }
 
@@ -769,8 +823,13 @@ export function Skeleton(input: SkeletonProps): ReactElement;
 
 // @public (undocumented)
 export interface SkeletonProps extends ComponentProps<"span"> {
+    lines?: number;
+    size?: SkeletonSize;
     variant?: SkeletonVariant;
 }
+
+// @public
+export type SkeletonSize = "sm" | "md" | "lg" | "xl";
 
 // @public (undocumented)
 export type SkeletonVariant = "text" | "block" | "circle";
@@ -780,7 +839,9 @@ export function SkipLink(input: SkipLinkProps): ReactElement;
 
 // @public (undocumented)
 export interface SkipLinkProps extends ComponentProps<"a"> {
+    children?: ReactNode;
     href?: string;
+    messages?: Partial<QeetrixMessages["skipLink"]>;
     render?: RenderProp;
 }
 
@@ -790,10 +851,11 @@ export function Slider<Value extends number | readonly number[] = number>(input:
 // @public (undocumented)
 export interface SliderProps<Value extends number | readonly number[] = number> extends Omit<Slider_2.Root.Props<Value>, "className" | "style" | "children"> {
     className?: string;
+    description?: ReactNode;
+    error?: ReactNode;
     label?: ReactNode;
     messages?: Partial<QeetrixMessages["slider"]>;
     showValue?: boolean;
-    // (undocumented)
     style?: CSSProperties;
 }
 
@@ -817,8 +879,8 @@ export interface SpinnerProps extends Omit<ComponentProps<"span">, "children"> {
 // @public (undocumented)
 export type SpinnerSize = "sm" | "md" | "lg" | "xl";
 
-// @public (undocumented)
-export type SpinnerTone = "default" | "brand";
+// @public
+export type SpinnerTone = "neutral" | "brand" | "default";
 
 // @public
 export function Stack(input: StackProps): ReactElement;
@@ -858,6 +920,7 @@ export interface TableColumn<Row> {
     header: ReactNode;
     id: string;
     numeric?: boolean;
+    primary?: boolean;
     sortable?: boolean;
     sortFirst?: SortDirection;
     width?: number | string;
@@ -866,7 +929,6 @@ export interface TableColumn<Row> {
 // @public (undocumented)
 export interface TableProps<Row> extends Omit<ComponentProps<"div">, "children" | "onChange"> {
     bulkActions?: (ids: string[]) => ReactNode;
-    // (undocumented)
     columns: readonly TableColumn<Row>[];
     defaultSelected?: readonly string[];
     defaultSort?: TableSort | null;
@@ -876,9 +938,12 @@ export interface TableProps<Row> extends Omit<ComponentProps<"div">, "children" 
     loading?: boolean;
     loadingRows?: number;
     messages?: Partial<QeetrixMessages["table"]>;
+    onRowClick?: (row: Row) => void;
     onSelectedChange?: (ids: string[]) => void;
     onSortChange?: (sort: TableSort | null) => void;
+    renderRowLink?: (row: Row) => RenderProp;
     rowActions?: (row: Row) => ReactNode;
+    rowHref?: (row: Row) => string;
     rowId: (row: Row) => string;
     rowLabel: (row: Row) => string;
     rows: readonly Row[];
@@ -891,12 +956,12 @@ export interface TableProps<Row> extends Omit<ComponentProps<"div">, "children" 
 // @public
 export interface TableSort {
     column: string;
-    // (undocumented)
     direction: SortDirection;
 }
 
 // @public (undocumented)
 export interface TabProps extends Omit<Tabs_2.Tab.Props, "className" | "style" | "children"> {
+    badge?: ReactNode;
     children?: ReactNode;
     // (undocumented)
     className?: string;
@@ -919,6 +984,7 @@ export interface TabsListProps extends Omit<Tabs_2.List.Props, "className" | "st
     className?: string;
     // (undocumented)
     style?: CSSProperties;
+    variant?: TabsVariant;
 }
 
 // @public
@@ -938,6 +1004,9 @@ export interface TabsProps extends Omit<Tabs_2.Root.Props, "className" | "style"
     // (undocumented)
     style?: CSSProperties;
 }
+
+// @public
+export type TabsVariant = "line" | "contained";
 
 // @public
 function Text_2(input: TextProps): ReactElement;
@@ -966,7 +1035,6 @@ export function TextField(input: TextFieldProps): ReactElement;
 // @public (undocumented)
 export interface TextFieldProps extends Omit<InputProps, "className" | "style">, FieldOnly {
     className?: string;
-    // (undocumented)
     style?: CSSProperties;
 }
 
@@ -1014,11 +1082,8 @@ export interface ToastOptions {
 
 // @public (undocumented)
 export interface ToastPromiseOptions<Value> {
-    // (undocumented)
     error: ToastOptions | ((error: unknown) => ToastOptions);
-    // (undocumented)
     loading: ToastOptions;
-    // (undocumented)
     success: ToastOptions | ((value: Value) => ToastOptions);
 }
 
@@ -1067,6 +1132,8 @@ export interface ToggleProps extends Omit<ComponentProps<"button">, "value" | "d
     pressed?: boolean;
     render?: Toggle_2.Props["render"];
     size?: ControlSize;
+    tooltip?: ReactNode | false;
+    tooltipSide?: TooltipProps["side"];
     value?: string;
 }
 
@@ -1075,20 +1142,23 @@ export function Tooltip(input: TooltipProps): ReactElement;
 
 // @public (undocumented)
 export interface TooltipProps extends Omit<Tooltip_2.Root.Props, "children"> {
-    // (undocumented)
     align?: Tooltip_2.Positioner.Props["align"];
     children: ReactElement;
     closeDelay?: number;
     content: ReactNode;
     delay?: number;
     side?: Tooltip_2.Positioner.Props["side"];
+    sideOffset?: number;
 }
 
 // @public
 export function TooltipProvider(input: TooltipProviderProps): ReactElement;
 
 // @public (undocumented)
-export interface TooltipProviderProps extends Tooltip_2.Provider.Props {}
+export interface TooltipProviderProps extends Tooltip_2.Provider.Props {
+    closeDelay?: number | undefined;
+    delay?: number | undefined;
+}
 
 // @public
 export type Truncate = boolean | number;

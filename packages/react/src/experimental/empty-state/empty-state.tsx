@@ -15,17 +15,25 @@ export interface EmptyStateProps extends Omit<ComponentProps<"div">, "title"> {
   description?: ReactNode;
   /** Buttons, one primary at most. */
   actions?: ReactNode;
-  /** `page` (default) for a whole view; `section` inside a card or table. */
+  /**
+   * Under the actions, in small subtle text: a link to the docs, or a second way in ("Or import
+   * users from a CSV file").
+   */
+  children?: ReactNode;
+  /** `page` for a whole view; `section` inside a card or table. Default `page`. */
   size?: EmptyStateSize;
   /** `danger` colours the icon for an error. Default `neutral`. */
   tone?: EmptyStateTone;
-  /** Make the title a heading, when this is the page's main message. Otherwise it's styled text. */
+  /**
+   * Make the title a heading at this level, when this is the page's main message. Without it, the
+   * title is styled text. Default `undefined`.
+   */
   level?: HeadingLevel;
 }
 
 /**
- * The message where content would be: nothing yet, no results, or an error (07-components.md, C1).
- * Centred, at most 480px wide. Server-safe.
+ * The message where content would be: nothing yet, no results, or an error. Centred, at most 480px
+ * wide; anything in `children` goes under the actions. Server-safe.
  */
 export function EmptyState({
   icon: Icon,
@@ -36,6 +44,7 @@ export function EmptyState({
   tone = "neutral",
   level,
   className,
+  children,
   ...props
 }: EmptyStateProps): ReactElement {
   return (
@@ -46,7 +55,15 @@ export function EmptyState({
       data-size={size}
       data-tone={tone}
     >
-      {Icon && <Icon shape="sharp" size={24} aria-hidden className="qx-empty-state-icon" />}
+      {Icon && (
+        <Icon
+          shape="sharp"
+          size={24}
+          aria-hidden
+          className="qx-empty-state-icon"
+          data-slot="empty-state-icon"
+        />
+      )}
       {level !== undefined ? (
         <Heading level={level} size={size === "page" ? "title-md" : "title-sm"} align="center">
           {title}
@@ -64,6 +81,11 @@ export function EmptyState({
       {actions != null && (
         <div className="qx-empty-state-actions" data-slot="empty-state-actions">
           {actions}
+        </div>
+      )}
+      {children != null && typeof children !== "boolean" && (
+        <div className="qx-empty-state-footer" data-slot="empty-state-footer">
+          {children}
         </div>
       )}
     </div>

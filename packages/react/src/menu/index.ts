@@ -1,4 +1,8 @@
 export {
+  ContextMenu,
+  type ContextMenuProps,
+  ContextMenuTrigger,
+  type ContextMenuTriggerProps,
   Menu,
   MenuCheckboxItem,
   type MenuCheckboxItemProps,

@@ -7,4 +7,5 @@ export {
   TabsPanel,
   type TabsPanelProps,
   type TabsProps,
+  type TabsVariant,
 } from "./tabs";

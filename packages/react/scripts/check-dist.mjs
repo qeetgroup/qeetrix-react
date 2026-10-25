@@ -12,6 +12,8 @@
  *     built file, and no export uses a wildcard for JavaScript;
  *   - no exported name shadows a browser global (FileList, Notification and Highlight did in
  *     @qeetrix/ui);
+ *   - every component the build renames (`Button$1`) gets its public name back, so React shows
+ *     `Button`, not `Button$1`, in DevTools and code snippets;
  *   - JavaScript and CSS stay within size-budget.json (gzip).
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
@@ -138,6 +140,24 @@ for (const file of walk(dist).filter((f) => f.endsWith(".d.ts"))) {
         ?.replace(/^type\s+/, "");
       if (name && BROWSER_GLOBALS.has(name))
         report(`${relative(root, file)} exports ${name}, which shadows a browser global`);
+    }
+  }
+}
+
+// ---- component names survive the build ------------------------------------------------------
+// Unbundled output imports a Base UI part under its exported name, so Rolldown renames our
+// same-named component (`function Button$1`, `export { Button$1 as Button }`), and React reads
+// that name for DevTools and code snippets. `keepNames` in tsdown.config.ts puts the public name
+// back with `__name(Button$1, "Button")`; this catches a build that lost it.
+for (const file of walk(dist).filter((f) => f.endsWith(".js"))) {
+  const code = readFileSync(file, "utf8");
+  for (const [, local, exported] of code.matchAll(/\b(\w+\$\d+) as (\w+)\b/g)) {
+    if (local.replace(/\$\d+$/, "") !== exported || !/^[A-Z]/.test(exported)) continue;
+    const restored = new RegExp(`__name\\(${local.replace("$", "\\$")},\\s*"${exported}"\\)`);
+    if (!restored.test(code)) {
+      report(
+        `${relative(root, file)} exports ${exported} as ${local}; its name won't show as ${exported}`,
+      );
     }
   }
 }

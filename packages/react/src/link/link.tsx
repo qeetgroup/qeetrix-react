@@ -1,5 +1,5 @@
 import { ArrowUpRightIcon } from "@qeetrix/icons/icons/arrow-up-right";
-import type { ComponentProps, ReactElement } from "react";
+import type { ComponentProps, ReactElement, ReactNode } from "react";
 import { cx } from "../internal/cx";
 import { messages as defaults, type QeetrixMessages } from "../internal/messages";
 import { type RenderProp, renderElement } from "../internal/render";
@@ -8,9 +8,12 @@ import { VisuallyHidden } from "../visually-hidden/visually-hidden";
 export type LinkTone = "default" | "subtle" | "inherit";
 
 export interface LinkProps extends ComponentProps<"a"> {
-  /** `default` (link colour), `subtle` (footers, metadata) or `inherit`. */
+  /** `default` (link colour), `subtle` (footers, metadata) or `inherit`. Default `default`. */
   tone?: LinkTone;
-  /** Opens in a new tab: adds `rel="noopener noreferrer"`, an arrow and "(opens in a new tab)". */
+  /**
+   * Opens in a new tab: adds `rel="noopener noreferrer"`, an arrow at the end of the last line and
+   * "(opens in a new tab)" for screen readers.
+   */
   external?: boolean;
   /** Render a router link, e.g. `render={<RouterLink to="/x" />}`. */
   render?: RenderProp;
@@ -21,7 +24,47 @@ export interface LinkProps extends ComponentProps<"a"> {
   messages?: Partial<QeetrixMessages["link"]>;
 }
 
-/** Navigation to a page, a section, a file or a site. An action that changes data is a Button. */
+/**
+ * The text with the external arrow tied to its last word, so the arrow never wraps onto a line by
+ * itself. Plain text is split before its last word; other content gets a word joiner instead.
+ */
+function withArrow(children: ReactNode): ReactNode {
+  const arrow = (
+    <ArrowUpRightIcon
+      shape="sharp"
+      size={12}
+      aria-hidden
+      className="qx-link-icon"
+      data-slot="link-icon"
+    />
+  );
+  const at = typeof children === "string" ? children.search(/\S+\s*$/) : -1;
+  if (typeof children === "string" && at >= 0) {
+    return (
+      <>
+        {children.slice(0, at)}
+        <span className="qx-link-tail">
+          {children.slice(at)}
+          {arrow}
+        </span>
+      </>
+    );
+  }
+  return (
+    <>
+      {children}
+      <span className="qx-link-tail" aria-hidden>
+        {"\u2060"}
+        {arrow}
+      </span>
+    </>
+  );
+}
+
+/**
+ * Navigation to a page, a section, a file or a site. An action that changes data is a Button. It's
+ * inline, so a long link wraps with its sentence. Server-safe.
+ */
 export function Link({
   tone,
   external,
@@ -43,14 +86,7 @@ export function Link({
     "data-external": external ? "" : undefined,
     children: external ? (
       <>
-        {children}
-        <ArrowUpRightIcon
-          shape="sharp"
-          size={12}
-          aria-hidden
-          className="qx-link-icon"
-          data-slot="link-icon"
-        />
+        {withArrow(children)}
         <VisuallyHidden> {externalNote}</VisuallyHidden>
       </>
     ) : (

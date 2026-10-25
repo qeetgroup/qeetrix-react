@@ -1,21 +1,40 @@
 "use client";
 
 import { Button as BaseButton } from "@base-ui/react/button";
+import { Popover as BasePopover } from "@base-ui/react/popover";
 import { ChevronsUpDownIcon } from "@qeetrix/icons/icons/chevrons-up-down";
 import { MenuIcon } from "@qeetrix/icons/icons/menu";
+import { PanelRightIcon } from "@qeetrix/icons/icons/panel-right";
 import { SearchIcon } from "@qeetrix/icons/icons/search";
 import {
   Children,
   type ComponentProps,
+  type Context,
+  createContext,
   Fragment,
   isValidElement,
   type ReactElement,
   type ReactNode,
+  use,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
 } from "react";
 import { IconButton } from "../../button/button";
 import { cx } from "../../internal/cx";
+import { useMediaQuery } from "../../internal/media";
+import type { QeetrixMessages } from "../../internal/messages";
 import { type RenderProp, renderElement } from "../../internal/render";
+import { Menu, MenuCheckboxItem, MenuContent, MenuTrigger } from "../../menu/menu";
+import { useMessages } from "../../provider/provider";
+import { VisuallyHidden } from "../../visually-hidden/visually-hidden";
 import { useShellState } from "../app-shell/app-shell";
+
+/** Below the `expanded` window class the bar is compact, as the AppShell's sidebar becomes a drawer. */
+const COMPACT = "(width < 840px)";
+/** Below the `medium` window class (a phone), the panel triggers collapse into one menu too. */
+const PHONE = "(width < 600px)";
 
 export interface TopBarProps extends Omit<ComponentProps<"header">, "children"> {
   /** The suite launcher: a Menu of Qeet products behind a neutral IconButton. */
@@ -39,6 +58,8 @@ export interface TopBarProps extends Omit<ComponentProps<"header">, "children"> 
   actions?: ReactNode;
   /** The account menu: an Avatar trigger, after a rule. */
   account?: ReactNode;
+  /** The bar's strings, over QeetrixProvider's and the English defaults. */
+  messages?: Partial<QeetrixMessages["topBar"]>;
 }
 
 /** An environment's colour: production, staging, development… The word says which. */
@@ -71,10 +92,40 @@ function items(nodes: ReactNode): ReactNode[] {
   );
 }
 
+/** What a TopBarSwitcher shows, reported to the compact bar so its one switcher can show it too. */
+interface ScopeStep {
+  label: ReactNode;
+  mark: ReactNode;
+  status: TopBarStatus | undefined;
+}
+
+/** A step's place in the scope path, and where its switcher reports what it shows. */
+interface ScopeSlot {
+  index: number;
+  report: (index: number, step: ScopeStep | null) => void;
+}
+
+const ScopeContext: Context<ScopeSlot | null> = createContext<ScopeSlot | null>(null);
+
+function ScopeItem({ index, report, children }: ScopeSlot & { children: ReactNode }): ReactElement {
+  const slot = useMemo(() => ({ index, report }), [index, report]);
+  return <ScopeContext value={slot}>{children}</ScopeContext>;
+}
+
+const same = (a: ScopeStep | undefined, b: ScopeStep | null) =>
+  a === undefined || b === null
+    ? a === undefined && b === null
+    : a.label === b.label && a.mark === b.mark && a.status === b.status;
+
 /**
- * The scope bar of a Qeet console (07-components.md, C1): launcher, product, the scope path,
- * search, tools and account across the full width. It's black in light and dark alike (it renders
- * the dark scheme on itself), topped by a 2px Ember line.
+ * The scope bar of a Qeet console: launcher, product, the scope path, search, tools and account
+ * across the full width. It's black in light and dark alike (it renders the dark scheme on itself),
+ * topped by a 2px Ember line.
+ *
+ * Below 840px it's compact, so nothing overlaps: the scope path collapses into one switcher
+ * (showing the innermost step) that opens the whole path, and the search hides. Below 600px the
+ * product's name also gives way to its logo, and two or more panel triggers collapse into one
+ * Tools menu.
  */
 export function TopBar({
   launcher,
@@ -86,10 +137,27 @@ export function TopBar({
   search,
   actions,
   account,
+  messages,
   className,
   ...props
 }: TopBarProps): ReactElement {
   const shell = useShellState();
+  const strings = useMessages("topBar", messages);
+  const compact = useMediaQuery(COMPACT, false);
+  const phone = useMediaQuery(PHONE, false);
+  const path = items(context);
+  // In the compact bar, each TopBarSwitcher reports what it shows; the innermost is on the bar.
+  const [steps, setSteps] = useState<readonly (ScopeStep | undefined)[]>([]);
+  const report = useCallback((index: number, step: ScopeStep | null) => {
+    setSteps((current) => {
+      if (same(current[index], step)) return current;
+      const next = [...current];
+      next[index] = step ?? undefined;
+      return next;
+    });
+  }, []);
+  const innermost = steps[path.length - 1];
+  const collapseTools = phone && shell.drawers.length > 1;
   return (
     <header
       {...props}
@@ -97,6 +165,8 @@ export function TopBar({
       data-slot="top-bar"
       data-qx-color-scheme="dark"
       data-search={search != null ? "" : undefined}
+      data-compact={compact ? "" : undefined}
+      data-logo={logo != null ? "" : undefined}
     >
       <div className="qx-top-bar-start">
         {shell.narrow && (
@@ -126,13 +196,65 @@ export function TopBar({
             </>
           ),
         })}
-        {items(context).map((item, index) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: the scope is a fixed, ordered path
-          <Fragment key={index}>
+        {!compact &&
+          path.map((item, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: the scope is a fixed, ordered path
+            <Fragment key={index}>
+              <span className="qx-top-bar-slash" aria-hidden />
+              {item}
+            </Fragment>
+          ))}
+        {compact && path.length > 0 && (
+          <>
             <span className="qx-top-bar-slash" aria-hidden />
-            {item}
-          </Fragment>
-        ))}
+            <BasePopover.Root>
+              <BasePopover.Trigger
+                className="qx-top-bar-switcher qx-top-bar-scope"
+                data-slot="top-bar-scope"
+              >
+                {innermost && <VisuallyHidden>{strings.scope}</VisuallyHidden>}
+                {innermost?.mark != null && (
+                  <span className="qx-top-bar-mark" aria-hidden>
+                    <span className="qx-top-bar-mark-content">{innermost.mark}</span>
+                  </span>
+                )}
+                {innermost?.status && (
+                  <span className="qx-top-bar-status" data-status={innermost.status} aria-hidden />
+                )}
+                <span className="qx-top-bar-switcher-label">
+                  {innermost ? innermost.label : strings.scope}
+                </span>
+                <ChevronsUpDownIcon
+                  shape="round"
+                  size={14}
+                  aria-hidden
+                  className="qx-top-bar-caret"
+                />
+              </BasePopover.Trigger>
+              {/* Kept mounted while closed, so each switcher can report what it shows. */}
+              <BasePopover.Portal keepMounted>
+                <BasePopover.Positioner
+                  align="start"
+                  sideOffset={4}
+                  className="qx-top-bar-scope-positioner"
+                >
+                  <BasePopover.Popup
+                    className="qx-top-bar-scope-popup"
+                    data-slot="top-bar-scope-popup"
+                    aria-label={strings.scope}
+                  >
+                    {path.map((item, index) => (
+                      // biome-ignore lint/suspicious/noArrayIndexKey: the scope is a fixed, ordered path
+                      <ScopeItem key={index} index={index} report={report}>
+                        {item}
+                      </ScopeItem>
+                    ))}
+                  </BasePopover.Popup>
+                </BasePopover.Positioner>
+              </BasePopover.Portal>
+            </BasePopover.Root>
+          </>
+        )}
       </div>
       {search != null && (
         <div className="qx-top-bar-search" data-slot="top-bar-search">
@@ -140,7 +262,39 @@ export function TopBar({
         </div>
       )}
       <div className="qx-top-bar-end">
-        {shell.drawers.length > 0 && (
+        {collapseTools && (
+          <span
+            className="qx-top-bar-tool"
+            data-badge={shell.drawers.some((drawer) => drawer.badge) ? "" : undefined}
+          >
+            <Menu>
+              <MenuTrigger
+                render={
+                  <IconButton
+                    icon={PanelRightIcon}
+                    aria-label={shell.strings.tools}
+                    data-panel-open={shell.activeDrawer !== null ? "" : undefined}
+                    tone="neutral"
+                    tooltip={false}
+                    className="qx-top-bar-tools-trigger"
+                  />
+                }
+              />
+              <MenuContent align="end">
+                {shell.drawers.map((drawer) => (
+                  <MenuCheckboxItem
+                    key={drawer.id}
+                    checked={shell.activeDrawer === drawer.id}
+                    onCheckedChange={() => shell.toggleDrawer(drawer.id)}
+                  >
+                    {drawer.label}
+                  </MenuCheckboxItem>
+                ))}
+              </MenuContent>
+            </Menu>
+          </span>
+        )}
+        {!collapseTools && shell.drawers.length > 0 && (
           // biome-ignore lint/a11y/useSemanticElements: a fieldset is for form controls; this is a set of buttons
           <div role="group" aria-label={shell.strings.tools} className="qx-top-bar-tools">
             {shell.drawers.map((drawer) => (
@@ -175,6 +329,7 @@ export function TopBar({
 /**
  * A step of the TopBar's scope path: the current organisation or environment, which opens a Menu
  * to switch it. Use it as the trigger: `<MenuTrigger render={<TopBarSwitcher label="Acme" />} />`.
+ * In the compact bar, the innermost step's label, mark and status show on the bar's one switcher.
  */
 export function TopBarSwitcher({
   label,
@@ -183,6 +338,12 @@ export function TopBarSwitcher({
   className,
   ...props
 }: TopBarSwitcherProps): ReactElement {
+  const slot = use(ScopeContext);
+  useEffect(() => {
+    if (!slot) return;
+    slot.report(slot.index, { label, mark, status });
+    return () => slot.report(slot.index, null);
+  }, [slot, label, mark, status]);
   return (
     <BaseButton
       {...props}

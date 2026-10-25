@@ -94,6 +94,101 @@ describe("AppShell", () => {
     expect(onActiveDrawerChange).toHaveBeenLastCalledWith(null);
   });
 
+  it("leaves no band without a bar: the navigation and panel fill the window, at every density", async () => {
+    const drawers = [
+      { id: "help", label: "Help", icon: CircleQuestionMarkIcon, content: "Help text" },
+    ];
+    for (const density of ["compact", "default", "comfortable"] as const) {
+      await page.viewport(1440, 900);
+      const { unmount } = await render(
+        <AppShell
+          density={density}
+          sidebar={<nav aria-label="Pages">pages</nav>}
+          drawers={drawers}
+          defaultActiveDrawer="help"
+        >
+          <div style={{ blockSize: 3000 }}>page</div>
+        </AppShell>,
+      );
+      const panel = document.querySelector("[data-slot=app-shell-panel]") as HTMLElement;
+      const main = document.querySelector("[data-slot=app-shell-main]") as HTMLElement;
+      for (const scrolled of [0, 600]) {
+        window.scrollTo(0, scrolled);
+        await settled();
+        const where = `${density}, scrolled ${scrolled}px`;
+        expect(nav().getBoundingClientRect().top, where).toBe(0);
+        expect(nav().getBoundingClientRect().height, where).toBe(900);
+        expect(panel.getBoundingClientRect().top, where).toBe(0);
+        expect(panel.getBoundingClientRect().height, where).toBe(900);
+      }
+      window.scrollTo(0, 0);
+      expect(main.getBoundingClientRect().top, density).toBe(0);
+      // Below the large window class, the panel overlays the page from the top, too.
+      await page.viewport(1000, 900);
+      expect(panel.getBoundingClientRect().top, density).toBe(0);
+      expect(panel.getBoundingClientRect().height, density).toBe(900);
+      await unmount();
+    }
+  });
+
+  it("starts the navigation under the bar, at every density", async () => {
+    await page.viewport(1440, 900);
+    for (const [density, bar] of [
+      ["compact", 48],
+      ["default", 56],
+      ["comfortable", 60],
+    ] as const) {
+      const { unmount } = await render(
+        <AppShell
+          density={density}
+          topBar={<TopBar product="Qeet ID" />}
+          sidebar={<nav aria-label="Pages">pages</nav>}
+        >
+          page
+        </AppShell>,
+      );
+      const top = document.querySelector("[data-slot=app-shell-top]") as HTMLElement;
+      expect(top.getBoundingClientRect().height, density).toBe(bar);
+      expect(nav().getBoundingClientRect().top, density).toBe(bar);
+      expect(nav().getBoundingClientRect().height, density).toBe(900 - bar);
+      await unmount();
+    }
+  });
+
+  it("marks each part of the frame with its slot", async () => {
+    await page.viewport(1440, 900);
+    await render(
+      <AppShell
+        topBar={<TopBar product="Qeet ID" />}
+        sidebar={<nav aria-label="Pages">pages</nav>}
+        drawers={[
+          { id: "help", label: "Help", icon: CircleQuestionMarkIcon, content: "Help text" },
+        ]}
+        defaultActiveDrawer="help"
+      >
+        page
+      </AppShell>,
+    );
+    for (const part of [
+      "app-shell-top",
+      "app-shell-nav",
+      "app-shell-nav-panel",
+      "app-shell-nav-body",
+      "app-shell-nav-foot",
+      "app-shell-collapse",
+      "app-shell-main",
+      "app-shell-panel",
+      "app-shell-panel-header",
+      "app-shell-panel-title",
+      "app-shell-panel-body",
+    ]) {
+      expect(document.querySelectorAll(`[data-slot=${part}]`), part).toHaveLength(1);
+    }
+    expect(page.getByRole("button", { name: "Collapse" }).element().getAttribute("data-slot")).toBe(
+      "app-shell-collapse",
+    );
+  });
+
   it("opens the navigation from the bar's menu button on narrow screens", async () => {
     await page.viewport(600, 800);
     await render(<QeetIdConsole />);

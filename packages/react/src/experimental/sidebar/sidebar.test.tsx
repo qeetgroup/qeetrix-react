@@ -3,10 +3,11 @@ import { FileTextIcon } from "@qeetrix/icons/icons/file-text";
 import { LayoutGridIcon } from "@qeetrix/icons/icons/layout-grid";
 import { SettingsIcon } from "@qeetrix/icons/icons/settings";
 import { WalletIcon } from "@qeetrix/icons/icons/wallet";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../../tests/support/axe";
+import { baseline } from "../../../tests/support/baseline";
 import { tokenColor } from "../../../tests/support/color";
 import { tab } from "../../../tests/support/keyboard";
 import { screenshotEveryMode } from "../../../tests/support/screenshots";
@@ -137,6 +138,104 @@ describe("Sidebar", () => {
     expect(iconX()).toBe(open);
     await page.getByRole("button", { name: "Reports" }).click();
     await expect.element(page.getByRole("link", { name: "GST returns" })).toBeVisible();
+  });
+
+  it("sets counts and badges on the label's baseline, at every density", async () => {
+    const { container } = await render(
+      <Sidebar label="Qeet ID">
+        <SidebarGroup label="Directory">
+          <SidebarItem label="Users" href="#users" icon={LayoutGridIcon} badge="1,284" current />
+          <SidebarItem
+            label="Payments"
+            href="#payments"
+            icon={CreditCardIcon}
+            badge={<Badge tone="danger">3</Badge>}
+          />
+          <SidebarItem label="Reports" icon={FileTextIcon} badge="12">
+            <SidebarItem label="Daily" href="#daily" badge="4" />
+          </SidebarItem>
+        </SidebarGroup>
+      </Sidebar>,
+    );
+    const rows = [...container.querySelectorAll(".qx-sidebar-item")];
+    for (const density of ["compact", "default", "comfortable"]) {
+      document.documentElement.dataset.qxDensity = density;
+      for (const row of rows) {
+        const label = baseline(row.querySelector(".qx-sidebar-label"));
+        const count = baseline(row.querySelector("[data-slot=sidebar-item-badge]"));
+        expect(Math.abs(count - label), `${row.textContent}, ${density}`).toBeLessThanOrEqual(0.5);
+        // The label stays centred on the row.
+        const box = row.getBoundingClientRect();
+        const text = (
+          row.querySelector(".qx-sidebar-label") as HTMLElement
+        ).getBoundingClientRect();
+        expect(
+          Math.abs(text.top + text.height / 2 - (box.top + box.height / 2)),
+        ).toBeLessThanOrEqual(0.5);
+      }
+    }
+    delete document.documentElement.dataset.qxDensity;
+  });
+
+  it("passes its own props to the link: id, aria-*, data-*, target and ref", async () => {
+    const ref = vi.fn();
+    await render(
+      <Sidebar label="Qeet ID">
+        <SidebarGroup>
+          <SidebarItem
+            label="API reference"
+            href="https://docs.qeet.in"
+            id="docs-link"
+            aria-describedby="docs-note"
+            data-track="docs"
+            target="_blank"
+            rel="noreferrer"
+            ref={ref}
+          />
+        </SidebarGroup>
+      </Sidebar>,
+    );
+    const link = page.getByRole("link", { name: "API reference" });
+    await expect.element(link).toHaveAttribute("id", "docs-link");
+    await expect.element(link).toHaveAttribute("aria-describedby", "docs-note");
+    await expect.element(link).toHaveAttribute("data-track", "docs");
+    await expect.element(link).toHaveAttribute("target", "_blank");
+    await expect.element(link).toHaveAttribute("rel", "noreferrer");
+    expect(ref).toHaveBeenCalledWith(link.element());
+  });
+
+  it("shows a disabled item greyed, out of the Tab order and not followed", async () => {
+    const onClick = vi.fn();
+    await render(
+      <Sidebar label="Qeet ID">
+        <SidebarGroup>
+          <SidebarItem label="Users" href="#users" icon={LayoutGridIcon} />
+          <SidebarItem
+            label="Audit logs"
+            href="#audit"
+            icon={FileTextIcon}
+            disabled
+            onClick={onClick}
+          />
+          <SidebarItem label="Reports" icon={FileTextIcon} disabled>
+            <SidebarItem label="Daily" href="#daily" />
+          </SidebarItem>
+          <SidebarItem label="Settings" href="#settings" icon={SettingsIcon} />
+        </SidebarGroup>
+      </Sidebar>,
+    );
+    const audit = page.getByRole("link", { name: "Audit logs" });
+    await expect.element(audit).toHaveAttribute("aria-disabled", "true");
+    expect(audit.element().hasAttribute("href")).toBe(false);
+    expect(getComputedStyle(audit.element()).color).toBe(tokenColor("--qx-color-text-disabled"));
+    await expect.element(page.getByRole("button", { name: "Reports" })).toBeDisabled();
+    // Tab goes from Users straight to Settings, past both.
+    await tab();
+    await expect.element(page.getByRole("link", { name: "Users" })).toHaveFocus();
+    await tab();
+    await expect.element(page.getByRole("link", { name: "Settings" })).toHaveFocus();
+    await audit.click({ force: true });
+    expect(onClick).not.toHaveBeenCalled();
   });
 
   it("is accessible and looks right in every mode", async () => {

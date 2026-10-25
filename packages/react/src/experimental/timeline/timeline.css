@@ -1,7 +1,7 @@
-/* Timeline (07-components.md): events down a column. Default: a 28px square marker with the event's
-   icon, a 1px line down to the next event, the title and description beside it, the time at the
-   end; groups under small-caps day labels, the line breaking between them. Compact: a 6px dot and
-   tighter rows. Danger colours the marker's icon (or dot) and the title. */
+/* Timeline: events down a column. Default: a 28px square marker with the event's icon, a 1px line
+   down to the next event, the title and description beside it, the time at the end; groups under
+   small-caps day labels, the line breaking between them. Compact: a 6px dot on the title's line and
+   tighter rows. The tone colours the marker's icon (or dot); danger colours the title too. */
 .qx-timeline,
 .qx-timeline-events {
   display: grid;
@@ -22,6 +22,7 @@
   margin-block-end: var(--qx-space-gap-sm);
   color: var(--qx-color-text-subtle);
   font: var(--qx-typography-label-caps);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
   letter-spacing: var(--qx-typography-label-caps-letter-spacing);
   text-transform: uppercase;
 }
@@ -52,14 +53,20 @@
   background: var(--qx-color-bg-neutral-subtle);
   box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-subtle);
   color: var(--qx-color-icon-subtle);
-  [data-tone="danger"] > & {
-    color: var(--qx-color-icon-danger);
+  [data-tone="brand"] > & {
+    color: var(--qx-color-icon-brand);
+  }
+  [data-tone="info"] > & {
+    color: var(--qx-color-icon-info);
   }
   [data-tone="success"] > & {
     color: var(--qx-color-icon-success);
   }
   [data-tone="warning"] > & {
     color: var(--qx-color-icon-warning);
+  }
+  [data-tone="danger"] > & {
+    color: var(--qx-color-icon-danger);
   }
 }
 /* The title's first line centred on the marker; the time on the same line. */
@@ -81,6 +88,7 @@
 .qx-timeline-time {
   color: var(--qx-color-text-subtle);
   font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
 }
 .qx-timeline-time {
   white-space: nowrap;
@@ -99,16 +107,30 @@
   & .qx-timeline-item::after {
     content: none;
   }
+  /* On the title's line, not the middle of the event: an event with a description is two lines. */
   & .qx-timeline-marker {
-    align-self: center;
+    align-self: start;
     inline-size: 6px;
     block-size: 6px;
+    margin-block-start: calc((1lh - 6px) / 2);
     border-radius: var(--qx-radius-full);
     background: var(--qx-color-border-strong);
     box-shadow: none;
     & > svg {
       display: none;
     }
+  }
+  & [data-tone="brand"] > .qx-timeline-marker {
+    background: var(--qx-color-icon-brand);
+  }
+  & [data-tone="info"] > .qx-timeline-marker {
+    background: var(--qx-color-icon-info);
+  }
+  & [data-tone="success"] > .qx-timeline-marker {
+    background: var(--qx-color-icon-success);
+  }
+  & [data-tone="warning"] > .qx-timeline-marker {
+    background: var(--qx-color-icon-warning);
   }
   & [data-tone="danger"] > .qx-timeline-marker {
     background: var(--qx-color-icon-danger);

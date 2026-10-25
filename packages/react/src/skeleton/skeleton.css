@@ -1,5 +1,5 @@
-/* Skeleton (06-component-specs.md, increment 6): a neutral shape that pulses. Under reduced motion
-   the tokens set the duration to 0 and it holds still. */
+/* Skeleton: a neutral shape that pulses. Under reduced motion the tokens set the duration to 0 and
+   it holds still. Circles take Avatar's sizes; `lines` stacks text bars a line apart. */
 .qx-skeleton {
   display: block;
   inline-size: 100%;
@@ -19,6 +19,33 @@
     inline-size: 32px;
     block-size: 32px;
     border-radius: var(--qx-radius-full);
+    &[data-size="sm"] {
+      inline-size: 24px;
+      block-size: 24px;
+    }
+    &[data-size="lg"] {
+      inline-size: 40px;
+      block-size: 40px;
+    }
+    &[data-size="xl"] {
+      inline-size: 48px;
+      block-size: 48px;
+    }
+  }
+}
+
+/* A paragraph: each bar as tall as the font size (1em) and centred in its line, so N bars take N
+   lines' height; the last bar is shorter, as a paragraph's last line is. */
+.qx-skeleton-lines {
+  display: flex;
+  flex-direction: column;
+  gap: calc(1lh - 1em);
+  padding-block: calc((1lh - 1em) / 2);
+  & > .qx-skeleton {
+    block-size: 1em;
+  }
+  & > .qx-skeleton:last-child:not(:first-child) {
+    inline-size: 60%;
   }
 }
 

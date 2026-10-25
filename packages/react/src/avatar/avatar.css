@@ -1,5 +1,6 @@
-/* Avatar (06-component-specs.md, increment 6): a circle with the photo, or initials on a neutral
-   fill while it loads or when it fails. */
+/* Avatar: a circle with the photo, or initials on a neutral fill while it loads or when it fails. An
+   organisation, application or tenant is a square with the controls' 4px corners. The `font`
+   shorthand resets font-variation-settings, so every rule that sets it sets the geometry after it. */
 .qx-avatar {
   display: inline-grid;
   flex: none;
@@ -23,11 +24,16 @@
     inline-size: 40px;
     block-size: 40px;
     font: var(--qx-typography-label-md);
+    font-variation-settings: "GEOM" var(--qx-font-geometry-body);
   }
   &[data-size="xl"] {
     inline-size: 48px;
     block-size: 48px;
     font: var(--qx-typography-label-md);
+    font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  }
+  &[data-shape="square"] {
+    border-radius: var(--qx-radius-control);
   }
 }
 /* Initials are capitals: trimmed to the capitals' height (from the cap line to the baseline), the
@@ -41,7 +47,7 @@
   object-fit: cover;
 }
 
-/* Forced colours: the fill is dropped, so the circle gets an edge. */
+/* Forced colours: the fill is dropped, so the shape gets an edge. */
 @media (forced-colors: active) {
   .qx-avatar {
     border: var(--qx-border-width-default) solid CanvasText;

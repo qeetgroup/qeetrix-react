@@ -1,4 +1,4 @@
-/* Breadcrumb (07-components.md, C1): subtle links, the current page in the default text colour. */
+/* Breadcrumb (C1): subtle links, the current page in the default text colour. */
 .qx-breadcrumb {
   min-inline-size: 0;
   font: var(--qx-typography-body-md);

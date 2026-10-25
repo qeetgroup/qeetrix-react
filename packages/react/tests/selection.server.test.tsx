@@ -43,7 +43,8 @@ describe("selection and disclosure render on the server", () => {
         <TabsPanel value="paid">Paid invoices</TabsPanel>
       </Tabs>,
     );
-    expect(out).toMatch(/aria-selected="true"[^>]*>Paid/);
+    // The label sits in its own part, which a trailing count shares a baseline with.
+    expect(out).toMatch(/aria-selected="true"[^>]*><span[^>]*data-slot="tab-label">Paid/);
     expect(out).toContain("Paid invoices");
   });
 
@@ -64,5 +65,13 @@ describe("selection and disclosure render on the server", () => {
       html(<Slider aria-label="Amount" defaultValue={[10, 90]} />).match(/type="range"/g),
     ).toHaveLength(2);
     expect(html(<ScrollArea>rows</ScrollArea>)).toContain('data-slot="scroll-area-viewport"');
+  });
+
+  it("ScrollArea names its viewport, a region, not its root", () => {
+    const out = html(<ScrollArea aria-label="Activity">rows</ScrollArea>);
+    const viewport = out.match(/<div[^>]*data-slot="scroll-area-viewport"[^>]*>/)?.[0] ?? "";
+    expect(viewport).toContain('role="region"');
+    expect(viewport).toContain('aria-label="Activity"');
+    expect(out.match(/aria-label=/g)).toHaveLength(1);
   });
 });

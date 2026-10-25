@@ -24,6 +24,9 @@
   display: grid;
   place-items: center;
   padding: var(--qx-space-inset-xl);
+  &[data-size="fullscreen"] {
+    padding: 0;
+  }
 }
 .qx-dialog {
   position: relative;
@@ -48,6 +51,16 @@
   }
   &[data-size="lg"] {
     inline-size: min(100%, 800px);
+  }
+  &[data-size="xl"] {
+    inline-size: min(100%, 1120px);
+  }
+  /* Full screen: the whole viewport, square where it meets the screen's edges. */
+  &[data-size="fullscreen"] {
+    inline-size: 100%;
+    block-size: 100%;
+    max-block-size: none;
+    border-radius: var(--qx-radius-none);
   }
   &[data-intent="danger"] {
     border-block-start-color: var(--qx-color-border-danger);
@@ -89,6 +102,12 @@
   min-block-size: 0;
   overflow-y: auto;
   padding: 0 var(--qx-space-inset-xl) var(--qx-space-inset-xl);
+  outline: 0;
+  /* A scrolling body with nothing focusable in it takes focus itself: the frame is drawn inside. */
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
 }
 .qx-dialog-footer {
   display: flex;

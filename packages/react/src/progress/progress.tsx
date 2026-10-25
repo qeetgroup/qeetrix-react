@@ -11,31 +11,64 @@ interface BarLook {
   label?: ReactNode;
   /** Show the formatted value at the end of the header. */
   showValue?: boolean;
+  /** The lowest value: an empty track. Default `0`. */
+  min?: number | undefined;
+  /** The highest value: a full track. Default `100`. */
+  max?: number | undefined;
+  /**
+   * How the value is written in the header and read out: `Intl.NumberFormat` options for the value
+   * itself, e.g. `{ style: "unit", unit: "gigabyte" }`. Default: its percentage of the range.
+   */
+  format?: Intl.NumberFormatOptions | undefined;
+  /** Default: QeetrixProvider's locale. It formats the value. */
+  locale?: Intl.LocalesArgument | undefined;
   /** Placement only. */
   className?: string;
+  /** Placement only. */
   style?: CSSProperties;
 }
 
-export interface ProgressProps
-  extends Omit<BaseProgress.Root.Props, "className" | "style" | "children">,
-    BarLook {}
+/** The indicator's colour while a task advances: `success` once it's done, `danger` if it failed. */
+export type ProgressTone = "brand" | "success" | "danger";
 
-export type MeterTone = "brand" | "success" | "warning" | "danger";
+export interface ProgressProps
+  extends Omit<
+      BaseProgress.Root.Props,
+      "className" | "style" | "children" | "value" | "min" | "max" | "format" | "locale"
+    >,
+    BarLook {
+  /** How far the task has got, from `min` to `max`; `null` while that's unknown (indeterminate). */
+  value: number | null;
+  /** The indicator's colour: `success` for a task that finished, `danger` for one that failed. Default `brand`. */
+  tone?: ProgressTone;
+}
+
+/** The indicator's colour, as Badge's tones. */
+export type MeterTone = "brand" | "neutral" | "info" | "success" | "warning" | "danger";
 
 export interface MeterProps
-  extends Omit<BaseMeter.Root.Props, "className" | "style" | "children">,
+  extends Omit<
+      BaseMeter.Root.Props,
+      "className" | "style" | "children" | "value" | "min" | "max" | "format" | "locale"
+    >,
     BarLook {
-  /** The indicator's colour. Default `brand`. */
+  /** The measurement, from `min` to `max`: storage used, a quota spent. */
+  value: number;
+  /**
+   * The indicator's colour: `neutral` or `info` for a plain amount, `success`, `warning` or `danger`
+   * for how it stands. Default `brand`.
+   */
   tone?: MeterTone;
 }
 
 /**
- * A task advancing, such as an upload (06-component-specs.md, increment 6). `value={null}` is
- * indeterminate: a segment slides along the track, and fades instead under reduced motion.
+ * A task advancing, such as an upload. `value={null}` is indeterminate: a segment slides along the
+ * track, and fades instead under reduced motion. `tone` marks how it ended.
  */
 export function Progress({
   label,
   showValue,
+  tone = "brand",
   locale,
   className,
   ...props
@@ -47,6 +80,7 @@ export function Progress({
       locale={locale ?? providerLocale}
       className={cx("qx-progress", className)}
       data-slot="progress"
+      data-tone={tone}
     >
       {(label != null || showValue) && (
         <div className="qx-progress-header" data-slot="progress-header">

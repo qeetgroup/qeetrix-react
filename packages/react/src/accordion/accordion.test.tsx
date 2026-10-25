@@ -2,10 +2,12 @@ import { describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
+import { tokenColor } from "../../tests/support/color";
 import { screenshotEveryMode } from "../../tests/support/screenshots";
 import { settled } from "../../tests/support/settled";
 import { Stage } from "../../tests/support/stage";
 import { Button } from "../button/button";
+import { Card } from "../card/card";
 import {
   Accordion,
   AccordionItem,
@@ -61,6 +63,43 @@ describe("Accordion", () => {
     await expect.element(page.getByRole("button", { name: "Invoice numbering" })).toHaveFocus();
   });
 
+  it("sets body text in its panel, as Card's body does, on a page without a body font", async () => {
+    // No Stage: nothing above sets a font, so the panel can't inherit one.
+    const { container } = await render(
+      <>
+        <Advanced />
+        <Card>Card body</Card>
+      </>,
+    );
+    const content = container.querySelector("[data-slot=accordion-content]") as HTMLElement;
+    const body = container.querySelector("[data-slot=card-body]") as HTMLElement;
+    const panel = getComputedStyle(content);
+    const card = getComputedStyle(body);
+    expect(panel.fontSize).toBe("14px");
+    expect(Number.parseFloat(panel.lineHeight)).toBeCloseTo(20, 2);
+    expect(panel.fontFamily).toMatch(/Qeet Sans/);
+    expect(panel.fontVariationSettings).toBe('"GEOM" 0');
+    expect(panel.color).toBe(tokenColor("--qx-color-text-default"));
+    for (const property of [
+      "fontFamily",
+      "fontSize",
+      "lineHeight",
+      "fontWeight",
+      "fontVariationSettings",
+    ] as const) {
+      expect(panel[property], property).toBe(card[property]);
+    }
+  });
+
+  it("marks its heading wrapper and content with slots", async () => {
+    const { container } = await render(<Advanced />);
+    const headers = container.querySelectorAll("[data-slot=accordion-header]");
+    expect(headers).toHaveLength(3);
+    expect(headers[0]?.tagName).toBe("H3");
+    // Closed panels stay in the page for find in page (hiddenUntilFound).
+    expect(container.querySelectorAll("[data-slot=accordion-content]")).toHaveLength(3);
+  });
+
   it("is accessible and looks right in every mode", async () => {
     const { container } = await render(
       <Stage>
@@ -76,6 +115,19 @@ describe("Accordion", () => {
 });
 
 describe("Collapsible", () => {
+  it("marks its root and its trigger with slots", async () => {
+    const { container } = await render(
+      <Collapsible>
+        <CollapsibleTrigger>Advanced options</CollapsibleTrigger>
+        <CollapsiblePanel>Webhook signing secret</CollapsiblePanel>
+      </Collapsible>,
+    );
+    expect(container.querySelector("[data-slot=collapsible]")).not.toBeNull();
+    expect(
+      page.getByRole("button", { name: "Advanced options" }).element().getAttribute("data-slot"),
+    ).toBe("collapsible-trigger");
+  });
+
   it("shows and hides its panel from your trigger", async () => {
     await render(
       <Collapsible>

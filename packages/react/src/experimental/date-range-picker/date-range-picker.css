@@ -1,0 +1,54 @@
+/* DateRangePicker's presets: a column of quiet buttons beside the calendar, behind a 1px rule. Each
+   is a day high with 4px corners and the label type, tinted on hover like the calendar's own
+   buttons, with the Ember frame inside on focus. In a compact window they go below the calendar. */
+.qx-date-range-picker-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-inline-start: var(--qx-space-gap-md);
+  border-inline-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+}
+.qx-date-range-picker-preset {
+  display: flex;
+  align-items: center;
+  min-block-size: var(--qx-size-control-md);
+  margin: 0;
+  padding-block: 0;
+  padding-inline: var(--qx-space-inset-sm);
+  border: 0;
+  border-radius: var(--qx-radius-control);
+  background: transparent;
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-label-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  text-align: start;
+  white-space: nowrap;
+  cursor: pointer;
+  transition-property: background-color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &:hover:not([aria-disabled]) {
+    background: var(--qx-color-overlay-hover);
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+  &[aria-disabled] {
+    color: var(--qx-color-text-disabled);
+    cursor: not-allowed;
+  }
+}
+@media (width < 600px) {
+  .qx-date-range-picker-presets {
+    padding-block-start: var(--qx-space-gap-md);
+    padding-inline-start: 0;
+    border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+    border-inline-start: 0;
+  }
+}
+@media (forced-colors: active) {
+  .qx-date-range-picker-preset[aria-disabled] {
+    color: GrayText;
+  }
+}

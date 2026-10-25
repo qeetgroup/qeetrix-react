@@ -1,7 +1,7 @@
-/* TreeView (07-components.md): rows the density's row height, indented 20px a level with a 1px
-   guide down each level; a chevron that turns as its node opens (mirrored right-to-left), an
-   optional checkbox face, icon, label and a meta at the end. The selected row takes the selected
-   tint and the Ember bar; the focused row the focus ring. */
+/* TreeView: rows the density's row height, indented 20px a level with a 1px guide down each level;
+   a chevron that turns as its node opens (mirrored right-to-left), an optional checkbox face, icon,
+   label and a meta at the end. The selected row takes the selected tint and the Ember bar; the
+   focused row the focus ring; a disabled row the disabled colours, and no hover. */
 .qx-tree,
 .qx-tree-group {
   margin: 0;
@@ -47,6 +47,16 @@
     outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
     outline-offset: calc(-1 * var(--qx-focus-ring-width));
   }
+  &[data-disabled] {
+    color: var(--qx-color-text-disabled);
+    cursor: not-allowed;
+    &:hover {
+      background: transparent;
+    }
+    & :is(.qx-tree-toggle, .qx-tree-icon, .qx-tree-meta) {
+      color: var(--qx-color-text-disabled);
+    }
+  }
 }
 .qx-tree-guide {
   position: absolute;
@@ -89,6 +99,11 @@
     background: var(--qx-color-bg-brand-bold);
     color: var(--qx-color-text-on-brand);
   }
+  [data-disabled] > & {
+    border-color: var(--qx-color-border-disabled);
+    background: var(--qx-color-bg-disabled);
+    color: var(--qx-color-text-disabled);
+  }
 }
 .qx-tree-icon {
   flex: none;
@@ -105,6 +120,7 @@
   flex: none;
   color: var(--qx-color-text-subtle);
   font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
   font-variant-numeric: tabular-nums;
 }
 
@@ -118,5 +134,13 @@
     forced-color-adjust: none;
     background: Highlight;
     color: HighlightText;
+  }
+  .qx-tree-row[data-disabled] {
+    color: GrayText;
+    & .qx-tree-check {
+      border-color: GrayText;
+      background: Canvas;
+      color: GrayText;
+    }
   }
 }

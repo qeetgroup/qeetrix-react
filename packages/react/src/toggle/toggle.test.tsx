@@ -2,7 +2,7 @@ import { BoldIcon } from "@qeetrix/icons/icons/bold";
 import { ItalicIcon } from "@qeetrix/icons/icons/italic";
 import { LayoutGridIcon } from "@qeetrix/icons/icons/layout-grid";
 import { ListIcon } from "@qeetrix/icons/icons/list";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
@@ -10,6 +10,12 @@ import { screenshotEveryMode } from "../../tests/support/screenshots";
 import { Stage } from "../../tests/support/stage";
 import { Inline } from "../inline/inline";
 import { Toggle, ToggleGroup } from "./toggle";
+
+const tooltip = () => document.querySelector("[data-slot=tooltip-popup]");
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe("Toggle", () => {
   it("toggles on click and Space, and reports the new state", async () => {
@@ -28,10 +34,65 @@ describe("Toggle", () => {
     const { container } = await render(
       <Toggle icon={LayoutGridIcon} filledWhenPressed aria-label="Grid view" defaultPressed />,
     );
-    const filled = container.querySelector(".qx-toggle-icon-filled") as SVGElement;
-    const outline = container.querySelector(".qx-toggle-icon-outline") as SVGElement;
+    const filled = container.querySelector("[data-slot=toggle-icon-filled]") as SVGElement;
+    const outline = container.querySelector("[data-slot=toggle-icon]") as SVGElement;
+    expect(filled.classList).toContain("qx-toggle-icon-filled");
+    expect(outline.classList).toContain("qx-toggle-icon-outline");
     expect(getComputedStyle(filled).display).toBe("block");
     expect(getComputedStyle(outline).display).toBe("none");
+  });
+
+  it("an icon-only toggle shows its aria-label as a tooltip, without reading it twice", async () => {
+    await render(<Toggle icon={BoldIcon} aria-label="Bold" />);
+    await userEvent.keyboard("{Tab}");
+    await expect.poll(() => tooltip()?.textContent).toBe("Bold");
+    const toggle = page.getByRole("button", { name: "Bold" });
+    await expect.element(toggle).toHaveFocus();
+    await expect.element(toggle).not.toHaveAttribute("aria-describedby");
+  });
+
+  it("takes other tooltip text, or none, and a labelled toggle has none", async () => {
+    await render(
+      <Inline gap="md">
+        <Toggle icon={BoldIcon} aria-label="Bold" tooltip="Bold (Ctrl+B)" />
+        <Toggle icon={ItalicIcon} aria-label="Italic" tooltip={false} />
+        <Toggle icon={ListIcon}>List</Toggle>
+      </Inline>,
+    );
+    await userEvent.keyboard("{Tab}");
+    await expect.poll(() => tooltip()?.textContent).toBe("Bold (Ctrl+B)");
+    await expect
+      .element(page.getByRole("button", { name: "Bold" }))
+      .toHaveAccessibleDescription("Bold (Ctrl+B)");
+    await userEvent.keyboard("{Tab}");
+    await expect.element(page.getByRole("button", { name: "Italic" })).toHaveFocus();
+    await expect.poll(tooltip).toBeNull();
+    await userEvent.keyboard("{Tab}");
+    await expect.element(page.getByRole("button", { name: "List" })).toHaveFocus();
+    await expect.poll(tooltip).toBeNull();
+  });
+
+  it("opens an icon-only toggle's tooltip on `tooltipSide`", async () => {
+    await render(
+      <div style={{ padding: 64 }}>
+        <Toggle icon={BoldIcon} aria-label="Bold" tooltipSide="bottom" />
+      </div>,
+    );
+    await userEvent.keyboard("{Tab}");
+    await expect.poll(() => tooltip()?.getAttribute("data-side")).toBe("bottom");
+  });
+
+  it("warns in development when an icon-only toggle has no name", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    await render(
+      <Inline gap="md">
+        <Toggle icon={BoldIcon} aria-label="Bold" />
+        <Toggle icon={ListIcon}>List</Toggle>
+      </Inline>,
+    );
+    expect(warn).not.toHaveBeenCalled();
+    await render(<Toggle icon={ItalicIcon} />);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("aria-label"));
   });
 });
 
@@ -58,7 +119,7 @@ describe("ToggleGroup", () => {
     expect(onValueChange).toHaveBeenLastCalledWith(["list"], expect.anything());
   });
 
-  it("moves focus with the arrow keys", async () => {
+  it("moves focus with the arrow keys, the tooltip following", async () => {
     await render(
       <ToggleGroup aria-label="Formatting" multiple variant="separate">
         <Toggle value="bold" icon={BoldIcon} aria-label="Bold" />
@@ -67,8 +128,14 @@ describe("ToggleGroup", () => {
     );
     await userEvent.keyboard("{Tab}");
     await expect.element(page.getByRole("button", { name: "Bold" })).toHaveFocus();
+    await expect.poll(() => tooltip()?.textContent).toBe("Bold");
     await userEvent.keyboard("{ArrowRight}");
     await expect.element(page.getByRole("button", { name: "Italic" })).toHaveFocus();
+    await expect.poll(() => tooltip()?.textContent).toBe("Italic");
+    await userEvent.keyboard(" ");
+    await expect
+      .element(page.getByRole("button", { name: "Italic" }))
+      .toHaveAttribute("aria-pressed", "true");
   });
 
   it("keeps a segmented group at the control height", async () => {

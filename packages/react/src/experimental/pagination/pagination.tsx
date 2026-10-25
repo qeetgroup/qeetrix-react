@@ -4,12 +4,11 @@ import { ChevronLeftIcon } from "@qeetrix/icons/icons/chevron-left";
 import { ChevronRightIcon } from "@qeetrix/icons/icons/chevron-right";
 import { ChevronsLeftIcon } from "@qeetrix/icons/icons/chevrons-left";
 import { ChevronsRightIcon } from "@qeetrix/icons/icons/chevrons-right";
-import { type ComponentProps, type ReactElement, useId } from "react";
+import { type ComponentProps, type ReactElement, type ReactNode, useId } from "react";
 import { IconButton } from "../../button/button";
 import { formatNumber } from "../../format/format";
 import { cx } from "../../internal/cx";
 import type { QeetrixMessages } from "../../internal/messages";
-import { fill } from "../../internal/template";
 import { useLocale, useMessages } from "../../provider/provider";
 import { Select } from "../../select/select";
 
@@ -22,7 +21,7 @@ export interface PaginationProps extends Omit<ComponentProps<"nav">, "children">
   itemsOnPage?: number;
   /** The total, when the API returns one. Without it, Next stays on while a full page comes back. */
   total?: number;
-  /** Turns the buttons off while the next page loads. */
+  /** Turns the buttons off while the next page loads. Default `false`. */
   loading?: boolean;
   /** Called with the new offset. */
   onOffsetChange: (offset: number) => void;
@@ -30,14 +29,30 @@ export interface PaginationProps extends Omit<ComponentProps<"nav">, "children">
   pageSizes?: readonly number[];
   /** Called with the new page size; go back to the first page with it. */
   onPageSizeChange?: (pageSize: number) => void;
-  /** Default: QeetrixProvider's locale. */
+  /** Formats the numbers. Default: QeetrixProvider's locale. */
   locale?: string;
   /** This bar's strings, over QeetrixProvider's and the English defaults. */
   messages?: Partial<QeetrixMessages["pagination"]>;
 }
 
 /**
- * Pages of a list (07-components.md), for offset/limit APIs with or without a total: the range on
+ * A catalogue string with each slot's value in its own `<bdi>`: a number keeps its digits in order
+ * and can't swap places with its neighbours in right-to-left text.
+ */
+function isolate(template: string, values: Record<string, string>): ReactNode[] {
+  return template.split(/(\{\w+\})/).map((part, index) => {
+    const name = /^\{(\w+)\}$/.exec(part)?.[1];
+    return name !== undefined && name in values ? (
+      // biome-ignore lint/suspicious/noArrayIndexKey: the parts of a fixed template
+      <bdi key={index}>{values[name]}</bdi>
+    ) : (
+      part
+    );
+  });
+}
+
+/**
+ * Pages of a list, for offset/limit APIs with or without a total: the range on
  * show ("1–25 of 1,284"), announced politely when it changes, then First, Previous, Next and (with
  * a total) Last, and optionally rows per page. The chevrons point the reading way in right-to-left
  * layouts.
@@ -71,13 +86,13 @@ export function Pagination({
   const number = (value: number) => formatNumber(value, locale);
   const range =
     total === undefined
-      ? fill(strings.rangeOpen, { start: number(start), end: number(end) })
-      : fill(strings.range, { start: number(start), end: number(end), total: number(total) });
+      ? isolate(strings.rangeOpen, { start: number(start), end: number(end) })
+      : isolate(strings.range, { start: number(start), end: number(end), total: number(total) });
 
   return (
     <nav
-      {...props}
       aria-label={strings.label}
+      {...props}
       className={cx("qx-pagination", className)}
       data-slot="pagination"
     >
@@ -95,7 +110,9 @@ export function Pagination({
           />
         </span>
       )}
-      <span className="qx-pagination-range" data-slot="pagination-range" role="status">
+      {/* The range reads in its own language's direction, whatever the page's: "26–50 of 1,284"
+          stays left to right on a right-to-left page. */}
+      <span className="qx-pagination-range" data-slot="pagination-range" role="status" dir="auto">
         {range}
       </span>
       <span className="qx-pagination-steps">

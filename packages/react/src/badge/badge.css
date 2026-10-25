@@ -1,5 +1,7 @@
-/* Badge (06-component-specs.md §10, design rules §14): a pill with a tinted fill and the status
-   colour as text. */
+/* Badge (design rules §14): a pill with the tone's tint and its colour as text (`subtle`), or the
+   tone's bold fill with on-bold text (`solid`), for the one status that must stand out. Every solid
+   pair meets AA for 12px text in both schemes: white on brand, info, success and danger; dark text on
+   warning's amber; the inverse text on the graphite neutral. */
 .qx-badge {
   display: inline-flex;
   align-items: center;
@@ -34,6 +36,35 @@
     background: var(--qx-color-bg-danger-subtle);
     color: var(--qx-color-text-danger);
   }
+  &[data-variant="solid"] {
+    background: var(--qx-color-bg-neutral-bold);
+    color: var(--qx-color-text-inverse);
+    &[data-tone="brand"] {
+      background: var(--qx-color-bg-brand-bold);
+      color: var(--qx-color-text-on-brand);
+    }
+    &[data-tone="info"] {
+      background: var(--qx-color-bg-info-bold);
+      color: var(--qx-color-text-on-bold);
+    }
+    &[data-tone="success"] {
+      background: var(--qx-color-bg-success-bold);
+      color: var(--qx-color-text-on-bold);
+    }
+    &[data-tone="warning"] {
+      background: var(--qx-color-bg-warning-bold);
+      color: var(--qx-color-text-on-warning);
+    }
+    &[data-tone="danger"] {
+      background: var(--qx-color-bg-danger-bold);
+      color: var(--qx-color-text-on-bold);
+    }
+  }
+  /* 16px: the label's own line, with a little less room at the ends. */
+  &[data-size="sm"] {
+    gap: 2px;
+    padding: 0 6px;
+  }
 }
 .qx-badge-icon {
   flex: none;
@@ -44,7 +75,7 @@
   text-overflow: ellipsis;
 }
 
-/* Forced colours: the tint is dropped, so the pill gets an edge. */
+/* Forced colours: the tint and the fill are dropped, so the pill gets an edge. */
 @media (forced-colors: active) {
   .qx-badge {
     border: var(--qx-border-width-default) solid CanvasText;

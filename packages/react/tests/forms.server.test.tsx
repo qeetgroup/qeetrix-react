@@ -41,6 +41,15 @@ describe("form controls render on the server", () => {
     expect(out).toContain('class="qx-field-error-icon"');
   });
 
+  it("an error replaces the description in the HTML too, so the error alone describes the input", () => {
+    const out = html(
+      <TextField label="PAN" description="Letters, then digits." error="PAN has 10 characters." />,
+    );
+    expect(out).not.toContain("Letters, then digits.");
+    expect(out).not.toContain("field-description");
+    expect(out).toContain("PAN has 10 characters.");
+  });
+
   it("Textarea carries its rows", () => {
     const out = html(<Textarea aria-label="Notes" rows={4} maxRows={8} />);
     expect(out).toMatch(/^<textarea/);
@@ -74,6 +83,13 @@ describe("form controls render on the server", () => {
 
   it("Fieldset is a native fieldset", () => {
     expect(html(<Fieldset legend="Billing address" />)).toMatch(/^<fieldset/);
+  });
+
+  it("Fieldset is described by its description", () => {
+    const out = html(<Fieldset legend="Billing address" description="Where invoices are sent." />);
+    const id = out.match(/<p id="([^"]+)"[^>]*data-slot="fieldset-description"/)?.[1];
+    expect(id).toBeTruthy();
+    expect(out).toMatch(new RegExp(`^<fieldset[^>]* aria-describedby="${id}"`));
   });
 });
 

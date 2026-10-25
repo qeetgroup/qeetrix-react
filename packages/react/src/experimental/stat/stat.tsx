@@ -1,6 +1,8 @@
 import type { ComponentProps, ReactElement, ReactNode } from "react";
-import { formatNumber } from "../../format/format";
 import { cx } from "../../internal/cx";
+import type { QeetrixMessages } from "../../internal/messages";
+import { Skeleton } from "../../skeleton/skeleton";
+import { StatLoading, StatNumber } from "./stat-client";
 
 /** What the note says about the number: `positive`, `negative` or `warning` colour it. */
 export type StatTone = "neutral" | "positive" | "negative" | "warning";
@@ -24,8 +26,15 @@ export interface StatProps extends Omit<ComponentProps<"div">, "children"> {
    * matters about the trend in `note`.
    */
   trend?: readonly number[];
-  /** The locale for a numeric `value`. Default `en-IN`. */
+  /** Default: QeetrixProvider's locale. It formats a numeric `value`. */
   locale?: string;
+  /**
+   * The number is on its way: placeholders stand in for the value and the note, so the strip keeps
+   * its height, the trend waits, and "Loading" is read in the value's place.
+   */
+  loading?: boolean;
+  /** This stat's strings, over QeetrixProvider's and the English defaults. */
+  messages?: Partial<QeetrixMessages["stat"]>;
 }
 
 const TREND = { width: 88, height: 28, pad: 3 } as const;
@@ -48,14 +57,18 @@ function trendGeometry(values: readonly number[]) {
 }
 
 /**
- * Key numbers in a ruled strip (07-components.md, C1): a `<dl>` of Stats in equal cells with rules
- * between them. In a PageHeader's `summary` it runs edge to edge. Server-safe.
+ * Key numbers in a ruled strip: a `<dl>` of Stats in equal cells, at least 200px wide, with rules
+ * between them. Where the cells wrap, a rule runs between the rows instead of at their starts, and
+ * every row keeps the gutter. In a PageHeader's `summary` it runs edge to edge. Server-safe.
  */
 export function StatGroup({ className, ...props }: StatGroupProps): ReactElement {
   return <dl {...props} className={cx("qx-stat-group", className)} data-slot="stat-group" />;
 }
 
-/** One number with its label, a note and an optional trend. Use inside a StatGroup. Server-safe. */
+/**
+ * One number with its label, a note and an optional trend. Use inside a StatGroup. Server-safe: the
+ * number follows QeetrixProvider's locale through a small client part.
+ */
 export function Stat({
   label,
   value,
@@ -63,20 +76,36 @@ export function Stat({
   tone = "neutral",
   trend,
   locale,
+  loading = false,
+  messages,
   className,
   ...props
 }: StatProps): ReactElement {
-  const geometry = trend && trend.length > 1 ? trendGeometry(trend) : undefined;
+  const geometry = !loading && trend && trend.length > 1 ? trendGeometry(trend) : undefined;
   return (
-    <div {...props} className={cx("qx-stat", className)} data-slot="stat">
+    <div
+      {...props}
+      className={cx("qx-stat", className)}
+      data-slot="stat"
+      aria-busy={loading || undefined}
+    >
       <dt className="qx-stat-label" data-slot="stat-label">
         {label}
       </dt>
       <dd className="qx-stat-value" data-slot="stat-value">
-        {typeof value === "number" ? formatNumber(value, locale) : value}
+        {loading ? (
+          <>
+            <Skeleton />
+            <StatLoading messages={messages} />
+          </>
+        ) : typeof value === "number" ? (
+          <StatNumber value={value} locale={locale} />
+        ) : (
+          value
+        )}
       </dd>
       {geometry && (
-        <dd className="qx-stat-trend-cell">
+        <dd className="qx-stat-trend-cell" data-slot="stat-trend-cell">
           <svg
             className="qx-stat-trend"
             data-slot="stat-trend"
@@ -84,15 +113,26 @@ export function Stat({
             aria-hidden="true"
             focusable="false"
           >
-            <path className="qx-stat-trend-area" d={geometry.area} />
-            <path className="qx-stat-trend-line" d={geometry.line} />
-            <circle className="qx-stat-trend-end" cx={geometry.end.x} cy={geometry.end.y} r={2.5} />
+            <path className="qx-stat-trend-area" data-slot="stat-trend-area" d={geometry.area} />
+            <path className="qx-stat-trend-line" data-slot="stat-trend-line" d={geometry.line} />
+            <circle
+              className="qx-stat-trend-end"
+              data-slot="stat-trend-end"
+              cx={geometry.end.x}
+              cy={geometry.end.y}
+              r={2.5}
+            />
           </svg>
         </dd>
       )}
-      {note != null && (
-        <dd className="qx-stat-note" data-slot="stat-note" data-tone={tone}>
-          {note}
+      {(note != null || loading) && (
+        <dd
+          className="qx-stat-note"
+          data-slot="stat-note"
+          data-tone={tone}
+          aria-hidden={loading || undefined}
+        >
+          {loading ? <Skeleton /> : note}
         </dd>
       )}
     </div>

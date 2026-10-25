@@ -14,6 +14,10 @@ const config: UserConfig = defineConfig({
   clean: true,
   dts: true,
   deps: { neverBundle: [/^react($|\/)/, /^react-dom($|\/)/, /^@base-ui\//, /^@qeetrix\//] },
+  // Keep each component's own name. Unbundled output imports a Base UI part under its exported
+  // name (`Button`), so Rolldown renames our same-named component (`Button$1`), and React shows
+  // that name in DevTools and code snippets. `keepNames` keeps `Button.name === "Button"`.
+  outputOptions: { keepNames: true },
   inputOptions: {
     // Rolldown warns that a bundle may drop "use client". Unbundled output keeps it, and
     // scripts/check-dist.mjs fails the build if any client module loses it.

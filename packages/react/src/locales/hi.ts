@@ -13,7 +13,12 @@ export const hi: QeetrixMessages = {
   field: { optional: "(वैकल्पिक)", help: "{label} के बारे में", helpPlain: "और जानकारी" },
   overlay: { close: "बंद करें" },
   toast: { close: "खारिज करें", region: "सूचनाएँ" },
-  slider: { minimum: "न्यूनतम", maximum: "अधिकतम" },
+  slider: {
+    minimum: "न्यूनतम",
+    maximum: "अधिकतम",
+    minimumOf: "{label}, न्यूनतम",
+    maximumOf: "{label}, अधिकतम",
+  },
   appShell: {
     collapse: "छोटा करें",
     expand: "बड़ा करें",
@@ -24,6 +29,8 @@ export const hi: QeetrixMessages = {
   },
   sidebar: { filter: "नेविगेशन में खोजें", noMatches: "कोई पेज नहीं मिला" },
   breadcrumb: { label: "पेज का पथ" },
+  pageHeader: { back: "वापस", backTo: "{page} पर वापस जाएँ" },
+  topBar: { scope: "दायरा" },
   dataState: {
     errorTitle: "यह लोड नहीं हो सका",
     errorDescription: "फिर से कोशिश करें, या अपना कनेक्शन जाँचें।",
@@ -69,6 +76,7 @@ export const hi: QeetrixMessages = {
   },
   datePicker: {
     choose: "तारीख़ चुनें",
+    chooseFor: "{label} के लिए तारीख़ चुनें",
     example: "जैसे {date}",
     invalid: "{date} जैसी तारीख़ लिखें",
     tooEarly: "{date} या उसके बाद की तारीख़ चुनें",
@@ -97,6 +105,7 @@ export const hi: QeetrixMessages = {
   avatarGroup: { label: "{count} लोग: {names}", more: "{count} और" },
   codeBlock: { copy: "कोड कॉपी करें", region: "कोड", shell: "शेल" },
   descriptionList: { empty: "सेट नहीं है" },
+  stat: { loading: "लोड हो रहा है" },
   filterTags: { label: "लागू फ़िल्टर", remove: "फ़िल्टर {filter} हटाएँ", clear: "सब हटाएँ" },
   fileUpload: {
     dragFile: "फ़ाइल यहाँ खींचकर लाएँ, या {browse}",
@@ -118,16 +127,24 @@ export const hi: QeetrixMessages = {
   searchField: { clear: "खोज साफ़ करें" },
   dateRangePicker: {
     choose: "तारीख़ें चुनें",
+    chooseFor: "{label} के लिए तारीख़ें चुनें",
     example: "जैसे {range}",
     invalid: "{range} जैसी तारीख़ें लिखें",
     tooEarly: "{date} या उसके बाद की तारीख़ चुनें",
     tooLate: "{date} या उससे पहले की तारीख़ चुनें",
     unavailable: "{date} उपलब्ध नहीं है",
+    presets: "त्वरित अवधियाँ",
+    today: "आज",
+    lastDays: "पिछले {count} दिन",
+    thisMonth: "यह महीना",
+    lastMonth: "पिछला महीना",
   },
   errorSummary: { title: "जारी रखने के लिए इन्हें ठीक करें" },
   combobox: {
     empty: "कोई मिलान नहीं",
     clear: "साफ़ करें",
+    clearFor: "{label} साफ़ करें",
+    loading: "खोज रहे हैं…",
     open: "विकल्प दिखाएँ",
     remove: "{label} हटाएँ",
     removeHint: "हटाने के लिए Backspace या Delete दबाएँ",

@@ -8,6 +8,7 @@ import { Button, IconButton } from "../button/button";
 import { Tooltip, TooltipProvider } from "./tooltip";
 
 const popup = () => document.querySelector("[data-slot=tooltip-popup]");
+const rect = (element: Element | null) => (element as Element).getBoundingClientRect();
 
 describe("Tooltip", () => {
   it("opens at once on keyboard focus and closes on Escape", async () => {
@@ -45,6 +46,133 @@ describe("Tooltip", () => {
     await expect.poll(() => popup()?.textContent).toBe("Download invoice");
     await userEvent.keyboard("{Tab}");
     await expect.poll(popup).toBeNull();
+  });
+
+  it("describes its trigger while it's open: role=tooltip, linked by aria-describedby", async () => {
+    await render(
+      <Tooltip content="Export as CSV">
+        <Button variant="soft">Export</Button>
+      </Tooltip>,
+    );
+    const button = page.getByRole("button", { name: "Export" });
+    await expect.element(button).not.toHaveAttribute("aria-describedby");
+    await userEvent.keyboard("{Tab}");
+    await expect.poll(popup).not.toBeNull();
+    expect(popup()?.getAttribute("role")).toBe("tooltip");
+    await expect.element(button).toHaveAttribute("aria-describedby", popup()?.id);
+    await expect.element(button).toHaveAccessibleDescription("Export as CSV");
+    await userEvent.keyboard("{Escape}");
+    await expect.poll(popup).toBeNull();
+    await expect.element(button).not.toHaveAttribute("aria-describedby");
+  });
+
+  it("doesn't link a tooltip that only repeats the trigger's name", async () => {
+    // Clear of the pointer, which an earlier test left over the top start corner.
+    await render(
+      <div style={{ padding: 64 }}>
+        <TooltipProvider>
+          <IconButton icon={DownloadIcon} aria-label="Download invoice" />
+          <IconButton icon={DownloadIcon} aria-label="Download" tooltip="Download as PDF" />
+          <Tooltip content="Archive">
+            <Button>Archive</Button>
+          </Tooltip>
+        </TooltipProvider>
+      </div>,
+    );
+    // An IconButton's own label: shown, but not read a second time.
+    await userEvent.keyboard("{Tab}");
+    await expect.poll(() => popup()?.textContent).toBe("Download invoice");
+    const invoice = page.getByRole("button", { name: "Download invoice" });
+    await expect.element(invoice).not.toHaveAttribute("aria-describedby");
+    // Other text describes it.
+    await userEvent.keyboard("{Tab}");
+    await expect.poll(() => popup()?.textContent).toBe("Download as PDF");
+    await expect
+      .element(page.getByRole("button", { name: "Download", exact: true }))
+      .toHaveAccessibleDescription("Download as PDF");
+    // A trigger named by its own text, read from the trigger.
+    await userEvent.keyboard("{Tab}");
+    await expect.poll(() => popup()?.textContent).toBe("Archive");
+    await expect
+      .element(page.getByRole("button", { name: "Archive" }))
+      .not.toHaveAttribute("aria-describedby");
+  });
+
+  it("keeps the trigger's own description alongside its own", async () => {
+    await render(
+      <>
+        <p id="hint">Ends every session.</p>
+        <Tooltip content="Signs out everywhere">
+          <Button aria-describedby="hint">Sign out</Button>
+        </Tooltip>
+      </>,
+    );
+    await userEvent.keyboard("{Tab}");
+    await expect.poll(popup).not.toBeNull();
+    await expect
+      .element(page.getByRole("button", { name: "Sign out" }))
+      .toHaveAccessibleDescription("Ends every session. Signs out everywhere");
+  });
+
+  it("sits 6px from its trigger, or `sideOffset` pixels", async () => {
+    const { rerender } = await render(
+      <div style={{ padding: 64 }}>
+        <Tooltip content="Download invoice" defaultOpen>
+          <Button>Download</Button>
+        </Tooltip>
+      </div>,
+    );
+    await expect.poll(popup).not.toBeNull();
+    const trigger = page.getByRole("button", { name: "Download" }).element();
+    await expect.poll(() => Math.round(rect(trigger).top - rect(popup()).bottom)).toBe(6);
+    await rerender(
+      <div style={{ padding: 64 }}>
+        <Tooltip content="Download invoice" defaultOpen sideOffset={12}>
+          <Button>Download</Button>
+        </Tooltip>
+      </div>,
+    );
+    await expect.poll(() => Math.round(rect(trigger).top - rect(popup()).bottom)).toBe(12);
+  });
+
+  it("IconButton opens its tooltip on `tooltipSide`", async () => {
+    await page.viewport(320, 200);
+    await render(
+      <div style={{ padding: 64 }}>
+        <IconButton icon={DownloadIcon} aria-label="Download" tooltipSide="bottom" />
+      </div>,
+    );
+    await userEvent.keyboard("{Tab}");
+    await expect.poll(popup).not.toBeNull();
+    const button = page.getByRole("button", { name: "Download" }).element();
+    await expect.poll(() => Math.round(rect(popup()).top - rect(button).bottom)).toBe(6);
+    await expect.poll(() => popup()?.getAttribute("data-side")).toBe("bottom");
+    await screenshotSchemes("Tooltip · bottom", null);
+  });
+
+  it("follows TooltipProvider's delay", async () => {
+    await render(
+      <TooltipProvider delay={100}>
+        <Tooltip content="Export as CSV">
+          <Button variant="soft">Export</Button>
+        </Tooltip>
+      </TooltipProvider>,
+    );
+    const started = performance.now();
+    await page.getByRole("button", { name: "Export" }).hover();
+    await expect.poll(popup, { timeout: 2000, interval: 20 }).not.toBeNull();
+    expect(performance.now() - started).toBeLessThan(450);
+  });
+
+  it("names its positioner", async () => {
+    await render(
+      <Tooltip content="Download invoice" defaultOpen>
+        <Button>Download</Button>
+      </Tooltip>,
+    );
+    await expect
+      .poll(() => document.querySelector("[data-slot=tooltip-positioner]"))
+      .not.toBeNull();
   });
 
   it("is accessible and looks right in both schemes", async () => {

@@ -10,7 +10,7 @@ export interface SeparatorProps extends ComponentProps<"div"> {
   orientation?: SeparatorOrientation;
   /** Line colour from the border tokens. Default `subtle`. */
   tone?: SeparatorTone;
-  /** Purely visual: hidden from assistive technology (`role="none"`). */
+  /** Purely visual: hidden from assistive technology (`role="none"`). Default `false`. */
   decorative?: boolean;
   /** Render a different element. */
   render?: RenderProp;

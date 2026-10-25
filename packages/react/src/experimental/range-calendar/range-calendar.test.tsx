@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../../tests/support/axe";
+import { tokenColor } from "../../../tests/support/color";
 import { screenshotSchemes } from "../../../tests/support/screenshots";
 import { Stage } from "../../../tests/support/stage";
 import { hi } from "../../locales/hi";
@@ -115,6 +116,62 @@ describe("RangeCalendar", () => {
     expect(part("2026-11-01")).toBe("middle");
   });
 
+  it("keeps a disabled day inside the range grey, untinted on hover, and never previews to it", async () => {
+    await render(
+      <RangeCalendar
+        today={TODAY}
+        isDateDisabled={(date) => date === "2026-10-14"}
+        defaultValue={{ start: "2026-10-12", end: "2026-10-16" }}
+      />,
+    );
+    // It may fall inside a range, but it reads as unavailable, like any disabled day.
+    expect(part("2026-10-14")).toBe("middle");
+    expect(getComputedStyle(day("2026-10-14")).color).toBe(tokenColor("--qx-color-text-disabled"));
+    expect(getComputedStyle(day("2026-10-13")).color).toBe(tokenColor("--qx-color-text-default"));
+    await userEvent.hover(day("2026-10-14"), { force: true });
+    expect(getComputedStyle(day("2026-10-14")).backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(getComputedStyle(day("2026-10-14")).cursor).toBe("not-allowed");
+
+    // While the second end is chosen, the range runs only to days that can end it.
+    await userEvent.click(day("2026-10-20"));
+    await userEvent.hover(day("2026-10-15"));
+    expect(part("2026-10-15")).toBe("start");
+    await userEvent.hover(day("2026-10-14"), { force: true });
+    expect(part("2026-10-15")).toBe("start");
+    expect(part("2026-10-14")).toBe("");
+    day("2026-10-15").focus();
+    await userEvent.keyboard("{ArrowLeft}");
+    expect(part("2026-10-15")).toBe("start");
+    await userEvent.keyboard("{ArrowLeft}");
+    expect(part("2026-10-13")).toBe("start");
+    expect(part("2026-10-14")).toBe("middle");
+  });
+
+  it("can be disabled or read-only, like Calendar: no range is started", async () => {
+    const onValueChange = vi.fn();
+    const { rerender } = await render(
+      <RangeCalendar today={TODAY} disabled onValueChange={onValueChange} />,
+    );
+    await userEvent.click(day("2026-10-12"), { force: true });
+    await userEvent.click(day("2026-10-15"), { force: true });
+    expect(part("2026-10-12")).toBe("");
+    expect(live()).toBe("");
+    await rerender(
+      <RangeCalendar key="read-only" today={TODAY} readOnly onValueChange={onValueChange} />,
+    );
+    await userEvent.click(day("2026-10-12"));
+    await userEvent.hover(day("2026-10-15"));
+    await userEvent.click(day("2026-10-15"));
+    expect(part("2026-10-13")).toBe("");
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
+  it("has its own data-slot on the root", async () => {
+    const { container } = await render(<RangeCalendar today={TODAY} />);
+    expect((container.firstElementChild as HTMLElement).dataset.slot).toBe("range-calendar");
+    expect(container.querySelector("[data-slot=calendar-grid]")).not.toBeNull();
+  });
+
   it("speaks Hindi through QeetrixProvider", async () => {
     await render(
       <QeetrixProvider locale="hi-IN" messages={hi}>
@@ -128,7 +185,12 @@ describe("RangeCalendar", () => {
   it("is accessible and looks right in both colour schemes", async () => {
     const { container } = await render(
       <Stage>
-        <RangeCalendar today={TODAY} defaultValue={{ start: "2026-10-12", end: "2026-10-27" }} />
+        {/* A holiday inside the range stays grey. */}
+        <RangeCalendar
+          today={TODAY}
+          isDateDisabled={(date) => date === "2026-10-19"}
+          defaultValue={{ start: "2026-10-12", end: "2026-10-27" }}
+        />
       </Stage>,
     );
     await expectAccessible(container);

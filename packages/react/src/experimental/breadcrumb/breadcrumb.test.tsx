@@ -26,6 +26,16 @@ describe("Breadcrumb", () => {
     expect(current.element().tagName).toBe("SPAN");
   });
 
+  it("takes another name from aria-label, which wins over the default", async () => {
+    await render(
+      <Breadcrumb aria-label="You are here">
+        <BreadcrumbItem current>Users</BreadcrumbItem>
+      </Breadcrumb>,
+    );
+    await expect.element(page.getByRole("navigation", { name: "You are here" })).toBeVisible();
+    expect(page.getByRole("navigation", { name: "Breadcrumb" }).query()).toBeNull();
+  });
+
   it("separates items with decorative chevrons, none before the first", async () => {
     const { container } = await render(<Trail />);
     const separators = [...container.querySelectorAll(".qx-breadcrumb-separator")] as SVGElement[];

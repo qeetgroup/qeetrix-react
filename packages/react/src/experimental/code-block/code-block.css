@@ -63,7 +63,8 @@
   min-block-size: 1lh;
   [data-numbers] & {
     display: grid;
-    grid-template-columns: 2ch minmax(0, 1fr);
+    /* The number column fits the largest line number (`--qx-code-digits`, two at least). */
+    grid-template-columns: calc(var(--qx-code-digits) * 1ch) minmax(0, 1fr);
     column-gap: var(--qx-space-gap-md);
   }
   [data-numbers] &::before {
@@ -73,6 +74,18 @@
     text-align: end;
     user-select: none;
   }
+}
+/* Wrapped, a line continues under its own start: its indent (`--qx-code-indent`, in columns) hangs,
+   as padding pulled back on the first row. The first word after the indent may break anywhere, so a
+   long one starts on the line's own row, beside its number, instead of leaving that row blank
+   (Chromium and WebKit would move it whole to the next row first). */
+[data-wrap] .qx-code-block-text {
+  display: block;
+  padding-inline-start: calc(var(--qx-code-indent, 0) * 1ch);
+  text-indent: calc(var(--qx-code-indent, 0) * -1ch);
+}
+[data-wrap] .qx-code-block-lead {
+  word-break: break-all;
 }
 [data-token="keyword"] {
   color: var(--qx-color-code-keyword);

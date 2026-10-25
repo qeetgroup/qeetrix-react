@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../../tests/support/axe";
 import { screenshotSchemes } from "../../../tests/support/screenshots";
@@ -19,6 +19,7 @@ afterEach(() => {
 });
 
 const status = () => document.querySelector("[role=status]") as HTMLElement;
+const tooltip = () => document.querySelector("[data-slot=tooltip-popup]");
 
 describe("CopyButton", () => {
   it("copies its value, turns into a check, announces it, and keeps focus", async () => {
@@ -61,6 +62,55 @@ describe("CopyButton", () => {
     await render(<CopyButton value="sk_live_…">Copy secret</CopyButton>);
     const button = page.getByRole("button", { name: "Copy secret" });
     await expect.element(button).toHaveAttribute("data-slot", "button");
+  });
+
+  it("with a visible label: its tooltip shows `label`, then says Copied", async () => {
+    await render(
+      <div style={{ padding: 48 }}>
+        <CopyButton value="sk_live_8f2k" label="Copy the client secret">
+          Copy secret
+        </CopyButton>
+      </div>,
+    );
+    // The visible label names it; `label` is the tooltip, which describes it.
+    const button = page.getByRole("button", { name: "Copy secret" });
+    await userEvent.keyboard("{Tab}");
+    await expect.element(button).toHaveFocus();
+    await expect.poll(() => tooltip()?.textContent).toBe("Copy the client secret");
+    await expect.element(button).toHaveAccessibleDescription("Copy the client secret");
+    await userEvent.keyboard("{Enter}");
+    await expect.poll(() => status().textContent).toBe("Copied");
+    expect(writeText).toHaveBeenCalledWith("sk_live_8f2k");
+    await expect.poll(() => tooltip()?.textContent).toBe("Copied");
+    await expect.element(button).toHaveFocus();
+  });
+
+  it("with a visible label and no `label`: no tooltip until it copies", async () => {
+    await render(
+      <div style={{ padding: 48 }}>
+        <CopyButton value="x" resetAfter={200}>
+          Copy secret
+        </CopyButton>
+      </div>,
+    );
+    await userEvent.keyboard("{Tab}");
+    await expect.element(page.getByRole("button", { name: "Copy secret" })).toHaveFocus();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(tooltip()).toBeNull();
+    await userEvent.keyboard("{Enter}");
+    await expect.poll(() => tooltip()?.textContent).toBe("Copied");
+    await expect.poll(tooltip).toBeNull();
+  });
+
+  it("icon-only: holds its tooltip open on Copied after a click, then lets it go", async () => {
+    await render(
+      <div style={{ padding: 48 }}>
+        <CopyButton value="usr_8f2k1" label="Copy user ID" resetAfter={300} />
+      </div>,
+    );
+    await page.getByRole("button", { name: "Copy user ID" }).click();
+    await expect.poll(() => tooltip()?.textContent).toBe("Copied");
+    await expect.poll(() => tooltip()?.textContent ?? null).not.toBe("Copied");
   });
 
   it("speaks Hindi through QeetrixProvider", async () => {

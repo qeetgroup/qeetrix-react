@@ -1,7 +1,8 @@
-/* RangeCalendar (07-components.md): the range is a band of the subtle brand fill, the height of a
-   day, running under the days and across their gutters. Its two ends are filled Ember (Calendar's
-   chosen day) and the band reaches into them from the middle; the days between keep their text
-   colour, with today's outline. */
+/* RangeCalendar: the range is a band of the subtle brand fill, the height of a day, running under
+   the days and across their gutters. Its two ends are filled Ember (Calendar's chosen day) and the
+   band reaches into them from the middle; the days between keep their text colour, with today's
+   outline. A disabled day inside the range stays grey and doesn't react to the pointer: it can't be
+   an end. */
 .qx-range-calendar .qx-calendar-cell[data-range] {
   position: relative;
   &::before {
@@ -22,8 +23,8 @@
   background: transparent;
   color: var(--qx-color-text-default);
   box-shadow: none;
-  &:hover {
-    background: var(--qx-color-bg-brand-subtle-hover);
+  &[aria-disabled] {
+    color: var(--qx-color-text-disabled);
   }
   &[data-today] {
     box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-brand);
@@ -31,4 +32,19 @@
   &:focus-visible {
     box-shadow: none;
   }
+}
+.qx-range-calendar:not([data-readonly]) [data-range="middle"] > .qx-calendar-day {
+  &:hover:not([aria-disabled]) {
+    background: var(--qx-color-bg-brand-subtle-hover);
+  }
+  &[aria-disabled]:hover {
+    background: transparent;
+  }
+}
+/* Disabled: the band and today's outline go grey too. */
+.qx-range-calendar[data-disabled] .qx-calendar-cell[data-range]::before {
+  background: var(--qx-color-bg-disabled);
+}
+.qx-range-calendar[data-disabled] [data-range="middle"] > .qx-calendar-day[data-today] {
+  box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-disabled);
 }

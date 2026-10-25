@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactElement } from "react";
 import { cx } from "../internal/cx";
+import { listRole } from "../internal/list";
 import { type RenderProp, renderElement } from "../internal/render";
 import type { Space } from "../internal/space";
 import type { FlowJustify } from "../stack/stack";
@@ -15,7 +16,10 @@ export interface InlineProps extends ComponentProps<"div"> {
   justify?: FlowJustify;
   /** Wrap onto new lines when space runs out. Default `true`. */
   wrap?: boolean;
-  /** Render a different element, e.g. `<ul />`. */
+  /**
+   * Render a different element, e.g. `<ul />` around `<li>` children. A list loses the browser's
+   * bullets and indent, and keeps its list role.
+   */
   render?: RenderProp;
 }
 
@@ -30,6 +34,7 @@ export function Inline({
   ...props
 }: InlineProps): ReactElement {
   return renderElement("div", render, {
+    ...listRole(render),
     ...props,
     className: cx("qx-inline", className),
     "data-slot": "inline",

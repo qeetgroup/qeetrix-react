@@ -117,6 +117,44 @@
   background: currentcolor;
 }
 
+/* An item with a description: the label keeps a single item's line, the description wraps under
+   it, and the icon, mark and shortcut stay on the label's line. */
+.qx-menu-item[data-description] {
+  --qx-menu-item-line: calc(
+    var(--qx-typography-body-md-font-size) *
+    var(--qx-typography-body-md-line-height)
+  );
+  align-items: flex-start;
+  block-size: auto;
+  min-block-size: var(--qx-size-control-md);
+  padding-block: calc((var(--qx-size-control-md) - var(--qx-menu-item-line)) / 2);
+  white-space: normal;
+  > :is(.qx-menu-item-icon, .qx-menu-mark) {
+    margin-block: calc((var(--qx-menu-item-line) - 16px) / 2);
+  }
+  > .qx-menu-shortcut {
+    line-height: var(--qx-menu-item-line);
+  }
+}
+.qx-menu-item-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-inline-size: 0;
+  > .qx-menu-item-label {
+    flex: none;
+    white-space: nowrap;
+  }
+}
+.qx-menu-item-description {
+  font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+  .qx-menu-item[data-disabled] & {
+    color: var(--qx-color-text-disabled);
+  }
+}
+
 .qx-menu-group-label {
   padding: 8px var(--qx-space-inset-md) 4px;
   font: var(--qx-typography-label-sm);
@@ -129,6 +167,12 @@
   background: var(--qx-color-border-subtle);
 }
 
+/* A focusable context-menu area: the Ember frame inside its edge, as on table rows. */
+.qx-context-menu-trigger:focus-visible {
+  outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+  outline-offset: calc(-1 * var(--qx-focus-ring-width));
+}
+
 /* Forced colours: the highlight tint and its bar are dropped, so the system highlight marks it. */
 @media (forced-colors: active) {
   .qx-menu-item[data-highlighted] {
@@ -137,7 +181,8 @@
     color: HighlightText;
   }
   .qx-menu-item[data-highlighted] .qx-menu-item-icon,
-  .qx-menu-item[data-highlighted] .qx-menu-submenu-icon {
+  .qx-menu-item[data-highlighted] .qx-menu-submenu-icon,
+  .qx-menu-item[data-highlighted] .qx-menu-item-description {
     color: HighlightText;
   }
   .qx-menu-separator {

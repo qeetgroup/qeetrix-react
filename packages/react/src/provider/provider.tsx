@@ -33,11 +33,20 @@ export interface QeetrixProviderProps {
   /** A locale pack (`@qeetrix/react/locales/hi`) or any subset of the strings. */
   messages?: QeetrixMessagesInput;
   /**
-   * The colour scheme, controlled. With this or `defaultColorScheme`, the provider sets
-   * `data-qx-color-scheme` on `<html>`, following the operating system while it's `system`.
+   * The colour scheme, controlled. With this or `defaultColorScheme`, the provider manages the
+   * scheme: it sets `data-qx-color-scheme` on `<html>`, following the operating system while it's
+   * `system`, and puts back what was there when it unmounts.
+   *
+   * Only the outermost provider that manages the scheme owns it. A provider nested inside one
+   * ignores its own `colorScheme`, `defaultColorScheme` and `onColorSchemeChange`: `useColorScheme()`
+   * beneath it reads and changes the outer provider's scheme. To show one section in the other
+   * scheme, set `data-qx-color-scheme` on that section's element.
    */
   colorScheme?: ColorScheme;
-  /** The colour scheme when uncontrolled. */
+  /**
+   * The colour scheme when uncontrolled; the provider then manages the scheme, as with
+   * `colorScheme`.
+   */
   defaultColorScheme?: ColorScheme;
   /** Called when `setColorScheme` asks for a change: persist it, e.g. in a cookie. */
   onColorSchemeChange?: (colorScheme: ColorScheme) => void;
@@ -63,11 +72,33 @@ const SettingsContext: Context<Settings> = createContext<Settings>({
   messages: {},
 });
 
-const ColorSchemeContext: Context<ColorSchemeState> = createContext<ColorSchemeState>({
+/** What `useColorScheme()` returns without a provider that manages the scheme. */
+const UNMANAGED: ColorSchemeState = {
   colorScheme: "light",
   resolvedColorScheme: "light",
   setColorScheme: () => {},
-});
+};
+
+const ColorSchemeContext: Context<ColorSchemeState> = createContext<ColorSchemeState>(UNMANAGED);
+
+const ATTRIBUTE = "data-qx-color-scheme";
+
+/**
+ * The providers that own `<html data-qx-color-scheme>`: the outermost scheme-managing provider of
+ * each React tree, most recent last. The last one's scheme shows. Separate trees (two roots, or two
+ * sibling providers) each register, so unmounting one hands the page back to another rather than
+ * clearing it.
+ */
+const owners: { scheme: ResolvedColorScheme }[] = [];
+/** The attribute as it was before the first owner arrived, put back when the last one leaves. */
+let before: string | null = null;
+
+function writeScheme(): void {
+  const html = document.documentElement;
+  const value = owners.at(-1)?.scheme ?? before;
+  if (value === null) html.removeAttribute(ATTRIBUTE);
+  else html.setAttribute(ATTRIBUTE, value);
+}
 
 function ColorSchemeRoot({
   colorScheme,
@@ -85,8 +116,16 @@ function ColorSchemeRoot({
   const prefersDark = useMediaQuery("(prefers-color-scheme: dark)", false);
   const resolved: ResolvedColorScheme =
     scheme === "system" ? (prefersDark ? "dark" : "light") : scheme;
+  // Owns the attribute while mounted; a change of scheme re-registers it as the most recent.
   useEffect(() => {
-    document.documentElement.dataset.qxColorScheme = resolved;
+    const owner = { scheme: resolved };
+    if (owners.length === 0) before = document.documentElement.getAttribute(ATTRIBUTE);
+    owners.push(owner);
+    writeScheme();
+    return () => {
+      owners.splice(owners.indexOf(owner), 1);
+      writeScheme();
+    };
   }, [resolved]);
   const setColorScheme = (next: ColorScheme) => {
     if (colorScheme === undefined) setOwn(next);
@@ -110,8 +149,9 @@ function merge(outer: QeetrixMessagesInput, inner: QeetrixMessagesInput): Qeetri
 }
 
 /**
- * App-wide settings for Qeetrix components: locale, direction and strings. Nest one to change a
- * section; it inherits whatever it doesn't set.
+ * App-wide settings for Qeetrix components: locale, direction, strings and the colour scheme. Nest
+ * one to change a section's locale, direction or strings; it inherits whatever it doesn't set. The
+ * colour scheme belongs to the outermost provider that manages it.
  */
 export function QeetrixProvider({
   locale,
@@ -123,6 +163,8 @@ export function QeetrixProvider({
   children,
 }: QeetrixProviderProps): ReactElement {
   const outer = use(SettingsContext);
+  // An enclosing provider already manages the scheme: this one doesn't fight it for <html>.
+  const schemeManagedAbove = use(ColorSchemeContext) !== UNMANAGED;
   const settings: Settings = {
     locale: locale ?? outer.locale,
     messages: strings ? merge(outer.messages, strings) : outer.messages,
@@ -132,7 +174,8 @@ export function QeetrixProvider({
   ) : (
     children
   );
-  const managesScheme = colorScheme !== undefined || defaultColorScheme !== undefined;
+  const managesScheme =
+    !schemeManagedAbove && (colorScheme !== undefined || defaultColorScheme !== undefined);
   return (
     <SettingsContext value={settings}>
       {managesScheme ? (
@@ -151,8 +194,8 @@ export function QeetrixProvider({
 }
 
 /**
- * The colour scheme, and a way to change it, from the QeetrixProvider that manages it (one with
- * `colorScheme` or `defaultColorScheme`).
+ * The colour scheme, and a way to change it, from the outermost QeetrixProvider that manages it (one
+ * with `colorScheme` or `defaultColorScheme`). Without one, it reports `light` and can't change it.
  */
 export function useColorScheme(): ColorSchemeState {
   return use(ColorSchemeContext);

@@ -4,10 +4,11 @@ import { CheckIcon } from "@qeetrix/icons/icons/check";
 import { CircleAlertIcon } from "@qeetrix/icons/icons/circle-alert";
 import { CopyIcon } from "@qeetrix/icons/icons/copy";
 import { type ReactElement, type ReactNode, useEffect, useRef, useState } from "react";
-import { Button, IconButton, type IconButtonProps } from "../../button/button";
+import { Button, type ButtonTone, IconButton, type IconButtonProps } from "../../button/button";
 import { cx } from "../../internal/cx";
 import type { QeetrixMessages } from "../../internal/messages";
 import { useMessages } from "../../provider/provider";
+import { Tooltip } from "../../tooltip/tooltip";
 import { VisuallyHidden } from "../../visually-hidden/visually-hidden";
 
 /** Where a copy stands: ready, just copied, or failed (no clipboard access). */
@@ -20,23 +21,34 @@ export interface CopyButtonProps
   > {
   /** The text to copy, or a function that returns it (it may be async, e.g. a fresh token). */
   value: string | (() => string | Promise<string>);
-  /** What it copies, as the button's name and tooltip: "Copy user ID". Default "Copy". */
+  /**
+   * `neutral` for a utility action, as most copy buttons are; `brand` or `danger` as on Button.
+   * Default `neutral`.
+   */
+  tone?: ButtonTone;
+  /**
+   * What it copies: "Copy user ID". An icon-only CopyButton is named by it and shows it as its
+   * tooltip; one with a visible label (`children`) shows it as its tooltip only. Default "Copy".
+   */
   label?: string;
-  /** A visible label makes it a Button (label first, icon last) instead of an IconButton. */
+  /**
+   * A visible label, which makes it a Button (label first, icon last) instead of an IconButton.
+   * The label names it; the tooltip shows `label`, if set, and "Copied" after a copy.
+   */
   children?: ReactNode;
   /** Called with the text once it's on the clipboard. */
   onCopied?: (value: string) => void;
   /** Called when copying fails, e.g. no clipboard access outside a secure context. */
   onCopyError?: (error: unknown) => void;
-  /** How long "Copied" (or the failure) shows before it resets, in milliseconds. Default 2000. */
+  /** How long "Copied" (or the failure) shows before it resets, in milliseconds. Default `2000`. */
   resetAfter?: number;
   /** This button's strings, over QeetrixProvider's and the English defaults. */
   messages?: Partial<QeetrixMessages["copyButton"]>;
 }
 
 /**
- * Copies text to the clipboard (07-components.md, C2). Focus stays on the button; the icon turns
- * into a check, and "Copied" is announced politely, then it resets. It fails visibly, never
+ * Copies text to the clipboard. Focus stays on the button; the icon turns into a check, the
+ * tooltip says "Copied" and it's announced politely, then it resets. It fails visibly, never
  * silently, where the page has no clipboard access.
  */
 export function CopyButton({
@@ -49,11 +61,14 @@ export function CopyButton({
   messages,
   variant = "ghost",
   tone = "neutral",
+  tooltipSide = "top",
   className,
   ...props
 }: CopyButtonProps): ReactElement {
   const strings = useMessages("copyButton", messages);
   const [state, setState] = useState<CopyButtonState>("idle");
+  // Open on hover and focus as usual, and held open while "Copied" (or the failure) shows.
+  const [hovered, setHovered] = useState(false);
   const timer = useRef<number | undefined>(undefined);
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
@@ -78,6 +93,8 @@ export function CopyButton({
   const announcement =
     state === "copied" ? strings.copied : state === "failed" ? strings.failed : "";
   const name = label ?? strings.copy;
+  const labelled = children != null;
+  const tip = announcement || (labelled ? label : name);
   const shared = {
     ...props,
     variant,
@@ -90,11 +107,20 @@ export function CopyButton({
 
   return (
     <>
-      {children != null ? (
-        <Button {...shared}>{children}</Button>
-      ) : (
-        <IconButton {...shared} aria-label={name} tooltip={announcement || name} />
-      )}
+      {/* Always wrapped, so the element tree and focus stay put as the tooltip comes and goes. */}
+      <Tooltip
+        content={tip}
+        side={tooltipSide}
+        open={hovered || state !== "idle"}
+        onOpenChange={(open) => setHovered(open)}
+        disabled={!tip}
+      >
+        {labelled ? (
+          <Button {...shared}>{children}</Button>
+        ) : (
+          <IconButton {...shared} aria-label={name} tooltip={false} />
+        )}
+      </Tooltip>
       <VisuallyHidden role="status">{announcement}</VisuallyHidden>
     </>
   );

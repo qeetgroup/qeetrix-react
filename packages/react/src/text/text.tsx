@@ -8,11 +8,17 @@ export type TextSize = "sm" | "md" | "lg";
 export type TextWeight = "regular" | "medium" | "semibold";
 
 export interface TextProps extends ComponentProps<"span"> {
-  /** The body role: `sm` 12/16, `md` 14/20 (default), `lg` 16/24. */
+  /** The body role: `sm` 12/16, `md` 14/20 or `lg` 16/24. Default `md`. */
   size?: TextSize;
-  /** `regular` 400 (default), `medium` 500, `semibold` 600. */
+  /** `regular` 400, `medium` 500 or `semibold` 600. Default `regular`. */
   weight?: TextWeight;
-  /** A text colour from the tokens; unset inherits. */
+  /**
+   * A text colour from the tokens; unset inherits. `disabled` is only for text inside an inactive
+   * control, one marked `disabled` or `aria-disabled="true"`: WCAG 1.4.3 exempts that text from
+   * contrast, and the mark is how assistive technology and the accessibility checks know. Anywhere
+   * else it's unreadable (2.48:1 in light) and fails AA; quieter text that must still be read is
+   * `subtle`.
+   */
   tone?: TextTone;
   /** Fira Code at the same size, for code, IDs and keys. */
   mono?: boolean;

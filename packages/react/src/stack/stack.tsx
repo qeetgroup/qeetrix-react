@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactElement } from "react";
 import { cx } from "../internal/cx";
+import { listRole } from "../internal/list";
 import { type RenderProp, renderElement } from "../internal/render";
 import type { Space } from "../internal/space";
 
@@ -13,7 +14,10 @@ export interface StackProps extends ComponentProps<"div"> {
   align?: StackAlign;
   /** Main-axis distribution. */
   justify?: FlowJustify;
-  /** Render a different element, e.g. `<ul />`. */
+  /**
+   * Render a different element, e.g. `<ul />` around `<li>` children. A list loses the browser's
+   * bullets and indent, and keeps its list role.
+   */
   render?: RenderProp;
 }
 
@@ -27,6 +31,7 @@ export function Stack({
   ...props
 }: StackProps): ReactElement {
   return renderElement("div", render, {
+    ...listRole(render),
     ...props,
     className: cx("qx-stack", className),
     "data-slot": "stack",

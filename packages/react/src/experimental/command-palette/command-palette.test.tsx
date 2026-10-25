@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../../tests/support/axe";
+import { baseline } from "../../../tests/support/baseline";
 import { screenshotEveryMode } from "../../../tests/support/screenshots";
 import { hi } from "../../locales/hi";
 import { QeetrixProvider } from "../../provider/provider";
@@ -151,6 +152,67 @@ describe("CommandPalette", () => {
     expect(onQueryChange).toHaveBeenLastCalledWith("acme");
     await expect.element(option(/Server result/)).toBeVisible();
     await expect.element(page.getByRole("status")).toHaveTextContent("Searching…");
+  });
+
+  it("starts every label in one column, after an avatar, an icon or neither", async () => {
+    await render(
+      <CommandPalette
+        groups={[
+          GROUPS[0] as CommandGroup,
+          GROUPS[1] as CommandGroup,
+          { label: "Recent", items: [{ value: "rec_1", label: "Audit logs" }] },
+        ]}
+        onSelect={() => {}}
+        defaultOpen
+        hotkey={false}
+      />,
+    );
+    const start = (name: string) =>
+      (
+        option(new RegExp(name)).element().querySelector(".qx-command-label") as HTMLElement
+      ).getBoundingClientRect().left;
+    for (const density of ["compact", "default", "comfortable"]) {
+      document.documentElement.dataset.qxDensity = density;
+      const avatar = start("Priya Sharma");
+      expect(Math.abs(start("Priority support portal") - avatar), density).toBeLessThanOrEqual(0.5);
+      expect(Math.abs(start("Audit logs") - avatar), density).toBeLessThanOrEqual(0.5);
+    }
+    delete document.documentElement.dataset.qxDensity;
+  });
+
+  it("sets the meta on the label's baseline, also beside a description", async () => {
+    await render(
+      <CommandPalette
+        groups={[
+          GROUPS[2] as CommandGroup,
+          {
+            label: "Applications",
+            items: [
+              {
+                value: "app_2",
+                label: "Payroll",
+                description: "payroll.acme.in",
+                meta: "SAML",
+                icon: AppWindowIcon,
+              },
+            ],
+          },
+        ]}
+        onSelect={() => {}}
+        defaultOpen
+        hotkey={false}
+      />,
+    );
+    for (const density of ["compact", "default", "comfortable"]) {
+      document.documentElement.dataset.qxDensity = density;
+      for (const name of ["Two-step sign-in", "Payroll"]) {
+        const item = option(new RegExp(name)).element();
+        const label = baseline(item.querySelector(".qx-command-label"));
+        const meta = baseline(item.querySelector("[data-slot=command-item-meta]"));
+        expect(Math.abs(meta - label), `${name}, ${density}`).toBeLessThanOrEqual(0.5);
+      }
+    }
+    delete document.documentElement.dataset.qxDensity;
   });
 
   it("speaks Hindi through QeetrixProvider", async () => {

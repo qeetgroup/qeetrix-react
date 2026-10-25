@@ -1,6 +1,7 @@
-/* AvatarGroup (07-components.md): avatars side by side, a 2px hairline apart (not overlapped, so
-   initials stay whole and no ring is needed on a tinted row), then the +N count in a pill the
-   avatar's height, on the avatar's own fill. */
+/* AvatarGroup: avatars side by side, a 2px hairline apart (not overlapped, so initials stay whole
+   and no ring is needed on a tinted row), then the +N count in a pill the avatar's height, on the
+   avatar's own fill; square avatars get a square count. The `font` shorthand resets
+   font-variation-settings, so the larger sizes set the geometry again after it. */
 .qx-avatar-group {
   display: inline-flex;
   flex: none;
@@ -29,11 +30,16 @@
     min-inline-size: 40px;
     block-size: 40px;
     font: var(--qx-typography-label-md);
+    font-variation-settings: "GEOM" var(--qx-font-geometry-body);
   }
   [data-size="xl"] > & {
     min-inline-size: 48px;
     block-size: 48px;
     font: var(--qx-typography-label-md);
+    font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  }
+  [data-shape="square"] > & {
+    border-radius: var(--qx-radius-control);
   }
 }
 

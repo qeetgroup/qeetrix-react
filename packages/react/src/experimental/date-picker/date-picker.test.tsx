@@ -36,7 +36,58 @@ describe("DatePicker", () => {
       </Field>,
     );
     await expect.element(field()).toHaveValue("25/10/2026");
-    await expect.element(page.getByRole("button", { name: "Choose date" })).toBeVisible();
+    await expect
+      .element(page.getByRole("button", { name: "Choose date for Joining date" }))
+      .toBeVisible();
+  });
+
+  it("names its calendar button and dialog after its field, so two pickers on a form differ", async () => {
+    await render(
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+        <Field label="Start date">
+          <DatePicker today={TODAY} />
+        </Field>
+        <Field label="End date" optional>
+          <DatePicker today={TODAY} />
+        </Field>
+        <DatePicker aria-label="Review date" today={TODAY} />
+        <DatePicker today={TODAY} />
+      </div>,
+    );
+    const names = page
+      .getByRole("button", { name: /^Choose date/ })
+      .elements()
+      .map((button) => button.getAttribute("aria-label"));
+    // A Field's "(optional)" stays out; without any label, the plain name.
+    expect(names).toEqual([
+      "Choose date for Start date",
+      "Choose date for End date",
+      "Choose date for Review date",
+      "Choose date",
+    ]);
+    await page.getByRole("button", { name: "Choose date for End date" }).click();
+    const dialog = page.getByRole("dialog", { name: "Choose date for End date" });
+    await expect.element(dialog).toBeVisible();
+    expect(dialog.element().querySelector("[data-slot=date-picker-panel]")).not.toBeNull();
+  });
+
+  it("follows its field's label when it changes", async () => {
+    const { rerender } = await render(
+      <Field label="Start date">
+        <DatePicker today={TODAY} />
+      </Field>,
+    );
+    await expect
+      .element(page.getByRole("button", { name: "Choose date for Start date" }))
+      .toBeInTheDocument();
+    await rerender(
+      <Field label="Joining date">
+        <DatePicker today={TODAY} />
+      </Field>,
+    );
+    await expect
+      .element(page.getByRole("button", { name: "Choose date for Joining date" }))
+      .toBeInTheDocument();
   });
 
   it("writes and reads the locale's order, with an example that can't be misread", async () => {
@@ -117,9 +168,11 @@ describe("DatePicker", () => {
         <DatePicker defaultValue="2026-10-20" today={TODAY} />
       </Field>,
     );
-    const button = page.getByRole("button", { name: "Choose date" });
+    const button = page.getByRole("button", { name: "Choose date for Joining date" });
     await button.click();
-    await expect.element(page.getByRole("dialog", { name: "Choose date" })).toBeVisible();
+    await expect
+      .element(page.getByRole("dialog", { name: "Choose date for Joining date" }))
+      .toBeVisible();
     await expect.poll(focusedDate).toBe("2026-10-20");
     await userEvent.keyboard("{ArrowRight}{Enter}");
     await expect.element(page.getByRole("dialog")).not.toBeInTheDocument();
@@ -135,7 +188,7 @@ describe("DatePicker", () => {
         <DatePicker aria-label="Narrow" today={TODAY} />
       </div>,
     );
-    const [wide, narrow] = page.getByRole("button", { name: "Choose date" }).all();
+    const [wide, narrow] = page.getByRole("button", { name: /^Choose date for / }).all();
     const edges = (selector: string) => document.querySelector(selector)?.getBoundingClientRect();
 
     await wide?.click();
@@ -188,7 +241,7 @@ describe("DatePicker", () => {
         <DatePicker today={TODAY} />
       </Field>,
     );
-    await page.getByRole("button", { name: "Choose date" }).click();
+    await page.getByRole("button", { name: "Choose date for Date of birth" }).click();
     await page.getByRole("button", { name: "October 2026, choose year" }).click();
     await page.getByRole("button", { name: "Previous 10 years" }).click();
     await page.getByRole("button", { name: "Previous 10 years" }).click();
@@ -199,7 +252,7 @@ describe("DatePicker", () => {
     await expect.element(page.getByRole("dialog")).not.toBeInTheDocument();
     await expect.element(field("Date of birth")).toHaveValue("15/08/1994");
 
-    await page.getByRole("button", { name: "Choose date" }).click();
+    await page.getByRole("button", { name: "Choose date for Date of birth" }).click();
     await page.getByRole("button", { name: "August 1994, choose year" }).click();
     await userEvent.keyboard("{Escape}");
     await expect.element(page.getByRole("dialog")).toBeVisible();
@@ -214,7 +267,7 @@ describe("DatePicker", () => {
         <DatePicker today={TODAY} />
       </Field>,
     );
-    await page.getByRole("button", { name: "Choose date" }).click();
+    await page.getByRole("button", { name: "Choose date for Joining date" }).click();
     await expect.poll(focusedDate).toBe(TODAY);
     await userEvent.tab();
     await expect.element(page.getByRole("dialog")).not.toBeInTheDocument();
@@ -229,7 +282,7 @@ describe("DatePicker", () => {
       </div>,
     );
     await userEvent.type(field("Typed"), "03/02/2026");
-    const [typed, later] = page.getByRole("button", { name: "Choose date" }).all();
+    const [typed, later] = page.getByRole("button", { name: /^Choose date for / }).all();
     await typed?.click();
     await expect.poll(focusedDate).toBe("2026-02-03");
     await userEvent.keyboard("{Escape}");
@@ -275,7 +328,7 @@ describe("DatePicker", () => {
     );
     await expect.element(field("Disabled")).toBeDisabled();
     await expect.element(field("Read-only")).toHaveAttribute("readonly");
-    for (const button of page.getByRole("button", { name: "Choose date" }).all()) {
+    for (const button of page.getByRole("button", { name: /^Choose date for / }).all()) {
       await expect.element(button).toHaveAttribute("aria-disabled", "true");
       await button.click({ force: true });
     }
@@ -288,7 +341,7 @@ describe("DatePicker", () => {
         <DatePicker aria-label="तारीख़" today={TODAY} />
       </QeetrixProvider>,
     );
-    await expect.element(page.getByRole("button", { name: "तारीख़ चुनें" })).toBeVisible();
+    await expect.element(page.getByRole("button", { name: "तारीख़ के लिए तारीख़ चुनें" })).toBeVisible();
     await expect.element(field("तारीख़")).toHaveAttribute("placeholder", "जैसे 31/12/2026");
   });
 
@@ -316,7 +369,7 @@ describe("DatePicker", () => {
         </Field>
       </div>,
     );
-    await page.getByRole("button", { name: "Choose date" }).first().click();
+    await page.getByRole("button", { name: "Choose date for Joining date" }).first().click();
     await expect.element(page.getByRole("dialog")).toBeVisible();
     await screenshotEveryMode("DatePicker", null);
     // The open dialog is checked on its own, then the form once it has closed.

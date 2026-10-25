@@ -47,15 +47,75 @@
     align-items: stretch;
   }
 }
+/* Rendered as a list (`render={<ul />}`), it drops the browser's bullets and indent. */
+.qx-grid:where(ul, ol) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* The per-size-class counts are set inline on each Grid and GridItem. Custom properties inherit, so
+   a grid's children start afresh: a Grid or GridItem nested anywhere inside reads only its own. */
+.qx-grid > * {
+  --qx-grid-base: initial;
+  --qx-grid-medium: initial;
+  --qx-grid-expanded: initial;
+  --qx-grid-large: initial;
+  --qx-grid-xlarge: initial;
+  --qx-grid-span-base: initial;
+  --qx-grid-span-medium: initial;
+  --qx-grid-span-expanded: initial;
+  --qx-grid-span-large: initial;
+  --qx-grid-span-xlarge: initial;
+  --qx-grid-start-base: initial;
+  --qx-grid-start-medium: initial;
+  --qx-grid-start-expanded: initial;
+  --qx-grid-start-large: initial;
+  --qx-grid-start-xlarge: initial;
+}
+
+/* GridItem: a cell that spans columns. Its span is cut to the columns its grid has now
+   (--qx-grid-current, inherited from the grid), less those before its start, so it never adds an
+   implicit column. Without a start it takes the next free cell. Outside a Grid it isn't cut. */
+.qx-grid-item {
+  --qx-grid-span-current: var(--qx-grid-span-base, 1);
+  --qx-grid-start-current: var(--qx-grid-start-base);
+  --qx-grid-start-cut: min(var(--qx-grid-start-current), var(--qx-grid-current, 12));
+  --qx-grid-span-cut: max(
+    1,
+    min(
+      var(--qx-grid-span-current),
+      var(--qx-grid-current, 12) +
+      1 -
+      var(--qx-grid-start-current, 1)
+    )
+  );
+  grid-column-start: var(--qx-grid-start-cut, auto);
+  grid-column-end: span var(--qx-grid-span-cut);
+  min-inline-size: 0;
+}
 
 @media (width >= 600px) {
   .qx-grid {
     --qx-grid-current: var(--qx-grid-medium, var(--qx-grid-base, 1));
   }
+  .qx-grid-item {
+    --qx-grid-span-current: var(--qx-grid-span-medium, var(--qx-grid-span-base, 1));
+    --qx-grid-start-current: var(--qx-grid-start-medium, var(--qx-grid-start-base));
+  }
 }
 @media (width >= 840px) {
   .qx-grid {
     --qx-grid-current: var(--qx-grid-expanded, var(--qx-grid-medium, var(--qx-grid-base, 1)));
+  }
+  .qx-grid-item {
+    --qx-grid-span-current: var(
+      --qx-grid-span-expanded,
+      var(--qx-grid-span-medium, var(--qx-grid-span-base, 1))
+    );
+    --qx-grid-start-current: var(
+      --qx-grid-start-expanded,
+      var(--qx-grid-start-medium, var(--qx-grid-start-base))
+    );
   }
 }
 @media (width >= 1200px) {
@@ -65,12 +125,38 @@
       var(--qx-grid-expanded, var(--qx-grid-medium, var(--qx-grid-base, 1)))
     );
   }
+  .qx-grid-item {
+    --qx-grid-span-current: var(
+      --qx-grid-span-large,
+      var(--qx-grid-span-expanded, var(--qx-grid-span-medium, var(--qx-grid-span-base, 1)))
+    );
+    --qx-grid-start-current: var(
+      --qx-grid-start-large,
+      var(--qx-grid-start-expanded, var(--qx-grid-start-medium, var(--qx-grid-start-base)))
+    );
+  }
 }
 @media (width >= 1600px) {
   .qx-grid {
     --qx-grid-current: var(
       --qx-grid-xlarge,
       var(--qx-grid-large, var(--qx-grid-expanded, var(--qx-grid-medium, var(--qx-grid-base, 1))))
+    );
+  }
+  .qx-grid-item {
+    --qx-grid-span-current: var(
+      --qx-grid-span-xlarge,
+      var(
+        --qx-grid-span-large,
+        var(--qx-grid-span-expanded, var(--qx-grid-span-medium, var(--qx-grid-span-base, 1)))
+      )
+    );
+    --qx-grid-start-current: var(
+      --qx-grid-start-xlarge,
+      var(
+        --qx-grid-start-large,
+        var(--qx-grid-start-expanded, var(--qx-grid-start-medium, var(--qx-grid-start-base)))
+      )
     );
   }
 }

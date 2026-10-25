@@ -1,6 +1,6 @@
-/* Alert (07-components.md, C2): the status's subtle tint, the 3px status edge on the start side (the
-   Toast's mark, here in the page flow), a sharp status icon, a semibold title and the description in
-   the subtle text colour. No shadow: it sits in the page, not over it. */
+/* Alert: the status's subtle tint, the 3px status edge on the start side (the Toast's mark, here in
+   the page flow), a sharp status icon, a semibold title and the description in the subtle text
+   colour. No shadow: it sits in the page, not over it. */
 .qx-alert {
   display: flex;
   align-items: flex-start;
@@ -71,13 +71,17 @@
   margin-block: -2px;
 }
 
-/* The banner (07-components.md): a notice about the whole app, edge to edge under the top bar. The
-   tint spans the page with a rule in the tone under it (no status edge: it isn't beside anything),
-   on the page's gutter, so its icon lines up with the page title. One line, the title running into
-   the description, the actions at the end; every banner a row's height with a small button in it,
-   whether it has one or not. */
+/* The banner: a notice about the whole app, edge to edge under the top bar. The tint spans the page
+   with a rule in the tone under it (no status edge: it isn't beside anything), on the page's gutter,
+   so its icon lines up with the page title. One line, the title running into the description, the
+   actions at the end; every banner a row's height with a small button in it, whether it has one or
+   not.
+   The first line is a small button's height, and everything is centred on it: the icon, the text's
+   first line, the actions and Dismiss. On one line that centres them in the banner; when the banner
+   wraps (on a phone), the icon and Dismiss stay on the first line instead of drifting to the middle
+   of the block. */
 .qx-alert[data-variant="banner"] {
-  align-items: center;
+  align-items: flex-start;
   min-block-size: calc(
     var(--qx-size-control-sm) +
     2 *
@@ -97,18 +101,20 @@
     border-block-end-color: var(--qx-color-border-danger);
   }
   & > .qx-alert-icon {
-    margin-block-start: 0;
+    margin-block-start: calc((var(--qx-size-control-sm) - var(--qx-size-icon-sm)) / 2);
   }
   .qx-alert-body {
     flex-direction: row;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--qx-space-gap-xs) var(--qx-space-gap-md);
     padding-inline-end: 0;
   }
   .qx-alert-text {
     display: block;
     flex: 1 1 20rem;
+    /* Each line is 1lh; the padding makes the first one a small button's height. */
+    padding-block: calc((var(--qx-size-control-sm) - 1lh) / 2);
   }
   .qx-alert-title,
   .qx-alert-description {
@@ -131,9 +137,14 @@
   }
 }
 
+/* Forced colours: the tint is dropped, so an alert in the page gets an edge, its status edge
+   included. A banner keeps only the rule under it: it has no status edge, and runs edge to edge. */
 @media (forced-colors: active) {
-  .qx-alert {
+  .qx-alert:not([data-variant="banner"]) {
     border: var(--qx-border-width-default) solid CanvasText;
     border-inline-start: var(--qx-border-width-accent) solid CanvasText;
+  }
+  .qx-alert[data-variant="banner"] {
+    border-block-end-color: CanvasText;
   }
 }

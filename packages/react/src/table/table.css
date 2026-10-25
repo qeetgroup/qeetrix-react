@@ -1,8 +1,9 @@
-/* Table (07-components.md; design rules §15): a neutral header band, rows at the density's row
-   height with 1px lines between them, a neutral tint on hover and the selected tint when chosen.
-   A bar above the table holds the toolbar (search, filters); while rows are selected it turns the
-   selected tint and holds the count, the bulk actions and Clear. The header sticks while the page
-   scrolls; the checkbox and actions columns shrink to their controls. */
+/* Table (design rules §15): a neutral header band, rows at the density's row height with 1px lines
+   between them, a neutral tint on hover and the selected tint when chosen. A bar above the table
+   holds the toolbar (search, filters); while rows are selected it turns the selected tint and holds
+   the count, the bulk actions and Clear. The header sticks while the page scrolls; the checkbox and
+   actions columns shrink to their controls. Rows that open a record point, and their primary
+   link underlines under the pointer. */
 .qx-table {
   display: flex;
   flex-direction: column;
@@ -10,6 +11,8 @@
   min-inline-size: 0;
 }
 .qx-table-element {
+  /* The busy line's containing block. */
+  position: relative;
   inline-size: 100%;
   border-collapse: collapse;
   color: var(--qx-color-text-default);
@@ -82,12 +85,87 @@
   > .qx-table-cell {
   background: var(--qx-color-bg-neutral-subtle);
 }
-/* While a new page or sort loads, the rows on show are stale: they dim until it arrives. */
-.qx-table[data-loading] .qx-table-body {
-  opacity: var(--qx-opacity-disabled);
+/* Rows that open a record: the whole row is the pointer's target, and its link says where it goes.
+   The link inherits the cell's look; keyboard focus frames it, and tints its row like the pointer. */
+.qx-table-row[data-clickable] {
+  cursor: pointer;
+}
+.qx-table-row-link {
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--qx-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  text-decoration-line: none;
+  text-decoration-thickness: var(--qx-border-width-default);
+  text-underline-offset: 3px;
+  cursor: pointer;
+  &:is(:hover, :focus-visible),
+  .qx-table-row:hover > .qx-table-cell > & {
+    text-decoration-line: underline;
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
+  }
+}
+.qx-table-body
+  > .qx-table-row[data-clickable]:not([data-selected]):has(.qx-table-row-link:focus-visible)
+  > .qx-table-cell {
+  background: var(--qx-color-bg-neutral-subtle);
+}
+/* While a new page or sort loads, the rows on show stay readable (dimming them failed contrast) and
+   an Ember segment slides along the foot of the header band. It's drawn by the table itself, out of
+   the flow, so no row moves; under reduced motion it spans the band and fades instead. */
+.qx-table[data-loading] > .qx-table-element::after {
+  content: "";
+  position: absolute;
+  inset-block-start: calc(var(--qx-size-row) - var(--qx-border-width-strong));
+  inset-inline: 0;
+  z-index: var(--qx-z-sticky);
+  block-size: var(--qx-border-width-strong);
+  background-image: linear-gradient(var(--qx-color-bg-brand-bold) 0 0);
+  background-repeat: no-repeat;
+  background-size: 30% 100%;
+  animation-name: qx-table-busy;
+  animation-duration: calc(4 * var(--qx-motion-duration-slower));
+  animation-timing-function: var(--qx-motion-easing-standard);
+  animation-iteration-count: infinite;
+}
+/* Right to left, the segment runs from the right. (A nested & can't stand for a pseudo-element.) */
+[dir="rtl"] .qx-table[data-loading] > .qx-table-element::after {
+  animation-direction: reverse;
+}
+/* From just past the start edge to just past the end: a 30% segment's position runs over 70%. */
+@keyframes qx-table-busy {
+  from {
+    background-position: -43% 0;
+  }
+  to {
+    background-position: 143% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qx-table[data-loading] > .qx-table-element::after {
+    background-size: 100% 100%;
+    animation: qx-table-busy-fade 1.6s ease-in-out infinite;
+  }
+}
+@keyframes qx-table-busy-fade {
+  50% {
+    opacity: 0.35;
+  }
 }
 
+/* At least a field's height, not counting padding: a Card pads the bar into a band, and the toolbar
+   (fields and lg buttons) and the selection bar (sm buttons) must stay the same height in it, so the
+   header doesn't jump when the first row is ticked. */
 .qx-table-bar {
+  box-sizing: content-box;
   display: flex;
   align-items: center;
   gap: var(--qx-space-gap-sm);
@@ -100,6 +178,7 @@
 .qx-table-count {
   font: var(--qx-typography-label-md);
   font-weight: var(--qx-typography-title-sm-font-weight);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
   white-space: nowrap;
 }
 .qx-table-bulk {
@@ -143,5 +222,13 @@
   color: var(--qx-color-icon-subtle);
   [data-sorted] & {
     color: var(--qx-color-icon-default);
+  }
+}
+
+/* Forced colours drop background images, so the busy segment is drawn in the system highlight. */
+@media (forced-colors: active) {
+  .qx-table[data-loading] > .qx-table-element::after {
+    forced-color-adjust: none;
+    background-image: linear-gradient(Highlight 0 0);
   }
 }

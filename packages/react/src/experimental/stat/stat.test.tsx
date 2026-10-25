@@ -4,6 +4,10 @@ import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../../tests/support/axe";
 import { tokenColor } from "../../../tests/support/color";
 import { screenshotSchemes } from "../../../tests/support/screenshots";
+import { Stage } from "../../../tests/support/stage";
+import { hi } from "../../locales/hi";
+import { QeetrixProvider } from "../../provider/provider";
+import { PageHeader } from "../page-header/page-header";
 import { Stat, StatGroup } from "./stat";
 
 function Strip() {
@@ -91,6 +95,162 @@ describe("Stat", () => {
     expect(trends[0]?.querySelector(".qx-stat-trend-line")?.getAttribute("d")).toBe(
       "M0.0 14.0 L44.0 14.0 L88.0 14.0",
     );
+  });
+
+  it("follows QeetrixProvider's locale by default; its own locale wins", async () => {
+    await render(
+      <QeetrixProvider locale="en-US">
+        <StatGroup>
+          <Stat label="Collected" value={128400} />
+          <Stat label="Collected" value={128400} locale="de-DE" />
+        </StatGroup>
+      </QeetrixProvider>,
+    );
+    await expect.element(page.getByText("128,400")).toBeVisible();
+    await expect.element(page.getByText("128.400")).toBeVisible();
+  });
+
+  it("holds its place while loading: placeholders on the value's and note's lines, read as Loading", async () => {
+    const { container, rerender } = await render(
+      <div style={{ inlineSize: 240 }}>
+        <StatGroup>
+          <Stat label="Total users" value={1284} note="+38 this week" trend={[1, 3, 2, 5]} />
+        </StatGroup>
+      </div>,
+    );
+    const stat = () => container.querySelector("[data-slot=stat]") as HTMLElement;
+    const loaded = stat().getBoundingClientRect().height;
+    await rerender(
+      <div style={{ inlineSize: 240 }}>
+        <StatGroup>
+          <Stat label="Total users" value={undefined} loading trend={[1, 3, 2, 5]} />
+        </StatGroup>
+      </div>,
+    );
+    expect(stat().getAttribute("aria-busy")).toBe("true");
+    expect(stat().querySelectorAll("[data-slot=skeleton]")).toHaveLength(2);
+    expect(stat().querySelector("[data-slot=stat-trend]")).toBeNull();
+    // The definition reads "Loading"; the note's placeholder is hidden.
+    await expect.element(page.getByRole("definition").first()).toHaveTextContent("Loading");
+    expect(stat().querySelector("[data-slot=stat-note]")?.getAttribute("aria-hidden")).toBe("true");
+    // The same height, to a sixty-fourth of a pixel: line heights are fractional (24px × 1.3333).
+    expect(stat().getBoundingClientRect().height).toBeCloseTo(loaded, 1);
+  });
+
+  it("says Loading in the provider's language", async () => {
+    await render(
+      <QeetrixProvider locale="hi-IN" messages={hi}>
+        <StatGroup>
+          <Stat label="कुल उपयोगकर्ता" value={undefined} loading />
+        </StatGroup>
+      </QeetrixProvider>,
+    );
+    await expect.element(page.getByRole("definition").first()).toHaveTextContent("लोड हो रहा है");
+  });
+
+  it("wraps into rows that each keep the gutter, with a rule between rows and none at their starts", async () => {
+    const gutter = 32;
+    const { container } = await render(
+      <div style={{ "--qx-stat-group-inset": `${gutter}px` } as React.CSSProperties}>
+        <Strip />
+      </div>,
+    );
+    const group = container.querySelector("[data-slot=stat-group]") as HTMLElement;
+    const cells = [...container.querySelectorAll<HTMLElement>("[data-slot=stat]")];
+    // Thirds of 700px aren't whole pixels: "the same" is within a sixty-fourth.
+    const same = (actual: number, expected: number, where: string) =>
+      expect(actual, where).toBeCloseTo(expected, 1);
+    // Width → columns: 1000 → 4 (one row), 700 → 3, 500 → 2, 360 → 1.
+    for (const [width, columns] of [
+      [1000, 4],
+      [700, 3],
+      [500, 2],
+      [360, 1],
+    ] as const) {
+      group.style.inlineSize = `${width}px`;
+      const edge = group.getBoundingClientRect();
+      cells.forEach((cell, index) => {
+        const label = (
+          cell.querySelector("[data-slot=stat-label]") as HTMLElement
+        ).getBoundingClientRect();
+        const column = index % columns;
+        const where = `${width}px, cell ${index + 1}`;
+        const ruleBefore = getComputedStyle(cell).borderInlineStartWidth;
+        const ruleAbove = getComputedStyle(cell, "::before");
+        if (column === 0) {
+          // A row's first cell starts at the gutter, with no rule before it.
+          same(label.left - edge.left, gutter, where);
+          expect(ruleBefore, where).toBe("0px");
+        } else {
+          expect(ruleBefore, where).toBe("1px");
+        }
+        // A full row's last cell ends at the gutter; a short last row's last cell keeps its inset.
+        if (column === columns - 1) same(edge.right - label.right, gutter, where);
+        // A rule above every row after the first, across the whole strip.
+        if (index >= columns) {
+          expect(ruleAbove.content, where).not.toBe("none");
+          same(Number.parseFloat(ruleAbove.width), width, where);
+          expect(ruleAbove.borderBlockStartWidth, where).toBe("1px");
+        } else {
+          expect(ruleAbove.content, where).toBe("none");
+        }
+      });
+      // Rows line up: a wrapped row's cells sit under the first row's columns.
+      if (columns < cells.length) {
+        const first = (cells[0] as HTMLElement).getBoundingClientRect();
+        const wrapped = (cells[columns] as HTMLElement).getBoundingClientRect();
+        same(wrapped.left, first.left, `${width}px`);
+        same(wrapped.width, first.width, `${width}px`);
+      }
+    }
+  });
+
+  it("keeps the page gutter on every wrapped row in a PageHeader below 840px", async () => {
+    await page.viewport(720, 600);
+    const { container } = await render(
+      <PageHeader title="Users" summary={<Strip />} style={{ margin: 0 }} />,
+    );
+    const group = container.querySelector("[data-slot=stat-group]") as HTMLElement;
+    const title = (container.querySelector("h1") as HTMLElement).getBoundingClientRect();
+    const edge = group.getBoundingClientRect();
+    const cells = [...container.querySelectorAll<HTMLElement>("[data-slot=stat]")];
+    const starts = cells.map((cell) =>
+      Math.round(
+        (cell.querySelector("[data-slot=stat-label]") as HTMLElement).getBoundingClientRect().left -
+          edge.left,
+      ),
+    );
+    // Three columns at 720px: the fourth Stat starts a row, on the title's line, like the first.
+    expect(starts[0]).toBe(title.left - edge.left);
+    expect(starts[3]).toBe(starts[0]);
+    expect(getComputedStyle(cells[3] as HTMLElement).borderInlineStartWidth).toBe("0px");
+  });
+
+  it("looks right wrapped and loading, in both schemes", async () => {
+    await page.viewport(760, 600);
+    const { container } = await render(
+      <Stage>
+        <div style={{ display: "grid", gap: 16, inlineSize: 700 }}>
+          <div style={{ background: "var(--qx-color-surface-raised)" }}>
+            <Strip />
+          </div>
+          <div style={{ background: "var(--qx-color-surface-raised)" }}>
+            <StatGroup>
+              <Stat label="Total users" value={undefined} loading />
+              <Stat label="Passkey adoption" value={undefined} loading />
+              <Stat
+                label="Failed sign-ins"
+                value={312}
+                note="Up 40% on last week"
+                tone="negative"
+              />
+            </StatGroup>
+          </div>
+        </div>
+      </Stage>,
+    );
+    await expectAccessible(container);
+    await screenshotSchemes("Stat · wrapped and loading");
   });
 
   it("rules its cells apart", async () => {

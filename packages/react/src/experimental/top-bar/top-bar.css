@@ -1,4 +1,4 @@
-/* TopBar (07-components.md, C1 · Ruled): the scope bar. It renders the dark scheme on itself, so it
+/* TopBar (C1 · Ruled): the scope bar. It renders the dark scheme on itself, so it
    is the same black band over light and dark pages, and everything inside takes the dark values.
    A 2px Ember line on its top edge is the Qeet signature; a hairline closes it below. Left to right
    it runs from product to global: launcher, product, scope path, search, tools, account. */
@@ -215,8 +215,9 @@
 }
 .qx-top-bar-tool {
   position: relative;
-  /* The open panel's trigger stays pressed. */
-  & > [aria-pressed="true"] {
+  /* The open panel's trigger stays pressed; so does the compact bar's Tools menu while one is open. */
+  & > [aria-pressed="true"],
+  & > [data-panel-open] {
     background: var(--qx-color-overlay-pressed);
     color: var(--qx-color-text-default);
   }
@@ -251,6 +252,75 @@
   }
 }
 
+/* Compact (below 840px, set from the same query): the scope path is one switcher. The start clips
+   rather than ever painting over the tools; the switcher's label truncates first. On a phone (below
+   600px) the logo stands for the product, the tools are one menu, and the account loses its rule. */
+.qx-top-bar[data-compact] .qx-top-bar-start {
+  overflow: hidden;
+}
+@media (width < 600px) {
+  .qx-top-bar[data-compact] {
+    &[data-logo] .qx-top-bar-product {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .qx-top-bar-identity {
+      padding-inline: var(--qx-space-inset-md) var(--qx-space-gap-xs);
+    }
+    .qx-top-bar-slash {
+      margin-inline: var(--qx-space-gap-xs);
+    }
+    .qx-top-bar-rule {
+      display: none;
+    }
+  }
+}
+/* The compact bar's whole scope path: each step's own switcher, one under another. */
+.qx-top-bar-scope-positioner {
+  z-index: var(--qx-z-popover);
+}
+.qx-top-bar-scope-popup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-inline-size: 240px;
+  max-inline-size: min(360px, var(--available-width));
+  padding: var(--qx-space-inset-xs);
+  border: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  border-radius: var(--qx-radius-overlay);
+  background: var(--qx-color-surface-overlay);
+  box-shadow: var(--qx-shadow-overlay);
+  color: var(--qx-color-text-default);
+  outline: 0;
+  transition-property: opacity, translate;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-enter);
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    translate: 0 -4px;
+  }
+  &[data-ending-style] {
+    transition-duration: var(--qx-motion-duration-fast);
+    transition-timing-function: var(--qx-motion-easing-exit);
+  }
+  .qx-top-bar-switcher {
+    inline-size: 100%;
+  }
+  .qx-top-bar-switcher-label {
+    flex: 1;
+    text-align: start;
+  }
+}
+/* Panels open from the end edge: the Tools icon mirrors with it. */
+[dir="rtl"] .qx-top-bar-tools-trigger .qx-button-icon {
+  scale: -1 1;
+}
+
 @media (forced-colors: active) {
   .qx-top-bar {
     border-block-end-color: CanvasText;
@@ -269,7 +339,8 @@
     background: Highlight;
   }
   .qx-top-bar-search-trigger,
-  .qx-top-bar-key {
+  .qx-top-bar-key,
+  .qx-top-bar-scope-popup {
     border-color: CanvasText;
   }
 }

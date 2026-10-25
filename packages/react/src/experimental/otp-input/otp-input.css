@@ -1,17 +1,19 @@
 /* OTPInput (07-components.md, C2): one Input box per character, filled with a bottom line and 4px
    top corners, the character centred in tabular figures. Like every field it spans its container,
    so its edges line up with the fields, alerts and buttons around it; the slots share the width,
-   and at `md` each is as tall as an Input. Focus is the 2px Ember frame inside the slot; an invalid
-   code frames every slot in the danger colour. */
+   and at `md` each is as tall as an Input. In a narrow container the slots shrink, down to a 24px
+   target, so a long code (a 10-character recovery code) still fits the column. Focus is the 2px
+   Ember frame inside the slot; an invalid code frames every slot in the danger colour. */
 .qx-otp-input {
   display: flex;
   align-items: center;
   gap: var(--qx-space-gap-sm);
   inline-size: 100%;
+  min-inline-size: 0;
 }
 .qx-otp-input-slot {
   flex: 1 1 0;
-  min-inline-size: var(--qx-size-control-lg);
+  min-inline-size: var(--qx-size-target-min);
   inline-size: 0;
   block-size: var(--qx-size-control-lg);
   margin: 0;
@@ -53,9 +55,12 @@
     color: var(--qx-color-text-subtlest);
     opacity: 1;
   }
+  /* The `font` shorthand resets the geometry axis and the figures, so both are set again after it. */
   [data-size="lg"] > & {
     block-size: calc(var(--qx-size-control-lg) + 16px);
     font: var(--qx-typography-title-lg);
+    font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+    font-variant-numeric: tabular-nums;
   }
 }
 .qx-otp-input-separator {

@@ -27,6 +27,8 @@ import {
   Form,
   NumberField,
   OTPInput,
+  PageHeader,
+  PageHeaderBack,
   Pagination,
   PasswordInput,
   RangeCalendar,
@@ -41,6 +43,7 @@ import {
   TimelineItem,
   TreeView,
 } from "../src/experimental";
+import { QeetrixProvider as StatProvider } from "../src/provider/provider";
 
 const html = (node: React.ReactElement) => renderToString(node);
 const source = (path: string) =>
@@ -74,6 +77,39 @@ describe("experimental components on the server", () => {
     expect(strip).toContain(">1,28,400</dd>");
     expect(strip).toContain(">72%</dd>");
     expect(strip.match(/<svg/g)).toHaveLength(1);
+    // PageHeader's count follows the provider through a client leaf; the back link is a client part.
+    const header = html(
+      <PageHeader
+        back={<PageHeaderBack href="/users">Users</PageHeaderBack>}
+        title="Users"
+        count={128400}
+      />,
+    );
+    expect(header).toContain('aria-label="Back to Users"');
+    expect(header).toContain(">1,28,400</span>");
+    expect(
+      html(
+        <StatProvider locale="en-US">
+          <PageHeader title="Users" count={128400} />
+        </StatProvider>,
+      ),
+    ).toContain(">128,400</span>");
+  });
+
+  it("Stat follows QeetrixProvider's locale on the server, and renders its loading state", () => {
+    const strip = html(
+      <StatProvider locale="en-US">
+        <StatGroup>
+          <Stat label="Collected" value={128400} />
+          <Stat label="Pending" value={undefined} loading trend={[1, 3]} />
+        </StatGroup>
+      </StatProvider>,
+    );
+    expect(strip).toContain(">128,400</dd>");
+    expect(strip).toContain('aria-busy="true"');
+    expect(strip).toContain(">Loading</span>");
+    expect(strip.match(/data-slot="skeleton"/g)).toHaveLength(2);
+    expect(strip).not.toContain("<svg");
   });
 
   it("C2's parts render on the server: hidden secrets, six named slots, a quiet alert", () => {
@@ -106,7 +142,8 @@ describe("experimental components on the server", () => {
     );
     expect(field).toContain('value="25/10/2026"');
     expect(field).toMatch(/type="hidden" name="joined" value="2026-10-25"/);
-    expect(field).toContain('aria-label="Choose date"');
+    // Named after the field, so two pickers on a form differ, from the server render on.
+    expect(field).toContain('aria-label="Choose date for Joining date"');
     expect(field).not.toContain('role="dialog"');
   });
 
@@ -122,6 +159,8 @@ describe("experimental components on the server", () => {
     expect(field).toContain('value="12/10/2026 – 14/10/2026"');
     expect(field).toMatch(/name="from" value="2026-10-12"/);
     expect(field).toMatch(/name="to" value="2026-10-14"/);
+    expect(field).toContain('aria-label="Choose dates for Period"');
+    expect(month).toContain('data-slot="range-calendar"');
     expect(field).not.toContain('role="dialog"');
   });
 
@@ -212,6 +251,20 @@ describe("experimental components on the server", () => {
     const summary = html(<ErrorSummary items={[{ id: "email", message: "Enter a work email" }]} />);
     expect(summary).toContain('href="#email"');
     expect(summary).toContain("Fix these to continue");
+    // GOV.UK's shape: the alert inside the focus target, its title a heading.
+    expect(summary).toMatch(/^<div[^>]*data-slot="error-summary"/);
+    expect(summary).toContain('role="alert"');
+    expect(summary).toMatch(/<h2 class="qx-error-summary-title">Fix these to continue<\/h2>/);
+  });
+
+  it("OTPInput names its group and points its first slot at it, not at a dropped aria-label", () => {
+    const code = html(<OTPInput aria-label="Code" />);
+    const group = code.match(/<div[^>]* id="([^"]+)"[^>]*>/);
+    expect(group?.[0]).toContain('role="group"');
+    expect(group?.[0]).toContain('aria-label="Code"');
+    const first = code.match(/<input[^>]*data-slot="otp-input-slot"[^>]*>/)?.[0];
+    expect(first).toContain(`aria-labelledby="${group?.[1]}"`);
+    expect(first).not.toContain("aria-label=");
   });
 
   it("Pagination renders its range on the server, formatted for India", () => {
@@ -219,7 +272,9 @@ describe("experimental components on the server", () => {
       <Pagination offset={0} pageSize={25} total={128400} onOffsetChange={() => {}} />,
     );
     expect(out).toContain('aria-label="Pagination"');
-    expect(out).toContain("1–25 of 1,28,400");
+    // Each number is bidi-isolated, and the range takes its own text's direction.
+    expect(out).toContain('dir="auto"');
+    expect(out).toContain("<bdi>1</bdi>–<bdi>25</bdi> of <bdi>1,28,400</bdi>");
   });
 
   it("AppShell renders the wide layout, its landmarks and no drawer", () => {

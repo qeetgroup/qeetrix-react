@@ -1,8 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../../tests/support/axe";
 import { screenshotSchemes } from "../../../tests/support/screenshots";
+import { Stage } from "../../../tests/support/stage";
 import { Card } from "../../card/card";
 import { hi } from "../../locales/hi";
 import { QeetrixProvider } from "../../provider/provider";
@@ -56,6 +57,62 @@ describe("AvatarGroup", () => {
       document.querySelector(".qx-avatar-group-more") as HTMLElement
     ).getBoundingClientRect();
     expect(more.height).toBe(32);
+  });
+
+  it("keeps two people with the same name apart: unique keys, both shown", async () => {
+    // Regression: avatars were keyed by name, so a repeated name gave React a duplicate key.
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const twins = [{ name: "Priya Sharma" }, { name: "Priya Sharma" }, { name: "Rahul Verma" }];
+      const { rerender } = await render(<AvatarGroup people={twins} />);
+      expect(document.querySelectorAll("[data-slot=avatar]")).toHaveLength(3);
+      await rerender(<AvatarGroup people={twins.slice(1)} />);
+      expect(document.querySelectorAll("[data-slot=avatar]")).toHaveLength(2);
+      await expect
+        .element(page.getByRole("img"))
+        .toHaveAccessibleName("2 people: Priya Sharma and Rahul Verma");
+      const messages = error.mock.calls.map((call) => call.map(String).join(" "));
+      expect(messages.filter((message) => /same key/i.test(message))).toEqual([]);
+    } finally {
+      error.mockRestore();
+    }
+  });
+
+  it("passes a square shape to every avatar, and squares the count to match", async () => {
+    const apps = ["Qeet Pay", "Qeet People", "Qeet Logs", "Qeet Notify", "Qeet ID"].map((name) => ({
+      name,
+    }));
+    await render(<AvatarGroup people={apps} shape="square" size="md" />);
+    const avatars = [...document.querySelectorAll<HTMLElement>("[data-slot=avatar]")];
+    expect(avatars).toHaveLength(3);
+    for (const avatar of avatars) {
+      expect(avatar.dataset.shape).toBe("square");
+      expect(getComputedStyle(avatar).borderRadius).toBe("4px");
+    }
+    const more = document.querySelector(".qx-avatar-group-more") as HTMLElement;
+    expect(getComputedStyle(more).borderRadius).toBe("4px");
+    expect(more.getBoundingClientRect().height).toBe(32);
+  });
+
+  it("keeps the A11y letterforms in the count at every size", async () => {
+    // Regression: lg and xl set the `font` shorthand after the geometry, which reset it.
+    await render(
+      <div>
+        {(["sm", "md", "lg", "xl"] as const).map((size) => (
+          <AvatarGroup key={size} people={PEOPLE} size={size} />
+        ))}
+      </div>,
+    );
+    const counts = [...document.querySelectorAll<HTMLElement>(".qx-avatar-group-more")];
+    expect(counts.map((count) => getComputedStyle(count).fontSize)).toEqual([
+      "12px",
+      "12px",
+      "14px",
+      "14px",
+    ]);
+    for (const count of counts) {
+      expect(getComputedStyle(count).fontVariationSettings).toBe('"GEOM" 0');
+    }
   });
 
   it("formats counts and lists for the locale, in Hindi", async () => {
@@ -117,5 +174,34 @@ describe("AvatarGroup", () => {
     );
     await expectAccessible(container);
     await screenshotSchemes("AvatarGroup", "[data-qx-stage]");
+  });
+
+  it("is accessible and looks right as squares, for applications, in both colour schemes", async () => {
+    const apps = ["Qeet Pay", "Qeet People", "Qeet Logs", "Qeet Notify", "Qeet ID", "Acme HR"].map(
+      (name) => ({ name }),
+    );
+    const { container } = await render(
+      <Stage>
+        <div style={{ display: "grid", gap: 16 }}>
+          {(["sm", "md", "lg", "xl"] as const).map((size) => (
+            <AvatarGroup
+              key={size}
+              people={apps}
+              total={14}
+              size={size}
+              shape="square"
+              messages={{ label: "{count} applications: {names}" }}
+            />
+          ))}
+        </div>
+      </Stage>,
+    );
+    await expect
+      .element(page.getByRole("img").first())
+      .toHaveAccessibleName(
+        `14 applications: ${list(["Qeet Pay", "Qeet People", "Qeet Logs", "11 more"])}`,
+      );
+    await expectAccessible(container);
+    await screenshotSchemes("AvatarGroup · square");
   });
 });

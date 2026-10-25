@@ -57,6 +57,32 @@ describe("display and status render on the server", () => {
     expect(out).toContain('data-numeric=""');
   });
 
+  it("a Table's rows that open a record render their link on the server", () => {
+    const out = html(
+      <Table
+        label="Invoices"
+        rows={[{ id: "INV-0043", customer: "Bharat Foods" }]}
+        rowId={(row) => row.id}
+        rowLabel={(row) => row.id}
+        columns={[
+          { id: "customer", header: "Customer", cell: (row) => row.customer },
+          { id: "id", header: "Invoice", cell: (row) => row.id, primary: true },
+        ]}
+        rowHref={(row) => `/invoices/${row.id}`}
+      />,
+    );
+    expect(out).toContain('data-clickable=""');
+    expect(out).toMatch(/<td[^>]*><a class="qx-table-row-link"[^>]*href="\/invoices\/INV-0043"/);
+    expect(out.match(/<a /g)).toHaveLength(1);
+  });
+
+  it("a Skeleton paragraph renders its lines on the server", () => {
+    const out = html(<Skeleton lines={3} />);
+    expect(out).toMatch(/^<span aria-hidden="true" class="qx-skeleton-lines"/);
+    expect(out.match(/data-slot="skeleton"/g)).toHaveLength(3);
+    expect(html(<Skeleton variant="circle" size="xl" />)).toContain('data-size="xl"');
+  });
+
   it("Badge, Skeleton, Avatar, Progress and Meter", () => {
     expect(html(<Badge tone="danger">Overdue</Badge>)).toContain('data-tone="danger"');
     expect(html(<Skeleton />)).toContain('aria-hidden="true"');

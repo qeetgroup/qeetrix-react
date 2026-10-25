@@ -60,8 +60,8 @@ function AppTypes(props: { onValueChange?: (value: string) => void; width?: numb
   );
 }
 
-const tile = (name: RegExp) =>
-  page.getByRole("radio", { name }).element().closest(".qx-choice") as HTMLElement;
+const tile = (name: RegExp | string) =>
+  page.getByRole("radio", { name, exact: true }).element().closest(".qx-choice") as HTMLElement;
 
 describe("Choice tiles", () => {
   it("names each radio by its title and describes it by its line", async () => {
@@ -108,6 +108,76 @@ describe("Choice tiles", () => {
     expect(columns()).toBe(2);
     await rerender(<AppTypes width={300} />);
     expect(columns()).toBe(1);
+  });
+
+  it("puts the description under the title's last line, however many lines it wraps to", async () => {
+    await page.viewport(800, 600);
+    await render(
+      <div style={{ inlineSize: 480 }}>
+        <RadioGroup label="Application type" variant="tile" columns={2} defaultValue="web">
+          <Radio
+            value="web"
+            icon={GlobeIcon}
+            label="Web app"
+            description="Server-rendered, keeps a client secret."
+          />
+          <Radio
+            value="m2m"
+            icon={ServerIcon}
+            label="Machine to machine app"
+            description="A backend service, client credentials."
+          />
+          <Radio value="sso" icon={KeyRoundIcon} label="Single sign-on" />
+        </RadioGroup>
+      </div>,
+    );
+    await document.fonts.ready;
+    const parts = (name: string) => {
+      const each = tile(name);
+      const rect = (selector: string) =>
+        (each.querySelector(selector) as HTMLElement).getBoundingClientRect();
+      return { tile: each, box: each.getBoundingClientRect(), rect };
+    };
+    for (const density of ["compact", "default", "comfortable"]) {
+      document.documentElement.dataset.qxDensity = density;
+      const short = parts("Web app");
+      const long = parts("Machine to machine app");
+      const line = Number.parseFloat(
+        getComputedStyle(short.tile.querySelector(".qx-choice-text") as HTMLElement).lineHeight,
+      );
+      // The long title wraps at 480px: two tiles of 236px leave its text 136px.
+      expect(long.rect(".qx-choice-text").height, density).toBeCloseTo(2 * line, 0);
+      for (const { tile, rect } of [short, long]) {
+        const title = rect(".qx-choice-text");
+        const description = tile.querySelector(".qx-choice-description") as HTMLElement;
+        const text = description.getBoundingClientRect();
+        // Right under the title's last line: no overlap, no gap.
+        expect(Math.abs(text.top - title.bottom), density).toBeLessThan(0.5);
+        // The description's text starts where the title's does, after the icon.
+        const start =
+          text.left + Number.parseFloat(getComputedStyle(description).paddingInlineStart);
+        expect(Math.abs(start - title.left), density).toBeLessThan(0.5);
+        // The icon's box and the title's first line share their top.
+        expect(Math.abs(rect(".qx-choice-icon").top - title.top), density).toBeLessThan(0.5);
+      }
+      // A tile with only a title still holds its 36px icon box inside its padding.
+      const sso = parts("Single sign-on");
+      const padding = Number.parseFloat(getComputedStyle(sso.tile).paddingBlockEnd);
+      expect(sso.rect(".qx-choice-icon").bottom, density).toBeLessThanOrEqual(
+        sso.box.bottom - padding + 0.5,
+      );
+    }
+    delete document.documentElement.dataset.qxDensity;
+  });
+
+  it("dims a disabled option's description, keeping it readable", async () => {
+    await render(<AppTypes />);
+    const saml = tile(/SAML app/);
+    const web = tile(/Web app/);
+    const color = (each: HTMLElement) =>
+      getComputedStyle(each.querySelector(".qx-choice-description") as HTMLElement).color;
+    expect(color(saml)).toBe(tokenColor("--qx-color-text-subtlest"));
+    expect(color(web)).toBe(tokenColor("--qx-color-text-subtle"));
   });
 
   it("chooses several with checkbox tiles", async () => {
@@ -183,5 +253,35 @@ describe("Choice tiles", () => {
     );
     await expectAccessible(container);
     await screenshotEveryMode("Choice tiles", "[data-qx-stage]");
+  });
+
+  it("looks right with a title that wraps, at 480px", async () => {
+    await page.viewport(560, 360);
+    const { container } = await render(
+      <div
+        data-qx-stage=""
+        style={{ padding: 16, inlineSize: 512, background: "var(--qx-color-surface-canvas)" }}
+      >
+        <RadioGroup label="Application type" variant="tile" columns={2} defaultValue="m2m">
+          <Radio
+            value="web"
+            icon={GlobeIcon}
+            label="Web app"
+            description="Server-rendered, keeps a client secret."
+          />
+          <Radio
+            value="m2m"
+            icon={ServerIcon}
+            label="Machine to machine app"
+            description="A backend service, client credentials."
+          />
+          <Radio value="sso" icon={KeyRoundIcon} label="Single sign-on" />
+          <Radio value="legacy" label="Legacy integration with no icon" description="A line." />
+        </RadioGroup>
+      </div>,
+    );
+    await document.fonts.ready;
+    await expectAccessible(container);
+    await screenshotEveryMode("Choice tiles · wrapped title", "[data-qx-stage]");
   });
 });

@@ -1,3 +1,5 @@
+import { CheckIcon } from "@qeetrix/icons/icons/check";
+import { MinusIcon } from "@qeetrix/icons/icons/minus";
 import { describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
@@ -32,10 +34,18 @@ describe("Checkbox", () => {
   });
 
   it("renders the control alone when named by aria-label, and shows mixed", async () => {
-    const { container } = await render(<Checkbox aria-label="Select all rows" indeterminate />);
+    const { container } = await render(
+      <>
+        <Checkbox aria-label="Select all rows" indeterminate />
+        <MinusIcon shape="sharp" size={12} strokeWidth={3} aria-hidden data-reference="" />
+      </>,
+    );
     const checkbox = page.getByRole("checkbox", { name: "Select all rows" });
     await expect.element(checkbox).toHaveAttribute("aria-checked", "mixed");
     expect(container.querySelector("[data-slot=checkbox]")).toBeNull();
+    expect(container.querySelector("[data-slot=checkbox-mark] svg")?.innerHTML).toBe(
+      container.querySelector("svg[data-reference]")?.innerHTML,
+    );
   });
 
   it("shows the Ember focus frame 2px outside the box", async () => {
@@ -72,6 +82,36 @@ describe("CheckboxGroup", () => {
     await page.getByText("All columns").click();
     await expect.element(page.getByRole("checkbox", { name: "Name" })).toBeChecked();
     await expect.element(page.getByRole("checkbox", { name: "Role" })).toBeChecked();
+  });
+
+  it("draws a dash, not a tick, on a parent checkbox while the group is partly checked", async () => {
+    const { container } = await render(
+      <>
+        <CheckboxGroup label="Columns" allValues={["name", "role"]} defaultValue={["name"]}>
+          <Checkbox parent label="All columns" />
+          <Checkbox value="name" label="Name" />
+          <Checkbox value="role" label="Role" />
+        </CheckboxGroup>
+        <span data-reference="dash">
+          <MinusIcon shape="sharp" size={12} strokeWidth={3} aria-hidden />
+        </span>
+        <span data-reference="tick">
+          <CheckIcon shape="sharp" size={12} strokeWidth={3} aria-hidden />
+        </span>
+      </>,
+    );
+    const drawing = (selector: string) => container.querySelector(`${selector} svg`)?.innerHTML;
+    const parent = page.getByRole("checkbox", { name: "All columns" });
+    const markOf = (name: string) =>
+      page.getByRole("checkbox", { name }).element().querySelector("[data-slot=checkbox-mark] svg")
+        ?.innerHTML;
+    await expect.element(parent).toHaveAttribute("aria-checked", "mixed");
+    expect(markOf("All columns")).toBe(drawing("[data-reference=dash]"));
+    expect(markOf("Name")).toBe(drawing("[data-reference=tick]"));
+    // Checking the rest makes the parent checked: the dash becomes a tick.
+    await page.getByText("Role").click();
+    await expect.element(parent).toHaveAttribute("aria-checked", "true");
+    expect(markOf("All columns")).toBe(drawing("[data-reference=tick]"));
   });
 
   it("shows its error and marks the options invalid", async () => {
