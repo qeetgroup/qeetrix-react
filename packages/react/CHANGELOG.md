@@ -1,5 +1,19 @@
 # @qeetrix/react
 
+## 0.0.5
+
+Tier 1 of the design-system gap review (07-components.md, "Gap review"), from
+`@qeetrix/react/experimental`.
+
+- **`Combobox`:** pick from many options by typing to filter, on Base UI's Combobox. The same field
+  as Input and Select (height, edges, states) and the Select's menu list; flat or grouped options
+  with an optional description line; values are IDs, labels are matched. `multiple` shows chosen
+  values as removable pills (Backspace removes the last; the arrow keys reach the rest, as the
+  input's description says). A clear button appears only when there's a value. Strings in English
+  and Hindi.
+- **Form consistency:** the test that every field shares its edges and height now includes
+  Combobox.
+
 ## 0.0.3
 
 The first two Phase 5 increments, from `@qeetrix/react/experimental`: C1, the console frame, and

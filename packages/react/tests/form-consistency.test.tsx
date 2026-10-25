@@ -6,7 +6,7 @@
 import { describe, expect, it } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
-import { Alert, OTPInput, PasswordInput } from "../src/experimental";
+import { Alert, Combobox, OTPInput, PasswordInput } from "../src/experimental";
 import { Button, Field, Input, Select, Stack } from "../src/index";
 import { expectAccessible } from "./support/axe";
 import { screenshotEveryMode } from "./support/screenshots";
@@ -39,6 +39,15 @@ function Form() {
             defaultValue="admin"
           />
         </Field>
+        <Field label="Manager">
+          <Combobox
+            items={[
+              { value: "usr_1", label: "Priya Sharma" },
+              { value: "usr_2", label: "Rahul Verma" },
+            ]}
+            defaultValue="usr_1"
+          />
+        </Field>
         <Field label="Password">
           <PasswordInput autoComplete="new-password" defaultValue="correct horse battery" />
         </Field>
@@ -60,12 +69,13 @@ const box = (selector: string) => {
 
 describe("form consistency", () => {
   it("lines every field, the alert and the button up on both edges", async () => {
-    await page.viewport(600, 760);
+    await page.viewport(600, 860);
     await render(<Form />);
     const parts = [
       "[data-slot=alert]",
       "[data-slot=input]",
       ".qx-select-trigger",
+      "[data-slot=combobox]",
       ".qx-password-input",
       "[data-slot=otp-input]",
       "[data-slot=button]",
@@ -78,11 +88,12 @@ describe("form consistency", () => {
   });
 
   it("gives every field, and the form's lg button, the same height", async () => {
-    await page.viewport(600, 760);
+    await page.viewport(600, 860);
     await render(<Form />);
     const heights = [
       "[data-slot=input]",
       ".qx-select-trigger",
+      "[data-slot=combobox]",
       ".qx-password-input",
       "[data-slot=otp-input-slot]",
       "[data-slot=button]",
@@ -91,7 +102,7 @@ describe("form consistency", () => {
   });
 
   it("is accessible and looks right in every mode", async () => {
-    await page.viewport(600, 760);
+    await page.viewport(600, 860);
     const { container } = await render(<Form />);
     await expectAccessible(container);
     await screenshotEveryMode("Form consistency", "[data-qx-stage]");

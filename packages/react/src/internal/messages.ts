@@ -41,6 +41,14 @@ export const messages = {
     capsLock: "Caps Lock is on",
   },
   otpInput: { character: "Character {index} of {length}" },
+  combobox: {
+    empty: "No matches",
+    clear: "Clear",
+    open: "Show options",
+    remove: "Remove {label}",
+    removeHint: "Press Backspace or Delete to remove",
+    selected: "{count} selected. From the start of the field, use the arrow keys to reach them.",
+  },
 } as const;
 
 /** The complete catalogue, as a locale pack provides it. */

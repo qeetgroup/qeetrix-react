@@ -12,6 +12,7 @@ import {
   AppShell,
   Breadcrumb,
   BreadcrumbItem,
+  Combobox,
   CopyButton,
   EmptyState,
   OTPInput,
@@ -68,6 +69,13 @@ describe("experimental components on the server", () => {
     expect(alert).not.toContain("role=");
     expect(alert).toContain("Warning: ");
     expect(html(<CopyButton value="x" label="Copy ID" />)).toContain('aria-label="Copy ID"');
+  });
+
+  it("Combobox renders its field on the server, without its list", () => {
+    const out = html(<Combobox items={[{ value: "a", label: "Apple" }]} aria-label="Fruit" />);
+    expect(out).toContain('role="combobox"');
+    expect(out).toContain('aria-label="Fruit"');
+    expect(out).not.toContain('role="listbox"');
   });
 
   it("AppShell renders the wide layout, its landmarks and no drawer", () => {

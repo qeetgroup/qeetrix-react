@@ -6,6 +6,7 @@
 export * from "./alert";
 export * from "./app-shell";
 export * from "./breadcrumb";
+export * from "./combobox";
 export * from "./copy-button";
 export * from "./empty-state";
 export * from "./otp-input";

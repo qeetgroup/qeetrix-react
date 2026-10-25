@@ -4,6 +4,7 @@ import { OTPField } from "@base-ui/react/otp-field";
 import { type CSSProperties, Fragment, type ReactElement } from "react";
 import { cx } from "../../internal/cx";
 import type { QeetrixMessages } from "../../internal/messages";
+import { fill } from "../../internal/template";
 import { useMessages } from "../../provider/provider";
 
 export type OTPInputSize = "md" | "lg";
@@ -70,9 +71,7 @@ export function OTPInput({
             {...(index === 0
               ? { "aria-label": ariaLabel, "aria-labelledby": ariaLabelledBy }
               : {
-                  "aria-label": strings.character
-                    .replace("{index}", String(index + 1))
-                    .replace("{length}", String(length)),
+                  "aria-label": fill(strings.character, { index: index + 1, length }),
                 })}
           />
         </Fragment>

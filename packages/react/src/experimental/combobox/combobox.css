@@ -1,0 +1,265 @@
+/* Combobox (07-components.md): the field is the Input box (filled, bottom line, 4px top corners,
+   `size.control.lg`, spanning its container) and the list is the Select's menu surface, with the
+   Ember highlight bar and check. In `multiple`, chosen values are small pills inside the field,
+   which grows to fit them. */
+.qx-combobox {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  inline-size: 100%;
+  min-inline-size: 0;
+  min-block-size: var(--qx-size-control-lg);
+  padding-inline: var(--qx-space-inset-md) var(--qx-space-gap-xs);
+  border-start-start-radius: var(--qx-radius-control);
+  border-start-end-radius: var(--qx-radius-control);
+  background: var(--qx-color-bg-neutral-subtle);
+  box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-strong);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  cursor: text;
+  transition-property: background-color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &:hover {
+    background: var(--qx-color-bg-neutral-subtle-hover);
+  }
+  &[data-invalid] {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-danger);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+    box-shadow: none;
+  }
+  &:focus-within,
+  &[data-popup-open] {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+    box-shadow: none;
+    background: var(--qx-color-bg-neutral-subtle);
+  }
+  &[data-readonly] {
+    background: transparent;
+    box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-subtle);
+  }
+  &[data-disabled] {
+    background: var(--qx-color-bg-disabled);
+    box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-disabled);
+    color: var(--qx-color-text-disabled);
+    cursor: not-allowed;
+  }
+  &[data-multiple] {
+    padding-block: 3px;
+  }
+}
+.qx-combobox-icon {
+  flex: none;
+  margin-inline-end: var(--qx-space-gap-xs);
+  color: var(--qx-color-icon-subtle);
+}
+.qx-combobox-input {
+  flex: 1;
+  min-inline-size: 48px;
+  block-size: calc(var(--qx-size-control-lg) - 8px);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: inherit;
+  &::placeholder {
+    color: var(--qx-color-text-subtlest);
+    opacity: 1;
+  }
+}
+.qx-combobox-chips {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  min-inline-size: 0;
+}
+/* A chosen value: a pill (`radius.chip`), as tags are (design rules §14). */
+.qx-combobox-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  max-inline-size: 100%;
+  block-size: calc(var(--qx-size-control-sm) - 4px);
+  padding-inline: var(--qx-space-inset-sm) 2px;
+  border: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  border-radius: var(--qx-radius-chip);
+  background: var(--qx-color-surface-default);
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  outline: 0;
+  cursor: default;
+  &:focus-visible,
+  &[data-highlighted] {
+    border-color: var(--qx-color-border-selected);
+    background: var(--qx-color-bg-selected);
+  }
+}
+.qx-combobox-chip-label {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qx-combobox-chip-remove,
+.qx-combobox-clear,
+.qx-combobox-trigger {
+  display: grid;
+  flex: none;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--qx-color-icon-subtle);
+  cursor: pointer;
+  &:hover {
+    background: var(--qx-color-overlay-hover);
+    color: var(--qx-color-icon-default);
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+}
+.qx-combobox-chip-remove {
+  inline-size: 16px;
+  block-size: 16px;
+  border-radius: var(--qx-radius-full);
+}
+.qx-combobox-clear,
+.qx-combobox-trigger {
+  inline-size: var(--qx-size-control-sm);
+  block-size: var(--qx-size-control-sm);
+  border-radius: var(--qx-radius-control);
+  align-self: center;
+}
+.qx-combobox-trigger {
+  color: var(--qx-color-icon-default);
+}
+[data-disabled] :is(.qx-combobox-chip-remove, .qx-combobox-clear, .qx-combobox-trigger) {
+  color: var(--qx-color-icon-disabled);
+  cursor: not-allowed;
+}
+
+/* The list: the Select's menu surface. */
+.qx-combobox-positioner {
+  z-index: var(--qx-z-popover);
+}
+.qx-combobox-popup {
+  min-inline-size: var(--anchor-width);
+  max-inline-size: var(--available-width);
+  max-block-size: min(320px, var(--available-height));
+  overflow-y: auto;
+  padding-block: 4px;
+  border: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  border-radius: var(--qx-radius-overlay);
+  background: var(--qx-color-surface-overlay);
+  box-shadow: var(--qx-shadow-overlay);
+  color: var(--qx-color-text-default);
+  outline: 0;
+  transition-property: opacity, translate;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-enter);
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+  &[data-side="bottom"]:is([data-starting-style], [data-ending-style]) {
+    translate: 0 -4px;
+  }
+  &[data-side="top"]:is([data-starting-style], [data-ending-style]) {
+    translate: 0 4px;
+  }
+  &[data-ending-style] {
+    transition-duration: var(--qx-motion-duration-fast);
+    transition-timing-function: var(--qx-motion-easing-exit);
+  }
+}
+.qx-combobox-empty {
+  padding: var(--qx-space-inset-sm) var(--qx-space-inset-md);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+  &:empty {
+    display: none;
+  }
+}
+.qx-combobox-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  min-block-size: var(--qx-size-control-md);
+  padding: 4px var(--qx-space-inset-md);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  cursor: default;
+  user-select: none;
+  outline: 0;
+  &[data-highlighted] {
+    background: var(--qx-color-bg-neutral-subtle-hover);
+    &::before {
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      inline-size: var(--qx-border-width-strong);
+      background: var(--qx-color-border-brand);
+    }
+  }
+  &[data-selected] {
+    font-weight: var(--qx-typography-label-md-font-weight);
+  }
+  &[data-disabled] {
+    color: var(--qx-color-text-disabled);
+  }
+}
+.qx-combobox-option-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+.qx-combobox-option-label,
+.qx-combobox-option-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qx-combobox-option-description {
+  font: var(--qx-typography-body-sm);
+  color: var(--qx-color-text-subtle);
+  [data-disabled] & {
+    color: var(--qx-color-text-disabled);
+  }
+}
+.qx-combobox-option-check {
+  display: flex;
+  flex: none;
+  color: var(--qx-color-icon-brand);
+}
+.qx-combobox-group-label {
+  padding: 8px var(--qx-space-inset-md) 4px;
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+}
+
+@media (forced-colors: active) {
+  .qx-combobox,
+  .qx-combobox-chip {
+    border: var(--qx-border-width-default) solid ButtonText;
+  }
+  .qx-combobox-option[data-highlighted] {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+}

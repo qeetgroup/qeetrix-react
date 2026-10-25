@@ -44,4 +44,12 @@ export const hi: QeetrixMessages = {
     capsLock: "कैप्स लॉक चालू है",
   },
   otpInput: { character: "{length} में से अक्षर {index}" },
+  combobox: {
+    empty: "कोई मिलान नहीं",
+    clear: "साफ़ करें",
+    open: "विकल्प दिखाएँ",
+    remove: "{label} हटाएँ",
+    removeHint: "हटाने के लिए Backspace या Delete दबाएँ",
+    selected: "{count} चुने गए। फ़ील्ड की शुरुआत से, उन तक पहुँचने के लिए तीर कुंजियों का उपयोग करें।",
+  },
 };
