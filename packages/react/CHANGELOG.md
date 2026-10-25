@@ -1,9 +1,12 @@
 # @qeetrix/react
 
-## 0.0.7
+## 0.0.8
 
 Four reusable parts from the gap review, each mocked up and approved first: choice tiles,
 AvatarGroup, page banners and QRCode (with our own encoder).
+
+0.0.7 was never published: its release stopped when a QR code test timed out on the CI runner.
+Everything meant for it ships here, with QRCode's mask scoring made about twice as fast.
 
 - **`RadioGroup`, `CheckboxGroup` · tiles:** new `variant="tile"`: each option a bordered tile with
   an icon, a title and a line about it, for choices that need explaining (an application's type,
