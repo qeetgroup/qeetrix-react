@@ -1,0 +1,95 @@
+/* CodeBlock (07-components.md): a neutral panel with a 1px rule and 4px corners; a header with the
+   language and Copy; code in the code type, coloured by the code tokens, ligatures off. Line
+   numbers are a CSS counter, so they're never copied; a long line scrolls, or wraps under its own
+   start. */
+.qx-code-block {
+  min-inline-size: 0;
+  overflow: hidden;
+  border: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  border-radius: var(--qx-radius-control);
+  background: var(--qx-color-bg-neutral-subtle);
+  color: var(--qx-color-text-default);
+}
+.qx-code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--qx-space-gap-sm);
+  min-block-size: var(--qx-size-control-lg);
+  padding-inline: var(--qx-space-inset-md) var(--qx-space-gap-xs);
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+}
+.qx-code-block-body {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  padding-inline-end: var(--qx-space-gap-xs);
+  [data-header] > & {
+    padding-inline-end: 0;
+  }
+}
+/* The scroll region: named, and in the Tab order while it can scroll, so the keyboard can. */
+.qx-code-block-scroll {
+  flex: 1;
+  min-inline-size: 0;
+  overflow-x: auto;
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+}
+.qx-code-block-code {
+  inline-size: max-content;
+  min-inline-size: 100%;
+  margin: 0;
+  padding-block: var(--qx-space-inset-sm);
+  padding-inline: var(--qx-space-inset-md);
+  font: var(--qx-typography-code-md);
+  font-variant-ligatures: none;
+  white-space: pre;
+  tab-size: 2;
+  counter-reset: line;
+  &[data-wrap] {
+    inline-size: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}
+.qx-code-block-line {
+  display: block;
+  min-block-size: 1lh;
+  [data-numbers] & {
+    display: grid;
+    grid-template-columns: 2ch minmax(0, 1fr);
+    column-gap: var(--qx-space-gap-md);
+  }
+  [data-numbers] &::before {
+    counter-increment: line;
+    content: counter(line);
+    color: var(--qx-color-text-subtlest);
+    text-align: end;
+    user-select: none;
+  }
+}
+[data-token="keyword"] {
+  color: var(--qx-color-code-keyword);
+}
+[data-token="string"] {
+  color: var(--qx-color-code-string);
+}
+[data-token="number"] {
+  color: var(--qx-color-code-number);
+}
+[data-token="literal"] {
+  color: var(--qx-color-code-literal);
+}
+[data-token="comment"] {
+  color: var(--qx-color-code-comment);
+  font-style: italic;
+}
+[data-token="punctuation"] {
+  color: var(--qx-color-code-punctuation);
+}

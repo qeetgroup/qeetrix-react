@@ -42,14 +42,26 @@
   padding: var(--qx-space-inset-lg);
   font: var(--qx-typography-body-md);
   font-variation-settings: "GEOM" var(--qx-font-geometry-body);
-  & > :is(.qx-table, .qx-scroll-area) {
+  & > :is(.qx-table, .qx-scroll-area, .qx-description-list[data-layout="rows"], .qx-tree) {
     inline-size: calc(100% + 2 * var(--qx-space-inset-lg));
     margin-inline: calc(-1 * var(--qx-space-inset-lg));
   }
-  & > :is(.qx-table, .qx-scroll-area):first-child {
+  &
+    > :is(
+      .qx-table,
+      .qx-scroll-area,
+      .qx-description-list[data-layout="rows"],
+      .qx-tree
+    ):first-child {
     margin-block-start: calc(-1 * var(--qx-space-inset-lg));
   }
-  & > :is(.qx-table, .qx-scroll-area):last-child {
+  &
+    > :is(
+      .qx-table,
+      .qx-scroll-area,
+      .qx-description-list[data-layout="rows"],
+      .qx-tree
+    ):last-child {
     margin-block-end: calc(-1 * var(--qx-space-inset-lg));
   }
   /* Edge to edge, a table's toolbar (or selection bar) is a band above its header: the controls
@@ -57,6 +69,15 @@
      (an lg icon button) centred on the rows' sm action menus at every density. */
   & > .qx-table {
     gap: 0;
+  }
+  /* Edge to edge, a tree's rows start at the card's padding, their tint reaching both edges. */
+  & > .qx-tree {
+    --qx-tree-inset: var(--qx-space-inset-lg);
+    --qx-tree-end: var(--qx-space-inset-lg);
+  }
+  /* Edge to edge, a description list's rows keep the card's padding inside their lines. */
+  & > .qx-description-list[data-layout="rows"] > .qx-description-item {
+    padding-inline: var(--qx-space-inset-lg);
   }
   & > .qx-table > .qx-table-bar {
     padding-block: var(--qx-space-inset-sm);

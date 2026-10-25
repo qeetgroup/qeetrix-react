@@ -342,6 +342,7 @@ export interface FieldMessageProps {
 export interface FieldProps extends Omit<Field_2.Root.Props, "className" | "style" | "render" | "children">, FieldMessageProps {
     children?: ReactNode;
     className?: string;
+    help?: ReactNode;
     hideLabel?: boolean;
     label: ReactNode;
     messages?: Partial<QeetrixMessages["field"]>;

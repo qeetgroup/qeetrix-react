@@ -2,8 +2,10 @@
 
 ## 0.0.6
 
-Date components built in, with no date library (07-components.md, "Dates without a library"), and
-one Table for every list.
+Date components built in, with no date library (07-components.md, "Dates without a library"),
+one Table for every list, and the parts for detail pages, settings, setup flows and the console's
+search: FileUpload, Field help, DescriptionList, CodeBlock, Steps, CommandPalette, FilterTags,
+Timeline and TreeView.
 
 **Breaking — one Table.** `Table` is now the single way to show records: give it `columns` and
 `rows`, and sorting, selection, row actions and the loading, empty and error states are built in.
@@ -56,6 +58,44 @@ parts yet.
   (`searchDelay`, 300 ms), at once on Enter, and with "" when cleared. Strings in English and Hindi.
 - **`PopoverContent`:** new `anchor` prop, to position against another element than the trigger
   (minor).
+- **`CommandPalette`:** search or jump to, over the page: opened from the top bar's search or ⌘K /
+  Ctrl+K anywhere, with grouped results (users with avatars, applications, settings with where they
+  live, actions with their keys), the typed text bold, arrows to move, Enter to open, Escape to
+  close. Filters by label, description and keywords, or the app searches with `onQueryChange`.
+- **`FilterTags`:** the filters applied to a list as removable tags ("Status: Active ×"), with
+  Clear all and an announced summary ("412 of 1,284 users"); focus moves to the next tag, then to
+  `returnFocusTo`.
+- **`Timeline`, `TimelineGroup`, `TimelineItem`:** what happened, newest first, grouped by day: an
+  icon, the event, where or by whom, and when (`<time>` with `dateTime`); failures in danger; a
+  compact dots variant. Server-safe.
+- **`TreeView`:** the WAI-ARIA tree view for organisation units, nested groups and permissions:
+  arrows, Right and Left to open, close and step in or out (mirrored right-to-left), Home, End and
+  type-ahead; select one node, or `checkable` with parents mixed while some nodes are on.
+- **`Steps`:** where a person is in a setup: done steps filled Ember with a tick, the current one
+  outlined Ember, those to come grey, joined by a line that turns Ember behind them. Horizontal for
+  short wizards (only the current label where it's narrow), vertical with descriptions for longer
+  ones. An ordered list with `aria-current="step"`; the others are read as Completed or Not started.
+  `onStepSelect` makes done steps buttons back to themselves.
+- **`CodeBlock`:** code to read and copy: a command, a snippet, JSON or XML, coloured by the code
+  tokens with our own small highlighter (shell, JavaScript and TypeScript with JSX, JSON, XML and
+  HTML). More than one line gets a header with the language and Copy, and CSS line numbers that
+  copying never picks up; long lines scroll in a named, keyboard-reachable region, or `wrap`.
+  Ligatures are off, so code shows exactly as typed.
+- **`DescriptionList`, `DescriptionItem`:** facts about one record as term and value pairs, in a
+  semantic `dl`. `rows` (default): the term beside its value on the value's first line, a line
+  between rows, the term above the value under 24rem; in a Card, edge to edge. `columns`: term above
+  value in up to `columns` columns of at least 8rem. An empty value shows "—", read as "Not set".
+- **`Field`:** new `help` prop: an ⓘ button after the label opens a short explanation in a popover
+  titled with the label (a toggletip: click, not hover, so it works by touch and keyboard and can
+  hold a link). The button is named "About {label}" and takes no more height than the label, so a
+  field with help lines up with its neighbours at every density.
+- **`FileUpload`:** choose or drop files, in a Field. A dashed drop zone over a real file input (the
+  keyboard and screen readers get the browser's own control), Ember while a file is dragged over
+  it. Files that pass `accept`, `maxSize` and `multiple` go to `onSelect` for the app to upload; the
+  rest are listed with the reason ("Only XML files can be used here", "Larger than 1 MB"). The app
+  reports each upload in `items`: uploading with progress, uploaded, or failed with a reason, each
+  with a remove button. The hint ("XML, up to 1 MB") and sizes are written for the locale. Strings
+  in English and Hindi.
 
 ## 0.0.5
 

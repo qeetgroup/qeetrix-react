@@ -14,12 +14,16 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   Calendar,
+  CodeBlock,
   Combobox,
   CopyButton,
   DatePicker,
   DateRangePicker,
+  DescriptionItem,
+  DescriptionList,
   EmptyState,
   ErrorSummary,
+  FileUpload,
   Form,
   NumberField,
   OTPInput,
@@ -31,6 +35,11 @@ import {
   SidebarItem,
   Stat,
   StatGroup,
+  Steps,
+  Timeline,
+  TimelineGroup,
+  TimelineItem,
+  TreeView,
 } from "../src/experimental";
 
 const html = (node: React.ReactElement) => renderToString(node);
@@ -122,6 +131,72 @@ describe("experimental components on the server", () => {
     expect(out).toContain("Priya Sharma");
     expect(out).toContain("priya@acme.in");
     expect(out).toContain('aria-hidden="true"');
+  });
+
+  it("FileUpload renders its file input, prompt, hint and rows on the server", () => {
+    const out = html(
+      <FileUpload
+        aria-label="Metadata"
+        accept=".xml"
+        maxSize={1_000_000}
+        items={[{ id: "1", name: "acme.xml", size: 12_000, status: "done" }]}
+      />,
+    );
+    expect(out).toMatch(/<input[^>]*type="file"/);
+    expect(out).toContain('accept=".xml"');
+    expect(out).toContain("XML, up to 1 MB");
+    expect(out).toContain("acme.xml");
+    expect(out).toContain("Uploaded");
+  });
+
+  it("DescriptionList renders its terms and values on the server", () => {
+    const out = html(
+      <DescriptionList>
+        <DescriptionItem term="Email">priya@acme.in</DescriptionItem>
+        <DescriptionItem term="Manager" />
+      </DescriptionList>,
+    );
+    expect(out).toMatch(/^<dl[^>]*data-layout="rows"/);
+    expect(out).toMatch(/<dt[^>]*>Email<\/dt><dd[^>]*>priya@acme.in<\/dd>/);
+    expect(out).toContain("Not set");
+  });
+
+  it("CodeBlock renders highlighted, numbered code on the server", () => {
+    const out = html(<CodeBlock code={'{\n  "mfa": true\n}'} language="json" />);
+    expect(out).toContain('data-token="keyword"');
+    expect(out).toContain('data-token="literal"');
+    expect(out).toContain("data-numbers");
+    expect(out).toContain('aria-label="JSON"');
+  });
+
+  it("Steps renders its ordered list, the current step marked, on the server", () => {
+    const out = html(<Steps steps={[{ label: "Type" }, { label: "Configure" }]} current={1} />);
+    expect(out).toMatch(/^<ol[^>]*aria-label="Progress"/);
+    expect(out).toContain('aria-current="step"');
+    expect(out).toContain("Completed");
+  });
+
+  it("Timeline carries no client code; Timeline and TreeView render on the server", () => {
+    expect(source("timeline/timeline.tsx")).not.toMatch(/^["']use client["']/);
+    const events = html(
+      <Timeline aria-label="Activity">
+        <TimelineGroup label="Today">
+          <TimelineItem title="Signed in" time="2 min ago" dateTime="2026-10-25T09:28:00Z" />
+        </TimelineGroup>
+      </Timeline>,
+    );
+    expect(events).toMatch(/^<ol[^>]*aria-label="Activity"/);
+    expect(events).toContain('<time dateTime="2026-10-25T09:28:00Z"');
+    const tree = html(
+      <TreeView
+        label="Units"
+        items={[{ id: "a", label: "Acme", children: [{ id: "b", label: "Engineering" }] }]}
+        defaultExpanded={["a"]}
+      />,
+    );
+    expect(tree).toContain('role="tree"');
+    expect(tree).toContain('aria-level="2"');
+    expect(tree).toContain('aria-expanded="true"');
   });
 
   it("NumberField renders its formatted value on the server", () => {

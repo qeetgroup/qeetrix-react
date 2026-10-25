@@ -1,0 +1,174 @@
+/* Steps (07-components.md): 24px square markers with 4px corners: done filled Ember with a tick,
+   current outlined Ember (2px) with its number, upcoming outlined grey with a subtle number. A 1px
+   line joins each step to the next, Ember once that step is done. Horizontal: equal columns, each
+   label centred under its marker, wrapping within its column; under 24rem only the current step's
+   label shows. Vertical: markers down a column, each label beside its marker, its description under it. */
+.qx-steps {
+  container-type: inline-size;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  list-style: none;
+}
+.qx-step {
+  display: flex;
+  min-inline-size: 0;
+}
+.qx-step-body {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+}
+.qx-step-marker {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: 24px;
+  block-size: 24px;
+  border-radius: var(--qx-radius-control);
+  box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-strong);
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-label-sm);
+  font-weight: var(--qx-typography-title-sm-font-weight);
+  font-variant-numeric: tabular-nums;
+  text-box: trim-both cap alphabetic;
+  [data-state="done"] & {
+    background: var(--qx-color-bg-brand-bold);
+    box-shadow: none;
+    color: var(--qx-color-text-on-brand);
+  }
+  [data-state="current"] & {
+    box-shadow: inset 0 0 0 var(--qx-border-width-strong) var(--qx-color-border-brand);
+    color: var(--qx-color-text-brand);
+  }
+}
+.qx-step-text {
+  display: grid;
+  min-inline-size: 0;
+}
+.qx-step-label {
+  white-space: nowrap;
+  [data-state="current"] & {
+    font-weight: var(--qx-typography-title-sm-font-weight);
+  }
+  [data-state="upcoming"] & {
+    color: var(--qx-color-text-subtle);
+  }
+}
+.qx-step-description {
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}
+
+/* Horizontal: equal columns, each marker centred over its label; a line runs between markers at
+   their middle, from just past one to just before the next. */
+.qx-steps[data-orientation="horizontal"] {
+  align-items: flex-start;
+  & > .qx-step {
+    position: relative;
+    flex: 1 1 0;
+    justify-content: center;
+  }
+  & > .qx-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    inset-block-start: calc(12px - var(--qx-border-width-default) / 2);
+    inset-inline-start: calc(50% + 12px + var(--qx-space-gap-sm));
+    inset-inline-end: calc(-50% + 12px + var(--qx-space-gap-sm));
+    block-size: var(--qx-border-width-default);
+    background: var(--qx-color-border-subtle);
+  }
+  & > .qx-step[data-state="done"]::after {
+    background: var(--qx-color-border-brand);
+  }
+  & .qx-step-body {
+    flex-direction: column;
+    gap: var(--qx-space-gap-xs);
+    max-inline-size: 100%;
+    padding-inline: var(--qx-space-gap-xs);
+    text-align: center;
+  }
+  & .qx-step-text {
+    justify-items: center;
+  }
+  & .qx-step-label {
+    white-space: normal;
+  }
+  & .qx-step-description {
+    display: none;
+  }
+}
+@container (width < 24rem) {
+  .qx-steps[data-orientation="horizontal"] > .qx-step:not([data-state="current"]) .qx-step-text {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* Vertical: a column of markers, a line down from each to the next. */
+.qx-steps[data-orientation="vertical"] {
+  flex-direction: column;
+  & > .qx-step {
+    position: relative;
+    padding-block-end: var(--qx-space-gap-lg);
+  }
+  & > .qx-step:last-child {
+    padding-block-end: 0;
+  }
+  & > .qx-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    inset-block: calc(24px + var(--qx-space-gap-xs)) var(--qx-space-gap-xs);
+    inset-inline-start: 11.5px;
+    inline-size: var(--qx-border-width-default);
+    background: var(--qx-color-border-subtle);
+  }
+  & > .qx-step[data-state="done"]::after {
+    background: var(--qx-color-border-brand);
+  }
+  & .qx-step-body {
+    align-items: flex-start;
+  }
+  /* The label's first line centred on the 24px marker. */
+  & .qx-step-label {
+    margin-block-start: calc((24px - 1lh) / 2);
+    white-space: normal;
+  }
+}
+
+/* Done steps that go back are buttons: underlined under the pointer, ringed on focus. */
+button.qx-step-body {
+  border-radius: var(--qx-radius-control);
+  cursor: pointer;
+  &:hover .qx-step-label {
+    text-decoration-line: underline;
+    text-underline-offset: 0.2em;
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-width);
+  }
+}
+
+@media (forced-colors: active) {
+  .qx-step[data-state="done"] .qx-step-marker {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+}
