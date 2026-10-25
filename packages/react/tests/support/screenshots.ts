@@ -8,6 +8,16 @@ const DENSITIES = ["compact", "default", "comfortable"] as const;
 type Target = string | null;
 
 /**
+ * One folder per component or screen, so the screenshots can be browsed: the name's first part is
+ * the folder, the rest and the mode the file ("Console · Qeet ID · users", dark →
+ * `snapshots/Console/Qeet ID · users · dark.png`).
+ */
+function screenshotPath(name: string, ...mode: string[]): string {
+  const [folder, ...rest] = name.split(" · ");
+  return `${folder}/${[...rest, ...mode].join(" · ")}`;
+}
+
+/**
  * Density changes only five tokens (design rules §6): size.control.sm/md/lg, size.row and
  * space.form-gap. A component that uses none of them looks identical at every density, so it gets one
  * screenshot per colour scheme; a component that uses any of them gets every density too.
@@ -21,7 +31,7 @@ async function capture(name: string, densities: readonly string[], target: Targe
       html.dataset.qxDensity = density;
       await settled();
       await argosScreenshot(
-        densities.length > 1 ? `${name} · ${scheme} · ${density}` : `${name} · ${scheme}`,
+        densities.length > 1 ? screenshotPath(name, scheme, density) : screenshotPath(name, scheme),
         // A stage shows loading states on purpose, so aria-busy never clears: don't wait for it.
         // Endless animations (spinner, skeleton, indeterminate progress) stop at their first frame,
         // so each screenshot is the same every run.

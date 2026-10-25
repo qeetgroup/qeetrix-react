@@ -16,22 +16,7 @@ import {
   PageHeader,
   PasswordInput,
 } from "../src/experimental";
-import {
-  Badge,
-  Button,
-  Card,
-  Field,
-  Heading,
-  Link,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Text,
-} from "../src/index";
+import { Badge, Button, Card, Field, Heading, Link, Stack, Table, Text } from "../src/index";
 import { QeetIdFrame } from "./fixtures/qeet-id-console";
 import { expectAccessible } from "./support/axe";
 import { screenshotSchemes } from "./support/screenshots";
@@ -120,35 +105,35 @@ function ApiKeys() {
           </Stack>
         </Alert>
         <Card>
-          <Table aria-label="API keys">
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Key ID</TableHead>
-                <TableHead>Environment</TableHead>
-                <TableHead align="end">Last used</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {KEYS.map(([name, id, env, used]) => (
-                <TableRow key={id}>
-                  <TableCell>{name}</TableCell>
-                  <TableCell>
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      <Text mono size="sm">
-                        {id}
-                      </Text>
-                      <CopyButton value={id} label={`Copy key ID ${id}`} size="sm" />
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Badge tone={env === "Production" ? "success" : "warning"}>{env}</Badge>
-                  </TableCell>
-                  <TableCell align="end">{used}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <Table
+            label="API keys"
+            rows={KEYS}
+            rowId={([, id]) => id}
+            rowLabel={([name]) => name}
+            columns={[
+              { id: "name", header: "Name", cell: ([name]) => name },
+              {
+                id: "key",
+                header: "Key ID",
+                cell: ([, id]) => (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <Text mono size="sm">
+                      {id}
+                    </Text>
+                    <CopyButton value={id} label={`Copy key ID ${id}`} size="sm" />
+                  </span>
+                ),
+              },
+              {
+                id: "environment",
+                header: "Environment",
+                cell: ([, , env]) => (
+                  <Badge tone={env === "Production" ? "success" : "warning"}>{env}</Badge>
+                ),
+              },
+              { id: "used", header: "Last used", cell: ([, , , used]) => used, align: "end" },
+            ]}
+          />
         </Card>
       </PageContent>
     </QeetIdFrame>

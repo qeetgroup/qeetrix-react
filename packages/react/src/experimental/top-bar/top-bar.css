@@ -119,6 +119,10 @@
   font: var(--qx-typography-label-sm);
   font-weight: var(--qx-typography-title-sm-font-weight);
 }
+/* An organisation's initials, centred on the capitals' height, as Avatar's are. */
+.qx-top-bar-mark-content {
+  text-box: trim-both cap alphabetic;
+}
 .qx-top-bar-status {
   flex: none;
   inline-size: 8px;

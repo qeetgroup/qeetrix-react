@@ -1,0 +1,195 @@
+/* CommandPalette (07-components.md): the scrim, then a 600px panel near the top of the view: the
+   search box on a rule, grouped results in small caps labels, and a footer of key hints. The
+   highlighted result has the Select's Ember bar; the typed text is bold in each label. */
+.qx-command-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--qx-z-overlay);
+  background: var(--qx-color-overlay-scrim);
+  transition-property: opacity;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-enter);
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+}
+.qx-command {
+  position: fixed;
+  inset-block-start: 12vh;
+  inset-inline: 0;
+  z-index: var(--qx-z-modal);
+  display: flex;
+  flex-direction: column;
+  inline-size: min(600px, calc(100vw - 2 * var(--qx-space-inset-md)));
+  max-block-size: min(560px, 76vh);
+  margin-inline: auto;
+  overflow: hidden;
+  border: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  border-radius: var(--qx-radius-overlay);
+  background: var(--qx-color-surface-overlay);
+  box-shadow: var(--qx-shadow-overlay);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  outline: 0;
+  transition-property: opacity, translate;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-enter);
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    translate: 0 -4px;
+  }
+}
+.qx-command-search {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  min-block-size: calc(var(--qx-size-control-lg) + var(--qx-space-gap-sm));
+  padding-inline: var(--qx-space-inset-md);
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+}
+.qx-command-search-icon {
+  flex: none;
+  color: var(--qx-color-icon-subtle);
+}
+.qx-command-input {
+  flex: 1;
+  min-inline-size: 0;
+  block-size: var(--qx-size-control-lg);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: var(--qx-typography-body-lg);
+  &::placeholder {
+    color: var(--qx-color-text-subtlest);
+  }
+}
+.qx-command-status {
+  padding-block: var(--qx-space-inset-lg);
+  padding-inline: var(--qx-space-inset-md);
+  color: var(--qx-color-text-subtle);
+  text-align: center;
+}
+.qx-command-list {
+  flex: 1;
+  min-block-size: 0;
+  overflow-y: auto;
+  padding-block: var(--qx-space-gap-xs);
+  &:empty {
+    display: none;
+  }
+}
+.qx-command-group-label {
+  padding-block: var(--qx-space-gap-sm) var(--qx-space-gap-xs);
+  padding-inline: var(--qx-space-inset-md);
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-label-caps);
+  letter-spacing: var(--qx-typography-label-caps-letter-spacing);
+  text-transform: uppercase;
+}
+.qx-command-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  min-block-size: var(--qx-size-control-lg);
+  padding-block: var(--qx-space-gap-xs);
+  padding-inline: var(--qx-space-inset-md);
+  cursor: pointer;
+  user-select: none;
+  outline: 0;
+  &[data-highlighted] {
+    background: var(--qx-color-bg-neutral-subtle-hover);
+    &::before {
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      inline-size: var(--qx-border-width-strong);
+      background: var(--qx-color-border-brand);
+    }
+  }
+  &[data-disabled] {
+    color: var(--qx-color-text-disabled);
+    cursor: not-allowed;
+  }
+}
+.qx-command-item-icon {
+  flex: none;
+  color: var(--qx-color-icon-subtle);
+}
+.qx-command-text {
+  display: grid;
+  flex: 1;
+  min-inline-size: 0;
+}
+.qx-command-label,
+.qx-command-description {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.qx-command-match {
+  font-weight: var(--qx-typography-title-sm-font-weight);
+}
+.qx-command-description,
+.qx-command-meta {
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}
+.qx-command-meta {
+  flex: none;
+}
+.qx-command-keys {
+  display: inline-flex;
+  flex: none;
+  gap: var(--qx-space-gap-xs);
+}
+.qx-command-key {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: 20px;
+  block-size: 20px;
+  padding-inline: var(--qx-space-gap-xs);
+  border: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  border-block-end-width: var(--qx-border-width-strong);
+  border-radius: var(--qx-radius-sm);
+  background: var(--qx-color-surface-default);
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+}
+.qx-command-footer {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--qx-space-gap-xs) var(--qx-space-gap-lg);
+  min-block-size: var(--qx-size-control-lg);
+  padding-inline: var(--qx-space-inset-md);
+  border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+  & > span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--qx-space-gap-xs);
+  }
+}
+
+@media (forced-colors: active) {
+  .qx-command {
+    border-color: CanvasText;
+  }
+  .qx-command-item[data-highlighted] {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+}

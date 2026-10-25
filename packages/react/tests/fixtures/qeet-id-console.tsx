@@ -11,7 +11,6 @@ import { CircleQuestionMarkIcon } from "@qeetrix/icons/icons/circle-question-mar
 import { CodeXmlIcon } from "@qeetrix/icons/icons/code-xml";
 import { Columns3Icon } from "@qeetrix/icons/icons/columns-3";
 import { DownloadIcon } from "@qeetrix/icons/icons/download";
-import { EllipsisIcon } from "@qeetrix/icons/icons/ellipsis";
 import { FingerprintPatternIcon } from "@qeetrix/icons/icons/fingerprint-pattern";
 import { HouseIcon } from "@qeetrix/icons/icons/house";
 import { KeyRoundIcon } from "@qeetrix/icons/icons/key-round";
@@ -22,7 +21,6 @@ import { MonitorSmartphoneIcon } from "@qeetrix/icons/icons/monitor-smartphone";
 import { PlugIcon } from "@qeetrix/icons/icons/plug";
 import { PlusIcon } from "@qeetrix/icons/icons/plus";
 import { ScrollTextIcon } from "@qeetrix/icons/icons/scroll-text";
-import { SearchIcon } from "@qeetrix/icons/icons/search";
 import { SettingsIcon } from "@qeetrix/icons/icons/settings";
 import { ShieldCheckIcon } from "@qeetrix/icons/icons/shield-check";
 import { ShieldUserIcon } from "@qeetrix/icons/icons/shield-user";
@@ -34,6 +32,7 @@ import type { ReactElement, ReactNode } from "react";
 import {
   AppShell,
   type AppShellDensity,
+  AvatarItem,
   Breadcrumb,
   BreadcrumbItem,
   DataState,
@@ -41,6 +40,7 @@ import {
   PageContent,
   PageHeader,
   Pagination,
+  SearchField,
   Sidebar,
   SidebarGroup,
   SidebarItem,
@@ -55,11 +55,9 @@ import {
   Badge,
   Button,
   Card,
-  Checkbox,
   formatRelativeTime,
   IconButton,
   Inline,
-  Input,
   Menu,
   MenuContent,
   MenuItem,
@@ -68,15 +66,9 @@ import {
   Stack,
   Tab,
   Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   Tabs,
   TabsList,
   Text,
-  VisuallyHidden,
 } from "../../src/index";
 
 /** A fixed "now", so relative times read the same in every run. */
@@ -100,73 +92,87 @@ const USERS = [
 
 const TONE = { Active: "success", Invited: "info", Blocked: "danger" } as const;
 
-function UsersTable() {
+/** The users list: one Table, its states under the header (07-components.md, "One Table"). */
+function UsersTable({ state }: { state: "ready" | "empty" | "loading" | "error" }) {
   return (
-    <Card footer={<Pagination offset={0} pageSize={12} total={1284} onOffsetChange={() => {}} />}>
-      <Table aria-label="Users">
-        <TableHeader>
-          <TableRow>
-            <TableHead>
-              <Checkbox aria-label="Select all users" indeterminate />
-            </TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>MFA</TableHead>
-            <TableHead>Department</TableHead>
-            <TableHead align="end">Last sign-in</TableHead>
-            <TableHead>
-              <VisuallyHidden>Actions</VisuallyHidden>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {USERS.map(([name, email, status, mfa, department, last], index) => (
-            <TableRow key={email} selected={index === 1}>
-              <TableCell>
-                <Checkbox aria-label={`Select ${name}`} defaultChecked={index === 1} />
-              </TableCell>
-              <TableCell>
-                <Inline gap="sm" wrap={false}>
-                  <Avatar name={name} size="sm" decorative />
-                  <Stack gap="none">
-                    <Text weight="medium">{name}</Text>
-                    <Text size="sm" tone="subtle">
-                      {email}
-                    </Text>
-                  </Stack>
-                </Inline>
-              </TableCell>
-              <TableCell>
-                <Badge tone={TONE[status]}>{status}</Badge>
-              </TableCell>
-              <TableCell>{mfa}</TableCell>
-              <TableCell>{department}</TableCell>
-              <TableCell align="end">{formatRelativeTime(last, "en-IN", NOW)}</TableCell>
-              <TableCell align="end">
-                <IconButton
-                  icon={EllipsisIcon}
-                  aria-label={`Actions for ${name}`}
-                  tone="neutral"
-                  size="sm"
-                  tooltip={false}
-                />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+    <Card
+      footer={
+        state === "ready" ? (
+          <Pagination offset={0} pageSize={12} total={1284} onOffsetChange={() => {}} />
+        ) : undefined
+      }
+    >
+      <Table
+        label="Users"
+        rows={state === "ready" ? USERS : []}
+        loading={state === "loading"}
+        error={state === "error" ? <DataState error="failed" onRetry={() => {}} /> : undefined}
+        empty={
+          <EmptyState
+            size="section"
+            icon={UsersIcon}
+            title="No users yet"
+            description="Invite your team, or connect a directory to sync them."
+            actions={<Button icon={PlusIcon}>Invite users</Button>}
+          />
+        }
+        rowId={([, email]) => email}
+        rowLabel={([name]) => name}
+        selectable
+        toolbar={<Filters />}
+        defaultSort={{ column: "lastSignIn", direction: "descending" }}
+        bulkActions={() => (
+          <>
+            <Button size="sm" variant="soft" tone="neutral">
+              Reset MFA
+            </Button>
+            <Button size="sm" variant="soft" tone="danger">
+              Suspend
+            </Button>
+          </>
+        )}
+        rowActions={() => (
+          <>
+            <MenuItem>View profile</MenuItem>
+            <MenuItem>Reset MFA</MenuItem>
+            <MenuItem tone="danger">Suspend</MenuItem>
+          </>
+        )}
+        columns={[
+          {
+            id: "name",
+            header: "Name",
+            sortable: true,
+            cell: ([name, email]) => <AvatarItem name={name} description={email} />,
+          },
+          {
+            id: "status",
+            header: "Status",
+            cell: ([, , status]) => <Badge tone={TONE[status]}>{status}</Badge>,
+          },
+          { id: "mfa", header: "MFA", cell: ([, , , mfa]) => mfa },
+          { id: "department", header: "Department", cell: ([, , , , department]) => department },
+          {
+            id: "lastSignIn",
+            header: "Last sign-in",
+            align: "end",
+            sortable: true,
+            sortFirst: "descending",
+            cell: ([, , , , , last]) => formatRelativeTime(last, "en-IN", NOW),
+          },
+        ]}
+      />
     </Card>
   );
 }
 
 function Filters() {
   return (
-    <Inline gap="sm" justify="between">
+    <Inline gap="sm" justify="between" style={{ flex: 1 }}>
       <Inline gap="sm">
-        <Input
+        <SearchField
           aria-label="Search users"
           placeholder="Search by name, email or ID"
-          icon={SearchIcon}
           style={{ inlineSize: 300 }}
         />
         <Select
@@ -188,13 +194,13 @@ function Filters() {
           defaultValue="any"
           style={{ inlineSize: 140 }}
         />
-        <Button variant="ghost" tone="neutral" icon={ListFilterIcon}>
+        <Button variant="ghost" tone="neutral" size="lg" icon={ListFilterIcon}>
           More filters
         </Button>
       </Inline>
       <Inline gap="xs">
-        <IconButton icon={Columns3Icon} aria-label="Columns" tone="neutral" />
-        <IconButton icon={DownloadIcon} aria-label="Download CSV" tone="neutral" />
+        <IconButton icon={Columns3Icon} aria-label="Columns" tone="neutral" size="lg" />
+        <IconButton icon={DownloadIcon} aria-label="Download CSV" tone="neutral" size="lg" />
       </Inline>
     </Inline>
   );
@@ -440,23 +446,7 @@ export function QeetIdConsole({
           }
         />
         <PageContent>
-          <Filters />
-          <DataState
-            loading={state === "loading"}
-            error={state === "error" ? "failed" : undefined}
-            onRetry={() => {}}
-            empty={state === "empty"}
-            emptyState={
-              <EmptyState
-                icon={UsersIcon}
-                title="No users yet"
-                description="Invite your team, or connect a directory to sync them."
-                actions={<Button icon={PlusIcon}>Invite users</Button>}
-              />
-            }
-          >
-            <UsersTable />
-          </DataState>
+          <UsersTable state={state} />
         </PageContent>
       </Tabs>
     </QeetIdFrame>

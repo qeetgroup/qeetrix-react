@@ -1,5 +1,102 @@
 # @qeetrix/react
 
+## 0.0.6
+
+Date components built in, with no date library (07-components.md, "Dates without a library"),
+one Table for every list, and the parts for detail pages, settings, setup flows and the console's
+search: FileUpload, Field help, DescriptionList, CodeBlock, Steps, CommandPalette, FilterTags,
+Timeline and TreeView.
+
+**Breaking — one Table.** `Table` is now the single way to show records: give it `columns` and
+`rows`, and sorting, selection, row actions and the loading, empty and error states are built in.
+`TableCaption`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell` and their prop types
+are no longer exported; tables made from them become one `<Table label rows rowId rowLabel
+columns />`. Name a table with `label` (it was a caption or `aria-label`). No Qeet product used the
+parts yet.
+
+- **`Table`:** sortable headers (buttons, `aria-sort`; one way, the other, then the server's order;
+  `sortFirst: "descending"` for dates and amounts); `selectable` rows with a page-wide header
+  checkbox (mixed when some are chosen) that keeps rows chosen on other pages; a bar with the
+  count, `bulkActions` and Clear in place of the `toolbar` while rows are selected; `rowActions` in
+  a menu named for the row; placeholder rows while loading, dimmed rows while refreshing, and
+  `empty` and `error` messages under the header; a sticky header. Built for server-paged lists:
+  the rows arrive sorted and paged. New types `TableColumn`, `TableSort`, `SortDirection`. Strings
+  in English and Hindi.
+
+- **`Calendar`:** a month of dates to choose from, following the WAI-ARIA date picker grid. One day
+  in the Tab order; arrow keys move by day and week (mirrored right-to-left), Home and End to the
+  week's ends, Page Up and Page Down by month (with Shift, by year), Enter or Space choose. Each day
+  is read as its full date, today as "Today, …". `min`, `max` and `isDateDisabled`; the week starts
+  by locale (Sunday for India). Today has a thin Ember outline, the chosen day the Ember fill. Dates
+  are "YYYY-MM-DD" strings; the arithmetic runs on UTC midnights with the browser's `Intl`, always
+  Gregorian. The title ("October 2026 ⌄") opens the years, a decade a page, then that year's
+  months, then their days; Escape steps back to the days. Every view keeps the same size. Strings
+  in English and Hindi.
+- **`DatePicker`:** a field to type a date in the locale's order (25/10/2026 for India) or choose
+  it from the Calendar in a popover exactly as wide as the field. Typed text is read on leaving the
+  field or on Enter, with any separator; text that isn't an allowed date stays, and the field turns
+  invalid with the reason through Field. Alt+Down opens the calendar; focus returns to where it was
+  opened from. With `name`, a hidden input submits "YYYY-MM-DD".
+- **`RangeCalendar`:** a Calendar that chooses a range: the first pick is one end, the range
+  follows the pointer or focus until the second, and ends picked backwards are swapped. Escape
+  undoes a half-chosen range. A band of the subtle brand fill with Ember ends; every day in it is
+  selected, and each step is announced. Exports the `DateRange` type.
+- **`DateRangePicker`:** one field for a range ("01/12/2026 – 31/12/2026"), typed with any
+  separators in either order, or chosen in a RangeCalendar in a popover as wide as the field.
+  Errors as DatePicker's; `startName` and `endName` submit "YYYY-MM-DD".
+- **`Avatar`, `TopBarSwitcher`:** initials are centred on the capitals' own height (CSS `text-box`
+  trimming), not on the room the font keeps for descenders: they sat up to 0.6px high. A test checks
+  the rendered pixels at every size in Chromium, Firefox and WebKit.
+- **`Table`:** cells keep `space.gap-xs` above and below, so two-line content such as an AvatarItem
+  doesn't touch the row lines (one-line rows stay at the density's row height); the row checkbox is
+  centred on the row, not on the text baseline.
+- **`AvatarItem`:** a person as lists and menus show them: avatar, name and an optional second
+  line (an email, a role). The two lines sit close, together as tall as a `md` avatar (32px), so
+  they fit a compact table row; long text ends with an ellipsis. Server-safe.
+- **`SearchField`:** a search box for lists: the Input box with a search icon, `type="search"`, and
+  a Clear button while there's text; Escape clears it first. `onSearch` runs when typing pauses
+  (`searchDelay`, 300 ms), at once on Enter, and with "" when cleared. Strings in English and Hindi.
+- **`PopoverContent`:** new `anchor` prop, to position against another element than the trigger
+  (minor).
+- **`CommandPalette`:** search or jump to, over the page: opened from the top bar's search or ⌘K /
+  Ctrl+K anywhere, with grouped results (users with avatars, applications, settings with where they
+  live, actions with their keys), the typed text bold, arrows to move, Enter to open, Escape to
+  close. Filters by label, description and keywords, or the app searches with `onQueryChange`.
+- **`FilterTags`:** the filters applied to a list as removable tags ("Status: Active ×"), with
+  Clear all and an announced summary ("412 of 1,284 users"); focus moves to the next tag, then to
+  `returnFocusTo`.
+- **`Timeline`, `TimelineGroup`, `TimelineItem`:** what happened, newest first, grouped by day: an
+  icon, the event, where or by whom, and when (`<time>` with `dateTime`); failures in danger; a
+  compact dots variant. Server-safe.
+- **`TreeView`:** the WAI-ARIA tree view for organisation units, nested groups and permissions:
+  arrows, Right and Left to open, close and step in or out (mirrored right-to-left), Home, End and
+  type-ahead; select one node, or `checkable` with parents mixed while some nodes are on.
+- **`Steps`:** where a person is in a setup: done steps filled Ember with a tick, the current one
+  outlined Ember, those to come grey, joined by a line that turns Ember behind them. Horizontal for
+  short wizards (only the current label where it's narrow), vertical with descriptions for longer
+  ones. An ordered list with `aria-current="step"`; the others are read as Completed or Not started.
+  `onStepSelect` makes done steps buttons back to themselves.
+- **`CodeBlock`:** code to read and copy: a command, a snippet, JSON or XML, coloured by the code
+  tokens with our own small highlighter (shell, JavaScript and TypeScript with JSX, JSON, XML and
+  HTML). More than one line gets a header with the language and Copy, and CSS line numbers that
+  copying never picks up; long lines scroll in a named, keyboard-reachable region, or `wrap`.
+  Ligatures are off, so code shows exactly as typed.
+- **`DescriptionList`, `DescriptionItem`:** facts about one record as term and value pairs, in a
+  semantic `dl`. `rows` (default): the term beside its value on the value's first line, a line
+  between rows, the term above the value under 24rem; in a Card, edge to edge. `columns`: term above
+  value in up to `columns` columns of at least 8rem. An empty value shows "—", read as "Not set".
+- **`Field`:** new `help` prop: an ⓘ button after the label opens a short explanation in a popover
+  titled with the label (a toggletip: click, not hover, so it works by touch and keyboard and can
+  hold a link). The button is named "About {label}" and takes no more height than the label, so a
+  field with help lines up with its neighbours at every density.
+- **`FileUpload`:** choose or drop files, in a Field. A dashed drop zone over a real file input (the
+  keyboard and screen readers get the browser's own control), Ember while a file is dragged over
+  it. Files that pass `accept`, `maxSize` and `multiple` go to `onSelect` for the app to upload; the
+  rest are listed with the reason ("Only XML files can be used here", "Larger than 1 MB"). The app
+  reports each upload in `items`: uploading with progress, uploaded, or failed with a reason, each
+  with a remove button. The hint ("XML, up to 1 MB") and sizes are written for the locale. Strings
+  in English and Hindi.
+
 ## 0.0.5
 
 Tier 1 of the design-system gap review (07-components.md, "Gap review"), from
