@@ -102,3 +102,10 @@
   inset-block-start: 20px;
   inset-inline-end: 16px;
 }
+
+/* Forced colours: the shadow is dropped, so the drawer gets an edge on its open side. */
+@media (forced-colors: active) {
+  .qx-drawer {
+    border-inline: var(--qx-border-width-default) solid CanvasText;
+  }
+}

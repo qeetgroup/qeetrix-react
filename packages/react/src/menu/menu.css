@@ -128,3 +128,20 @@
   margin-block: 4px;
   background: var(--qx-color-border-subtle);
 }
+
+/* Forced colours: the highlight tint and its bar are dropped, so the system highlight marks it. */
+@media (forced-colors: active) {
+  .qx-menu-item[data-highlighted] {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+  .qx-menu-item[data-highlighted] .qx-menu-item-icon,
+  .qx-menu-item[data-highlighted] .qx-menu-submenu-icon {
+    color: HighlightText;
+  }
+  .qx-menu-separator {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+}

@@ -18,6 +18,7 @@
  * Output is not minified, so it stays readable in devtools and in review.
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { posix } from "node:path";
 import { transform } from "lightningcss";
 
 const SRC = new URL("../src/", import.meta.url);
@@ -52,19 +53,33 @@ const layer = (name, css) => `@layer ${name} {\n${css.replace(/^/gm, "  ")}\n}\n
 
 // A family is a directory under src/ with an index.ts. It has styles of its own when it holds
 // <family>.css, and it needs the styles of every family its modules import from (`../<family>/`).
-const families = readdirSync(SRC, { withFileTypes: true })
-  .filter((d) => d.isDirectory() && !["styles", "internal"].includes(d.name))
-  .map((d) => d.name)
-  .filter((name) => existsSync(new URL(`${name}/index.ts`, SRC)))
-  .sort();
-const ownCss = (name) => existsSync(new URL(`${name}/${name}.css`, SRC));
+const dirsWithIndex = (dir, prefix = "") =>
+  readdirSync(new URL(dir, SRC), { withFileTypes: true })
+    .filter((d) => d.isDirectory() && existsSync(new URL(`${dir}${d.name}/index.ts`, SRC)))
+    .map((d) => `${prefix}${d.name}`);
+// A family is src/<family>, or src/experimental/<family> for the experimental channel (named
+// "experimental/<family>"). The experimental entry itself has no styles of its own.
+const families = [
+  ...dirsWithIndex("./").filter((name) => !["styles", "internal", "experimental"].includes(name)),
+  ...(existsSync(new URL("experimental/", SRC))
+    ? dirsWithIndex("experimental/", "experimental/")
+    : []),
+].sort();
+const base = (name) => name.split("/").pop();
+const ownCss = (name) => existsSync(new URL(`${name}/${base(name)}.css`, SRC));
+/** The family a source path belongs to: its first folder, or experimental/<folder>. */
+const familyOf = (path) => {
+  const [first, second] = path.split("/");
+  return first === "experimental" ? `experimental/${second}` : first;
+};
 const imports = (name) => {
   const deps = new Set();
   for (const file of readdirSync(new URL(`${name}/`, SRC))) {
     if (!/\.tsx?$/.test(file) || /\.test\.tsx?$/.test(file)) continue;
     const code = readFileSync(new URL(`${name}/${file}`, SRC), "utf8");
     // A type-only import brings no component, so no styles.
-    for (const [, dep] of code.matchAll(/^import (?!type\b)[^;]*?from\s+["']\.\.\/([a-z-]+)\//gm)) {
+    for (const [, spec] of code.matchAll(/^import (?!type\b)[^;]*?from\s+["'](\.[^"']+)["']/gm)) {
+      const dep = familyOf(posix.normalize(posix.join(name, spec)));
       if (dep !== name && families.includes(dep)) deps.add(dep);
     }
   }
@@ -72,24 +87,27 @@ const imports = (name) => {
 };
 const styled = (name) => ownCss(name) || imports(name).some(styled);
 
-mkdirSync(new URL("css/", DIST), { recursive: true });
+mkdirSync(new URL("css/experimental/", DIST), { recursive: true });
 
 const blocks = [];
-const base = layer(
+const baseCss = layer(
   "qx.base",
   compile("styles/base.css", readFileSync(new URL("styles/base.css", SRC), "utf8")),
 );
-writeFileSync(new URL("css/base.css", DIST), base);
-blocks.push(base);
+writeFileSync(new URL("css/base.css", DIST), baseCss);
+blocks.push(baseCss);
 
 for (const name of families.filter(styled)) {
+  const file = `${name}/${base(name)}.css`;
   const css = ownCss(name)
-    ? layer(
-        "qx.components",
-        compile(`${name}/${name}.css`, readFileSync(new URL(`${name}/${name}.css`, SRC), "utf8")),
-      )
+    ? layer("qx.components", compile(file, readFileSync(new URL(file, SRC), "utf8")))
     : "";
-  const head = ["base", ...imports(name).filter(styled)].map((dep) => `@import "./${dep}.css";`);
+  // @import paths are relative to this family's own file in dist/css/.
+  const from = posix.dirname(`${name}.css`);
+  const head = ["base", ...imports(name).filter(styled)].map((dep) => {
+    const rel = posix.relative(from, `${dep}.css`);
+    return `@import "${rel.startsWith(".") ? rel : `./${rel}`}";`;
+  });
   writeFileSync(new URL(`css/${name}.css`, DIST), `${head.join("\n")}\n\n${css}`);
   if (css) blocks.push(css);
 }

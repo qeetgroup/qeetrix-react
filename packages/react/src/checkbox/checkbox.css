@@ -46,3 +46,13 @@
 .qx-checkbox-mark {
   display: flex;
 }
+
+/* Forced colours: a checked box fills with the system highlight, not just a thin mark. */
+@media (forced-colors: active) {
+  .qx-checkbox:is([data-checked], [data-indeterminate]):not([data-disabled]) {
+    forced-color-adjust: none;
+    border-color: Highlight;
+    background: Highlight;
+    color: HighlightText;
+  }
+}

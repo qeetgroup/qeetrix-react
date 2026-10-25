@@ -1,13 +1,14 @@
-/* Button and IconButton (06-component-specs.md §1; design rules §7). Label first, icon last; the
-   focus frame is drawn inside, with a surface-coloured gap. */
+/* Button and IconButton (06-component-specs.md §1; design rules §7). Label first; an icon sits in
+   its own zone at the end, behind a 1px rule as tall as the icon. The focus frame is drawn inside,
+   with a surface-coloured gap. */
 .qx-button {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 12px;
   block-size: var(--qx-size-control-md);
-  padding-inline: 14px 12px;
+  padding-inline: 14px 0;
   border: 0;
   border-radius: var(--qx-radius-control);
   font: var(--qx-typography-label-md);
@@ -25,8 +26,8 @@
 
   &[data-size="sm"] {
     block-size: var(--qx-size-control-sm);
-    gap: 16px;
-    padding-inline: 10px 8px;
+    gap: 8px;
+    padding-inline: 10px 0;
     font-size: var(--qx-typography-label-sm-font-size);
     line-height: var(--qx-typography-label-sm-line-height);
   }
@@ -35,8 +36,8 @@
   }
   &[data-size="lg"] {
     block-size: var(--qx-size-control-lg);
-    gap: 32px;
-    padding-inline: 16px 14px;
+    gap: 14px;
+    padding-inline: 16px 0;
   }
   &[data-size="lg"]:not([data-icon]):not([data-loading]) {
     padding-inline: 16px;
@@ -92,6 +93,21 @@
       background: var(--qx-color-bg-danger-subtle);
     }
   }
+  /* Neutral: utility actions in toolbars and headers. Icons stay neutral (§16). */
+  &[data-tone="neutral"][data-variant="ghost"] {
+    color: var(--qx-color-text-subtle);
+    &:hover:not([data-disabled]) {
+      background: var(--qx-color-bg-neutral-subtle);
+      color: var(--qx-color-text-default);
+    }
+    &:active:not([data-disabled]) {
+      background: var(--qx-color-bg-neutral-subtle-pressed);
+    }
+  }
+  &[data-tone="neutral"]:not([data-variant="ghost"]) {
+    background: var(--qx-color-bg-neutral-bold);
+    color: var(--qx-color-text-inverse);
+  }
 
   &[data-disabled]:not([data-loading]) {
     background: var(--qx-color-bg-disabled);
@@ -122,6 +138,41 @@
   }
 }
 
+/* The icon zone: the icon with even space on both sides, behind a rule as tall as the icon in the
+   label's own colour (white on filled buttons). A short seam, not a full-height split, so label and
+   icon read as one control. */
+.qx-button-zone {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  align-self: stretch;
+  padding-inline: 10px;
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 0;
+    inline-size: var(--qx-border-width-default);
+    block-size: var(--qx-size-icon-sm);
+    background: currentcolor;
+    opacity: 0.55;
+    translate: 0 -50%;
+  }
+  .qx-button[data-size="sm"] > & {
+    padding-inline: 8px;
+    &::before {
+      block-size: var(--qx-size-icon-xs);
+    }
+  }
+  .qx-button[data-size="lg"] > & {
+    padding-inline: 12px;
+    &::before {
+      block-size: var(--qx-size-icon-md);
+    }
+  }
+}
+
 .qx-icon-button {
   justify-content: center;
   inline-size: var(--qx-size-control-md);
@@ -136,5 +187,23 @@
   }
   &:not([data-icon]):not([data-loading]) {
     padding-inline: 0;
+  }
+}
+
+/* Forced colours: the fill is dropped, so a system-colour edge keeps the button visible. */
+@media (forced-colors: active) {
+  .qx-button {
+    border: var(--qx-border-width-default) solid ButtonText;
+  }
+  .qx-button[data-disabled]:not([data-loading]) {
+    border-color: GrayText;
+    color: GrayText;
+  }
+  .qx-button-zone::before {
+    background: ButtonText;
+    opacity: 1;
+  }
+  .qx-button[data-disabled]:not([data-loading]) .qx-button-zone::before {
+    background: GrayText;
   }
 }

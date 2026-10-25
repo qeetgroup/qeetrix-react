@@ -31,3 +31,10 @@
     transition: none;
   }
 }
+
+/* Forced colours: the fill is dropped, so the tooltip gets an edge. */
+@media (forced-colors: active) {
+  .qx-tooltip {
+    border: var(--qx-border-width-default) solid CanvasText;
+  }
+}

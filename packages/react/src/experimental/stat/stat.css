@@ -1,0 +1,99 @@
+/* Stat and StatGroup (07-components.md, C1): key numbers in equal cells with 1px rules between
+   them. The value is large tabular figures; the trend is a quiet graphite line whose last point is
+   the one Ember mark, the current value. A PageHeader's summary sets --qx-stat-group-inset so the
+   first and last cells line up with the page gutter. */
+.qx-stat-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  margin: 0;
+  color: var(--qx-color-text-default);
+}
+.qx-stat {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-content: start;
+  column-gap: var(--qx-space-gap-md);
+  min-inline-size: 0;
+  padding: var(--qx-space-inset-md) var(--qx-space-inset-lg);
+  &:first-child {
+    padding-inline-start: var(--qx-stat-group-inset, var(--qx-space-inset-lg));
+  }
+  &:last-child {
+    padding-inline-end: var(--qx-stat-group-inset, var(--qx-space-inset-lg));
+  }
+  & + & {
+    border-inline-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  }
+}
+.qx-stat-label {
+  grid-column: 1 / -1;
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+}
+.qx-stat-value {
+  grid-column: 1;
+  margin: var(--qx-space-gap-xs) 0 0;
+  font: var(--qx-typography-heading-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+  font-variant-numeric: tabular-nums;
+}
+.qx-stat-trend-cell {
+  display: flex;
+  grid-row: 2;
+  grid-column: 2;
+  align-items: flex-end;
+  margin: 0;
+  padding-block-end: var(--qx-space-gap-xs);
+}
+.qx-stat-trend {
+  inline-size: 88px;
+  block-size: 28px;
+  overflow: visible;
+}
+/* Data, not chrome: the line is the neutral series colour so the Ember point reads as "now". */
+.qx-stat-trend-line {
+  fill: none;
+  stroke: var(--qx-color-icon-subtle);
+  stroke-width: var(--qx-icon-stroke-thin);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.qx-stat-trend-area {
+  fill: var(--qx-color-icon-subtle);
+  opacity: 0.1;
+}
+.qx-stat-trend-end {
+  fill: var(--qx-color-border-brand);
+}
+.qx-stat-note {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtlest);
+  &[data-tone="positive"] {
+    color: var(--qx-color-text-success);
+  }
+  &[data-tone="negative"] {
+    color: var(--qx-color-text-danger);
+  }
+  &[data-tone="warning"] {
+    color: var(--qx-color-text-warning);
+  }
+}
+
+@media (forced-colors: active) {
+  .qx-stat + .qx-stat {
+    border-inline-start-color: CanvasText;
+  }
+  .qx-stat-trend-line {
+    stroke: CanvasText;
+  }
+  .qx-stat-trend-area {
+    fill: CanvasText;
+  }
+  .qx-stat-trend-end {
+    fill: Highlight;
+  }
+}

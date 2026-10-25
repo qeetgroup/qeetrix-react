@@ -9,6 +9,8 @@
  *   4. overlays: Popover, Tooltip, Menu, Dialog, Drawer, Toast;
  *   5. selection and disclosure: Select, Slider, Tabs, Accordion, Collapsible, ScrollArea;
  *   6. display and status: Card, Table, Badge, Avatar, Progress, Meter, Skeleton.
+ * App-wide settings come from QeetrixProvider (locale, direction, strings); locale packs are
+ * separate entry points (`@qeetrix/react/locales/hi`), so they're never in this bundle.
  * Client components (everything on Base UI) carry "use client"; the rest are server-safe.
  *
  * @packageDocumentation
@@ -24,6 +26,7 @@ export * from "./dialog";
 export * from "./drawer";
 export * from "./field";
 export * from "./fieldset";
+export * from "./format";
 export * from "./grid";
 export * from "./heading";
 export * from "./inline";
@@ -35,6 +38,7 @@ export * from "./link";
 export * from "./menu";
 export * from "./popover";
 export * from "./progress";
+export * from "./provider";
 export * from "./radio";
 export * from "./scroll-area";
 export * from "./select";

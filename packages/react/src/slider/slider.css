@@ -71,3 +71,26 @@
     cursor: not-allowed;
   }
 }
+
+/* Forced colours: track, range and thumb are fills, so they're drawn in system colours. */
+@media (forced-colors: active) {
+  .qx-slider-track,
+  .qx-slider-indicator,
+  .qx-slider-thumb {
+    forced-color-adjust: none;
+  }
+  .qx-slider-track {
+    background: GrayText;
+  }
+  .qx-slider-indicator,
+  .qx-slider-thumb {
+    background: Highlight;
+  }
+  .qx-slider-thumb {
+    box-shadow: 0 0 0 var(--qx-border-width-strong) Canvas;
+  }
+  .qx-slider-thumb[data-disabled],
+  [data-disabled] .qx-slider-indicator {
+    background: GrayText;
+  }
+}

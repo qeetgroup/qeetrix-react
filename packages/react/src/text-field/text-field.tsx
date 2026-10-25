@@ -5,6 +5,7 @@ import type { CSSProperties, ReactElement } from "react";
 import { FieldMessages, type FieldProps, labelText } from "../field/field";
 import { Input, type InputProps } from "../input/input";
 import { cx } from "../internal/cx";
+import { useMessages } from "../provider/provider";
 
 type FieldOnly = Pick<
   FieldProps,
@@ -20,6 +21,7 @@ type FieldOnly = Pick<
   | "dirty"
   | "touched"
   | "actionsRef"
+  | "messages"
 >;
 
 export interface TextFieldProps extends Omit<InputProps, "className" | "style">, FieldOnly {
@@ -45,12 +47,14 @@ export function TextField({
   dirty,
   touched,
   actionsRef,
+  messages,
   name,
   disabled,
   className,
   style,
   ...inputProps
 }: TextFieldProps): ReactElement {
+  const strings = useMessages("field", messages);
   return (
     <BaseField.Root
       name={name}
@@ -71,7 +75,7 @@ export function TextField({
         data-slot="field-label"
         data-hidden={hideLabel ? "" : undefined}
       >
-        {labelText(label, optional)}
+        {labelText(label, optional, strings.optional)}
       </BaseField.Label>
       <Input {...inputProps} />
       <FieldMessages description={description} error={error} />

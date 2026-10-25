@@ -43,3 +43,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Forced colours: the tint is dropped, so the pill gets an edge. */
+@media (forced-colors: active) {
+  .qx-badge {
+    border: var(--qx-border-width-default) solid CanvasText;
+  }
+}

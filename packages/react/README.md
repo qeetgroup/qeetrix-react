@@ -127,6 +127,105 @@ import { Checkbox, CheckboxGroup, Fieldset, Radio, RadioGroup, TextField } from 
 </Fieldset>
 ```
 
+## Locale, direction and strings
+
+Wrap the app in `QeetrixProvider` to set the locale (used for formatting), the reading direction and
+the library's own strings ("Close", "(optional)", "Loading"…). Locale packs are separate imports, so
+a language you don't use never ships:
+
+```tsx
+import { QeetrixProvider } from "@qeetrix/react";
+import { hi } from "@qeetrix/react/locales/hi";
+
+<QeetrixProvider locale="hi-IN" messages={hi}>{app}</QeetrixProvider>
+```
+
+- **Override one string:** pass a `messages` prop to the component, e.g.
+  `<Field messages={{ optional: "(if any)" }}>`.
+- **Right-to-left:** use `direction="rtl"`, and set `dir="rtl"` on `<html>` too.
+- **Server-safe components** (Link, Spinner, SkipLink) can't read the provider. Pass their strings
+  per instance.
+
+Formatting helpers are plain functions and work on the server too:
+
+```ts
+import { formatCurrency, formatNumber, formatRelativeTime } from "@qeetrix/react";
+
+formatCurrency(124500, "INR");        // "₹1,24,500.00"
+formatNumber(1234567);                // "12,34,567"
+formatRelativeTime(updatedAt, "en-IN", now); // "2 minutes ago"
+```
+
+Every primitive also works in Windows High Contrast (forced colours) and under reduced motion. Tests
+emulate both.
+
+## Experimental: the console frame
+
+Components and patterns in their first product ship from `@qeetrix/react/experimental`. They may
+change in a patch release until they're Ready.
+
+```tsx
+import {
+  AppShell, PageContent, PageHeader, Sidebar, SidebarGroup, SidebarItem, Stat, StatGroup,
+  TopBar, TopBarSearch, TopBarSwitcher,
+} from "@qeetrix/react/experimental";
+import { Menu, MenuContent, MenuItem, MenuTrigger } from "@qeetrix/react";
+
+<AppShell
+  topBar={
+    <TopBar
+      logo={<QeetLogo variant="dark" height={20} />}
+      product="Qeet ID"
+      context={
+        <>
+          <Menu>
+            <MenuTrigger render={<TopBarSwitcher mark="AC" label="Acme Pvt Ltd" />} />
+            <MenuContent>{organisations}</MenuContent>
+          </Menu>
+          <TopBarSwitcher status="success" label="Production" />
+        </>
+      }
+      search={<TopBarSearch placeholder="Search or jump to…" shortcut={["⌘", "K"]} onClick={openPalette} />}
+      account={accountMenu}
+    />
+  }
+  sidebar={
+    <Sidebar label="Qeet ID">
+      <SidebarGroup label="Directory">
+        <SidebarItem label="Users" icon={UsersIcon} current render={<Link to="/users" />} />
+      </SidebarGroup>
+    </Sidebar>
+  }
+  drawers={[{ id: "help", label: "Help", icon: CircleQuestionMarkIcon, content: help }]}
+>
+  <PageHeader
+    title="Users"
+    actions={<Button icon={PlusIcon}>Invite users</Button>}
+    summary={
+      <StatGroup>
+        <Stat label="Total users" value={1284} note="+38 this week" tone="positive" trend={weekly} />
+      </StatGroup>
+    }
+  />
+  <PageContent>{table}</PageContent>
+</AppShell>
+```
+
+The bar is black in light and dark, topped by a 2px Ember line; the navigation collapses to a 48px
+rail that expands while hovered. Also there: `Breadcrumb`, `EmptyState` and `DataState` (loading,
+error, empty, content), and the secure-entry parts:
+
+```tsx
+<Alert tone="warning" title="Copy this client secret now">It can't be shown again.</Alert>
+<Field label="Client secret">
+  <PasswordInput readOnly autoComplete="off" defaultValue={secret}
+    endAdornment={<CopyButton value={secret} label="Copy client secret" size="sm" />} />
+</Field>
+<Field label="Verification code"><OTPInput size="lg" onValueComplete={verify} /></Field>
+```
+ Colour-scheme switching lives in `QeetrixProvider`
+(`defaultColorScheme="system"`, `useColorScheme()`).
+
 ## Overlays
 
 Overlays share one shape: a root that holds the state, a trigger that renders your control, and a

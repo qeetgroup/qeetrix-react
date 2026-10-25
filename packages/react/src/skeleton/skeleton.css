@@ -27,3 +27,10 @@
     opacity: 0.45;
   }
 }
+
+/* Forced colours: the fill is dropped, so the placeholder keeps an outline. */
+@media (forced-colors: active) {
+  .qx-skeleton {
+    border: var(--qx-border-width-default) solid GrayText;
+  }
+}

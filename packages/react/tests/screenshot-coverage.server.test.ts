@@ -10,14 +10,20 @@ import { describe, expect, it } from "vitest";
 const src = new URL("../src/", import.meta.url);
 const DENSITY_TOKENS = /--qx-(size-control-(sm|md|lg)|size-row|space-form-gap)\b/;
 
-const families = readdirSync(src, { withFileTypes: true })
-  .filter((d) => d.isDirectory() && existsSync(new URL(`${d.name}/${d.name}.css`, src)))
-  .map((d) => d.name);
+const familiesIn = (dir: string, prefix = "") =>
+  existsSync(new URL(dir, src))
+    ? readdirSync(new URL(dir, src), { withFileTypes: true })
+        .filter((d) => d.isDirectory() && existsSync(new URL(`${dir}${d.name}/${d.name}.css`, src)))
+        .map((d) => `${prefix}${d.name}`)
+    : [];
+// Every family with styles, the experimental channel's included.
+const families = [...familiesIn("./"), ...familiesIn("experimental/", "experimental/")];
 
 describe("screenshot coverage", () => {
   it.each(families)("%s captures the modes it can change in", (family) => {
-    const css = readFileSync(new URL(`${family}/${family}.css`, src), "utf8");
-    const testFile = new URL(`${family}/${family}.test.tsx`, src);
+    const name = family.split("/").pop();
+    const css = readFileSync(new URL(`${family}/${name}.css`, src), "utf8");
+    const testFile = new URL(`${family}/${name}.test.tsx`, src);
     const test = existsSync(testFile) ? readFileSync(testFile, "utf8") : "";
     const screenshotted = /screenshot(EveryMode|Schemes)\(/.test(test);
     const everyMode = /screenshotEveryMode\(/.test(test);

@@ -1,9 +1,89 @@
 # @qeetrix/react
 
+## 0.0.3
+
+The first two Phase 5 increments, from `@qeetrix/react/experimental`: C1, the console frame, and
+C2, secure entry. Experimental parts may change in a patch release; each moves to the root export
+once it has shipped in its product (07-components.md).
+
+### C1 · Console frame
+
+- **`AppShell`** (design B · Ruled, chosen from three researched concepts; 07-components.md):
+  - the frame of every Qeet console: a skip link, the sticky TopBar across the full width, the
+    navigation column on the canvas tone, the page, and an end-edge panel; every seam a 1px rule;
+  - from 840px the navigation collapses to a 48px rail (`sidebarCollapsed` /
+    `defaultSidebarCollapsed` / `onSidebarCollapsedChange`) that expands over the page while hovered
+    or focused; below 840px it opens as a drawer from the start edge;
+  - `drawers` (help, assistant, activity), opened from the TopBar's tools: one at a time, pushing
+    the page from 1200px; `notifications` above the page; `density`, compact by default;
+  - `useAppShell()` tells content inside the frame when the sidebar is a rail.
+- **`TopBar`, `TopBarSwitcher`, `TopBarSearch`:**
+  - black in light and dark (the dark scheme on itself), topped by a 2px Ember line;
+  - product to global, left to right: launcher cell, product, the scope path with drawn slashes,
+    centred search, panel triggers and utilities, account;
+  - `TopBarSwitcher` is a step of the path (organisation mark, environment status dot, always a
+    word) and works as a Menu trigger; `TopBarSearch` is a field-shaped button with its shortcut.
+- **`PageHeader`, `PageContent`:** breadcrumb, `title.lg` title with count and status, actions, a
+  `summary` strip bled to the page edges, and tabs at the foot; a 32px page gutter.
+- **`Stat`, `StatGroup`:** key numbers in ruled cells; numeric values formatted for the locale; an
+  optional decorative trend line whose last point is the Ember mark. Server-safe.
+- **`Sidebar`, `SidebarGroup`, `SidebarItem`:**
+  - links only, one level of nesting, every item in the Tab order;
+  - square rows edge to edge with round icons; the current page gets `aria-current`, the 3px Ember
+    bar, weight 600 and an Ember (optionally filled) icon;
+  - groups between hairlines under tracked small capitals (`typography.label.caps`; untracked for
+    Indic text, which has no case); an optional `title`, `filter` and `footer`;
+  - in the rail, icons stay where they are and labels become tooltips.
+- **`Breadcrumb`, `BreadcrumbItem`:** server-safe; mirrored chevrons; long labels truncate and keep a
+  title.
+- **`EmptyState`:** a 24px icon, a title (a heading when given a `level`), a description and actions,
+  in `page` or `section` size and `neutral` or `danger` tone. Server-safe.
+- **`DataState`:** loading, then error, then empty, then the content. The error state never shows the
+  raw error, and `onRetry` adds "Try again".
+- **Colour scheme:**
+  - `QeetrixProvider` takes `colorScheme`, `defaultColorScheme` and `onColorSchemeChange`, writes
+    `data-qx-color-scheme` on `<html>`, and follows the operating system while `system`;
+  - `useColorScheme()` returns the scheme and a setter. The product persists the choice.
+- **`Button` and `IconButton`:**
+  - a `neutral` tone for ghost utility actions in toolbars and headers, whose icons stay neutral
+    (design rules §16);
+  - a Button's icon sits in its own zone (the new `button-zone` slot), behind a 1px rule as tall as
+    the icon, in the label's colour (design rules §7).
+- **Strings:** new `appShell`, `sidebar`, `breadcrumb` and `dataState` groups, in English and Hindi.
+- **Peer dependency:** `@qeetrix/tokens` `^0.0.7`, for `typography.label.caps`. Since tokens 0.0.6
+  the stylesheet also loads Qeet Sans and Fira Code, so the tests now render in the real typefaces.
+- **Source check:** every `var(--qx-*)` must name a token in the installed `@qeetrix/tokens` or a
+  property the package declares itself, so a token from a newer tokens release can't ship
+  unresolved.
+- **Platform:**
+  - the CSS build, the dist check and the screenshot coverage test understand
+    `src/experimental/<family>/`;
+  - the test helper treats cancelled animations as settled.
+
+### C2 · Secure entry
+
+- **`CopyButton`:** copies a value (or what a function returns, even asynchronously); the icon
+  turns into a check, "Copied" is announced politely, focus stays, and it resets after 2 seconds.
+  It fails visibly where there's no clipboard. An IconButton named by `label`, or a Button with a
+  visible label.
+- **`Alert`:** `info`, `success`, `warning` or `danger` on the status tint with the 3px status edge;
+  a title (led by a hidden tone word), a description, actions and an optional Dismiss. `announce`
+  makes it `role="status"` or `role="alert"` only when it appears after something happens. It never
+  takes focus or disappears by itself.
+- **`PasswordInput`:** an Input with a pressed-state Show password toggle, announced; hidden by
+  default and hidden again when its form submits; `current-password` / `new-password` / `off`;
+  spelling and capitalisation tools off; a Caps Lock warning; `endAdornment` for a CopyButton.
+- **`OTPInput`:** one-time codes in slots on Base UI's OTP Field: typing moves on, paste fills
+  every slot, SMS autofill lands at once; numeric by default; `groups`, `md` and `lg` sizes; the
+  first slot takes the field's label, the rest are "Character 2 of 6".
+- **Strings:** new `copyButton`, `alert`, `passwordInput` and `otpInput` groups, in English and
+  Hindi.
+
 ## 0.0.2
 
 Every primitive, in six increments: the foundation, actions, form controls, overlays, selection and
-disclosure, and display and status.
+disclosure, and display and status. Then the Phase 4 close-out: localisation, forced colours,
+right-to-left, reduced motion and the sign-in exit screen.
 
 ### Foundation
 
@@ -160,7 +240,42 @@ content part that assembles the portal, positioner and popup.
 - **`Skeleton`:** `text`, `block` or `circle`. It pulses, holds still under reduced motion, and is
   always hidden from assistive technology. Server-safe.
 
+### Phase 4 close-out
+
+- **`QeetrixProvider`:**
+  - `locale` (default `en-IN`) for formatting;
+  - `direction`, which wraps Base UI's DirectionProvider;
+  - `messages`, merged over the English defaults group by group.
+  - Nested providers inherit what they don't set. `useLocale()` reads the locale.
+- **Strings:**
+  - every library string comes from one typed catalogue (`QeetrixMessages`);
+  - Field, TextField, DialogContent, DrawerContent, ToastProvider, Slider and Link take a `messages`
+    prop that wins over the provider;
+  - Link stays server-safe, so it takes its string per instance.
+- **Locale packs:** Hindi (`@qeetrix/react/locales/hi`) is the first. It's a separate entry point,
+  typed as the complete catalogue, and uses Qeet ID's own Hindi words.
+- **Formatting:** `formatNumber`, `formatCurrency` (lakh and crore grouping by default) and
+  `formatRelativeTime`. They're pure, server-safe and cache their formatters. Slider, Progress and
+  Meter format in the provider's locale.
+- **Forced colours (Windows High Contrast):**
+  - surfaces that showed only a fill or a shadow get a system-colour edge;
+  - on states use `Highlight`: pressed Toggle, Switch, checked Checkbox, the Slider and Progress
+    fills, the Tabs bar, and highlighted Menu and Select items;
+  - separators and the tab list's base line stay visible.
+- **Right-to-left:** tests cover arrow keys in Tabs, ToggleGroup, RadioGroup, Slider and the Menu
+  submenu, plus the Drawer edge, the Menu bar side and the Input adornment order.
+- **Reduced motion:** a test checks that durations collapse and that Spinner and indeterminate
+  Progress fade instead.
+- **Slider:** a slider named by `aria-label` (no visible label) now passes the name on to its
+  thumbs, which are what carry the slider role. A range adds Minimum and Maximum.
+- **Sign-in exit screen:** built from primitives alone. Its keyboard order, axe, and its light,
+  dark, right-to-left and forced-colours screenshots are all tested.
+
 ### Platform
+
+- **Source check:**
+  - it bans physical CSS properties and system colours outside forced-colours blocks;
+  - it ignores comments when looking for client-only code.
 
 - Each family's stylesheet (`css/<family>.css`) now imports the base layer and the stylesheets of
   the families it renders, so it works on its own.

@@ -3,8 +3,9 @@ import { defineConfig, type UserConfig } from "tsdown";
 // One output file per source module (unbundled), so every component is its own module, keeps its
 // "use client" directive, and tree-shakes on its own. Declarations come from isolatedDeclarations.
 const config: UserConfig = defineConfig({
-  // The root entry, plus one entry per component family (src/<family>/index.ts).
-  entry: ["src/index.ts", "src/*/index.ts"],
+  // The root entry, one entry per component family (src/<family>/index.ts), and one per locale pack
+  // (src/locales/<locale>.ts), so a language a product doesn't use never ships.
+  entry: ["src/index.ts", "src/*/index.ts", "src/locales/*.ts"],
   unbundle: true,
   format: "esm",
   platform: "neutral",

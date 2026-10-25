@@ -127,7 +127,7 @@ export interface ButtonProps extends ButtonBaseProps {
 }
 
 // @public (undocumented)
-export type ButtonTone = "brand" | "danger";
+export type ButtonTone = "brand" | "danger" | "neutral";
 
 // @public (undocumented)
 export type ButtonVariant = "solid" | "soft" | "ghost";
@@ -203,6 +203,16 @@ export function CollapsibleTrigger(props: CollapsibleTriggerProps): ReactElement
 // @public (undocumented)
 export type CollapsibleTriggerProps = Collapsible_2.Trigger.Props;
 
+// @public (undocumented)
+export type ColorScheme = "light" | "dark" | "system";
+
+// @public (undocumented)
+export interface ColorSchemeState {
+    colorScheme: ColorScheme;
+    resolvedColorScheme: ResolvedColorScheme;
+    setColorScheme: (colorScheme: ColorScheme) => void;
+}
+
 // @public
 export type ControlSize = "sm" | "md" | "lg";
 
@@ -229,6 +239,7 @@ export interface DialogContentProps extends Omit<Dialog_2.Popup.Props, "classNam
     children?: ReactNode;
     className?: string;
     description?: ReactNode;
+    messages?: Partial<QeetrixMessages["overlay"]>;
     size?: DialogSize;
     // (undocumented)
     style?: CSSProperties;
@@ -259,6 +270,9 @@ export function DialogTrigger(props: DialogTriggerProps): ReactElement;
 // @public (undocumented)
 export type DialogTriggerProps = Omit<Dialog_2.Trigger.Props, "handle" | "payload">;
 
+// @public (undocumented)
+export type Direction = "ltr" | "rtl";
+
 // @public
 export function Drawer(input: DrawerProps): ReactElement;
 
@@ -285,6 +299,7 @@ export interface DrawerContentProps extends Omit<Drawer_2.Popup.Props, "classNam
     children?: ReactNode;
     className?: string;
     description?: ReactNode;
+    messages?: Partial<QeetrixMessages["overlay"]>;
     size?: DrawerSize;
     // (undocumented)
     style?: CSSProperties;
@@ -329,6 +344,7 @@ export interface FieldProps extends Omit<Field_2.Root.Props, "className" | "styl
     className?: string;
     hideLabel?: boolean;
     label: ReactNode;
+    messages?: Partial<QeetrixMessages["field"]>;
     optional?: boolean;
     // (undocumented)
     style?: CSSProperties;
@@ -349,6 +365,15 @@ export interface FieldsetProps extends Omit<Fieldset_2.Root.Props, "className" |
 
 // @public (undocumented)
 export type FlowJustify = "start" | "center" | "end" | "between";
+
+// @public
+export function formatCurrency(value: number, currency: string, locale?: string, options?: Intl.NumberFormatOptions): string;
+
+// @public
+export function formatNumber(value: number, locale?: string, options?: Intl.NumberFormatOptions): string;
+
+// @public
+export function formatRelativeTime(date: Date | number, locale?: string, now?: Date | number): string;
 
 // @public
 export function Grid(input: GridProps): ReactElement;
@@ -445,6 +470,7 @@ export function Link(input: LinkProps): ReactElement;
 // @public (undocumented)
 export interface LinkProps extends ComponentProps<"a"> {
     external?: boolean;
+    messages?: Partial<QeetrixMessages["link"]>;
     render?: RenderProp;
     tone?: LinkTone;
 }
@@ -610,6 +636,29 @@ export interface ProgressProps extends Omit<Progress_2.Root.Props, "className" |
 // @public
 export type QeetrixIcon = ComponentType<IconProps<"outline">>;
 
+// Warning: (ae-forgotten-export) The symbol "messages" needs to be exported by the entry point index.d.ts
+//
+// @public
+export type QeetrixMessages = { [Group in keyof typeof messages]: { [Key in keyof (typeof messages)[Group]]: string; }; };
+
+// @public
+export type QeetrixMessagesInput = { [Group in keyof QeetrixMessages]?: Partial<QeetrixMessages[Group]>; };
+
+// @public
+export function QeetrixProvider(input: QeetrixProviderProps): ReactElement;
+
+// @public (undocumented)
+export interface QeetrixProviderProps {
+    // (undocumented)
+    children?: ReactNode;
+    colorScheme?: ColorScheme;
+    defaultColorScheme?: ColorScheme;
+    direction?: Direction;
+    locale?: string;
+    messages?: QeetrixMessagesInput;
+    onColorSchemeChange?: (colorScheme: ColorScheme) => void;
+}
+
 // @public
 export function Radio<Value = string>(input: RadioProps<Value>): ReactElement;
 
@@ -632,6 +681,9 @@ export type RadioProps<Value = string> = RadioOwnProps<Value> & ChoiceLabelProps
 
 // @public
 export type RenderProp = ReactElement<Record<string, unknown>>;
+
+// @public (undocumented)
+export type ResolvedColorScheme = "light" | "dark";
 
 // @public
 export function ScrollArea(input: ScrollAreaProps): ReactElement;
@@ -730,6 +782,7 @@ export function Slider<Value extends number | readonly number[] = number>(input:
 export interface SliderProps<Value extends number | readonly number[] = number> extends Omit<Slider_2.Root.Props<Value>, "className" | "style" | "children"> {
     className?: string;
     label?: ReactNode;
+    messages?: Partial<QeetrixMessages["slider"]>;
     showValue?: boolean;
     // (undocumented)
     style?: CSSProperties;
@@ -963,6 +1016,7 @@ export function ToastProvider(input: ToastProviderProps): ReactElement;
 export interface ToastProviderProps {
     children?: ReactNode;
     limit?: number;
+    messages?: Partial<QeetrixMessages["toast"]>;
     timeout?: number;
 }
 
@@ -1025,6 +1079,12 @@ export interface TooltipProviderProps extends Tooltip_2.Provider.Props {}
 
 // @public
 export type Truncate = boolean | number;
+
+// @public
+export function useColorScheme(): ColorSchemeState;
+
+// @public
+export function useLocale(): string;
 
 // @public
 export function useToast(): ToastApi;

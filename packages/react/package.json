@@ -1,6 +1,6 @@
 {
   "name": "@qeetrix/react",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "Qeetrix React components: accessible, token-driven primitives on Base UI for every Qeet product.",
   "keywords": [
     "qeetrix",
@@ -71,6 +71,10 @@
       "types": "./dist/drawer/index.d.ts",
       "default": "./dist/drawer/index.js"
     },
+    "./experimental": {
+      "types": "./dist/experimental/index.d.ts",
+      "default": "./dist/experimental/index.js"
+    },
     "./field": {
       "types": "./dist/field/index.d.ts",
       "default": "./dist/field/index.js"
@@ -78,6 +82,10 @@
     "./fieldset": {
       "types": "./dist/fieldset/index.d.ts",
       "default": "./dist/fieldset/index.js"
+    },
+    "./format": {
+      "types": "./dist/format/index.d.ts",
+      "default": "./dist/format/index.js"
     },
     "./grid": {
       "types": "./dist/grid/index.d.ts",
@@ -110,6 +118,10 @@
     "./progress": {
       "types": "./dist/progress/index.d.ts",
       "default": "./dist/progress/index.js"
+    },
+    "./provider": {
+      "types": "./dist/provider/index.d.ts",
+      "default": "./dist/provider/index.js"
     },
     "./radio": {
       "types": "./dist/radio/index.d.ts",
@@ -183,6 +195,10 @@
       "types": "./dist/visually-hidden/index.d.ts",
       "default": "./dist/visually-hidden/index.js"
     },
+    "./locales/hi": {
+      "types": "./dist/locales/hi.d.ts",
+      "default": "./dist/locales/hi.js"
+    },
     "./styles.css": "./dist/styles.css",
     "./css/*": "./dist/css/*",
     "./package.json": "./package.json"
@@ -206,7 +222,7 @@
   },
   "peerDependencies": {
     "@base-ui/react": "^1.9.0",
-    "@qeetrix/tokens": "^0.0.5",
+    "@qeetrix/tokens": "^0.0.7",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

@@ -76,3 +76,17 @@
     opacity: 0.35;
   }
 }
+
+/* Forced colours: the track and indicator are fills, so they're drawn in system colours. */
+@media (forced-colors: active) {
+  .qx-progress-track,
+  .qx-progress-indicator {
+    forced-color-adjust: none;
+  }
+  .qx-progress-track {
+    background: GrayText;
+  }
+  .qx-progress-indicator {
+    background: Highlight;
+  }
+}

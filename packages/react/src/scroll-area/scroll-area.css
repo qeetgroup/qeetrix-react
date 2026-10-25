@@ -51,3 +51,11 @@
     background: var(--qx-color-icon-subtle);
   }
 }
+
+/* Forced colours: the thumb is a fill, so it's drawn in the text colour. */
+@media (forced-colors: active) {
+  .qx-scroll-area-thumb {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+}

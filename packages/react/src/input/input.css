@@ -93,3 +93,14 @@
     max-block-size: calc(var(--qx-textarea-max-rows) * 1lh + var(--qx-size-control-lg) - 1lh);
   }
 }
+
+/* Forced colours: the fill and the bottom line (a shadow) are dropped, so the box gets a border. */
+@media (forced-colors: active) {
+  .qx-input {
+    border: var(--qx-border-width-default) solid FieldText;
+  }
+  .qx-input:has(> .qx-input-control:disabled),
+  .qx-textarea:disabled {
+    border-color: GrayText;
+  }
+}

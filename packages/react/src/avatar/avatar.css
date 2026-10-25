@@ -35,3 +35,10 @@
   block-size: 100%;
   object-fit: cover;
 }
+
+/* Forced colours: the fill is dropped, so the circle gets an edge. */
+@media (forced-colors: active) {
+  .qx-avatar {
+    border: var(--qx-border-width-default) solid CanvasText;
+  }
+}

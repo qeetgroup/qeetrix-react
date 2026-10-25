@@ -14,7 +14,8 @@ import {
 } from "react";
 import { IconButton } from "../button/button";
 import { cx } from "../internal/cx";
-import { messages } from "../internal/messages";
+import type { QeetrixMessages } from "../internal/messages";
+import { useMessages } from "../provider/provider";
 
 /** The kind of decision: `standard`, or a `danger` / `warning` alert dialog. */
 export type DialogIntent = "standard" | "danger" | "warning";
@@ -57,6 +58,8 @@ export interface DialogContentProps
   description?: ReactNode;
   /** Width: `sm` 400, `md` 560 (default) or `lg` 800px. */
   size?: DialogSize;
+  /** The close button's label, over QeetrixProvider's and the English default. */
+  messages?: Partial<QeetrixMessages["overlay"]>;
   /** Placement only. */
   className?: string;
   style?: CSSProperties;
@@ -127,11 +130,13 @@ export function DialogContent({
   title,
   description,
   size = "md",
+  messages,
   className,
   children,
   ...props
 }: DialogContentProps): ReactElement {
   const { intent, dismissible } = use(DialogContext);
+  const strings = useMessages("overlay", messages);
   return (
     <BaseDialog.Portal>
       <BaseDialog.Backdrop className="qx-dialog-backdrop" data-slot="dialog-backdrop" />
@@ -161,7 +166,7 @@ export function DialogContent({
           {dismissible && (
             <div className="qx-dialog-close" data-slot="dialog-close">
               <BaseDialog.Close
-                render={<IconButton icon={XIcon} aria-label={messages.overlay.close} size="sm" />}
+                render={<IconButton icon={XIcon} aria-label={strings.close} size="sm" />}
               />
             </div>
           )}

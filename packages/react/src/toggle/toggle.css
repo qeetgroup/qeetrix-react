@@ -94,3 +94,16 @@
     }
   }
 }
+
+/* Forced colours: a pressed toggle keeps its state as the system highlight. */
+@media (forced-colors: active) {
+  .qx-toggle {
+    border: var(--qx-border-width-default) solid ButtonText;
+  }
+  .qx-toggle[data-pressed] {
+    forced-color-adjust: none;
+    border-color: Highlight;
+    background: Highlight;
+    color: HighlightText;
+  }
+}

@@ -4,6 +4,7 @@ import { Meter as BaseMeter } from "@base-ui/react/meter";
 import { Progress as BaseProgress } from "@base-ui/react/progress";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import { cx } from "../internal/cx";
+import { useLocale } from "../provider/provider";
 
 interface BarLook {
   /** The visible label. Without one, give it an `aria-label`. */
@@ -32,9 +33,21 @@ export interface MeterProps
  * A task advancing, such as an upload (06-component-specs.md, increment 6). `value={null}` is
  * indeterminate: a segment slides along the track, and fades instead under reduced motion.
  */
-export function Progress({ label, showValue, className, ...props }: ProgressProps): ReactElement {
+export function Progress({
+  label,
+  showValue,
+  locale,
+  className,
+  ...props
+}: ProgressProps): ReactElement {
+  const providerLocale = useLocale();
   return (
-    <BaseProgress.Root {...props} className={cx("qx-progress", className)} data-slot="progress">
+    <BaseProgress.Root
+      {...props}
+      locale={locale ?? providerLocale}
+      className={cx("qx-progress", className)}
+      data-slot="progress"
+    >
       {(label != null || showValue) && (
         <div className="qx-progress-header" data-slot="progress-header">
           {label != null && (
@@ -55,12 +68,15 @@ export function Meter({
   label,
   showValue,
   tone = "brand",
+  locale,
   className,
   ...props
 }: MeterProps): ReactElement {
+  const providerLocale = useLocale();
   return (
     <BaseMeter.Root
       {...props}
+      locale={locale ?? providerLocale}
       className={cx("qx-progress", className)}
       data-slot="meter"
       data-tone={tone}

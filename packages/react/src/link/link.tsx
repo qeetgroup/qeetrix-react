@@ -1,7 +1,7 @@
 import { ArrowUpRightIcon } from "@qeetrix/icons/icons/arrow-up-right";
 import type { ComponentProps, ReactElement } from "react";
 import { cx } from "../internal/cx";
-import { messages } from "../internal/messages";
+import { messages as defaults, type QeetrixMessages } from "../internal/messages";
 import { type RenderProp, renderElement } from "../internal/render";
 import { VisuallyHidden } from "../visually-hidden/visually-hidden";
 
@@ -14,6 +14,11 @@ export interface LinkProps extends ComponentProps<"a"> {
   external?: boolean;
   /** Render a router link, e.g. `render={<RouterLink to="/x" />}`. */
   render?: RenderProp;
+  /**
+   * The screen-reader note on an external link, in place of "(opens in a new tab)". Link is
+   * server-safe, so QeetrixProvider's strings don't reach it: pass them here.
+   */
+  messages?: Partial<QeetrixMessages["link"]>;
 }
 
 /** Navigation to a page, a section, a file or a site. An action that changes data is a Button. */
@@ -22,10 +27,12 @@ export function Link({
   external,
   render,
   rel,
+  messages,
   className,
   children,
   ...props
 }: LinkProps): ReactElement {
+  const externalNote = messages?.external ?? defaults.link.external;
   return renderElement("a", render, {
     ...(external ? { target: "_blank" } : {}),
     ...props,
@@ -44,7 +51,7 @@ export function Link({
           className="qx-link-icon"
           data-slot="link-icon"
         />
-        <VisuallyHidden> {messages.link.external}</VisuallyHidden>
+        <VisuallyHidden> {externalNote}</VisuallyHidden>
       </>
     ) : (
       children
