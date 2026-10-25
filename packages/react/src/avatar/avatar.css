@@ -30,6 +30,11 @@
     font: var(--qx-typography-label-md);
   }
 }
+/* Initials are capitals: trimmed to the capitals' height (from the cap line to the baseline), the
+   centred box centres the letters themselves, not the room the font keeps for descenders. */
+.qx-avatar-fallback {
+  text-box: trim-both cap alphabetic;
+}
 .qx-avatar-image {
   inline-size: 100%;
   block-size: 100%;

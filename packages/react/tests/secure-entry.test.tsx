@@ -3,6 +3,7 @@
  * sign-in on a welcoming page (OTPInput, an urgent Alert), and a console page where a new client
  * secret is shown once (PasswordInput, CopyButton, Alerts, including AppShell's notifications).
  */
+import { ArrowRightIcon } from "@qeetrix/icons/icons/arrow-right";
 import { PlusIcon } from "@qeetrix/icons/icons/plus";
 import { describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
@@ -15,22 +16,7 @@ import {
   PageHeader,
   PasswordInput,
 } from "../src/experimental";
-import {
-  Badge,
-  Button,
-  Card,
-  Field,
-  Heading,
-  Link,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Text,
-} from "../src/index";
+import { Badge, Button, Card, Field, Heading, Link, Stack, Table, Text } from "../src/index";
 import { QeetIdFrame } from "./fixtures/qeet-id-console";
 import { expectAccessible } from "./support/axe";
 import { screenshotSchemes } from "./support/screenshots";
@@ -69,7 +55,7 @@ function TwoStep({ failed = false }: { failed?: boolean }) {
                 {/* A failed attempt clears the code. */}
                 <OTPInput key={String(failed)} size="lg" defaultValue={failed ? "" : "4817"} />
               </Field>
-              <Button type="submit" fullWidth size="lg">
+              <Button type="submit" fullWidth size="lg" icon={ArrowRightIcon}>
                 Verify
               </Button>
               <Link href="#recovery">Use a recovery code instead</Link>
@@ -119,35 +105,35 @@ function ApiKeys() {
           </Stack>
         </Alert>
         <Card>
-          <Table aria-label="API keys">
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Key ID</TableHead>
-                <TableHead>Environment</TableHead>
-                <TableHead align="end">Last used</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {KEYS.map(([name, id, env, used]) => (
-                <TableRow key={id}>
-                  <TableCell>{name}</TableCell>
-                  <TableCell>
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      <Text mono size="sm">
-                        {id}
-                      </Text>
-                      <CopyButton value={id} label={`Copy key ID ${id}`} size="sm" />
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Badge tone={env === "Production" ? "success" : "warning"}>{env}</Badge>
-                  </TableCell>
-                  <TableCell align="end">{used}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <Table
+            label="API keys"
+            rows={KEYS}
+            rowId={([, id]) => id}
+            rowLabel={([name]) => name}
+            columns={[
+              { id: "name", header: "Name", cell: ([name]) => name },
+              {
+                id: "key",
+                header: "Key ID",
+                cell: ([, id]) => (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <Text mono size="sm">
+                      {id}
+                    </Text>
+                    <CopyButton value={id} label={`Copy key ID ${id}`} size="sm" />
+                  </span>
+                ),
+              },
+              {
+                id: "environment",
+                header: "Environment",
+                cell: ([, , env]) => (
+                  <Badge tone={env === "Production" ? "success" : "warning"}>{env}</Badge>
+                ),
+              },
+              { id: "used", header: "Last used", cell: ([, , , used]) => used, align: "end" },
+            ]}
+          />
         </Card>
       </PageContent>
     </QeetIdFrame>

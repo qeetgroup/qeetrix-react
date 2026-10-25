@@ -26,6 +26,17 @@
     white-space: nowrap;
   }
 }
+/* The label with its ⓘ: the button keeps a 24px target but takes no more height than the label's
+   line, so a field with help lines up with its neighbours. */
+.qx-field-label-row {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  font: var(--qx-typography-label-sm);
+}
+.qx-field-help {
+  margin-block: calc((1lh - var(--qx-size-control-sm)) / 2);
+}
 .qx-field-optional {
   font-weight: var(--qx-typography-body-sm-font-weight);
   color: var(--qx-color-text-subtlest);

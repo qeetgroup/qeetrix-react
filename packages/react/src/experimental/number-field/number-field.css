@@ -1,0 +1,118 @@
+/* NumberField (07-components.md): the Input box (filled, bottom line, 4px top corners,
+   `size.control.lg`, spanning its container) with the value in tabular figures, units as affixes,
+   and the − and + steppers at the end, square buttons like the Combobox's, behind a hairline. */
+.qx-number-field {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  inline-size: 100%;
+  min-inline-size: 0;
+  block-size: var(--qx-size-control-lg);
+  padding-inline: var(--qx-space-inset-md) var(--qx-space-gap-xs);
+  border-start-start-radius: var(--qx-radius-control);
+  border-start-end-radius: var(--qx-radius-control);
+  background: var(--qx-color-bg-neutral-subtle);
+  box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-strong);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  cursor: text;
+  transition-property: background-color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &:hover {
+    background: var(--qx-color-bg-neutral-subtle-hover);
+  }
+  &[data-invalid] {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-danger);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+    box-shadow: none;
+  }
+  &:focus-within {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+    box-shadow: none;
+    background: var(--qx-color-bg-neutral-subtle);
+  }
+  &[data-readonly] {
+    background: transparent;
+    box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-subtle);
+  }
+  &[data-disabled] {
+    background: var(--qx-color-bg-disabled);
+    box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-disabled);
+    color: var(--qx-color-text-disabled);
+    cursor: not-allowed;
+  }
+  &:not(:has(.qx-number-field-steppers)) {
+    padding-inline-end: var(--qx-space-inset-md);
+  }
+}
+.qx-number-field-input {
+  flex: 1;
+  min-inline-size: 0;
+  block-size: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  cursor: inherit;
+  &::placeholder {
+    color: var(--qx-color-text-subtlest);
+    opacity: 1;
+  }
+}
+.qx-number-field-adornment {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  color: var(--qx-color-text-subtle);
+}
+.qx-number-field-steppers {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+  padding-inline-start: var(--qx-space-gap-xs);
+  border-inline-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+}
+.qx-number-field-step {
+  display: grid;
+  place-items: center;
+  inline-size: var(--qx-size-control-sm);
+  block-size: var(--qx-size-control-sm);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--qx-radius-control);
+  background: transparent;
+  color: var(--qx-color-icon-default);
+  cursor: pointer;
+  &:hover:not([data-disabled]) {
+    background: var(--qx-color-overlay-hover);
+  }
+  &:active:not([data-disabled]) {
+    background: var(--qx-color-overlay-pressed);
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+  &[data-disabled] {
+    color: var(--qx-color-icon-disabled);
+    cursor: not-allowed;
+  }
+}
+
+@media (forced-colors: active) {
+  .qx-number-field {
+    border: var(--qx-border-width-default) solid ButtonText;
+  }
+  .qx-number-field-steppers {
+    border-inline-start-color: ButtonText;
+  }
+}

@@ -1,0 +1,139 @@
+/* FileUpload (07-components.md): a dashed drop zone over a hidden real file input, the whole zone
+   the click target, its focus ring the input's; Ember while a file is dragged over it. Below, one
+   row per file, the density's row height: an icon, the name over its size (or the reason it can't
+   be used), its status (progress, a tick, or Not uploaded) and a remove button. */
+.qx-file-upload {
+  display: grid;
+  gap: var(--qx-space-gap-sm);
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+.qx-file-upload-zone {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--qx-space-gap-xs);
+  padding-block: var(--qx-space-inset-xl);
+  padding-inline: var(--qx-space-inset-md);
+  border: var(--qx-border-width-default) dashed var(--qx-color-border-strong);
+  border-radius: var(--qx-radius-control);
+  background: var(--qx-color-bg-neutral-subtle);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  text-align: center;
+  cursor: pointer;
+  transition-property: background-color, border-color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &:hover {
+    background: var(--qx-color-bg-neutral-subtle-hover);
+  }
+  &[data-dragging] {
+    border-color: var(--qx-color-border-brand);
+    background: var(--qx-color-bg-selected);
+  }
+  &:has(.qx-file-upload-input:focus-visible) {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-width);
+  }
+  &:has(.qx-file-upload-input[data-invalid]) {
+    border-color: var(--qx-color-border-danger);
+  }
+  &:has(.qx-file-upload-input:disabled) {
+    border-color: var(--qx-color-border-disabled);
+    background: var(--qx-color-bg-disabled);
+    color: var(--qx-color-text-disabled);
+    cursor: not-allowed;
+  }
+}
+/* The real input, out of sight but in the Tab order: the zone shows its focus. */
+.qx-file-upload-input {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.qx-file-upload-icon {
+  color: var(--qx-color-icon-subtle);
+  [data-dragging] > & {
+    color: var(--qx-color-icon-brand);
+  }
+}
+.qx-file-upload-browse {
+  color: var(--qx-color-text-link);
+  text-decoration-line: underline;
+  text-underline-offset: 0.2em;
+  [data-disabled] & {
+    color: inherit;
+  }
+}
+.qx-file-upload-hint {
+  font: var(--qx-typography-body-sm);
+  color: var(--qx-color-text-subtle);
+}
+
+.qx-file-upload-list {
+  margin: 0;
+  padding: 0;
+  border: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  border-radius: var(--qx-radius-control);
+  list-style: none;
+}
+.qx-file-upload-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  min-block-size: var(--qx-size-row);
+  padding-block: var(--qx-space-gap-xs);
+  padding-inline: var(--qx-space-inset-sm) var(--qx-space-gap-xs);
+  & + & {
+    border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  }
+}
+.qx-file-upload-file-icon {
+  color: var(--qx-color-icon-subtle);
+}
+.qx-file-upload-file {
+  display: grid;
+  min-inline-size: 0;
+}
+.qx-file-upload-name {
+  overflow: hidden;
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-label-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.qx-file-upload-meta {
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+}
+.qx-file-upload-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  white-space: nowrap;
+  [data-status="done"] > & {
+    color: var(--qx-color-text-success);
+  }
+  [data-status="error"] > & {
+    color: var(--qx-color-text-danger);
+  }
+}
+.qx-file-upload-progress {
+  inline-size: 7.5rem;
+}
+
+@media (forced-colors: active) {
+  .qx-file-upload-zone[data-dragging] {
+    border-color: Highlight;
+  }
+}

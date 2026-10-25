@@ -1,0 +1,122 @@
+/* TreeView (07-components.md): rows the density's row height, indented 20px a level with a 1px
+   guide down each level; a chevron that turns as its node opens (mirrored right-to-left), an
+   optional checkbox face, icon, label and a meta at the end. The selected row takes the selected
+   tint and the Ember bar; the focused row the focus ring. */
+.qx-tree,
+.qx-tree-group {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.qx-tree {
+  /* The row's start padding before any indent; a Card widens it to its own padding. */
+  --qx-tree-inset: var(--qx-space-gap-sm);
+  --qx-tree-end: var(--qx-space-inset-sm);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+}
+.qx-tree-item {
+  outline: 0;
+}
+.qx-tree-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  min-block-size: var(--qx-size-row);
+  padding-inline: calc(var(--qx-tree-inset) + var(--qx-tree-level) * 20px) var(--qx-tree-end);
+  cursor: pointer;
+  user-select: none;
+  &:hover {
+    background: var(--qx-color-bg-neutral-subtle);
+  }
+  &[data-selected] {
+    background: var(--qx-color-bg-selected);
+    font-weight: var(--qx-typography-title-sm-font-weight);
+    &::before {
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      inline-size: var(--qx-border-width-strong);
+      background: var(--qx-color-border-brand);
+    }
+  }
+  .qx-tree-item:focus-visible > & {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+}
+.qx-tree-guide {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(var(--qx-tree-inset) + var(--qx-tree-guide) * 20px + 9.5px);
+  inline-size: var(--qx-border-width-default);
+  background: var(--qx-color-border-subtle);
+}
+.qx-tree-toggle {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: 20px;
+  block-size: 20px;
+  color: var(--qx-color-icon-subtle);
+  & > svg {
+    transition-property: rotate;
+    transition-duration: var(--qx-motion-duration-fast);
+    transition-timing-function: var(--qx-motion-easing-standard);
+  }
+  &[data-open] > svg {
+    rotate: 90deg;
+  }
+  [dir="rtl"] &:not([data-open]) > svg {
+    scale: -1 1;
+  }
+}
+.qx-tree-check {
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: 16px;
+  block-size: 16px;
+  margin-inline-end: var(--qx-space-gap-xs);
+  border: var(--qx-border-width-default) solid var(--qx-color-border-strong);
+  border-radius: var(--qx-radius-sm);
+  background: var(--qx-color-bg-input);
+  &:is([data-checked], [data-mixed]) {
+    border-color: var(--qx-color-bg-brand-bold);
+    background: var(--qx-color-bg-brand-bold);
+    color: var(--qx-color-text-on-brand);
+  }
+}
+.qx-tree-icon {
+  flex: none;
+  color: var(--qx-color-icon-subtle);
+}
+.qx-tree-label {
+  flex: 1;
+  min-inline-size: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.qx-tree-meta {
+  flex: none;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (forced-colors: active) {
+  .qx-tree-row[data-selected] {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+  .qx-tree-check:is([data-checked], [data-mixed]) {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+}

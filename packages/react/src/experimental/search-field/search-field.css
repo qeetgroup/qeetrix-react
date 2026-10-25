@@ -1,0 +1,10 @@
+/* SearchField (07-components.md): the Input box with the search icon at its start and, while
+   there's text, the Clear button at its end. The browser's own clear mark is hidden: ours is the
+   one that's named and keyboard-reachable. */
+.qx-search-field {
+  padding-inline-end: var(--qx-space-gap-xs);
+}
+.qx-search-field .qx-input-control::-webkit-search-cancel-button,
+.qx-search-field .qx-input-control::-webkit-search-decoration {
+  appearance: none;
+}

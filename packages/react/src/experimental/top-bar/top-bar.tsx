@@ -191,7 +191,7 @@ export function TopBarSwitcher({
     >
       {mark != null && (
         <span className="qx-top-bar-mark" aria-hidden>
-          {mark}
+          <span className="qx-top-bar-mark-content">{mark}</span>
         </span>
       )}
       {status && <span className="qx-top-bar-status" data-status={status} aria-hidden />}
