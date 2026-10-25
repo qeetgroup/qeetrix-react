@@ -39,6 +39,14 @@
       "types": "./dist/accordion/index.d.ts",
       "default": "./dist/accordion/index.js"
     },
+    "./avatar": {
+      "types": "./dist/avatar/index.d.ts",
+      "default": "./dist/avatar/index.js"
+    },
+    "./badge": {
+      "types": "./dist/badge/index.d.ts",
+      "default": "./dist/badge/index.js"
+    },
     "./box": {
       "types": "./dist/box/index.d.ts",
       "default": "./dist/box/index.js"
@@ -46,6 +54,10 @@
     "./button": {
       "types": "./dist/button/index.d.ts",
       "default": "./dist/button/index.js"
+    },
+    "./card": {
+      "types": "./dist/card/index.d.ts",
+      "default": "./dist/card/index.js"
     },
     "./checkbox": {
       "types": "./dist/checkbox/index.d.ts",
@@ -95,6 +107,10 @@
       "types": "./dist/popover/index.d.ts",
       "default": "./dist/popover/index.js"
     },
+    "./progress": {
+      "types": "./dist/progress/index.d.ts",
+      "default": "./dist/progress/index.js"
+    },
     "./radio": {
       "types": "./dist/radio/index.d.ts",
       "default": "./dist/radio/index.js"
@@ -110,6 +126,10 @@
     "./separator": {
       "types": "./dist/separator/index.d.ts",
       "default": "./dist/separator/index.js"
+    },
+    "./skeleton": {
+      "types": "./dist/skeleton/index.d.ts",
+      "default": "./dist/skeleton/index.js"
     },
     "./skip-link": {
       "types": "./dist/skip-link/index.d.ts",
@@ -130,6 +150,10 @@
     "./switch": {
       "types": "./dist/switch/index.d.ts",
       "default": "./dist/switch/index.js"
+    },
+    "./table": {
+      "types": "./dist/table/index.d.ts",
+      "default": "./dist/table/index.js"
     },
     "./tabs": {
       "types": "./dist/tabs/index.d.ts",

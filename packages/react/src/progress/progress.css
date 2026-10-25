@@ -1,0 +1,78 @@
+/* Progress and Meter (06-component-specs.md, increment 6): Slider's header, a 4px track and an
+   Ember indicator; Meter can take a status tone. */
+.qx-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qx-space-gap-xs);
+  min-inline-size: 0;
+}
+.qx-progress-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--qx-space-gap-md);
+}
+.qx-progress-label {
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtle);
+}
+.qx-progress-value {
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variant-numeric: tabular-nums;
+  color: var(--qx-color-text-default);
+}
+.qx-progress-track {
+  position: relative;
+  block-size: 4px;
+  overflow: hidden;
+  background: var(--qx-color-border-default);
+}
+.qx-progress-indicator {
+  block-size: 100%;
+  background: var(--qx-color-bg-brand-bold);
+  transition-property: inline-size;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  [data-tone="success"] & {
+    background: var(--qx-color-bg-success-bold);
+  }
+  [data-tone="warning"] & {
+    background: var(--qx-color-bg-warning-bold);
+  }
+  [data-tone="danger"] & {
+    background: var(--qx-color-bg-danger-bold);
+  }
+  &[data-indeterminate] {
+    inline-size: 30%;
+    animation-name: qx-progress-slide;
+    animation-duration: calc(4 * var(--qx-motion-duration-slower));
+    animation-timing-function: var(--qx-motion-easing-standard);
+    animation-iteration-count: infinite;
+  }
+}
+
+@keyframes qx-progress-slide {
+  from {
+    translate: -100% 0;
+  }
+  to {
+    translate: 334% 0;
+  }
+}
+
+/* Under reduced motion the tokens set every duration to 0, which would hide the wait. The segment
+   spans the track and fades instead; the fade's duration is deliberately not a token. */
+@media (prefers-reduced-motion: reduce) {
+  .qx-progress-indicator[data-indeterminate] {
+    inline-size: 100%;
+    animation: qx-progress-fade 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes qx-progress-fade {
+  50% {
+    opacity: 0.35;
+  }
+}

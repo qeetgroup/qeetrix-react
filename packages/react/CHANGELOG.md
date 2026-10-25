@@ -2,8 +2,8 @@
 
 ## 0.0.2
 
-The foundation primitives (increment 1), the actions (increment 2), the form controls (increment 3),
-the overlays (increment 4), and selection and disclosure (increment 5).
+Every primitive, in six increments: the foundation, actions, form controls, overlays, selection and
+disclosure, and display and status.
 
 ### Foundation
 
@@ -138,6 +138,28 @@ content part that assembles the portal, positioner and popup.
 - **`ScrollArea`:** 8px scrollbars that show on hover, while scrolling and on keyboard focus. The
   region takes focus when it overflows.
 
+### Display and status
+
+- **`Card`:**
+  - a raised surface with a 1px line, 4px corners and no shadow;
+  - a ruled header with `title`, the required heading `level`, `description` and `actions`, and an
+    optional ruled `footer`;
+  - a titled card is a section labelled by its title, and a table in the body runs edge to edge.
+  - Server-safe.
+- **`Table`, `TableCaption`, `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`:**
+  - a neutral header band and row heights from the density;
+  - `numeric` cells use tabular figures, end-aligned;
+  - `selected` rows keep their Ember tint under the pointer.
+  - Server-safe.
+- **`Badge`:** pills in six tones with an optional sharp icon. The `brand` fill is
+  `bg.brand.subtle`, so its text meets AA. Server-safe.
+- **`Avatar`:** a circle with the photo, or initials while it loads or when it fails. The initials
+  use whole graphemes, so Indic names stay intact. It can be `decorative`.
+- **`Progress` and `Meter`:** Slider's header, a 4px track and an Ember indicator (Meter takes a
+  status tone). Indeterminate progress slides, and fades under reduced motion.
+- **`Skeleton`:** `text`, `block` or `circle`. It pulses, holds still under reduced motion, and is
+  always hidden from assistive technology. Server-safe.
+
 ### Platform
 
 - Each family's stylesheet (`css/<family>.css`) now imports the base layer and the stylesheets of
@@ -146,6 +168,10 @@ content part that assembles the portal, positioner and popup.
   The accessibility check also waits, since contrast measured mid-fade isn't real. It skips Base
   UI's aria-hidden focus guards, which hand focus on the moment it lands.
 - A type-only import between families no longer pulls in the other family's stylesheet.
+- Screenshots freeze endless animations (spinner, skeleton, indeterminate progress), so they match
+  every run.
+- The nightly Firefox and WebKit run tests without V8 coverage, which works only in Chromium.
+  Every browser test passes in all three engines.
 
 ## 0.0.1
 

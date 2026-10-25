@@ -1,0 +1,29 @@
+/* Skeleton (06-component-specs.md, increment 6): a neutral shape that pulses. Under reduced motion
+   the tokens set the duration to 0 and it holds still. */
+.qx-skeleton {
+  display: block;
+  inline-size: 100%;
+  block-size: 1lh;
+  border-radius: var(--qx-radius-sm);
+  background: var(--qx-color-bg-neutral-subtle-pressed);
+  animation-name: qx-skeleton-pulse;
+  animation-duration: calc(4 * var(--qx-motion-duration-slower));
+  animation-timing-function: var(--qx-motion-easing-standard);
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  &[data-variant="block"] {
+    block-size: 64px;
+    border-radius: var(--qx-radius-surface);
+  }
+  &[data-variant="circle"] {
+    inline-size: 32px;
+    block-size: 32px;
+    border-radius: var(--qx-radius-full);
+  }
+}
+
+@keyframes qx-skeleton-pulse {
+  to {
+    opacity: 0.45;
+  }
+}

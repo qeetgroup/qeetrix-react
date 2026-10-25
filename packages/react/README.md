@@ -3,8 +3,9 @@
 The React components of **Qeetrix**, the Qeet Group design system: accessible, token-driven
 primitives built on [Base UI](https://base-ui.com), styled by the Qeetrix design language.
 
-> **Status: 0.0.x, increments 1–5.** The foundation, action, form-control, overlay, and selection and
-> disclosure primitives are here. Display primitives follow in the next increment.
+> **Status: 0.0.x.** Every primitive is here: foundation, actions, form controls, overlays, selection
+> and disclosure, and display and status. Components and patterns follow as Qeet products ask for
+> them.
 
 ## Install
 
@@ -56,8 +57,9 @@ export function Invoices() {
 }
 ```
 
-- **Server-safe:** layout, type, `Link` and `Spinner` render in React Server Components. Everything
-  built on Base UI is a client component; its `"use client"` directive ships in the build.
+- **Server-safe:** layout, type, `Link`, `Spinner`, `Card`, `Table`, `Badge` and `Skeleton` render in
+  React Server Components. Everything built on Base UI is a client component; its `"use client"`
+  directive ships in the build.
 - **`render` prop:** renders a different element with the same props, e.g. `render={<section />}`.
 - **Per-component entry points:** `@qeetrix/react/stack`, plus its own stylesheet at
   `@qeetrix/react/css/stack.css` if you'd rather not load the full one. A family's stylesheet brings
@@ -97,6 +99,12 @@ export function Invoices() {
 | `Slider` | A number or a range on a scale, with a formatted value |
 | `Accordion`, `Collapsible` | Ruled sections, or one section, that show and hide |
 | `ScrollArea` | A scrolling region with Qeetrix scrollbars |
+| `Card` | A raised, ruled surface with a title, actions and footer; a table inside runs edge to edge |
+| `Table` | Semantic table parts with the header band, density row heights and selected rows |
+| `Badge` | A static status pill in six tones |
+| `Avatar` | A person's photo, or their initials |
+| `Progress`, `Meter` | A task advancing, or a measurement within a range |
+| `Skeleton` | A placeholder shaped like the content that's loading |
 
 **Layout:** `className` is for placement only (margin, width, grid placement). Visual changes go
 through props, so every Qeet product looks the same. On a form control, `className` and `style` place

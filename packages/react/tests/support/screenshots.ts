@@ -23,9 +23,12 @@ async function capture(name: string, densities: readonly string[], target: Targe
       await argosScreenshot(
         densities.length > 1 ? `${name} · ${scheme} · ${density}` : `${name} · ${scheme}`,
         // A stage shows loading states on purpose, so aria-busy never clears: don't wait for it.
+        // Endless animations (spinner, skeleton, indeterminate progress) stop at their first frame,
+        // so each screenshot is the same every run.
         {
           ...(target === null ? {} : { element: target }),
           stabilize: { waitForAriaBusy: false },
+          argosCSS: "*, *::before, *::after { animation: none !important; }",
         },
       );
     }

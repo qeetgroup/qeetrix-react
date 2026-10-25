@@ -5,6 +5,7 @@
 ```ts
 
 import { Accordion as Accordion_2 } from '@base-ui/react/accordion';
+import { Avatar as Avatar_2 } from '@base-ui/react/avatar';
 import { Button as Button_2 } from '@base-ui/react/button';
 import { Checkbox as Checkbox_2 } from '@base-ui/react/checkbox';
 import { CheckboxGroup as CheckboxGroup_2 } from '@base-ui/react/checkbox-group';
@@ -19,7 +20,9 @@ import { Fieldset as Fieldset_2 } from '@base-ui/react/fieldset';
 import { IconProps } from '@qeetrix/icons';
 import { Input as Input_2 } from '@base-ui/react/input';
 import { Menu as Menu_2 } from '@base-ui/react/menu';
+import { Meter as Meter_2 } from '@base-ui/react/meter';
 import { Popover as Popover_2 } from '@base-ui/react/popover';
+import { Progress as Progress_2 } from '@base-ui/react/progress';
 import { Radio as Radio_2 } from '@base-ui/react/radio';
 import { RadioGroup as RadioGroup_2 } from '@base-ui/react/radio-group';
 import { ReactElement } from 'react';
@@ -57,6 +60,36 @@ export interface AccordionProps<Value = string> extends Omit<Accordion_2.Root.Pr
     // (undocumented)
     style?: CSSProperties;
 }
+
+// @public
+export function Avatar(input: AvatarProps): ReactElement;
+
+// @public (undocumented)
+export interface AvatarProps extends Omit<Avatar_2.Root.Props, "className" | "style" | "children"> {
+    // (undocumented)
+    className?: string;
+    decorative?: boolean;
+    name: string;
+    size?: AvatarSize;
+    src?: string;
+    // (undocumented)
+    style?: CSSProperties;
+}
+
+// @public (undocumented)
+export type AvatarSize = "sm" | "md" | "lg" | "xl";
+
+// @public
+export function Badge(input: BadgeProps): ReactElement;
+
+// @public (undocumented)
+export interface BadgeProps extends ComponentProps<"span"> {
+    icon?: QeetrixIcon;
+    tone?: BadgeTone;
+}
+
+// @public (undocumented)
+export type BadgeTone = "neutral" | "brand" | "info" | "success" | "warning" | "danger";
 
 // @public
 export function Box(input: BoxProps): ReactElement;
@@ -98,6 +131,15 @@ export type ButtonTone = "brand" | "danger";
 
 // @public (undocumented)
 export type ButtonVariant = "solid" | "soft" | "ghost";
+
+// @public
+export function Card(input: CardProps): ReactElement;
+
+// Warning: (ae-forgotten-export) The symbol "CardOwnProps" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "CardTitle" needs to be exported by the entry point index.d.ts
+//
+// @public
+export type CardProps = CardOwnProps & CardTitle;
 
 // @public
 export function Checkbox(input: CheckboxProps): ReactElement;
@@ -512,6 +554,19 @@ export function MenuTrigger(props: MenuTriggerProps): ReactElement;
 export type MenuTriggerProps = Menu_2.Trigger.Props;
 
 // @public
+export function Meter(input: MeterProps): ReactElement;
+
+// Warning: (ae-forgotten-export) The symbol "BarLook" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export interface MeterProps extends Omit<Meter_2.Root.Props, "className" | "style" | "children">, BarLook {
+    tone?: MeterTone;
+}
+
+// @public (undocumented)
+export type MeterTone = "brand" | "success" | "warning" | "danger";
+
+// @public
 export function Popover(props: PopoverProps): ReactElement;
 
 // @public
@@ -545,6 +600,12 @@ export function PopoverTrigger(props: PopoverTriggerProps): ReactElement;
 
 // @public (undocumented)
 export type PopoverTriggerProps = Popover_2.Trigger.Props;
+
+// @public
+export function Progress(input: ProgressProps): ReactElement;
+
+// @public (undocumented)
+export interface ProgressProps extends Omit<Progress_2.Root.Props, "className" | "style" | "children">, BarLook {}
 
 // @public
 export type QeetrixIcon = ComponentType<IconProps<"outline">>;
@@ -643,6 +704,17 @@ export interface SeparatorProps extends ComponentProps<"div"> {
 export type SeparatorTone = "subtle" | "default" | "strong";
 
 // @public
+export function Skeleton(input: SkeletonProps): ReactElement;
+
+// @public (undocumented)
+export interface SkeletonProps extends ComponentProps<"span"> {
+    variant?: SkeletonVariant;
+}
+
+// @public (undocumented)
+export type SkeletonVariant = "text" | "block" | "circle";
+
+// @public
 export function SkipLink(input: SkipLinkProps): ReactElement;
 
 // @public (undocumented)
@@ -707,6 +779,55 @@ export type SwitchProps = SwitchOwnProps & ChoiceLabelProps;
 
 // @public
 export function Tab(input: TabProps): ReactElement;
+
+// @public
+export function Table(input: TableProps): ReactElement;
+
+// @public (undocumented)
+export type TableAlign = "start" | "center" | "end";
+
+// @public
+export function TableBody(input: TableBodyProps): ReactElement;
+
+// @public (undocumented)
+export interface TableBodyProps extends ComponentProps<"tbody"> {}
+
+// @public
+export function TableCaption(input: TableCaptionProps): ReactElement;
+
+// @public (undocumented)
+export interface TableCaptionProps extends ComponentProps<"caption"> {}
+
+// @public
+export function TableCell(input: TableCellProps): ReactElement;
+
+// Warning: (ae-forgotten-export) The symbol "CellLook" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export interface TableCellProps extends Omit<ComponentProps<"td">, "align">, CellLook {}
+
+// @public
+export function TableHead(input: TableHeadProps): ReactElement;
+
+// @public
+export function TableHeader(input: TableHeaderProps): ReactElement;
+
+// @public (undocumented)
+export interface TableHeaderProps extends ComponentProps<"thead"> {}
+
+// @public (undocumented)
+export interface TableHeadProps extends Omit<ComponentProps<"th">, "align">, CellLook {}
+
+// @public (undocumented)
+export interface TableProps extends ComponentProps<"table"> {}
+
+// @public
+export function TableRow(input: TableRowProps): ReactElement;
+
+// @public (undocumented)
+export interface TableRowProps extends ComponentProps<"tr"> {
+    selected?: boolean;
+}
 
 // @public (undocumented)
 export interface TabProps extends Omit<Tabs_2.Tab.Props, "className" | "style" | "children"> {
