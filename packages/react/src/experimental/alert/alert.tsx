@@ -15,14 +15,25 @@ import { VisuallyHidden } from "../../visually-hidden/visually-hidden";
 
 export type AlertTone = "info" | "success" | "warning" | "danger";
 
+/** `default` sits in the page; `banner` spans it, under the top bar, in AppShell's `banners`. */
+export type AlertVariant = "default" | "banner";
+
 export interface AlertProps extends Omit<ComponentProps<"div">, "title"> {
   /** Default `info`. The icon and a hidden word ("Warning:") carry it, never colour alone. */
   tone?: AlertTone;
+  /**
+   * Default `default`: in the page, with the status edge, the text over its actions. `banner`: a
+   * notice about the whole app (maintenance, a trial ending, viewing as someone else), one line
+   * across the page, its actions at the end.
+   */
+  variant?: AlertVariant;
+  /** In place of the tone's icon, from `@qeetrix/icons`: an eye for "viewing as". */
+  icon?: QeetrixIcon;
   /** What happened, in a few words: "Directory sync failed". */
   title: ReactNode;
   /** One or two sentences: why, and what to do. */
   children?: ReactNode;
-  /** Buttons or links under the text: one primary at most. */
+  /** Buttons or links under the text (a banner's at its end): one primary at most. */
   actions?: ReactNode;
   /** Adds a Dismiss button. The product decides whether the alert comes back. */
   onDismiss?: () => void;
@@ -46,10 +57,13 @@ const ICONS: Record<AlertTone, QeetrixIcon> = {
 /**
  * A message in the page (07-components.md, C2): above a form, inside a card, or across the top of
  * a console page in AppShell's `notifications`. A tinted surface with the 3px status edge on its
- * start side. It never takes focus and never disappears by itself.
+ * start side. It never takes focus and never disappears by itself. As a `banner` it's a page
+ * banner: the tint edge to edge with a rule in the tone under it, on the page's gutter.
  */
 export function Alert({
   tone = "info",
+  variant = "default",
+  icon,
   title,
   children,
   actions,
@@ -60,7 +74,7 @@ export function Alert({
   ...props
 }: AlertProps): ReactElement {
   const strings = useMessages("alert", messages);
-  const Icon = ICONS[tone];
+  const Icon = icon ?? ICONS[tone];
   return (
     <div
       {...props}
@@ -68,18 +82,21 @@ export function Alert({
       className={cx("qx-alert", className)}
       data-slot="alert"
       data-tone={tone}
+      data-variant={variant}
     >
       <Icon shape="sharp" size={16} aria-hidden className="qx-alert-icon" />
       <div className="qx-alert-body">
-        <div className="qx-alert-title" data-slot="alert-title">
-          <VisuallyHidden>{`${strings[tone]}: `}</VisuallyHidden>
-          {title}
+        <div className="qx-alert-text">
+          <div className="qx-alert-title" data-slot="alert-title">
+            <VisuallyHidden>{`${strings[tone]}: `}</VisuallyHidden>
+            {title}
+          </div>{" "}
+          {children != null && (
+            <div className="qx-alert-description" data-slot="alert-description">
+              {children}
+            </div>
+          )}
         </div>
-        {children != null && (
-          <div className="qx-alert-description" data-slot="alert-description">
-            {children}
-          </div>
-        )}
         {actions != null && (
           <div className="qx-alert-actions" data-slot="alert-actions">
             {actions}

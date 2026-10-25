@@ -1,0 +1,14 @@
+/* QRCode (07-components.md): dark modules on white in every colour scheme, so every camera reads
+   it. The element takes the light scheme for itself, so the tokens below resolve to the light
+   surface and the light scheme's text colour, and opts out of forced colours. A hairline tile edge
+   on the light surface; the quiet zone is inside it. */
+.qx-qr-code {
+  display: block;
+  flex: none;
+  color-scheme: light;
+  border-radius: var(--qx-radius-control);
+  background: var(--qx-color-surface-default);
+  box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-subtle);
+  fill: var(--qx-color-text-default);
+  forced-color-adjust: none;
+}

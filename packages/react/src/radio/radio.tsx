@@ -8,14 +8,18 @@ import {
   type ChoiceLabelProps,
   type ChoiceOrientation,
   ChoiceRow,
+  type ChoiceVariant,
 } from "../field/choice";
 import type { FieldMessageProps } from "../field/field";
+import type { QeetrixIcon } from "../internal/control";
 import { cx } from "../internal/cx";
 
 interface RadioOwnProps<Value>
   extends Omit<BaseRadio.Root.Props<Value>, "className" | "style" | "children"> {
   /** A line under the label. */
   description?: ReactNode;
+  /** An icon before the label; on a tile, in a box at its start. */
+  icon?: QeetrixIcon;
   /** Placement of the row (or of the control alone, with no label) only. */
   className?: string;
   style?: CSSProperties;
@@ -28,6 +32,7 @@ export type RadioProps<Value = string> = RadioOwnProps<Value> & ChoiceLabelProps
 export function Radio<Value = string>({
   label,
   description,
+  icon,
   className,
   style,
   ...props
@@ -38,6 +43,7 @@ export function Radio<Value = string>({
       label={label}
       description={description}
       disabled={props.disabled}
+      icon={icon}
       className={className}
       style={style}
     >
@@ -58,6 +64,10 @@ export interface RadioGroupProps<Value = string>
   label: ReactNode;
   /** `vertical` (default) or `horizontal` for short options. */
   orientation?: ChoiceOrientation;
+  /** `default` rows, or `tile`s: boxes with an icon, a title and a line, the whole tile clickable. */
+  variant?: ChoiceVariant;
+  /** For tiles: the most columns, fewer where there isn't room. Default 1. */
+  columns?: 1 | 2 | 3 | 4;
   /** Placement only (margin, width, grid placement). */
   className?: string;
   style?: CSSProperties;
@@ -74,6 +84,8 @@ export function RadioGroup<Value = string>({
   name,
   disabled,
   orientation = "vertical",
+  variant = "default",
+  columns = 1,
   className,
   style,
   children,
@@ -88,6 +100,8 @@ export function RadioGroup<Value = string>({
       name={name}
       disabled={disabled}
       orientation={orientation}
+      variant={variant}
+      columns={columns}
       className={className}
       style={style}
       group={<BaseRadioGroup<Value> {...props} disabled={disabled} />}

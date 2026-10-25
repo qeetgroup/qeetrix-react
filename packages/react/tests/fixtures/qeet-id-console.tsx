@@ -240,6 +240,7 @@ export interface FrameProps {
   /** The sidebar item marked current. */
   current?: string;
   env?: Environment;
+  banners?: ReactNode;
   notifications?: ReactNode;
   collapsed?: boolean;
   drawer?: string | null;
@@ -251,6 +252,7 @@ export interface FrameProps {
 export function QeetIdFrame({
   current = "users",
   env = "production",
+  banners,
   notifications,
   collapsed = false,
   drawer = null,
@@ -263,6 +265,7 @@ export function QeetIdFrame({
       density={density}
       defaultSidebarCollapsed={collapsed}
       defaultActiveDrawer={drawer}
+      banners={banners}
       notifications={notifications}
       topBar={
         <TopBar

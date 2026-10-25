@@ -10,14 +10,18 @@ import {
   type ChoiceLabelProps,
   type ChoiceOrientation,
   ChoiceRow,
+  type ChoiceVariant,
 } from "../field/choice";
 import type { FieldMessageProps } from "../field/field";
+import type { QeetrixIcon } from "../internal/control";
 import { cx } from "../internal/cx";
 
 interface CheckboxOwnProps
   extends Omit<BaseCheckbox.Root.Props, "className" | "style" | "children"> {
   /** A line under the label. */
   description?: ReactNode;
+  /** An icon before the label; on a tile, in a box at its start. */
+  icon?: QeetrixIcon;
   /** Placement of the row (or of the control alone, with no label) only. */
   className?: string;
   style?: CSSProperties;
@@ -33,6 +37,7 @@ export type CheckboxProps = CheckboxOwnProps & ChoiceLabelProps;
 export function Checkbox({
   label,
   description,
+  icon,
   className,
   style,
   indeterminate,
@@ -45,6 +50,7 @@ export function Checkbox({
       label={label}
       description={description}
       disabled={props.disabled}
+      icon={icon}
       className={className}
       style={style}
     >
@@ -72,6 +78,10 @@ export interface CheckboxGroupProps
   name?: string;
   /** `vertical` (default) or `horizontal` for short options. */
   orientation?: ChoiceOrientation;
+  /** `default` rows, or `tile`s: boxes with an icon, a title and a line, the whole tile clickable. */
+  variant?: ChoiceVariant;
+  /** For tiles: the most columns, fewer where there isn't room. Default 1. */
+  columns?: 1 | 2 | 3 | 4;
   /** Placement only (margin, width, grid placement). */
   className?: string;
   style?: CSSProperties;
@@ -85,6 +95,8 @@ export function CheckboxGroup({
   name,
   disabled,
   orientation = "vertical",
+  variant = "default",
+  columns = 1,
   className,
   style,
   children,
@@ -99,6 +111,8 @@ export function CheckboxGroup({
       name={name}
       disabled={disabled}
       orientation={orientation}
+      variant={variant}
+      columns={columns}
       className={className}
       style={style}
       group={<BaseCheckboxGroup {...props} disabled={disabled} />}

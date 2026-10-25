@@ -150,11 +150,13 @@ export function CheckboxGroup(input: CheckboxGroupProps): ReactElement;
 // @public (undocumented)
 export interface CheckboxGroupProps extends Omit<CheckboxGroup_2.Props, "className" | "style" | "render">, FieldMessageProps {
     className?: string;
+    columns?: 1 | 2 | 3 | 4;
     label: ReactNode;
     name?: string;
     orientation?: ChoiceOrientation;
     // (undocumented)
     style?: CSSProperties;
+    variant?: ChoiceVariant;
 }
 
 // Warning: (ae-forgotten-export) The symbol "CheckboxOwnProps" needs to be exported by the entry point index.d.ts
@@ -179,6 +181,9 @@ export type ChoiceLabelProps = {
 
 // @public
 export type ChoiceOrientation = "vertical" | "horizontal";
+
+// @public
+export type ChoiceVariant = "default" | "tile";
 
 // @public
 export function Collapsible(props: CollapsibleProps): ReactElement;
@@ -670,10 +675,12 @@ export function RadioGroup<Value = string>(input: RadioGroupProps<Value>): React
 // @public (undocumented)
 export interface RadioGroupProps<Value = string> extends Omit<RadioGroup_2.Props<Value>, "className" | "style" | "render">, FieldMessageProps {
     className?: string;
+    columns?: 1 | 2 | 3 | 4;
     label: ReactNode;
     orientation?: ChoiceOrientation;
     // (undocumented)
     style?: CSSProperties;
+    variant?: ChoiceVariant;
 }
 
 // Warning: (ae-forgotten-export) The symbol "RadioOwnProps" needs to be exported by the entry point index.d.ts

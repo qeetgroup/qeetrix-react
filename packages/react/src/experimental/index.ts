@@ -5,6 +5,7 @@
  */
 export * from "./alert";
 export * from "./app-shell";
+export * from "./avatar-group";
 export * from "./avatar-item";
 export * from "./breadcrumb";
 export * from "./calendar";
@@ -24,6 +25,7 @@ export * from "./otp-input";
 export * from "./page-header";
 export * from "./pagination";
 export * from "./password-input";
+export * from "./qr-code";
 export * from "./range-calendar";
 export * from "./search-field";
 export * from "./sidebar";

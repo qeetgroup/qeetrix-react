@@ -121,3 +121,99 @@
   flex-flow: row wrap;
   column-gap: var(--qx-space-gap-lg);
 }
+
+/* An option's icon: 16px before the text in a row. */
+.qx-choice-icon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  color: var(--qx-color-icon-subtle);
+}
+
+/* Tiles: up to N columns of at least 12rem, each option a box: its icon in a 36px square at the
+   start, the title (semibold) and its line, the control at the end. The label stretches over the
+   whole tile, so a click anywhere chooses it; the description stays linked, not part of the name.
+   Chosen: the selected tint and a 2px Ember edge; focused: the focus ring round the tile. */
+.qx-choice-group[data-variant="tile"] {
+  & .qx-choice-group-options {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fill,
+        minmax(
+          max(
+            12rem,
+            calc(
+              (100% - (var(--qx-choice-columns) - 1) * var(--qx-space-gap-sm)) /
+              var(--qx-choice-columns)
+            )
+          ),
+          1fr
+        )
+      );
+    gap: var(--qx-space-gap-sm);
+  }
+  & .qx-choice {
+    position: relative;
+    padding: var(--qx-space-inset-md);
+    border-radius: var(--qx-radius-control);
+    background: var(--qx-color-surface-default);
+    box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-subtle);
+    transition-property: background-color, box-shadow;
+    transition-duration: var(--qx-motion-duration-fast);
+    transition-timing-function: var(--qx-motion-easing-standard);
+    /* Hover tints only tiles that aren't chosen: a chosen tile keeps its tint under the pointer. */
+    &:hover:not([data-disabled], :has([data-checked])) {
+      background: var(--qx-color-bg-neutral-subtle);
+    }
+    &:has([data-checked]) {
+      background: var(--qx-color-bg-selected);
+      box-shadow: inset 0 0 0 var(--qx-border-width-strong) var(--qx-color-border-brand);
+    }
+    &:has(:focus-visible) {
+      outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+      outline-offset: var(--qx-focus-ring-width);
+    }
+    &[data-disabled] {
+      background: var(--qx-color-bg-disabled);
+      box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-disabled);
+    }
+  }
+  & .qx-choice-label {
+    inline-size: 100%;
+    gap: var(--qx-space-gap-md);
+    padding-block: 0;
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+    /* Icon, then the title, then the control at the end. */
+    & > :first-child {
+      order: 3;
+    }
+  }
+  & .qx-choice-icon {
+    order: 1;
+    inline-size: 36px;
+    block-size: 36px;
+    border-radius: var(--qx-radius-control);
+    background: var(--qx-color-bg-neutral-subtle);
+  }
+  & .qx-choice:has([data-checked]) .qx-choice-icon {
+    background: var(--qx-color-surface-default);
+    color: var(--qx-color-icon-brand);
+  }
+  & .qx-choice-text {
+    flex: 1;
+    order: 2;
+    min-inline-size: 0;
+    font-weight: var(--qx-typography-title-sm-font-weight);
+  }
+  & .qx-choice-description {
+    padding-inline: 0 calc(16px + var(--qx-space-gap-md));
+  }
+  & .qx-choice:has(.qx-choice-icon) .qx-choice-description {
+    padding-inline-start: calc(36px + var(--qx-space-gap-md));
+    margin-block-start: calc(-36px + 1lh + var(--qx-space-gap-xs));
+  }
+}
