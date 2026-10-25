@@ -13,6 +13,7 @@ export * from "./form";
 export * from "./number-field";
 export * from "./otp-input";
 export * from "./page-header";
+export * from "./pagination";
 export * from "./password-input";
 export * from "./sidebar";
 export * from "./stat";

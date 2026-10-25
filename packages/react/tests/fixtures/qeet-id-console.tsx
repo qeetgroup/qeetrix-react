@@ -7,8 +7,6 @@ import { QeetLogo } from "@qeetrix/icons";
 import { ActivityIcon } from "@qeetrix/icons/icons/activity";
 import { AppWindowIcon } from "@qeetrix/icons/icons/app-window";
 import { BuildingIcon } from "@qeetrix/icons/icons/building";
-import { ChevronLeftIcon } from "@qeetrix/icons/icons/chevron-left";
-import { ChevronRightIcon } from "@qeetrix/icons/icons/chevron-right";
 import { CircleQuestionMarkIcon } from "@qeetrix/icons/icons/circle-question-mark";
 import { CodeXmlIcon } from "@qeetrix/icons/icons/code-xml";
 import { Columns3Icon } from "@qeetrix/icons/icons/columns-3";
@@ -42,6 +40,7 @@ import {
   EmptyState,
   PageContent,
   PageHeader,
+  Pagination,
   Sidebar,
   SidebarGroup,
   SidebarItem,
@@ -101,39 +100,9 @@ const USERS = [
 
 const TONE = { Active: "success", Invited: "info", Blocked: "danger" } as const;
 
-function Pagination() {
-  return (
-    <Inline gap="xs" justify="between" style={{ inlineSize: "100%" }}>
-      <Text size="sm" tone="subtle">
-        1 selected
-      </Text>
-      <Inline gap="xs">
-        <Text size="sm" tone="subtle">
-          1–12 of 1,284
-        </Text>
-        <IconButton
-          icon={ChevronLeftIcon}
-          aria-label="Previous page"
-          tone="neutral"
-          size="sm"
-          disabled
-          tooltip={false}
-        />
-        <IconButton
-          icon={ChevronRightIcon}
-          aria-label="Next page"
-          tone="neutral"
-          size="sm"
-          tooltip={false}
-        />
-      </Inline>
-    </Inline>
-  );
-}
-
 function UsersTable() {
   return (
-    <Card footer={<Pagination />}>
+    <Card footer={<Pagination offset={0} pageSize={12} total={1284} onOffsetChange={() => {}} />}>
       <Table aria-label="Users">
         <TableHeader>
           <TableRow>

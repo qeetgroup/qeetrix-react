@@ -22,6 +22,10 @@ Tier 1 of the design-system gap review (07-components.md, "Gap review"), from
   server errors, put an ErrorSummary at the top (GOV.UK's pattern): the danger Alert titled "Fix
   these to continue", each problem worded as the field's own error and linking to its control, and
   focus moves to it. `ErrorSummary` is exported on its own too. Strings in English and Hindi.
+- **`Pagination`:** pages of a list for offset/limit APIs, with or without a total (the shape ID's
+  and Notify's APIs use): the range ("1–25 of 1,284", grouped for the locale) announced politely,
+  First, Previous, Next and, with a total, Last; optional compact "Rows per page"; buttons off
+  while loading; chevrons mirrored right-to-left. The Qeet ID Users fixture uses it.
 - **Form consistency:** the test that every field shares its edges and height now includes
   Combobox and NumberField, and the form's main button carries its trailing arrow (as does the
   two-step sign-in's Verify).

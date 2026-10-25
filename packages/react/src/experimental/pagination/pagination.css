@@ -1,0 +1,39 @@
+/* Pagination (07-components.md): one row: rows per page at the start, then the range in tabular
+   figures and the step buttons at the end. It sits in a Card's footer under a table, or after a
+   list. The chevrons mirror in right-to-left layouts, where "previous" points right. */
+.qx-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--qx-space-gap-sm) var(--qx-space-gap-lg);
+  inline-size: 100%;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+}
+.qx-pagination-size {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  margin-inline-end: auto;
+  white-space: nowrap;
+}
+/* In the bar, rows per page is a compact select: as tall as the step buttons, not a full field. */
+.qx-pagination .qx-pagination-size-select {
+  inline-size: 80px;
+  block-size: var(--qx-size-control-sm);
+  padding-inline: var(--qx-space-inset-sm) var(--qx-space-gap-xs);
+  font: var(--qx-typography-body-sm);
+}
+.qx-pagination-range {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.qx-pagination-steps {
+  display: inline-flex;
+  gap: 2px;
+}
+[dir="rtl"] .qx-pagination-step .qx-button-icon {
+  scale: -1 1;
+}

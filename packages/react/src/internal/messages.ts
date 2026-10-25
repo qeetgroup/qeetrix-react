@@ -42,6 +42,16 @@ export const messages = {
   },
   otpInput: { character: "Character {index} of {length}" },
   numberField: { increment: "Increase", decrement: "Decrease", roleDescription: "Number field" },
+  pagination: {
+    label: "Pagination",
+    first: "First page",
+    previous: "Previous page",
+    next: "Next page",
+    last: "Last page",
+    range: "{start}–{end} of {total}",
+    rangeOpen: "{start}–{end}",
+    rowsPerPage: "Rows per page",
+  },
   errorSummary: { title: "Fix these to continue" },
   combobox: {
     empty: "No matches",

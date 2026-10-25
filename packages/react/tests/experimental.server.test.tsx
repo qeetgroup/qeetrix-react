@@ -19,6 +19,7 @@ import {
   Form,
   NumberField,
   OTPInput,
+  Pagination,
   PasswordInput,
   Sidebar,
   SidebarGroup,
@@ -94,6 +95,14 @@ describe("experimental components on the server", () => {
     const summary = html(<ErrorSummary items={[{ id: "email", message: "Enter a work email" }]} />);
     expect(summary).toContain('href="#email"');
     expect(summary).toContain("Fix these to continue");
+  });
+
+  it("Pagination renders its range on the server, formatted for India", () => {
+    const out = html(
+      <Pagination offset={0} pageSize={25} total={128400} onOffsetChange={() => {}} />,
+    );
+    expect(out).toContain('aria-label="Pagination"');
+    expect(out).toContain("1–25 of 1,28,400");
   });
 
   it("AppShell renders the wide layout, its landmarks and no drawer", () => {

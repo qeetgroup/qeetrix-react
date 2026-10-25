@@ -45,6 +45,16 @@ export const hi: QeetrixMessages = {
   },
   otpInput: { character: "{length} में से अक्षर {index}" },
   numberField: { increment: "बढ़ाएँ", decrement: "घटाएँ", roleDescription: "संख्या फ़ील्ड" },
+  pagination: {
+    label: "पेज नेविगेशन",
+    first: "पहला पेज",
+    previous: "पिछला पेज",
+    next: "अगला पेज",
+    last: "आख़िरी पेज",
+    range: "{total} में से {start}–{end}",
+    rangeOpen: "{start}–{end}",
+    rowsPerPage: "प्रति पेज पंक्तियाँ",
+  },
   errorSummary: { title: "जारी रखने के लिए इन्हें ठीक करें" },
   combobox: {
     empty: "कोई मिलान नहीं",
