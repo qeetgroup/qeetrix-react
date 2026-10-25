@@ -4,3 +4,4 @@ import "@qeetrix/tokens/tokens.css";
 import "../../src/styles/base.css";
 
 import.meta.glob("../../src/*/*.css", { eager: true });
+import.meta.glob("../../src/experimental/*/*.css", { eager: true });

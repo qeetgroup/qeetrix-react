@@ -11,6 +11,18 @@ export const messages = {
   overlay: { close: "Close" },
   toast: { close: "Dismiss", region: "Notifications" },
   slider: { minimum: "Minimum", maximum: "Maximum" },
+  appShell: {
+    collapse: "Collapse navigation",
+    expand: "Expand navigation",
+    open: "Open navigation",
+    navigation: "Navigation",
+  },
+  breadcrumb: { label: "Breadcrumb" },
+  dataState: {
+    errorTitle: "Couldn't load this",
+    errorDescription: "Try again, or check your connection.",
+    retry: "Try again",
+  },
 } as const;
 
 /** The complete catalogue, as a locale pack provides it. */

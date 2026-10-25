@@ -14,4 +14,16 @@ export const hi: QeetrixMessages = {
   overlay: { close: "बंद करें" },
   toast: { close: "खारिज करें", region: "सूचनाएँ" },
   slider: { minimum: "न्यूनतम", maximum: "अधिकतम" },
+  appShell: {
+    collapse: "नेविगेशन छोटा करें",
+    expand: "नेविगेशन बड़ा करें",
+    open: "नेविगेशन खोलें",
+    navigation: "नेविगेशन",
+  },
+  breadcrumb: { label: "पेज का पथ" },
+  dataState: {
+    errorTitle: "यह लोड नहीं हो सका",
+    errorDescription: "फिर से कोशिश करें, या अपना कनेक्शन जाँचें।",
+    retry: "फिर से कोशिश करें",
+  },
 };

@@ -80,6 +80,8 @@ Releases: `release.yml` re-runs the gate on `main`, then waits for an approver i
 packages/react/
   src/index.ts            the public entry; every export is API
   src/<family>/           one folder per family: <family>.tsx, <family>.css, index.ts, tests
+  src/experimental/<family>/  components and patterns in their first product (07-components.md),
+                          exported from @qeetrix/react/experimental until they're Ready
   src/styles/base.css     the qx.base layer
   scripts/build-css.mjs   compiles each <family>.css into the qx.components layer; dist/css/<family>.css
                           also @imports base.css and every family it renders, found from its imports

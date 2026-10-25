@@ -127,7 +127,7 @@ export interface ButtonProps extends ButtonBaseProps {
 }
 
 // @public (undocumented)
-export type ButtonTone = "brand" | "danger";
+export type ButtonTone = "brand" | "danger" | "neutral";
 
 // @public (undocumented)
 export type ButtonVariant = "solid" | "soft" | "ghost";
@@ -202,6 +202,16 @@ export function CollapsibleTrigger(props: CollapsibleTriggerProps): ReactElement
 
 // @public (undocumented)
 export type CollapsibleTriggerProps = Collapsible_2.Trigger.Props;
+
+// @public (undocumented)
+export type ColorScheme = "light" | "dark" | "system";
+
+// @public (undocumented)
+export interface ColorSchemeState {
+    colorScheme: ColorScheme;
+    resolvedColorScheme: ResolvedColorScheme;
+    setColorScheme: (colorScheme: ColorScheme) => void;
+}
 
 // @public
 export type ControlSize = "sm" | "md" | "lg";
@@ -641,9 +651,12 @@ export function QeetrixProvider(input: QeetrixProviderProps): ReactElement;
 export interface QeetrixProviderProps {
     // (undocumented)
     children?: ReactNode;
+    colorScheme?: ColorScheme;
+    defaultColorScheme?: ColorScheme;
     direction?: Direction;
     locale?: string;
     messages?: QeetrixMessagesInput;
+    onColorSchemeChange?: (colorScheme: ColorScheme) => void;
 }
 
 // @public
@@ -668,6 +681,9 @@ export type RadioProps<Value = string> = RadioOwnProps<Value> & ChoiceLabelProps
 
 // @public
 export type RenderProp = ReactElement<Record<string, unknown>>;
+
+// @public (undocumented)
+export type ResolvedColorScheme = "light" | "dark";
 
 // @public
 export function ScrollArea(input: ScrollAreaProps): ReactElement;
@@ -1063,6 +1079,9 @@ export interface TooltipProviderProps extends Tooltip_2.Provider.Props {}
 
 // @public
 export type Truncate = boolean | number;
+
+// @public
+export function useColorScheme(): ColorSchemeState;
 
 // @public
 export function useLocale(): string;

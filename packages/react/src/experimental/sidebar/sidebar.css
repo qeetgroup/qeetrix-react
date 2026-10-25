@@ -1,0 +1,183 @@
+/* Sidebar (07-components.md, C1; the navigation signed off in the Phase 2 prototype): items edge to
+   edge; the current page gets weight 600, a neutral tint, the 3px Ember bar on its start edge and
+   an Ember icon. Collapsed, it's a rail of 32px icon squares. */
+.qx-sidebar {
+  display: flex;
+  flex-direction: column;
+  block-size: 100%;
+  min-block-size: 0;
+  color: var(--qx-color-text-default);
+}
+/* The same height as the AppShell header, with the same rule below, so the two read as one line. */
+.qx-sidebar-header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  min-inline-size: 0;
+  block-size: calc(var(--qx-size-control-lg) + 16px);
+  padding-inline: var(--qx-space-inset-md);
+  overflow: hidden;
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.qx-sidebar-nav {
+  flex: 1;
+  min-block-size: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-block: var(--qx-space-gap-sm);
+}
+.qx-sidebar-footer {
+  flex: none;
+  padding: var(--qx-space-inset-md);
+  border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+}
+.qx-sidebar-group + .qx-sidebar-group {
+  margin-block-start: var(--qx-space-gap-sm);
+}
+.qx-sidebar-group-label {
+  padding: var(--qx-space-inset-md) var(--qx-space-inset-md) var(--qx-space-gap-xs);
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  color: var(--qx-color-text-subtlest);
+  white-space: nowrap;
+}
+.qx-sidebar-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.qx-sidebar-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  inline-size: 100%;
+  block-size: var(--qx-size-control-md);
+  padding-inline: var(--qx-space-inset-md);
+  border: 0;
+  background: transparent;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-label-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  text-align: start;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  &:hover {
+    background: var(--qx-color-bg-neutral-subtle);
+    color: var(--qx-color-text-default);
+  }
+  &[data-current] {
+    background: var(--qx-color-bg-neutral-subtle);
+    color: var(--qx-color-text-default);
+    font-weight: var(--qx-typography-title-sm-font-weight);
+    &::before {
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      inline-size: var(--qx-border-width-accent);
+      background: var(--qx-color-border-brand);
+    }
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+}
+.qx-sidebar-icon {
+  flex: none;
+  color: var(--qx-color-icon-subtle);
+  [data-current] > & {
+    color: var(--qx-color-icon-brand);
+  }
+}
+.qx-sidebar-icon-filled,
+.qx-sidebar-item[data-current]:has(> .qx-sidebar-icon-filled) > .qx-sidebar-icon-outline {
+  display: none;
+}
+.qx-sidebar-item[data-current] > .qx-sidebar-icon-filled {
+  display: block;
+}
+.qx-sidebar-label {
+  flex: 1;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.qx-sidebar-badge {
+  display: inline-flex;
+  flex: none;
+  font: var(--qx-typography-label-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--qx-color-text-subtle);
+}
+.qx-sidebar-chevron {
+  flex: none;
+  color: var(--qx-color-icon-subtle);
+  transition-property: rotate;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  [data-open] > & {
+    rotate: 180deg;
+  }
+}
+/* Nested items line up with their parent's label: padding + icon + gap. */
+.qx-sidebar-sublist .qx-sidebar-item {
+  padding-inline-start: calc(var(--qx-space-inset-md) + 16px + var(--qx-space-gap-sm));
+  font-weight: var(--qx-typography-body-md-font-weight);
+}
+.qx-sidebar-sublist .qx-sidebar-item[data-current] {
+  font-weight: var(--qx-typography-title-sm-font-weight);
+}
+
+/* The rail: icon squares centred in the 48px column; labels move to tooltips. */
+.qx-sidebar[data-rail] {
+  .qx-sidebar-header,
+  .qx-sidebar-footer {
+    padding-inline: var(--qx-space-gap-sm);
+  }
+  .qx-sidebar-group-label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .qx-sidebar-group + .qx-sidebar-group {
+    margin-block-start: var(--qx-space-gap-xs);
+    padding-block-start: var(--qx-space-gap-xs);
+    border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  }
+  .qx-sidebar-item {
+    justify-content: center;
+    inline-size: var(--qx-size-control-md);
+    margin-inline: auto;
+    padding-inline: 0;
+  }
+  .qx-sidebar-label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .qx-sidebar-badge,
+  .qx-sidebar-chevron {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .qx-sidebar-item[data-current] {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+  .qx-sidebar-item[data-current] .qx-sidebar-icon {
+    color: HighlightText;
+  }
+}

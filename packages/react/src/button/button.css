@@ -92,6 +92,21 @@
       background: var(--qx-color-bg-danger-subtle);
     }
   }
+  /* Neutral: utility actions in toolbars and headers. Icons stay neutral (§16). */
+  &[data-tone="neutral"][data-variant="ghost"] {
+    color: var(--qx-color-text-subtle);
+    &:hover:not([data-disabled]) {
+      background: var(--qx-color-bg-neutral-subtle);
+      color: var(--qx-color-text-default);
+    }
+    &:active:not([data-disabled]) {
+      background: var(--qx-color-bg-neutral-subtle-pressed);
+    }
+  }
+  &[data-tone="neutral"]:not([data-variant="ghost"]) {
+    background: var(--qx-color-bg-neutral-bold);
+    color: var(--qx-color-text-inverse);
+  }
 
   &[data-disabled]:not([data-loading]) {
     background: var(--qx-color-bg-disabled);

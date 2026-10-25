@@ -8,12 +8,16 @@ import { Spinner } from "../spinner/spinner";
 import { Tooltip } from "../tooltip/tooltip";
 
 export type ButtonVariant = "solid" | "soft" | "ghost";
-export type ButtonTone = "brand" | "danger";
+export type ButtonTone = "brand" | "danger" | "neutral";
 
 interface ButtonBaseProps extends Omit<ComponentProps<"button">, "children"> {
   /** Emphasis: `solid` (primary, Ember), `soft` (secondary, graphite), `ghost` (tertiary). */
   variant?: ButtonVariant;
-  /** `danger` for the confirming action of a destructive flow. */
+  /**
+   * `danger` for the confirming action of a destructive flow. `neutral` for ghost utility actions
+   * in toolbars and headers, whose icons stay neutral (design rules §16); a solid or soft neutral
+   * button looks like the soft one.
+   */
   tone?: ButtonTone;
   /** Height from the density tokens. Default `md`. */
   size?: ControlSize;

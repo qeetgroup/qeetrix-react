@@ -150,7 +150,15 @@ const styles = join(dist, "styles.css");
 if (existsSync(styles)) sizes.push(["dist/styles.css", gz(styles), budget.stylesheet]);
 for (const file of walk(join(dist, "css")))
   sizes.push([`dist/${relative(dist, file)}`, gz(file), budget.familyCss]);
-for (const name of families) {
+// The experimental entry holds several families; each is held to the family budget on its own.
+const budgeted = families.flatMap((name) =>
+  name === "experimental" && existsSync(join(dist, name))
+    ? readdirSync(join(dist, name), { withFileTypes: true })
+        .filter((d) => d.isDirectory())
+        .map((d) => `${name}/${d.name}`)
+    : [name],
+);
+for (const name of budgeted) {
   const dir = join(dist, name);
   const total = walk(dir)
     .filter((f) => f.endsWith(".js"))

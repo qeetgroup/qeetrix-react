@@ -1,0 +1,55 @@
+/* Breadcrumb (07-components.md, C1): subtle links, the current page in the default text colour. */
+.qx-breadcrumb {
+  min-inline-size: 0;
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+}
+.qx-breadcrumb-list {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.qx-breadcrumb-separator {
+  flex: none;
+  color: var(--qx-color-icon-subtle);
+}
+[dir="rtl"] .qx-breadcrumb-separator {
+  scale: -1 1;
+}
+.qx-breadcrumb-item {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  min-inline-size: 0;
+  &:first-child > .qx-breadcrumb-separator {
+    display: none;
+  }
+}
+.qx-breadcrumb-link,
+.qx-breadcrumb-current {
+  max-inline-size: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qx-breadcrumb-link {
+  color: var(--qx-color-text-subtle);
+  text-decoration: none;
+  &:hover {
+    color: var(--qx-color-text-default);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
+  }
+}
+.qx-breadcrumb-current {
+  color: var(--qx-color-text-default);
+  font-weight: var(--qx-typography-label-md-font-weight);
+}

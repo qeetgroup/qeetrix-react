@@ -159,6 +159,31 @@ formatRelativeTime(updatedAt, "en-IN", now); // "2 minutes ago"
 Every primitive also works in Windows High Contrast (forced colours) and under reduced motion. Tests
 emulate both.
 
+## Experimental: the console frame
+
+Components and patterns in their first product ship from `@qeetrix/react/experimental`. They may
+change in a patch release until they're Ready.
+
+```tsx
+import { AppShell, Breadcrumb, BreadcrumbItem, Sidebar, SidebarGroup, SidebarItem } from "@qeetrix/react/experimental";
+
+<AppShell
+  sidebar={
+    <Sidebar label="Qeet ID">
+      <SidebarGroup label="Directory">
+        <SidebarItem label="Users" icon={UsersIcon} current render={<Link to="/users" />} />
+      </SidebarGroup>
+    </Sidebar>
+  }
+  header={<Breadcrumb><BreadcrumbItem current>Users</BreadcrumbItem></Breadcrumb>}
+>
+  {page}
+</AppShell>
+```
+
+Also there: `EmptyState` and `DataState` (loading, error, empty, content). Colour-scheme switching
+lives in `QeetrixProvider` (`defaultColorScheme="system"`, `useColorScheme()`).
+
 ## Overlays
 
 Overlays share one shape: a root that holds the state, a trigger that renders your control, and a

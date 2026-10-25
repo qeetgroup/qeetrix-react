@@ -1,0 +1,131 @@
+/* AppShell (07-components.md, C1): ruled surfaces, no shadows in the flow. The sidebar column is a
+   raised surface from 840px; below that it's hidden and opens as a drawer. The page scrolls; the
+   header and the sidebar stay put. */
+.qx-app-shell {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-block-size: 100dvh;
+  background: var(--qx-color-surface-canvas);
+  color: var(--qx-color-text-default);
+}
+.qx-app-shell-sidebar {
+  position: sticky;
+  inset-block-start: 0;
+  block-size: 100dvh;
+  inline-size: var(--qx-component-sidebar-width-expanded);
+  overflow: hidden;
+  border-inline-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  background: var(--qx-color-surface-raised);
+  transition-property: inline-size;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  .qx-app-shell[data-collapsed] > & {
+    inline-size: var(--qx-component-sidebar-width-collapsed);
+  }
+}
+.qx-app-shell-body {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 0;
+}
+.qx-app-shell-header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--qx-z-sticky);
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-md);
+  block-size: calc(var(--qx-size-control-lg) + 16px);
+  padding-inline: var(--qx-space-inset-md) var(--qx-space-inset-lg);
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  background: var(--qx-color-surface-default);
+}
+.qx-app-shell-header-start {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-inline-size: 0;
+}
+.qx-app-shell-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+}
+/* The panel icons point toward the sidebar, so they mirror with it. */
+[dir="rtl"] .qx-app-shell-toggle > svg {
+  scale: -1 1;
+}
+.qx-app-shell-main {
+  flex: 1;
+  min-inline-size: 0;
+  padding: var(--qx-space-inset-xl);
+  outline: 0;
+}
+
+@media (width < 840px) {
+  .qx-app-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .qx-app-shell-sidebar {
+    display: none;
+  }
+  .qx-app-shell-main {
+    padding: var(--qx-space-inset-lg);
+  }
+}
+
+/* The narrow-screen drawer. */
+.qx-app-shell-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--qx-z-overlay);
+  background: var(--qx-color-overlay-scrim);
+  transition-property: opacity;
+  transition-duration: var(--qx-motion-duration-slow);
+  transition-timing-function: var(--qx-motion-easing-enter);
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+}
+.qx-app-shell-viewport {
+  position: fixed;
+  inset: 0;
+  z-index: var(--qx-z-modal);
+  display: flex;
+  justify-content: flex-start;
+}
+.qx-app-shell-drawer {
+  inline-size: min(var(--qx-component-sidebar-width-mobile), 100vw - 48px);
+  block-size: 100%;
+  background: var(--qx-color-surface-raised);
+  box-shadow: var(--qx-shadow-modal);
+  outline: 0;
+  transform: translateX(var(--drawer-swipe-movement-x, 0px));
+  transition-property: transform;
+  transition-duration: var(--qx-motion-duration-slow);
+  transition-timing-function: var(--qx-motion-easing-enter);
+  &[data-swipe-direction="left"]:is([data-starting-style], [data-ending-style]) {
+    transform: translateX(-100%);
+  }
+  &[data-swipe-direction="right"]:is([data-starting-style], [data-ending-style]) {
+    transform: translateX(100%);
+  }
+  &[data-swiping] {
+    transition: none;
+  }
+  &[data-ending-style] {
+    transition-duration: var(--qx-motion-duration-normal);
+    transition-timing-function: var(--qx-motion-easing-exit);
+  }
+}
+
+@media (forced-colors: active) {
+  .qx-app-shell-header {
+    border-block-end-color: CanvasText;
+  }
+  .qx-app-shell-drawer {
+    border-inline-end: var(--qx-border-width-default) solid CanvasText;
+  }
+}

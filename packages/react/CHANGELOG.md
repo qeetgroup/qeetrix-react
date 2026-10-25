@@ -1,5 +1,41 @@
 # @qeetrix/react
 
+## 0.0.3
+
+The first Phase 5 increment (C1, the console frame), from `@qeetrix/react/experimental`. Experimental
+parts may change in a patch release; each moves to the root export once it has shipped in its
+product (07-components.md).
+
+- **`AppShell`:**
+  - the frame of every Qeet console: a skip link, the sidebar column, a sticky ruled header (a
+    neutral toggle, `header` at the start, `actions` at the end) and the page;
+  - from 840px the sidebar collapses to a 48px icon rail (`sidebarCollapsed` /
+    `defaultSidebarCollapsed` / `onSidebarCollapsedChange`);
+  - below 840px it opens as a drawer from the start edge, which closes when a link is followed;
+  - `useAppShell()` tells the sidebar's header and footer when they're in the rail.
+- **`Sidebar`, `SidebarGroup`, `SidebarItem`:**
+  - links only, one level of nesting, every item in the Tab order;
+  - the current page gets `aria-current`, the 3px Ember bar and an Ember (optionally filled) icon;
+  - categories start open when they hold the current page, and carry its mark while closed;
+  - in the rail, labels become tooltips.
+- **`Breadcrumb`, `BreadcrumbItem`:** server-safe; mirrored chevrons; long labels truncate and keep a
+  title.
+- **`EmptyState`:** a 24px icon, a title (a heading when given a `level`), a description and actions,
+  in `page` or `section` size and `neutral` or `danger` tone. Server-safe.
+- **`DataState`:** loading, then error, then empty, then the content. The error state never shows the
+  raw error, and `onRetry` adds "Try again".
+- **Colour scheme:**
+  - `QeetrixProvider` takes `colorScheme`, `defaultColorScheme` and `onColorSchemeChange`, writes
+    `data-qx-color-scheme` on `<html>`, and follows the operating system while `system`;
+  - `useColorScheme()` returns the scheme and a setter. The product persists the choice.
+- **`Button` and `IconButton`:** a `neutral` tone for ghost utility actions in toolbars and headers,
+  whose icons stay neutral (design rules §16).
+- **Strings:** new `appShell`, `breadcrumb` and `dataState` groups, in English and Hindi.
+- **Platform:**
+  - the CSS build, the dist check and the screenshot coverage test understand
+    `src/experimental/<family>/`;
+  - the test helper treats cancelled animations as settled.
+
 ## 0.0.2
 
 Every primitive, in six increments: the foundation, actions, form controls, overlays, selection and
