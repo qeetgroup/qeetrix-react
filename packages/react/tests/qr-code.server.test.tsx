@@ -135,26 +135,29 @@ function read(m: boolean[][]) {
     expect(mod(word, 0x1f25)).toBe(0);
   }
 
-  // Which modules carry data.
-  const reserved = (x: number, y: number) => {
-    if ((x < 9 && y < 9) || (x >= size - 8 && y < 9) || (x < 9 && y >= size - 8)) return true;
-    if (x === 6 || y === 6) return true;
-    if (
-      version >= 7 &&
-      ((x < 6 && y >= size - 11 && y < size - 8) || (y < 6 && x >= size - 11 && x < size - 8))
-    )
-      return true;
-    const centres = ALIGNMENT[version] as number[];
-    const last = centres.length - 1;
-    return centres.some((cy, i) =>
-      centres.some(
-        (cx, j) =>
-          !((i === 0 && (j === 0 || j === last)) || (i === last && j === 0)) &&
-          Math.abs(x - cx) <= 2 &&
-          Math.abs(y - cy) <= 2,
-      ),
-    );
+  // Which modules carry data: everything but the function patterns, marked once.
+  const marked = new Uint8Array(size * size);
+  const mark = (x0: number, y0: number, w: number, h: number) => {
+    for (let y = y0; y < y0 + h; y++) marked.fill(1, y * size + x0, y * size + x0 + w);
   };
+  mark(0, 0, 9, 9);
+  mark(size - 8, 0, 8, 9);
+  mark(0, size - 8, 9, 8);
+  mark(6, 0, 1, size);
+  mark(0, 6, size, 1);
+  if (version >= 7) {
+    mark(0, size - 11, 6, 3);
+    mark(size - 11, 0, 3, 6);
+  }
+  const centres = ALIGNMENT[version] as number[];
+  const last = centres.length - 1;
+  centres.forEach((cy, i) => {
+    centres.forEach((cx, j) => {
+      if (!((i === 0 && (j === 0 || j === last)) || (i === last && j === 0)))
+        mark(cx - 2, cy - 2, 5, 5);
+    });
+  });
+  const reserved = (x: number, y: number) => marked[y * size + x] === 1;
   const flip = [
     (x: number, y: number) => (x + y) % 2 === 0,
     (_: number, y: number) => y % 2 === 0,
@@ -239,7 +242,11 @@ describe("the QR encoder", () => {
     }
   });
 
-  it("builds every version, 1 to 40, full and well-formed: patterns, format and version words", () => {
+  // Forty symbols up to 177×177, each with eight masks scored: about half a second here, several
+  // times that on a CI runner under coverage, so it gets its own timeout.
+  it("builds every version, 1 to 40, full and well-formed: patterns, format and version words", {
+    timeout: 30_000,
+  }, () => {
     for (let version = 1; version <= 40; version++) {
       const level = (["L", "M", "Q", "H"] as const)[version % 4] as QRCodeLevel;
       const m = encodeQr("x".repeat(capacity(version, level)), level);

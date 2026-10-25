@@ -112,34 +112,30 @@ const MASKS: ((x: number, y: number) => boolean)[] = [
 ];
 
 // A finder-like run, 1:1:3:1:1, with four light modules on one side.
-const FINDER = [
-  [1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0],
-  [0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1],
-];
+const FINDER = ["10111010000", "00001011101"];
 
-// The standard's penalty for a masked symbol: lower reads more easily.
+// The standard's penalty for a masked symbol: lower reads more easily. Every row, then every
+// column, is written as a line of "0"s and "1"s in one string, so the runs and finder-like patterns
+// are found by the engine's own string search (a newline ends each line, so none spans two).
 function penalty(dark: Uint8Array, size: number): number {
   let score = 0;
   let total = 0;
-  for (let pass = 0; pass < 2; pass++) {
-    const at = pass
-      ? (i: number, j: number) => dark[j * size + i]
-      : (i: number, j: number) => dark[i * size + j];
-    for (let i = 0; i < size; i++) {
-      for (let j = 0, run = 0; j < size; j++) {
-        // Rule 1: five or more alike in a row or column.
-        run = j > 0 && at(i, j) === at(i, j - 1) ? run + 1 : 1;
-        if (run === 5) score += 3;
-        else if (run > 5) score++;
-        // Rule 3: something that looks like a finder pattern.
-        if (j + 11 <= size) {
-          for (const pattern of FINDER) {
-            if (pattern.every((bit, k) => at(i, j + k) === bit)) score += 40;
-          }
-        }
-        if (!pass) total += at(i, j) as number;
-      }
+  const width = size + 1;
+  const text = new Uint8Array(2 * size * width).fill(10);
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const c = dark[y * size + x] as number;
+      total += c;
+      text[y * width + x] = 48 + c;
+      text[(size + x) * width + y] = 48 + c;
     }
+  }
+  const lines = new TextDecoder().decode(text);
+  // Rule 1: five or more alike in a row or column, 3 and then 1 for each module more.
+  for (const run of lines.match(/0{5,}|1{5,}/g) ?? []) score += run.length - 2;
+  // Rule 3: something that looks like a finder pattern.
+  for (const pattern of FINDER) {
+    for (let at = lines.indexOf(pattern); at >= 0; at = lines.indexOf(pattern, at + 1)) score += 40;
   }
   // Rule 2: 2×2 blocks alike.
   for (let y = 0; y < size - 1; y++) {
