@@ -1,5 +1,14 @@
 # @qeetrix/react
 
+## 0.1.2
+
+Documentation only: no code changes.
+
+- **README rewritten** for 0.1.x. It covers every stable and experimental component; a data-driven
+  `Table` example; theming (colour scheme, density, a tenant's brand); `mirrorInRtl` and right to
+  left; the date helpers with real outputs; accessibility; browser support; and the versioning
+  rules. The repository README is the project's front page now.
+
 ## 0.1.1
 
 Right-to-left arrows and consistent icon sizes, from the Storybook review. Nothing is removed or
