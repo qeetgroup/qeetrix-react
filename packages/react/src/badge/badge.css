@@ -68,6 +68,8 @@
 }
 .qx-badge-icon {
   flex: none;
+  inline-size: var(--qx-size-icon-2xs);
+  block-size: var(--qx-size-icon-2xs);
 }
 .qx-badge-label {
   min-inline-size: 0;

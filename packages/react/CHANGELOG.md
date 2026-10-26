@@ -2,8 +2,11 @@
 
 ## 0.1.1
 
-Right-to-left arrows and a consistent message icon, from the Storybook review. Nothing is removed or
+Right-to-left arrows and consistent icon sizes, from the Storybook review. Nothing is removed or
 renamed.
+
+**Pair it with `@qeetrix/tokens` 0.0.9:** Badge reads its new `--qx-size-icon-2xs` token, so the
+peer range is now `^0.0.9`.
 
 ### New
 
@@ -16,6 +19,8 @@ renamed.
 ### Fixed
 
 - **Link:** the external-link arrow mirrors in right to left, pointing up and toward the reading end.
+- **Badge:** its icon is sized by `--qx-size-icon-2xs`, the icon scale's new 12px step, instead of
+  a number in its CSS. It looks the same.
 - **Toast:** its icon is 16px, Alert's size for the same job (it was 18px, off the icon scale), and
   sits centred on the title line (the 18px icon sat 2px high). The loading spinner's box follows.
 

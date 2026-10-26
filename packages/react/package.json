@@ -222,7 +222,7 @@
   },
   "peerDependencies": {
     "@base-ui/react": "^1.9.0",
-    "@qeetrix/tokens": "^0.0.7 || ^0.0.8",
+    "@qeetrix/tokens": "^0.0.9",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
