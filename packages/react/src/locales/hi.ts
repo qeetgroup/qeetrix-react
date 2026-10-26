@@ -150,4 +150,5 @@ export const hi: QeetrixMessages = {
     removeHint: "हटाने के लिए Backspace या Delete दबाएँ",
     selected: "{count} चुने गए। फ़ील्ड की शुरुआत से, उन तक पहुँचने के लिए तीर कुंजियों का उपयोग करें।",
   },
+  themeSwitcher: { label: "थीम", light: "लाइट", dark: "डार्क", system: "सिस्टम" },
 };

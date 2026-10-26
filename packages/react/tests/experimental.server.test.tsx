@@ -31,6 +31,8 @@ import {
   PageHeaderBack,
   Pagination,
   PasswordInput,
+  ProviderButton,
+  ProviderButtonGroup,
   RangeCalendar,
   Sidebar,
   SidebarGroup,
@@ -38,6 +40,7 @@ import {
   Stat,
   StatGroup,
   Steps,
+  ThemeSwitcher,
   Timeline,
   TimelineGroup,
   TimelineItem,
@@ -297,6 +300,64 @@ describe("experimental components on the server", () => {
     expect(out).toContain('aria-expanded="true"');
     expect(out).toContain(">Collapse</span>");
     expect(out).not.toContain("app-shell-drawer");
+  });
+
+  it("ThemeSwitcher renders the provider's scheme on the server: a closed menu, or the pressed toggle", () => {
+    const menu = html(
+      <StatProvider defaultColorScheme="dark">
+        <ThemeSwitcher />
+      </StatProvider>,
+    );
+    expect(menu).toMatch(/^<button[^>]*aria-label="Theme"/);
+    expect(menu).toContain('aria-haspopup="menu"');
+    expect(menu).not.toContain('role="menu"');
+    const segmented = html(
+      <StatProvider defaultColorScheme="system" messages={{ themeSwitcher: { system: "OS" } }}>
+        <ThemeSwitcher variant="segmented" />
+      </StatProvider>,
+    );
+    expect(segmented).toMatch(/^<div[^>]*role="group"/);
+    const toggle = (name: string) =>
+      segmented.match(new RegExp(`<button[^>]*aria-label="${name}"[^>]*>`))?.[0];
+    expect(toggle("OS")).toContain('aria-pressed="true"');
+    expect(toggle("Light")).toContain('aria-pressed="false"');
+    expect(toggle("Dark")).toContain('aria-pressed="false"');
+    // Controlled, it shows its own value whatever the provider holds.
+    const controlled = html(<ThemeSwitcher variant="segmented" value="light" />);
+    expect(controlled.match(/<button[^>]*aria-label="Light"[^>]*>/)?.[0]).toContain(
+      'aria-pressed="true"',
+    );
+  });
+
+  it("ProviderButtonGroup carries no client code; ProviderButton renders a button or a link", () => {
+    expect(source("provider-button/provider-button-group.tsx")).not.toMatch(/^["']use client["']/);
+    const row = html(
+      <ProviderButtonGroup aria-label="Sign in with another account">
+        <ProviderButton aria-label="Sign in with Google" logo={<svg />}>
+          Google
+        </ProviderButton>
+        <ProviderButton
+          aria-label="Sign in with Apple"
+          logo={<svg />}
+          logoInvert="light"
+          render={<a href="/oauth/apple" />}
+          disabled
+        >
+          Apple
+        </ProviderButton>
+      </ProviderButtonGroup>,
+    );
+    expect(row).toMatch(/^<fieldset aria-label="Sign in with another account"/);
+    expect(row).toMatch(/<button aria-label="Sign in with Google" type="button"/);
+    expect(row).toContain(
+      '<span class="qx-provider-button-logo" data-slot="provider-button-logo" aria-hidden="true">',
+    );
+    const link = row.match(/<a [^>]*>/)?.[0] ?? "";
+    expect(link).toContain('href="/oauth/apple"');
+    expect(link).toContain('aria-label="Sign in with Apple"');
+    expect(link).toContain('aria-disabled="true"');
+    expect(row).not.toMatch(/<a [^>]*type=/);
+    expect(row).toContain('data-invert="light"');
   });
 
   it("switches at the tokens' expanded window class", () => {

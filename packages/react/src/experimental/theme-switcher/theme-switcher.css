@@ -1,0 +1,6 @@
+/* ThemeSwitcher (07-components.md): Light, Dark and System. The segmented variant is a ToggleGroup
+   and needs nothing of its own. The menu variant's popup fits its three short choices instead of a
+   menu's 200px minimum; its options reuse the menu item's parts, with the check at the end. */
+.qx-menu.qx-theme-switcher-menu {
+  min-inline-size: 10rem;
+}

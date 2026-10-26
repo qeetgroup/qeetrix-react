@@ -147,6 +147,7 @@ export const messages = {
     removeHint: "Press Backspace or Delete to remove",
     selected: "{count} selected. From the start of the field, use the arrow keys to reach them.",
   },
+  themeSwitcher: { label: "Theme", light: "Light", dark: "Dark", system: "System" },
 } as const;
 
 /** The complete catalogue, as a locale pack provides it. */

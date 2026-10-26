@@ -1,5 +1,45 @@
 # @qeetrix/react
 
+## 0.1.3
+
+Two experimental components for every product's header, footer and sign-in page, from the Qeet ID
+console's local copies. Nothing is removed or renamed, and the root entry's API is unchanged.
+
+### New (experimental)
+
+- **`ThemeSwitcher`:** Light, Dark or System, the same switch in every product.
+  - **`variant="menu"`** (default): a neutral ghost IconButton showing the current choice's icon
+    (Sun, Moon or Monitor), named "Theme" and showing that as its tooltip. Its compact menu (10rem,
+    not a menu's 200px) lists the three, each with its sharp icon; the current one is a checked
+    `menuitemradio` marked by a check at the end, with no radio dot. Choosing closes the menu.
+  - **`variant="segmented"`:** a ToggleGroup of three icon-only toggles, each named by its label
+    and showing it as a tooltip; the pressed one draws its filled icon.
+  - **State:** by default it reads and sets the enclosing QeetrixProvider's scheme
+    (`useColorScheme`). `value` / `defaultValue` / `onValueChange` (`"light" | "dark" | "system"`)
+    detach it and manage the scheme yourself. One choice is always made: choosing the current one
+    again changes nothing and isn't reported.
+  - Also `size`, `disabled`, `tooltipSide` and `messages`. It renders the provider's scheme on the
+    server and hydrates without a mismatch. In development it warns when nothing manages the
+    scheme.
+- **`ProviderButton` and `ProviderButtonGroup`:** the ruled row of "Continue with Google /
+  Microsoft / Apple" buttons.
+  - **`ProviderButtonGroup`:** a `<fieldset>` named by its required `aria-label`, on the raised
+    surface with a 1px border, 4px corners and 1px rules between equal cells, and no fieldset
+    chrome. The whole row is the field height (`size.control.lg`). Server-safe.
+  - **`ProviderButton`:** a `logo` slot (apps pass the provider's own artwork; Qeetrix ships no
+    third-party logos), the provider's name as its visible label, and a required `aria-label` for
+    the whole phrase ("Sign in with Google"). `disabled` keeps it focusable with `aria-disabled`, as
+    Button does. `render` makes it a link (`render={<a href="/oauth/google" />}` or a router link).
+    Hover and pressed are neutral tints; the Ember focus frame sits inside the cell.
+  - **`logoInvert`** (`"light"` or `"dark"`) inverts a monochrome logo in the scheme where it would
+    vanish (Apple's white mark in light, GitHub's black mark in dark), following the nearest
+    `data-qx-color-scheme`. A `data-invert` attribute inside `logo` does the same for one part.
+
+### Strings
+
+- A new catalogue group, `themeSwitcher`: `label` "Theme", `light` "Light", `dark` "Dark",
+  `system` "System". The Hindi pack has it too.
+
 ## 0.1.2
 
 Documentation only: no code changes.

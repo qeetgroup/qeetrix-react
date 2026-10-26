@@ -1,0 +1,112 @@
+/* ProviderButton and ProviderButtonGroup (07-components.md): one ruled row of sign-in providers.
+   The group is the surface: raised, a 1px border, 4px corners, equal cells divided by 1px rules,
+   and no fieldset chrome. The whole row is the field height. Hover and pressed are neutral tints;
+   the Ember focus frame sits inside the cell. */
+.qx-provider-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--qx-space-gap-sm);
+  min-inline-size: 0;
+  block-size: var(--qx-size-control-lg);
+  margin: 0;
+  padding-block: 0;
+  padding-inline: var(--qx-space-inset-md);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-label-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition-property: background-color, color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &:hover:not([data-disabled], :disabled) {
+    background: var(--qx-color-bg-neutral-subtle-hover);
+  }
+  &:active:not([data-disabled], :disabled) {
+    background: var(--qx-color-bg-neutral-subtle-pressed);
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+  &:is([data-disabled], :disabled) {
+    color: var(--qx-color-text-disabled);
+    cursor: not-allowed;
+  }
+}
+
+.qx-provider-button-logo {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  :is(svg, img) {
+    display: block;
+    inline-size: var(--qx-size-icon-md);
+    block-size: var(--qx-size-icon-md);
+  }
+}
+
+.qx-provider-button-label {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A disabled provider dims its logo with its label. */
+.qx-provider-button:is([data-disabled], :disabled) .qx-provider-button-logo {
+  opacity: var(--qx-opacity-disabled);
+}
+
+.qx-provider-button-group {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  border-radius: var(--qx-radius-control);
+  background: var(--qx-color-surface-raised);
+  overflow: hidden;
+  /* The cells sit inside the border, so the whole row is the field height. */
+  > .qx-provider-button {
+    block-size: calc(var(--qx-size-control-lg) - 2 * var(--qx-border-width-default));
+  }
+  > .qx-provider-button + .qx-provider-button {
+    border-inline-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  }
+}
+
+/* Monochrome logos, drawn in white (Apple) or black (GitHub), are inverted in the scheme where
+   they'd vanish. The filter is inherited from the nearest data-qx-color-scheme, as the tokens are,
+   so a section shown in the other scheme gets it right. */
+:root,
+[data-qx-color-scheme="light"] {
+  --qx-provider-button-invert-light: invert(1);
+  --qx-provider-button-invert-dark: none;
+}
+[data-qx-color-scheme="dark"] {
+  --qx-provider-button-invert-light: none;
+  --qx-provider-button-invert-dark: invert(1);
+}
+.qx-provider-button [data-invert="light"] {
+  filter: var(--qx-provider-button-invert-light);
+}
+.qx-provider-button [data-invert="dark"] {
+  filter: var(--qx-provider-button-invert-dark);
+}
+
+/* Forced colours: the tints drop out; the border, rules and focus frame take system colours. A
+   disabled provider reads as disabled. */
+@media (forced-colors: active) {
+  .qx-provider-button:is([data-disabled], :disabled) {
+    color: GrayText;
+  }
+}

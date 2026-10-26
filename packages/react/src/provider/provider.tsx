@@ -201,6 +201,14 @@ export function useColorScheme(): ColorSchemeState {
   return use(ColorSchemeContext);
 }
 
+/**
+ * Whether a QeetrixProvider above manages the colour scheme, so `setColorScheme` changes it.
+ * Internal: ThemeSwitcher warns in development when there's nothing for it to switch.
+ */
+export function useColorSchemeManaged(): boolean {
+  return use(ColorSchemeContext) !== UNMANAGED;
+}
+
 /** The locale set by the nearest QeetrixProvider; `en-IN` without one. */
 export function useLocale(): string {
   return use(SettingsContext).locale;
