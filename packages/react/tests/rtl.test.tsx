@@ -3,6 +3,8 @@
  * (D-13; 06-component-specs.md, Phase 4 close-out). The page's own `dir` is set too, as an app does.
  */
 
+import { ArrowRightIcon } from "@qeetrix/icons/icons/arrow-right";
+import { SearchIcon } from "@qeetrix/icons/icons/search";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { page, userEvent } from "vitest/browser";
@@ -10,6 +12,7 @@ import { render } from "vitest-browser-react";
 import { Button } from "../src/button/button";
 import { Drawer, DrawerContent } from "../src/drawer/drawer";
 import { Input } from "../src/input/input";
+import { Link } from "../src/link/link";
 import {
   Menu,
   MenuContent,
@@ -18,6 +21,7 @@ import {
   MenuSubmenuTrigger,
   MenuTrigger,
 } from "../src/menu/menu";
+import { mirrorInRtl } from "../src/provider/mirror";
 import { QeetrixProvider } from "../src/provider/provider";
 import { Radio, RadioGroup } from "../src/radio/radio";
 import { Slider } from "../src/slider/slider";
@@ -38,6 +42,30 @@ const Rtl = ({ children }: { children: ReactNode }) => (
 );
 
 describe("right-to-left", () => {
+  it("mirrorInRtl: an icon that points a reading direction faces the other way; others stay", async () => {
+    await render(
+      <Rtl>
+        <Button icon={mirrorInRtl(ArrowRightIcon)}>Continue</Button>
+        <Button icon={SearchIcon}>Search</Button>
+        <Link href="https://qeet.in" external>
+          Docs
+        </Link>
+      </Rtl>,
+    );
+    const svg = (name: string) =>
+      page.getByRole("button", { name }).element().querySelector("svg") as SVGElement;
+    const linkIcon = page.getByRole("link").element().querySelector("[data-slot=link-icon]");
+    expect(getComputedStyle(svg("Continue")).scale).toBe("-1 1");
+    expect(getComputedStyle(svg("Search")).scale).toBe("none");
+    expect(getComputedStyle(linkIcon as Element).scale).toBe("-1 1");
+    // Left to right, the same icons are drawn as they are.
+    html.dir = "ltr";
+    expect(getComputedStyle(svg("Continue")).scale).toBe("none");
+    expect(getComputedStyle(linkIcon as Element).scale).toBe("none");
+    // One component per icon, so calling it during render never remounts the icon.
+    expect(mirrorInRtl(ArrowRightIcon)).toBe(mirrorInRtl(ArrowRightIcon));
+  });
+
   it("Tabs: the left arrow moves to the next tab", async () => {
     await render(
       <Rtl>

@@ -37,10 +37,18 @@ describe("CopyButton", () => {
   it("resets after the delay, and announces a second copy again", async () => {
     await render(<CopyButton value="x" resetAfter={50} />);
     const button = page.getByRole("button", { name: "Copy" });
+    // Record every announcement: "Copied" lasts 50ms, which polling can miss on a slow runner.
+    const said: string[] = [];
+    const observer = new MutationObserver(() => said.push(status().textContent ?? ""));
+    observer.observe(status(), { childList: true, characterData: true, subtree: true });
+    const copies = () => said.filter((text) => text === "Copied").length;
     await button.click();
-    await expect.poll(() => status().textContent).toBe("Copied");
+    await expect.poll(copies).toBe(1);
     await expect.poll(() => button.element().getAttribute("data-state")).toBe("idle");
     expect(status().textContent).toBe("");
+    await button.click();
+    await expect.poll(copies).toBe(2);
+    observer.disconnect();
   });
 
   it("copies what a function returns, even later", async () => {

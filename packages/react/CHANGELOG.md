@@ -1,5 +1,34 @@
 # @qeetrix/react
 
+## 0.1.1
+
+Right-to-left arrows and consistent icon sizes, from the Storybook review. Nothing is removed or
+renamed.
+
+**Pair it with `@qeetrix/tokens` 0.0.9:** Badge reads its new `--qx-size-icon-2xs` token, so the
+peer range is now `^0.0.9`.
+
+### New
+
+- **`mirrorInRtl(Icon)`:** an icon that points a reading direction, mirrored under `dir="rtl"`:
+  `<Button icon={mirrorInRtl(ArrowRightIcon)}>Continue</Button>` points forward in both directions.
+  `@qeetrix/icons` draws arrows and chevrons in their physical orientation and never mirrors them,
+  so whether one means forward or back is decided at the call site, once per icon. It returns the
+  same component for the same icon, and it's server-safe.
+
+### Fixed
+
+- **Link:** the external-link arrow mirrors in right to left, pointing up and toward the reading end.
+- **Badge:** its icon is sized by `--qx-size-icon-2xs`, the icon scale's new 12px step, instead of
+  a number in its CSS. It looks the same.
+- **Toast:** its icon is 16px, Alert's size for the same job (it was 18px, off the icon scale), and
+  sits centred on the title line (the 18px icon sat 2px high). The loading spinner's box follows.
+
+### Security
+
+- **Link:** the last word is found with a scan, not a regular expression that backtracked on a long
+  run of text without spaces (CodeQL `js/polynomial-redos`).
+
 ## 0.1.0
 
 Fixes and new variants from the Storybook review of 0.0.8: every bug, accessibility and alignment

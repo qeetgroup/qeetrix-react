@@ -58,6 +58,11 @@ describe("Badge", () => {
     const icon = badge.querySelector("svg") as SVGElement;
     expect(icon.getAttribute("aria-hidden")).toBe("true");
     expect(icon.getAttribute("width")).toBe("12");
+    // Its box comes from the icon scale's 2xs token, the 12px step for marks inside chips.
+    const token = getComputedStyle(document.documentElement).getPropertyValue("--qx-size-icon-2xs");
+    expect(token.trim()).toBe("12px");
+    const box = icon.getBoundingClientRect();
+    expect([box.width, box.height]).toEqual([12, 12]);
   });
 
   it("truncates with an ellipsis when its space runs out", async () => {

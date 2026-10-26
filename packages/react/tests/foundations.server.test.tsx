@@ -3,6 +3,7 @@
  * with its data attributes, and the render prop swaps the element without losing props.
  */
 import { readFileSync } from "node:fs";
+import { ArrowRightIcon } from "@qeetrix/icons/icons/arrow-right";
 import { BREAKPOINT } from "@qeetrix/tokens";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
@@ -12,6 +13,7 @@ import {
   GridItem,
   Heading,
   Inline,
+  mirrorInRtl,
   Separator,
   SkipLink,
   Stack,
@@ -22,6 +24,12 @@ import {
 const html = (node: React.ReactElement) => renderToString(node);
 
 describe("foundations render on the server", () => {
+  it("mirrorInRtl: server-safe, it marks the icon for the right-to-left rule", () => {
+    const Mirrored = mirrorInRtl(ArrowRightIcon);
+    expect(html(<Mirrored size={16} />)).toContain('data-qx-mirror=""');
+    expect(Mirrored.displayName).toBe("mirrorInRtl(ArrowRightIcon)");
+  });
+
   it("Box: a div with token data attributes", () => {
     expect(
       html(

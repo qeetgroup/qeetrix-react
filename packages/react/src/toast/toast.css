@@ -52,9 +52,10 @@
     border-inline-start-color: var(--qx-color-icon-danger);
   }
 }
+/* 16px, Alert's size for the same job, centred on the 24px title line. */
 .qx-toast-icon {
   flex: none;
-  margin-block-start: 1px;
+  margin-block-start: 4px;
   color: var(--qx-color-icon-info);
   .qx-toast[data-tone="success"] & {
     color: var(--qx-color-icon-success);
@@ -66,12 +67,12 @@
     color: var(--qx-color-icon-danger);
   }
 }
-/* A pending `promise` toast: a spinner in the icon's 18px box, centred where the icon would be. */
+/* A pending `promise` toast: a spinner in the icon's box, centred where the icon would be. */
 .qx-toast-spinner {
   display: grid;
   place-items: center;
-  inline-size: 18px;
-  block-size: 18px;
+  inline-size: var(--qx-size-icon-sm);
+  block-size: var(--qx-size-icon-sm);
 }
 .qx-toast-content {
   display: flex;

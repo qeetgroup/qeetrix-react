@@ -651,6 +651,9 @@ export interface MeterProps extends Omit<Meter_2.Root.Props, "className" | "styl
 export type MeterTone = "brand" | "neutral" | "info" | "success" | "warning" | "danger";
 
 // @public
+export function mirrorInRtl(Icon: QeetrixIcon): QeetrixIcon;
+
+// @public
 export function Popover(props: PopoverProps): ReactElement;
 
 // @public

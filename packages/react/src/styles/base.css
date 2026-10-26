@@ -5,3 +5,9 @@
 :where([class^="qx-"], [class*=" qx-"])::after {
   box-sizing: border-box;
 }
+
+/* An icon passed through mirrorInRtl() points a reading direction, so it faces the other way under
+   dir="rtl". Nothing else mirrors: @qeetrix/icons draws every icon in its physical orientation. */
+[dir="rtl"] [data-qx-mirror] {
+  scale: -1 1;
+}

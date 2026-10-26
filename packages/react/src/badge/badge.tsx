@@ -21,7 +21,7 @@ export interface BadgeProps extends ComponentProps<"span"> {
   variant?: BadgeVariant;
   /** `md` (20px) or `sm` (16px), for tight rows and beside small text. Default `md`. */
   size?: BadgeSize;
-  /** A leading icon from `@qeetrix/icons`: sharp, 12px, decorative. */
+  /** A leading icon from `@qeetrix/icons`: sharp, `--qx-size-icon-2xs` (12px), decorative. */
   icon?: QeetrixIcon;
 }
 
@@ -50,6 +50,7 @@ export function Badge({
       {Icon && (
         <Icon
           shape="sharp"
+          // The width and height attributes before CSS loads; --qx-size-icon-2xs sizes it after.
           size={12}
           aria-hidden
           className="qx-badge-icon"
