@@ -11,16 +11,27 @@ import { VisuallyHidden } from "../../visually-hidden/visually-hidden";
  * server-safe: a server component renders it, and these follow the provider's locale and language.
  */
 
-/** A Stat's numeric value, in the Stat's `locale` or else QeetrixProvider's. */
+/** A Stat's numeric value, in the Stat's `locale` or else QeetrixProvider's; money with `currency`. */
 export function StatNumber({
   value,
   locale,
+  currency,
+  format,
 }: {
   value: number;
   locale?: string | undefined;
+  currency?: string | undefined;
+  format?: Intl.NumberFormatOptions | undefined;
 }): ReactNode {
   const provided = useLocale();
-  return formatNumber(value, locale ?? provided);
+  const money: Intl.NumberFormatOptions | undefined = currency
+    ? {
+        style: "currency",
+        currency,
+        ...(Number.isInteger(value) ? { minimumFractionDigits: 0, maximumFractionDigits: 0 } : {}),
+      }
+    : undefined;
+  return formatNumber(value, locale ?? provided, { ...money, ...format });
 }
 
 /** "Loading" in a loading Stat's value, for screen readers, in QeetrixProvider's language. */

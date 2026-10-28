@@ -11,7 +11,7 @@ import { Stage } from "../../tests/support/stage";
 import { Badge } from "../badge/badge";
 import { hi } from "../locales/hi";
 import { QeetrixProvider } from "../provider/provider";
-import { Tab, Tabs, TabsList, TabsPanel, type TabsVariant } from "./tabs";
+import { Tab, TabNav, TabNavLink, Tabs, TabsList, TabsPanel, type TabsVariant } from "./tabs";
 
 const html = document.documentElement;
 
@@ -76,6 +76,22 @@ describe("Tabs", () => {
     await page.getByRole("tab", { name: "Paid" }).click();
     await settled();
     expect(under("Paid")).toBe(true);
+  });
+
+  it("marks the selected tab with the Ember bar before the indicator is measured", async () => {
+    await render(<Invoices />);
+    await settled();
+    const bar = indicator();
+    const selected = page.getByRole("tab", { name: "All" }).element();
+    expect(getComputedStyle(selected).boxShadow).toBe("none");
+    // As on the server, or before hydration: Base UI keeps the indicator hidden until it measures.
+    bar.hidden = true;
+    expect(getComputedStyle(bar).display).toBe("none");
+    const shadow = getComputedStyle(selected).boxShadow;
+    expect(shadow).toContain(tokenColor("--qx-color-border-brand"));
+    expect(shadow).toMatch(/inset$|^inset/);
+    expect(shadow).toContain("-3px");
+    bar.hidden = false;
   });
 
   it("selects with weight 600 and a filled icon", async () => {
@@ -233,5 +249,78 @@ describe("Tabs", () => {
     );
     await expectAccessible(container);
     await screenshotEveryMode("Tabs");
+  });
+});
+
+/** A Users page's sub-pages, as a TabNav of links. */
+function UsersViews({ current = "/users/invitations" }: { current?: string }) {
+  return (
+    <TabNav aria-label="Users views">
+      {[
+        ["/users", "All users"],
+        ["/users/invitations", "Invitations"],
+        ["/users/deleted", "Deleted"],
+      ].map(([href, label]) => (
+        <TabNavLink
+          key={href}
+          href={`#${href}`}
+          current={href === current}
+          badge={href === "/users/invitations" ? 3 : undefined}
+        >
+          {label}
+        </TabNavLink>
+      ))}
+    </TabNav>
+  );
+}
+
+describe("TabNav", () => {
+  it("is a navigation of links, not a tablist: the current page marked aria-current", async () => {
+    await render(<UsersViews />);
+    const nav = page.getByRole("navigation", { name: "Users views" });
+    await expect.element(nav).toBeVisible();
+    expect(page.getByRole("tablist").elements()).toHaveLength(0);
+    expect(page.getByRole("tab").elements()).toHaveLength(0);
+    const current = page.getByRole("link", { name: /Invitations/ });
+    await expect.element(current).toHaveAttribute("aria-current", "page");
+    await expect.element(current).toHaveAttribute("href", "#/users/invitations");
+    await expect
+      .element(page.getByRole("link", { name: "Deleted" }))
+      .not.toHaveAttribute("aria-current");
+  });
+
+  it("draws the current page as a selected tab: weight 600 and the 3px Ember bar", async () => {
+    await render(<UsersViews />);
+    const current = getComputedStyle(page.getByRole("link", { name: /Invitations/ }).element());
+    expect(current.fontWeight).toBe("600");
+    expect(current.boxShadow).toContain(tokenColor("--qx-color-border-brand"));
+    expect(current.boxShadow).toContain("-3px");
+    expect(current.textDecorationLine).toBe("none");
+    expect(getComputedStyle(page.getByRole("link", { name: "Deleted" }).element()).boxShadow).toBe(
+      "none",
+    );
+  });
+
+  it("marks a router link that sets aria-current itself", async () => {
+    await render(
+      <TabNav aria-label="Settings">
+        <TabNavLink render={<a href="/general" aria-current="page" data-router="" />}>
+          General
+        </TabNavLink>
+      </TabNav>,
+    );
+    const link = page.getByRole("link", { name: "General" });
+    await expect.element(link).toHaveAttribute("data-router", "");
+    expect(getComputedStyle(link.element()).fontWeight).toBe("600");
+  });
+
+  it("is accessible and looks right in every mode", async () => {
+    const { container } = await render(
+      <Stage>
+        <UsersViews />
+      </Stage>,
+    );
+    await expectAccessible(container);
+    await screenshotEveryMode("TabNav");
   });
 });

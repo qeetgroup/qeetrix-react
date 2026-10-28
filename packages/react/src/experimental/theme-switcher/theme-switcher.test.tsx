@@ -8,6 +8,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../../tests/support/axe";
+import { tokenColor } from "../../../tests/support/color";
 import { screenshotSchemes } from "../../../tests/support/screenshots";
 import { Stage } from "../../../tests/support/stage";
 import { Inline } from "../../inline/inline";
@@ -84,6 +85,8 @@ describe("ThemeSwitcher: menu (default)", () => {
     expect(dark.querySelector("[data-slot=menu-item-icon]")?.innerHTML).toBe(drawing(MoonIcon));
     const check = dark.querySelector("[data-slot=menu-item-mark] svg") as SVGElement;
     expect(check).not.toBeNull();
+    // The check is the menu's one Ember mark.
+    expect(getComputedStyle(check).color).toBe(tokenColor("--qx-color-icon-brand"));
     const label = dark.querySelector("[data-slot=menu-item-label]") as HTMLElement;
     expect(box(check).left).toBeGreaterThan(box(label).right);
     // Only the current one is checked; the others keep the column, so labels line up.
@@ -100,8 +103,21 @@ describe("ThemeSwitcher: menu (default)", () => {
     await trigger().click();
     const popup = page.getByRole("menu").element();
     expect(popup.classList).toContain("qx-theme-switcher-menu");
-    // 10rem: the minimum, which the three short choices don't exceed.
-    expect(box(popup).width).toBe(160);
+    // 9.5rem: the minimum, which the three short choices don't exceed.
+    expect(box(popup).width).toBe(152);
+  });
+
+  it("opens upward with menuSide, for the foot of the navigation or the page", async () => {
+    await render(
+      <div style={{ paddingBlockStart: 240 }}>
+        <QeetrixProvider defaultColorScheme="light">
+          <ThemeSwitcher menuSide="top" />
+        </QeetrixProvider>
+      </div>,
+    );
+    await trigger().click();
+    const popup = page.getByRole("menu").element();
+    await expect.poll(() => box(popup).bottom <= box(trigger().element()).top).toBe(true);
   });
 
   it("choosing the current scheme again keeps it, and reports nothing", async () => {

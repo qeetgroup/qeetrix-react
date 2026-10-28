@@ -7,6 +7,7 @@ import { screenshotSchemes } from "../../../tests/support/screenshots";
 import { Stage } from "../../../tests/support/stage";
 import { hi } from "../../locales/hi";
 import { QeetrixProvider } from "../../provider/provider";
+import { ShareBar } from "../chart/chart";
 import { PageHeader } from "../page-header/page-header";
 import { Stat, StatGroup } from "./stat";
 
@@ -58,6 +59,24 @@ describe("Stat", () => {
     await expect.element(page.getByText("1,28,400")).toBeVisible();
     await expect.element(page.getByText("128,400")).toBeVisible();
     await expect.element(page.getByText("72%")).toBeVisible();
+  });
+
+  it("formats money with currency: whole rupees without paise, and the provider's locale", async () => {
+    await render(
+      <QeetrixProvider locale="en-IN">
+        <StatGroup>
+          <Stat label="Collected in October" value={1842600} currency="INR" />
+          <Stat label="Average invoice" value={1234.5} currency="INR" />
+          <Stat label="In dollars" value={1842600} currency="USD" locale="en-US" />
+        </StatGroup>
+      </QeetrixProvider>,
+    );
+    const value = (label: string) =>
+      page.getByText(label).element().parentElement?.querySelector("[data-slot=stat-value]")
+        ?.textContent;
+    expect(value("Collected in October")).toBe("₹18,42,600");
+    expect(value("Average invoice")).toBe("₹1,234.50");
+    expect(value("In dollars")).toBe("$1,842,600");
   });
 
   it("colours the note by tone, and draws its trend as decoration ending on the Ember point", async () => {
@@ -224,6 +243,49 @@ describe("Stat", () => {
     expect(starts[0]).toBe(title.left - edge.left);
     expect(starts[3]).toBe(starts[0]);
     expect(getComputedStyle(cells[3] as HTMLElement).borderInlineStartWidth).toBe("0px");
+  });
+
+  it("carries a small chart and a link into the list, for a summary band's richer cells", async () => {
+    const { container } = await render(
+      <PageHeader
+        title="People"
+        style={{ margin: 0 }}
+        summary={
+          <StatGroup>
+            <Stat
+              label="People"
+              value={1284}
+              note="In 12 organisations"
+              chart={
+                <ShareBar
+                  label="Last active"
+                  parts={[
+                    { id: "today", value: 300, label: "Today" },
+                    { id: "older", value: 984, label: "Older" },
+                  ]}
+                />
+              }
+              action={<a href="#inactive">Show the 984 inactive</a>}
+            />
+            <Stat label="Two-step" value="84%" note="Target 90%" tone="warning" />
+          </StatGroup>
+        }
+      />,
+    );
+    const cell = container.querySelector("[data-slot=stat]") as HTMLElement;
+    const chart = cell.querySelector("[data-slot=stat-chart]") as HTMLElement;
+    const note = cell.querySelector("[data-slot=stat-note]") as HTMLElement;
+    expect(chart.tagName).toBe("DD");
+    expect(chart.getBoundingClientRect().top).toBeGreaterThan(note.getBoundingClientRect().bottom);
+    expect(Math.round(chart.getBoundingClientRect().width)).toBe(
+      Math.round(note.getBoundingClientRect().width),
+    );
+    await expect
+      .element(page.getByRole("img", { name: "Last active: Today 300, Older 984" }))
+      .toBeVisible();
+    const link = page.getByRole("link", { name: "Show the 984 inactive" });
+    expect(link.element().closest("[data-slot=stat-action]")).not.toBeNull();
+    await expectAccessible(container);
   });
 
   it("looks right wrapped and loading, in both schemes", async () => {

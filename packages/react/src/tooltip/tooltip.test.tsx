@@ -114,7 +114,7 @@ describe("Tooltip", () => {
       .toHaveAccessibleDescription("Ends every session. Signs out everywhere");
   });
 
-  it("sits 6px from its trigger, or `sideOffset` pixels", async () => {
+  it("sits 8px from its trigger, or `sideOffset` pixels", async () => {
     const { rerender } = await render(
       <div style={{ padding: 64 }}>
         <Tooltip content="Download invoice" defaultOpen>
@@ -124,7 +124,7 @@ describe("Tooltip", () => {
     );
     await expect.poll(popup).not.toBeNull();
     const trigger = page.getByRole("button", { name: "Download" }).element();
-    await expect.poll(() => Math.round(rect(trigger).top - rect(popup()).bottom)).toBe(6);
+    await expect.poll(() => Math.round(rect(trigger).top - rect(popup()).bottom)).toBe(8);
     await rerender(
       <div style={{ padding: 64 }}>
         <Tooltip content="Download invoice" defaultOpen sideOffset={12}>
@@ -133,6 +133,47 @@ describe("Tooltip", () => {
       </div>,
     );
     await expect.poll(() => Math.round(rect(trigger).top - rect(popup()).bottom)).toBe(12);
+  });
+
+  it("points at its trigger: a graphite triangle in the middle of the side facing it", async () => {
+    await render(
+      <div style={{ padding: 64 }}>
+        <Tooltip content="Download invoice" defaultOpen>
+          <Button>Download</Button>
+        </Tooltip>
+      </div>,
+    );
+    await expect.poll(popup).not.toBeNull();
+    const trigger = rect(page.getByRole("button", { name: "Download" }).element());
+    const arrow = () => document.querySelector("[data-slot=tooltip-arrow]") as HTMLElement;
+    await expect.poll(() => Math.round(rect(arrow()).top - rect(popup()).bottom)).toBe(0);
+    const box = rect(arrow());
+    expect(Math.round(box.width)).toBe(10);
+    expect(Math.round(box.height)).toBe(5);
+    expect(Math.round(box.left + box.width / 2)).toBe(Math.round(trigger.left + trigger.width / 2));
+    expect(Math.round(trigger.top - box.bottom)).toBe(3);
+    const style = getComputedStyle(arrow());
+    expect(style.backgroundColor).toBe(getComputedStyle(popup() as Element).backgroundColor);
+    expect(style.clipPath).toContain("polygon");
+    expect(arrow().getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("points sideways from a tooltip at the trigger's side", async () => {
+    await render(
+      <div style={{ padding: 64 }}>
+        <Tooltip content="Download invoice" defaultOpen side="right">
+          <Button>Download</Button>
+        </Tooltip>
+      </div>,
+    );
+    await expect.poll(popup).not.toBeNull();
+    const trigger = rect(page.getByRole("button", { name: "Download" }).element());
+    const arrow = () => document.querySelector("[data-slot=tooltip-arrow]") as HTMLElement;
+    await expect.poll(() => Math.round(rect(popup()).left - rect(arrow()).right)).toBe(0);
+    const box = rect(arrow());
+    expect([Math.round(box.width), Math.round(box.height)]).toEqual([5, 10]);
+    expect(Math.round(box.top + box.height / 2)).toBe(Math.round(trigger.top + trigger.height / 2));
+    expect(Math.round(box.left - trigger.right)).toBe(3);
   });
 
   it("IconButton opens its tooltip on `tooltipSide`", async () => {
@@ -145,7 +186,7 @@ describe("Tooltip", () => {
     await userEvent.keyboard("{Tab}");
     await expect.poll(popup).not.toBeNull();
     const button = page.getByRole("button", { name: "Download" }).element();
-    await expect.poll(() => Math.round(rect(popup()).top - rect(button).bottom)).toBe(6);
+    await expect.poll(() => Math.round(rect(popup()).top - rect(button).bottom)).toBe(8);
     await expect.poll(() => popup()?.getAttribute("data-side")).toBe("bottom");
     await screenshotSchemes("Tooltip · bottom", null);
   });

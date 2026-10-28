@@ -94,6 +94,45 @@ describe("AppShell", () => {
     expect(onActiveDrawerChange).toHaveBeenLastCalledWith(null);
   });
 
+  it("sets a panel's width, and resizes it from its start edge by keyboard and pointer", async () => {
+    await page.viewport(1440, 900);
+    const onWidthChange = vi.fn();
+    await render(
+      <AppShell
+        topBar={<TopBar product="Qeet ID" />}
+        defaultActiveDrawer="assistant"
+        drawers={[
+          {
+            id: "assistant",
+            label: "Qeet AI",
+            icon: ActivityIcon,
+            content: "Ask anything",
+            width: 400,
+            minWidth: 340,
+            maxWidth: 720,
+            resizable: true,
+            onWidthChange,
+          },
+        ]}
+      >
+        page
+      </AppShell>,
+    );
+    const panel = page.getByRole("complementary", { name: "Qeet AI" }).element();
+    expect(panel.getBoundingClientRect().width).toBe(400);
+    const handle = page.getByRole("separator", { name: "Resize Qeet AI" });
+    await expect.element(handle).toHaveAttribute("aria-valuenow", "400");
+    await handle.click();
+    await userEvent.keyboard("{ArrowLeft}");
+    expect(onWidthChange).toHaveBeenLastCalledWith(416);
+    expect(panel.getBoundingClientRect().width).toBe(416);
+    await userEvent.keyboard("{End}");
+    expect(onWidthChange).toHaveBeenLastCalledWith(720);
+    await userEvent.keyboard("{Home}");
+    expect(onWidthChange).toHaveBeenLastCalledWith(340);
+    await expect.element(handle).toHaveAttribute("aria-valuemin", "340");
+  });
+
   it("leaves no band without a bar: the navigation and panel fill the window, at every density", async () => {
     const drawers = [
       { id: "help", label: "Help", icon: CircleQuestionMarkIcon, content: "Help text" },
@@ -197,6 +236,55 @@ describe("AppShell", () => {
     await expect.element(page.getByRole("dialog", { name: "Navigation" })).toBeVisible();
     await page.getByRole("link", { name: "Organisations" }).click();
     await expect.element(page.getByRole("dialog", { name: "Navigation" })).not.toBeInTheDocument();
+  });
+
+  it("embedded, fills its box: no <main> or skip link, the page scrolling inside it", async () => {
+    await page.viewport(1440, 900);
+    const { container } = await render(
+      <main>
+        <div style={{ inlineSize: 900, blockSize: 500 }}>
+          <AppShell
+            embedded
+            topBar={<TopBar product="Qeet ID" />}
+            sidebar={<nav aria-label="Qeet ID">Users</nav>}
+          >
+            <div style={{ blockSize: 2000 }}>A long page</div>
+          </AppShell>
+        </div>
+      </main>,
+    );
+    const shell = container.querySelector("[data-slot=app-shell]") as HTMLElement;
+    expect(page.getByRole("main").elements()).toHaveLength(1);
+    expect(page.getByRole("link", { name: "Skip to main content" }).elements()).toHaveLength(0);
+    const box = shell.getBoundingClientRect();
+    expect([Math.round(box.width), Math.round(box.height)]).toEqual([900, 500]);
+    expect(Math.round(nav().getBoundingClientRect().bottom)).toBe(Math.round(box.bottom));
+    const content = container.querySelector("[data-slot=app-shell-main]") as HTMLElement;
+    expect(content.tagName).toBe("DIV");
+    expect(content.scrollHeight).toBeGreaterThan(content.clientHeight);
+  });
+
+  it("embedded, follows its box's width: a narrow box opens the navigation inside it", async () => {
+    await page.viewport(1440, 900);
+    const { container } = await render(
+      <div style={{ inlineSize: 600, blockSize: 400 }}>
+        <AppShell
+          embedded
+          topBar={<TopBar product="Qeet ID" />}
+          sidebar={<nav aria-label="Qeet ID">Users</nav>}
+        >
+          Page
+        </AppShell>
+      </div>,
+    );
+    expect(getComputedStyle(nav()).display).toBe("none");
+    await page.getByRole("button", { name: "Open navigation" }).click();
+    const drawer = page.getByRole("dialog", { name: "Navigation" });
+    await expect.element(drawer).toBeVisible();
+    const shell = container.querySelector("[data-slot=app-shell]") as HTMLElement;
+    expect(shell.contains(drawer.element())).toBe(true);
+    const viewport = shell.querySelector(".qx-app-shell-viewport") as HTMLElement;
+    expect(Math.round(viewport.getBoundingClientRect().width)).toBe(600);
   });
 
   it("is accessible and looks right in every mode", async () => {

@@ -1,10 +1,7 @@
-"use client";
-
 import type { ComponentProps, CSSProperties, ReactElement, ReactNode } from "react";
 import { cx } from "../../internal/cx";
 import type { QeetrixMessages } from "../../internal/messages";
-import { useMessages } from "../../provider/provider";
-import { CopyButton } from "../copy-button/copy-button";
+import { CodeBlockCopy, CodeBlockName, CodeBlockScroll } from "./code-block-client";
 import { type CodeLanguage, highlight, type Token } from "./highlight";
 
 export interface CodeBlockProps extends Omit<ComponentProps<"div">, "children" | "title"> {
@@ -33,6 +30,7 @@ const NAMES: Record<Exclude<CodeLanguage, "shell" | "text">, string> = {
   json: "JSON",
   xml: "XML",
   html: "HTML",
+  css: "CSS",
 };
 
 /** An indented line in parts: its leading spaces and tabs, the columns they take (a tab is two),
@@ -87,7 +85,8 @@ const tokenNode = (token: Token, key: number): ReactNode =>
  * by the code tokens with our own small highlighter, with one Copy button. More than one line gets
  * a header with the language and the button, and line numbers (drawn by CSS, so copying never
  * picks them up). Long lines scroll sideways in a focusable region, or `wrap` under their own
- * start. Ligatures are off, so code shows exactly as typed.
+ * start. Ligatures are off, so code shows exactly as typed. Server-safe: the code is highlighted
+ * where it renders, and only the Copy button and the strings hydrate.
  */
 export function CodeBlock({
   code,
@@ -99,14 +98,27 @@ export function CodeBlock({
   className,
   ...props
 }: CodeBlockProps): ReactElement {
-  const strings = useMessages("codeBlock", messages);
   const lines = highlight(code.replace(/\n$/, ""), language);
   const several = lines.length > 1;
-  const name = language === "shell" ? strings.shell : language === "text" ? "" : NAMES[language];
+  const name =
+    language === "shell" ? (
+      <CodeBlockName name={null} messages={messages} />
+    ) : language === "text" ? (
+      ""
+    ) : (
+      NAMES[language]
+    );
   const label = title ?? name;
   const header = several || title != null;
   const numbered = lineNumbers ?? several;
-  const copy = <CopyButton value={code} label={strings.copy} size="sm" />;
+  const copy = <CodeBlockCopy code={code} messages={messages} />;
+  // The region's name: a string title, or the language's format name; "Code" (or "Shell") otherwise.
+  const regionName =
+    typeof title === "string" && title
+      ? title
+      : language !== "shell" && language !== "text"
+        ? NAMES[language]
+        : undefined;
 
   return (
     <div
@@ -122,11 +134,11 @@ export function CodeBlock({
         </div>
       )}
       <div className="qx-code-block-body">
-        <section
-          // A region that scrolls must be reachable by keyboard to scroll it; wrapped code doesn't.
-          tabIndex={wrap ? undefined : 0}
-          aria-label={typeof label === "string" && label ? label : strings.region}
-          className="qx-code-block-scroll"
+        <CodeBlockScroll
+          label={regionName}
+          shell={language === "shell" && !(typeof title === "string" && title)}
+          wrap={wrap}
+          messages={messages}
         >
           <pre
             className="qx-code-block-code"
@@ -163,7 +175,7 @@ export function CodeBlock({
               })}
             </code>
           </pre>
-        </section>
+        </CodeBlockScroll>
         {!header && copy}
       </div>
     </div>

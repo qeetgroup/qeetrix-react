@@ -1,0 +1,83 @@
+/* InstructionList: numbered explaining steps. Vertical, a numbered column; horizontal, a ruled strip
+   of steps, an arrow on each rule between them pointing the order they run in. */
+.qx-instruction-list {
+  display: grid;
+  gap: var(--qx-space-gap-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: qx-instruction;
+}
+.qx-instruction-step {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--qx-space-gap-xs);
+  min-inline-size: 0;
+  counter-increment: qx-instruction;
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  code {
+    font: var(--qx-typography-code-sm);
+    overflow-wrap: anywhere;
+  }
+}
+.qx-instruction-step-text::before {
+  content: counter(qx-instruction) ". ";
+  font-variant-numeric: tabular-nums;
+}
+.qx-instruction-step-title {
+  font-weight: var(--qx-typography-title-sm-font-weight);
+}
+.qx-instruction-step-value {
+  overflow-wrap: anywhere;
+  font: var(--qx-typography-code-sm);
+}
+.qx-instruction-step-note {
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}
+
+.qx-instruction-list[data-orientation="horizontal"] {
+  grid-template-columns: repeat(var(--qx-instruction-count), minmax(0, 1fr));
+  gap: 0;
+  border: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  border-radius: var(--qx-radius-surface);
+  background: var(--qx-color-surface-raised);
+  > .qx-instruction-step {
+    padding: var(--qx-space-inset-md);
+  }
+  > .qx-instruction-step + .qx-instruction-step {
+    padding-inline-start: calc(var(--qx-space-inset-md) + var(--qx-space-gap-sm));
+    border-inline-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+    &::before {
+      content: "";
+      position: absolute;
+      inset-block-start: calc(var(--qx-space-inset-md) + var(--qx-space-gap-xs));
+      inset-inline-start: -0.4rem;
+      inline-size: 0.8rem;
+      block-size: 0.8rem;
+      border-block-start: var(--qx-border-width-strong) solid var(--qx-color-border-strong);
+      border-inline-end: var(--qx-border-width-strong) solid var(--qx-color-border-strong);
+      background: var(--qx-color-surface-raised);
+      rotate: 45deg;
+    }
+  }
+}
+[dir="rtl"] .qx-instruction-list[data-orientation="horizontal"] > .qx-instruction-step::before {
+  rotate: -135deg;
+}
+@container (width < 40rem) {
+  .qx-instruction-list[data-orientation="horizontal"] {
+    grid-template-columns: minmax(0, 1fr);
+    > .qx-instruction-step + .qx-instruction-step {
+      border-inline-start: 0;
+      border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+      padding-inline-start: var(--qx-space-inset-md);
+      &::before {
+        display: none;
+      }
+    }
+  }
+}

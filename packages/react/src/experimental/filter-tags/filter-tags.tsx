@@ -43,8 +43,9 @@ export interface FilterTagsProps extends Omit<ComponentProps<"div">, "children">
  * The filters applied to a list, each a tag you can remove (07-components.md), under its toolbar:
  * "Status: Active ×". Clear all removes them all, and a summary says how many records are left.
  * Not a Badge: a Badge is a static label in the data, a tag is a choice someone made. After a
- * removal, focus moves to the next tag, then the previous, then `returnFocusTo`. Renders nothing
- * when no filters are applied.
+ * removal, focus moves to the next tag, then the previous, then `returnFocusTo`. With no filters
+ * it shows the summary alone, for a search that narrows the list without a tag, and renders
+ * nothing without a summary: pass `summary` only while something narrows the list.
  */
 export function FilterTags({
   filters,

@@ -2,11 +2,12 @@
 
 import { Tabs as BaseTabs } from "@base-ui/react/tabs";
 import type { IconProps } from "@qeetrix/icons";
-import type { ComponentType, CSSProperties, ReactElement, ReactNode } from "react";
+import type { ComponentProps, ComponentType, CSSProperties, ReactElement, ReactNode } from "react";
 import { Badge } from "../badge/badge";
 import { formatNumber } from "../format/format";
 import type { QeetrixIcon } from "../internal/control";
 import { cx } from "../internal/cx";
+import { type RenderProp, renderElement } from "../internal/render";
 import { useLocale } from "../provider/provider";
 
 /**
@@ -130,4 +131,93 @@ export function TabsPanel({ className, ...props }: TabsPanelProps): ReactElement
   return (
     <BaseTabs.Panel {...props} className={cx("qx-tabs-panel", className)} data-slot="tabs-panel" />
   );
+}
+
+export interface TabNavProps extends Omit<ComponentProps<"nav">, "children"> {
+  /** Required: names the navigation, e.g. "Users views". */
+  "aria-label": string;
+  /** The TabNavLinks. */
+  children?: ReactNode;
+}
+
+export interface TabNavLinkProps extends Omit<ComponentProps<"a">, "children"> {
+  /** The page this link is on: `aria-current="page"` and the Ember bar. */
+  current?: boolean;
+  /** A leading 16px icon from `@qeetrix/icons`, sharp. */
+  icon?: QeetrixIcon;
+  /** Show the icon's filled drawing while current. Only for icons that have one. */
+  filledWhenSelected?: boolean;
+  /** The label. */
+  children?: ReactNode;
+  /** A trailing count, as Tab's: a number is formatted for the locale and shown as a neutral Badge. */
+  badge?: ReactNode;
+  /** Render a router link, e.g. `render={<RouterLink to="/users/invitations" />}`. */
+  render?: RenderProp;
+}
+
+/**
+ * Tabs for sub-pages that are pages of their own (each with its address), drawn as a TabsList: a
+ * navigation landmark of links, the current one marked `aria-current="page"` and by the Ember bar.
+ * Links open in a new tab and can be copied; for views within one page, use Tabs. It goes in
+ * PageHeader's `tabs` as a TabsList does.
+ */
+export function TabNav({ className, children, ...props }: TabNavProps): ReactElement {
+  return (
+    <nav
+      {...props}
+      className={cx("qx-tabs-list qx-tab-nav", className)}
+      data-slot="tab-nav"
+      data-variant="line"
+    >
+      {children}
+    </nav>
+  );
+}
+
+/**
+ * One sub-page in a TabNav: a link with a label, and optionally a leading icon and a trailing count.
+ * A router link that sets `aria-current="page"` itself is marked the same way.
+ */
+export function TabNavLink({
+  current,
+  icon: Icon,
+  filledWhenSelected,
+  badge,
+  render,
+  className,
+  children,
+  ...props
+}: TabNavLinkProps): ReactElement {
+  const locale = useLocale();
+  const Filled = Icon as ComponentType<IconProps> | undefined;
+  return renderElement("a", render, {
+    ...props,
+    "aria-current": current ? "page" : props["aria-current"],
+    className: cx("qx-tab", className),
+    "data-slot": "tab-nav-link",
+    children: (
+      <>
+        {Icon && (
+          <Icon shape="sharp" size={16} aria-hidden className="qx-tab-icon qx-tab-icon-outline" />
+        )}
+        {Filled && filledWhenSelected && (
+          <Filled
+            shape="sharp"
+            variant="filled"
+            size={16}
+            aria-hidden
+            className="qx-tab-icon qx-tab-icon-filled"
+          />
+        )}
+        <span className="qx-tab-label" data-slot="tab-label">
+          {children}
+          {badge != null && (
+            <span className="qx-tab-badge" data-slot="tab-badge">
+              {typeof badge === "number" ? <Badge>{formatNumber(badge, locale)}</Badge> : badge}
+            </span>
+          )}
+        </span>
+      </>
+    ),
+  });
 }

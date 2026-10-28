@@ -4,11 +4,16 @@ import { cx } from "../internal/cx";
 /** A column's horizontal alignment. */
 export type TableAlign = "start" | "center" | "end";
 
+/** How long a column stays as the table narrows: `low` goes under 640px, `medium` under 480px. */
+export type TablePriority = "high" | "medium" | "low";
+
 interface CellLook {
   /** Horizontal alignment. Default `start`. */
   align?: TableAlign | undefined;
   /** Numbers, amounts and dates: tabular figures, end-aligned. */
   numeric?: boolean | undefined;
+  /** Hides the cell as the table narrows, with its column. Default `high`: always shown. */
+  priority?: TablePriority | undefined;
 }
 
 /*
@@ -31,18 +36,24 @@ export function TableBody({ className, ...props }: ComponentProps<"tbody">): Rea
   return <tbody {...props} className={cx("qx-table-body", className)} data-slot="table-body" />;
 }
 
-/** A row; `selected` gives it the selected tint. Its checked checkbox carries the meaning. */
+/**
+ * A row; `selected` gives it the selected tint (its checked checkbox carries the meaning), and
+ * `current` marks the record open beside the list (`aria-current`).
+ */
 export function TableRow({
   selected,
+  current,
   className,
   ...props
-}: ComponentProps<"tr"> & { selected?: boolean }): ReactElement {
+}: ComponentProps<"tr"> & { selected?: boolean; current?: boolean }): ReactElement {
   return (
     <tr
       {...props}
       className={cx("qx-table-row", className)}
       data-slot="table-row"
       data-selected={selected ? "" : undefined}
+      data-current={current ? "" : undefined}
+      aria-current={current ? "true" : undefined}
     />
   );
 }
@@ -51,6 +62,7 @@ export function TableRow({
 export function TableHead({
   align,
   numeric,
+  priority,
   className,
   ...props
 }: Omit<ComponentProps<"th">, "align"> & CellLook): ReactElement {
@@ -62,6 +74,7 @@ export function TableHead({
       data-slot="table-head"
       data-align={numeric ? "end" : align}
       data-numeric={numeric ? "" : undefined}
+      data-priority={priority === "high" ? undefined : priority}
     />
   );
 }
@@ -69,6 +82,7 @@ export function TableHead({
 export function TableCell({
   align,
   numeric,
+  priority,
   className,
   ...props
 }: Omit<ComponentProps<"td">, "align"> & CellLook): ReactElement {
@@ -78,6 +92,7 @@ export function TableCell({
       className={cx("qx-table-cell", className)}
       data-slot="table-cell"
       data-align={numeric ? "end" : align}
+      data-priority={priority === "high" ? undefined : priority}
       data-numeric={numeric ? "" : undefined}
     />
   );

@@ -8,6 +8,7 @@ import { XIcon } from "@qeetrix/icons/icons/x";
 import {
   type ComponentProps,
   type Context,
+  type CSSProperties,
   createContext,
   type ReactElement,
   type ReactNode,
@@ -22,7 +23,9 @@ import type { QeetrixIcon } from "../../internal/control";
 import { cx } from "../../internal/cx";
 import { useMediaQuery } from "../../internal/media";
 import type { QeetrixMessages } from "../../internal/messages";
-import { useMessages } from "../../provider/provider";
+import { mergeRefs } from "../../internal/refs";
+import { fill } from "../../internal/template";
+import { useMessages, usePortalContainer } from "../../provider/provider";
 import { SkipLink } from "../../skip-link/skip-link";
 import { Tooltip } from "../../tooltip/tooltip";
 
@@ -45,6 +48,19 @@ export interface AppShellDrawer {
   content: ReactNode;
   /** A dot on the trigger: something new inside. */
   badge?: boolean;
+  /** The panel's width in px, when it opens. Default `320`. */
+  width?: number;
+  /** The narrowest it can be resized to. Default: `width`. */
+  minWidth?: number;
+  /** The widest it can be resized to. Default `720`. */
+  maxWidth?: number;
+  /**
+   * A handle on the panel's start edge to resize it, as a window splitter: drag it, or focus it
+   * and use the arrow keys (Home and End for the narrowest and the widest).
+   */
+  resizable?: boolean;
+  /** Called with the new width after a resize, e.g. to remember it. */
+  onWidthChange?: (width: number) => void;
 }
 
 export interface AppShellProps extends Omit<ComponentProps<"div">, "children"> {
@@ -79,6 +95,13 @@ export interface AppShellProps extends Omit<ComponentProps<"div">, "children"> {
   onSidebarCollapsedChange?: (collapsed: boolean) => void;
   /** The main region's id, which the built-in skip link targets. Default `main`. */
   mainId?: string;
+  /**
+   * A shell inside a page (a docs preview, a story, an in-product preview): it fills its box
+   * (give the box a height) instead of the window, the page scrolls inside it, the narrow layout
+   * follows the box's width, and the navigation drawer opens inside it. It renders no `<main>`
+   * and no skip link, which belong to the page around it.
+   */
+  embedded?: boolean;
   /** The shell's strings, over QeetrixProvider's and the English defaults. */
   messages?: Partial<QeetrixMessages["appShell"]>;
 }
@@ -121,6 +144,7 @@ const outside: ShellState = {
     navigation: "",
     tools: "",
     closePanel: "",
+    resizePanel: "",
   },
 };
 
@@ -161,13 +185,30 @@ export function AppShell({
   defaultSidebarCollapsed = false,
   onSidebarCollapsedChange,
   mainId = "main",
+  embedded = false,
   messages,
   className,
+  ref,
   ...props
 }: AppShellProps): ReactElement {
   const strings = useMessages("appShell", messages);
   const skip = useMessages("skipLink");
-  const wide = useMediaQuery(WIDE, true);
+  const Main = embedded ? "div" : "main";
+  const wideWindow = useMediaQuery(WIDE, true);
+  const portalContainer = usePortalContainer();
+  // Embedded, the box's width decides the layout, as the CSS's container queries do.
+  const root = useRef<HTMLDivElement>(null);
+  const [wideBox, setWideBox] = useState(true);
+  useEffect(() => {
+    const el = root.current;
+    if (!embedded || !el || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(([entry]) =>
+      setWideBox((entry?.contentRect.width ?? 0) >= 840),
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [embedded]);
+  const wide = embedded ? wideBox : wideWindow;
   const rtl = useDirection() === "rtl";
   const panelTitle = useId();
 
@@ -185,6 +226,8 @@ export function AppShell({
     onActiveDrawerChange?.(next);
   };
   const panel = drawers.find((drawer) => drawer.id === active);
+  // Each panel's width once someone has resized it, by id.
+  const [widths, setWidths] = useState<Record<string, number>>({});
 
   const [navOpen, setNavOpen] = useState(false);
 
@@ -241,13 +284,15 @@ export function AppShell({
     <ShellContext value={shell}>
       <div
         {...props}
+        ref={mergeRefs(ref, root)}
         className={cx("qx-app-shell", className)}
         data-slot="app-shell"
+        data-embedded={embedded ? "" : undefined}
         data-qx-density={density === "inherit" ? undefined : density}
         data-collapsed={collapsed ? "" : undefined}
         data-drawer-open={panel ? "" : undefined}
       >
-        <SkipLink href={`#${mainId}`}>{skip.label}</SkipLink>
+        {!embedded && <SkipLink href={`#${mainId}`}>{skip.label}</SkipLink>}
         {topBar != null && (
           <div className="qx-app-shell-top" data-slot="app-shell-top">
             {topBar}
@@ -278,7 +323,11 @@ export function AppShell({
             </div>
           </div>
         )}
-        <main id={mainId} tabIndex={-1} className="qx-app-shell-main" data-slot="app-shell-main">
+        <Main
+          {...(embedded ? {} : { id: mainId, tabIndex: -1 })}
+          className="qx-app-shell-main"
+          data-slot="app-shell-main"
+        >
           {banners != null && (
             <div className="qx-app-shell-banners" data-slot="app-shell-banners">
               {banners}
@@ -290,13 +339,29 @@ export function AppShell({
             </div>
           )}
           {children}
-        </main>
+        </Main>
         {panel && (
           <aside
             className="qx-app-shell-panel"
             data-slot="app-shell-panel"
             aria-labelledby={panelTitle}
+            style={
+              {
+                "--qx-app-shell-panel-width": `${widths[panel.id] ?? panel.width ?? 320}px`,
+              } as CSSProperties
+            }
           >
+            {panel.resizable && (
+              <PanelResizer
+                panel={panel}
+                width={widths[panel.id] ?? panel.width ?? 320}
+                label={fill(strings.resizePanel, { panel: panel.label })}
+                onResize={(next) => {
+                  setWidths((known) => ({ ...known, [panel.id]: next }));
+                  panel.onWidthChange?.(next);
+                }}
+              />
+            )}
             <div className="qx-app-shell-panel-header" data-slot="app-shell-panel-header">
               <h2
                 id={panelTitle}
@@ -325,7 +390,7 @@ export function AppShell({
             onOpenChange={setNavOpen}
             swipeDirection={rtl ? "right" : "left"}
           >
-            <BaseDrawer.Portal>
+            <BaseDrawer.Portal container={embedded ? root : portalContainer}>
               <BaseDrawer.Backdrop className="qx-app-shell-backdrop" />
               <BaseDrawer.Viewport className="qx-app-shell-viewport">
                 <BaseDrawer.Popup
@@ -344,5 +409,77 @@ export function AppShell({
         )}
       </div>
     </ShellContext>
+  );
+}
+
+const RESIZE_STEP = 16;
+
+/**
+ * A panel's resize handle on its start edge: a window splitter (separator) that reports the width,
+ * moved by dragging or by the arrow keys. Moving it towards the page's start widens the panel, in
+ * either reading direction.
+ */
+function PanelResizer({
+  panel,
+  width,
+  label,
+  onResize,
+}: {
+  panel: AppShellDrawer;
+  width: number;
+  label: string;
+  onResize: (width: number) => void;
+}): ReactElement {
+  const min = panel.minWidth ?? panel.width ?? 320;
+  const max = Math.max(min, panel.maxWidth ?? 720);
+  const clamp = (value: number) => Math.round(Math.min(max, Math.max(min, value)));
+  const rtl = (el: Element) => getComputedStyle(el).direction === "rtl";
+  return (
+    // biome-ignore lint/a11y/useSemanticElements: a focusable window splitter, which <hr> can't be
+    <div
+      role="separator"
+      aria-orientation="vertical"
+      aria-label={label}
+      aria-valuenow={width}
+      aria-valuemin={min}
+      aria-valuemax={max}
+      tabIndex={0}
+      className="qx-app-shell-resizer"
+      data-slot="app-shell-resizer"
+      onKeyDown={(event) => {
+        const towardsStart = rtl(event.currentTarget) ? "ArrowRight" : "ArrowLeft";
+        const towardsEnd = rtl(event.currentTarget) ? "ArrowLeft" : "ArrowRight";
+        const next =
+          event.key === towardsStart
+            ? width + RESIZE_STEP
+            : event.key === towardsEnd
+              ? width - RESIZE_STEP
+              : event.key === "Home"
+                ? min
+                : event.key === "End"
+                  ? max
+                  : undefined;
+        if (next === undefined) return;
+        event.preventDefault();
+        onResize(clamp(next));
+      }}
+      onPointerDown={(event) => {
+        if (event.button !== 0) return;
+        const handle = event.currentTarget;
+        const from = event.clientX;
+        const sign = rtl(handle) ? 1 : -1;
+        handle.setPointerCapture(event.pointerId);
+        const move = (moved: PointerEvent) =>
+          onResize(clamp(width + sign * (moved.clientX - from)));
+        const end = () => {
+          handle.removeEventListener("pointermove", move);
+          handle.removeEventListener("pointerup", end);
+          handle.removeEventListener("pointercancel", end);
+        };
+        handle.addEventListener("pointermove", move);
+        handle.addEventListener("pointerup", end);
+        handle.addEventListener("pointercancel", end);
+      }}
+    />
   );
 }

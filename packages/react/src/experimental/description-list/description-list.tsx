@@ -24,6 +24,13 @@ export interface DescriptionItemProps extends Omit<ComponentProps<"div">, "child
   term: ReactNode;
   /** The value: text, a Badge, a link, a copy button. Empty shows "—", read as "Not set". */
   children?: ReactNode;
+  /** A sentence under the value, on what it means: "Shown in the top bar and in invitations." */
+  description?: ReactNode;
+  /**
+   * An action on this fact at the row's end, such as a ghost "Change" that opens an editor in
+   * place: a Settings row.
+   */
+  action?: ReactNode;
   /** This item's strings, over QeetrixProvider's and the English defaults. */
   messages?: Partial<QeetrixMessages["descriptionList"]>;
 }
@@ -55,6 +62,8 @@ export function DescriptionList({
 export function DescriptionItem({
   term,
   children,
+  description,
+  action,
   messages,
   className,
   ...props
@@ -62,7 +71,12 @@ export function DescriptionItem({
   const strings = useMessages("descriptionList", messages);
   const empty = children == null || children === false || children === "";
   return (
-    <div {...props} className={cx("qx-description-item", className)} data-slot="description-item">
+    <div
+      {...props}
+      className={cx("qx-description-item", className)}
+      data-slot="description-item"
+      data-action={action != null ? "" : undefined}
+    >
       <dt className="qx-description-term" data-slot="description-term">
         {term}
       </dt>
@@ -77,7 +91,17 @@ export function DescriptionItem({
         ) : (
           children
         )}
+        {description != null && (
+          <span className="qx-description-note" data-slot="description-note">
+            {description}
+          </span>
+        )}
       </dd>
+      {action != null && (
+        <dd className="qx-description-action" data-slot="description-action">
+          {action}
+        </dd>
+      )}
     </div>
   );
 }

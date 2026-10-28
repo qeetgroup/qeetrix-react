@@ -1,0 +1,156 @@
+/* Treemap and ProportionalCircles (QTRX-24): parts of a whole in one data hue, two sequential tints
+   by depth, graphite for what has no group; a 2px surface gap between tiles; text in text colours. */
+.qx-treemap {
+  position: relative;
+  inline-size: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.qx-treemap-tile {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px;
+  overflow: hidden;
+  border: var(--qx-border-width-strong) solid var(--qx-color-surface-raised);
+  background: var(--qx-color-dataviz-sequential-1);
+  color: var(--qx-color-text-default);
+  &[data-tone="none"] {
+    background: var(--qx-color-bg-neutral-subtle);
+  }
+  &:has(> a:hover) {
+    box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-strong);
+  }
+}
+.qx-treemap-head {
+  display: flex;
+  flex: none;
+  justify-content: space-between;
+  gap: var(--qx-space-gap-sm);
+  padding: 4px 6px 2px;
+  color: inherit;
+  font: var(--qx-typography-label-sm);
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+  white-space: nowrap;
+}
+/* The link is the header; it stretches over the whole tile, and its focus frames the tile. */
+a.qx-treemap-head {
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+  &:focus-visible {
+    outline: none;
+  }
+  &:focus-visible::after {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+}
+.qx-treemap-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qx-treemap-children {
+  position: relative;
+  flex: 1 1 auto;
+  min-block-size: 0;
+  pointer-events: none;
+}
+.qx-treemap-child {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4px 6px;
+  overflow: hidden;
+  border: var(--qx-border-width-default) solid var(--qx-color-surface-raised);
+  background: var(--qx-color-dataviz-sequential-2);
+  font: var(--qx-typography-body-sm);
+  &[data-tone="none"] {
+    background: var(--qx-color-bg-neutral-subtle-hover);
+    color: var(--qx-color-text-subtle);
+  }
+}
+.qx-treemap-value {
+  font-variant-numeric: tabular-nums;
+}
+
+.qx-circles {
+  display: grid;
+}
+/* The group's name, then its circles; on a narrow box the circles wrap under the name. */
+.qx-circles-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--qx-space-gap-md);
+  margin: 0;
+  padding-block: var(--qx-space-gap-md);
+  & + & {
+    border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  }
+}
+.qx-circles-caption {
+  display: grid;
+  flex: 0 0 5.5rem;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}
+.qx-circles-name {
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-label-md);
+}
+.qx-circles-items {
+  display: flex;
+  flex: 1 1 12rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--qx-space-gap-sm) var(--qx-space-gap-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.qx-circles-item {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+.qx-circles-label {
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+  white-space: nowrap;
+}
+.qx-circles-dot {
+  fill: var(--qx-color-dataviz-categorical-1);
+  [data-tone="reference"] & {
+    fill: var(--qx-color-dataviz-reference);
+  }
+}
+.qx-circles-count {
+  fill: var(--qx-color-text-inverse);
+  font: var(--qx-typography-label-md);
+}
+
+@media (forced-colors: active) {
+  .qx-treemap-tile,
+  .qx-treemap-child {
+    forced-color-adjust: none;
+    border-color: Canvas;
+    background: CanvasText;
+    color: Canvas;
+  }
+  .qx-circles-dot {
+    fill: CanvasText;
+  }
+  .qx-circles-count {
+    fill: Canvas;
+  }
+}

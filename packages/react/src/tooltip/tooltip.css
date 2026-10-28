@@ -1,4 +1,6 @@
-/* Tooltip (06-component-specs.md §7): graphite, 2px corners, no arrow and no shadow. */
+/* Tooltip (06-component-specs.md §7): graphite, 2px corners, no shadow, and a sharp 10 x 5px
+   pointer in the middle of the side facing the trigger (it follows the trigger when the popup is
+   shifted to stay on screen). */
 .qx-tooltip-positioner {
   z-index: var(--qx-z-tooltip);
 }
@@ -32,9 +34,67 @@
   }
 }
 
-/* Forced colours: the fill is dropped, so the tooltip gets an edge. */
+/* The pointer: a triangle in the popup's colour, outside its edge, pointing at the trigger. Base UI
+   places it along the edge; its side says which edge. */
+.qx-tooltip-arrow {
+  inline-size: 10px;
+  block-size: 5px;
+  background: var(--qx-color-surface-inverse);
+  &[data-side="top"] {
+    inset-block-start: 100%;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+  &[data-side="bottom"] {
+    inset-block-end: 100%;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  }
+  &:is(
+      [data-side="left"],
+      [data-side="right"],
+      [data-side="inline-start"],
+      [data-side="inline-end"]
+    ) {
+    inline-size: 5px;
+    block-size: 10px;
+  }
+  /* Base UI names these sides physically: the start edge is the left one only left to right. */
+  &[data-side="left"] {
+    inset-inline-start: 100%;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+    &:dir(rtl) {
+      inset-inline: auto 100%;
+    }
+  }
+  &[data-side="right"] {
+    inset-inline-end: 100%;
+    clip-path: polygon(100% 0, 100% 100%, 0 50%);
+    &:dir(rtl) {
+      inset-inline: 100% auto;
+    }
+  }
+  &[data-side="inline-start"] {
+    inset-inline-start: 100%;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+    &:dir(rtl) {
+      clip-path: polygon(100% 0, 100% 100%, 0 50%);
+    }
+  }
+  &[data-side="inline-end"] {
+    inset-inline-end: 100%;
+    clip-path: polygon(100% 0, 100% 100%, 0 50%);
+    &:dir(rtl) {
+      clip-path: polygon(0 0, 100% 50%, 0 100%);
+    }
+  }
+}
+
+/* Forced colours: the fill is dropped, so the tooltip gets an edge and the pointer the text colour. */
 @media (forced-colors: active) {
   .qx-tooltip {
     border: var(--qx-border-width-default) solid CanvasText;
+  }
+  .qx-tooltip-arrow {
+    forced-color-adjust: none;
+    background: CanvasText;
   }
 }

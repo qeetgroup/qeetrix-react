@@ -65,9 +65,12 @@ export interface ThemeSwitcherMenuProps
     Omit<ComponentProps<"button">, keyof ThemeSwitcherOwnProps | "children" | "onChange"> {
   /**
    * `menu` (default): a neutral ghost IconButton showing the current choice's icon, named by the
-   * `label` string ("Theme"), which opens Light, Dark and System; a check marks the current one.
+   * `label` string ("Theme"), which opens Light, Dark and System; an Ember check marks the current
+   * one.
    */
   variant?: "menu";
+  /** The side the menu opens on: `top` at a page's or navigation's foot. Default `bottom`. */
+  menuSide?: "top" | "bottom";
 }
 
 export interface ThemeSwitcherSegmentedProps
@@ -124,6 +127,7 @@ function ThemeMenu({
   tooltipSide = "top",
   messages,
   variant: _variant,
+  menuSide = "bottom",
   className,
   ...props
 }: ThemeSwitcherMenuProps): ReactElement {
@@ -147,7 +151,7 @@ function ThemeMenu({
           />
         }
       />
-      <MenuContent align="end" className="qx-theme-switcher-menu">
+      <MenuContent align="end" side={menuSide} className="qx-theme-switcher-menu">
         <BaseMenu.RadioGroup
           value={current}
           onValueChange={(next: unknown) => {
@@ -231,9 +235,11 @@ function ThemeSegmented({
 }
 
 /**
- * Light, dark or the system's colour scheme, the same switch in every product. By default it
- * follows the enclosing QeetrixProvider (`useColorScheme`); give it `value` and `onValueChange` to
- * manage the scheme yourself. `variant="menu"` (default) is an icon button with a menu of the three;
+ * Light, dark or the system's colour scheme, the same switch in every product: the menu variant,
+ * at the foot of the navigation or the page, is the one Qeet products use. By default it follows
+ * the enclosing QeetrixProvider (`useColorScheme`), which saves the choice for
+ * `colorSchemeScript` with `storageKey="qx-color-scheme"`; System keeps following the device. Give
+ * it `value` and `onValueChange` to manage the scheme yourself. `variant="menu"` (default) is an icon button with a menu of the three;
  * `variant="segmented"` shows them as three icon-only toggles. One is always chosen.
  */
 export function ThemeSwitcher(props: ThemeSwitcherProps): ReactElement {

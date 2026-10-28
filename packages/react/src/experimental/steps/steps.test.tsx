@@ -68,6 +68,31 @@ describe("Steps", () => {
     expect(getComputedStyle(next as HTMLElement).color).toBe(tokenColor("--qx-color-text-subtle"));
   });
 
+  it("shows a step that failed or needs attention, in its tone and in words, over current", async () => {
+    await render(
+      <Steps
+        orientation="vertical"
+        current={2}
+        steps={[
+          { label: "Add the record", status: "done" },
+          { label: "Verify the record", status: "failed" },
+          { label: "Issue the certificate", status: "attention" },
+        ]}
+      />,
+    );
+    await expect.element(page.getByText("Verify the record, Failed")).toBeInTheDocument();
+    await expect
+      .element(page.getByText("Issue the certificate, Needs attention"))
+      .toBeInTheDocument();
+    const steps = [...document.querySelectorAll<HTMLElement>("[data-slot=step]")];
+    expect(steps.map((step) => step.dataset.state)).toEqual(["done", "failed", "attention"]);
+    expect(steps[2]?.getAttribute("aria-current")).toBe("step");
+    const marker = (index: number) =>
+      getComputedStyle(steps[index]?.querySelector("[data-slot=step-marker]") as HTMLElement);
+    expect(marker(1).backgroundColor).toBe(tokenColor("--qx-color-bg-danger-bold"));
+    expect(marker(2).backgroundColor).toBe(tokenColor("--qx-color-bg-warning-bold"));
+  });
+
   it("lays horizontal steps along one line, and vertical ones down a column with descriptions", async () => {
     const { rerender } = await render(
       <div style={{ inlineSize: 720 }}>

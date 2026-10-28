@@ -15,8 +15,18 @@ export interface StatGroupProps extends ComponentProps<"dl"> {
 export interface StatProps extends Omit<ComponentProps<"div">, "children"> {
   /** What's counted: "Total users". */
   label: ReactNode;
-  /** The number. A `number` is formatted for `locale`; pass a string for units or percentages. */
+  /**
+   * The number. A `number` is formatted for `locale` (as money with `currency`); pass a string for
+   * units or percentages.
+   */
   value: ReactNode;
+  /**
+   * An amount of money: the ISO currency code, e.g. `"INR"`. A whole amount shows no fraction,
+   * so `1842600` reads ₹18,42,600 in `en-IN`.
+   */
+  currency?: string;
+  /** `Intl.NumberFormat` options for a numeric `value`, over the defaults (and over `currency`'s). */
+  format?: Intl.NumberFormatOptions;
   /** One line under the value: the change or the context, e.g. "+38 this week". */
   note?: ReactNode;
   /** Colours the note. Default `neutral`. */
@@ -26,6 +36,13 @@ export interface StatProps extends Omit<ComponentProps<"div">, "children"> {
    * matters about the trend in `note`.
    */
   trend?: readonly number[];
+  /**
+   * A small chart under the note, for a summary band's richer cells: a ShareBar, a BarList, a
+   * Meter. It supports the number; the note still says what matters.
+   */
+  chart?: ReactNode;
+  /** A link at the cell's foot, into the list it counts: "Show the 12 below the target". */
+  action?: ReactNode;
   /** Default: QeetrixProvider's locale. It formats a numeric `value`. */
   locale?: string;
   /**
@@ -66,7 +83,8 @@ export function StatGroup({ className, ...props }: StatGroupProps): ReactElement
 }
 
 /**
- * One number with its label, a note and an optional trend. Use inside a StatGroup. Server-safe: the
+ * One number with its label, a note and an optional trend; in a summary band, a small chart and a
+ * link into the list as well. Use inside a StatGroup. Server-safe: the
  * number follows QeetrixProvider's locale through a small client part.
  */
 export function Stat({
@@ -75,7 +93,11 @@ export function Stat({
   note,
   tone = "neutral",
   trend,
+  chart,
+  action,
   locale,
+  currency,
+  format,
   loading = false,
   messages,
   className,
@@ -99,7 +121,7 @@ export function Stat({
             <StatLoading messages={messages} />
           </>
         ) : typeof value === "number" ? (
-          <StatNumber value={value} locale={locale} />
+          <StatNumber value={value} locale={locale} currency={currency} format={format} />
         ) : (
           value
         )}
@@ -133,6 +155,16 @@ export function Stat({
           aria-hidden={loading || undefined}
         >
           {loading ? <Skeleton /> : note}
+        </dd>
+      )}
+      {chart != null && !loading && (
+        <dd className="qx-stat-chart" data-slot="stat-chart">
+          {chart}
+        </dd>
+      )}
+      {action != null && !loading && (
+        <dd className="qx-stat-action" data-slot="stat-action">
+          {action}
         </dd>
       )}
     </div>

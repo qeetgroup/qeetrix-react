@@ -5,6 +5,7 @@ import { expectAccessible } from "../../tests/support/axe";
 import { tokenColor } from "../../tests/support/color";
 import { screenshotEveryMode } from "../../tests/support/screenshots";
 import { Stage } from "../../tests/support/stage";
+import { Button } from "../button/button";
 import { Field } from "../field/field";
 import { Stack } from "../stack/stack";
 import { Select } from "./select";
@@ -47,6 +48,54 @@ describe("Select", () => {
     expect(onValueChange).toHaveBeenLastCalledWith("quarterly", expect.anything());
     await expect.element(trigger()).toHaveTextContent("Quarterly");
     await expect.element(trigger()).toHaveFocus();
+  });
+
+  it("shows an option's meta at its end and reads it out, but not in the closed trigger", async () => {
+    await render(
+      <Field label="Department">
+        <Select<string>
+          items={[
+            { value: "eng", label: "Engineering", meta: 19 },
+            { value: "fin", label: "Finance", meta: 4 },
+          ]}
+          defaultValue="eng"
+        />
+      </Field>,
+    );
+    const department = page.getByRole("combobox", { name: "Department" });
+    await expect.element(department).toHaveTextContent("Engineering");
+    expect(department.element().textContent).not.toContain("19");
+    await department.click();
+    const option = page.getByRole("option", { name: "Engineering 19" });
+    await expect.element(option).toBeVisible();
+    const meta = option.element().querySelector("[data-slot=select-option-meta]") as HTMLElement;
+    const text = option.element().querySelector(".qx-select-option-text") as HTMLElement;
+    expect(meta.getBoundingClientRect().left).toBeGreaterThan(text.getBoundingClientRect().left);
+    expect(getComputedStyle(meta).fontVariantNumeric).toBe("tabular-nums");
+  });
+
+  it("takes a toolbar's sizes, as tall as Buttons of the same size in every density", async () => {
+    await render(
+      <div>
+        <Select<string> aria-label="Style" size="sm" items={[{ value: "p", label: "Paragraph" }]} />
+        <Button size="sm">Bold</Button>
+        <Select<string> aria-label="Font" size="md" items={[{ value: "s", label: "Sans" }]} />
+        <Button size="md">Italic</Button>
+      </div>,
+    );
+    for (const density of ["compact", "default", "comfortable"]) {
+      html.dataset.qxDensity = density;
+      const height = (el: Element) => el.getBoundingClientRect().height;
+      const style = page.getByRole("combobox", { name: "Style" }).element();
+      const font = page.getByRole("combobox", { name: "Font" }).element();
+      expect(height(style), density).toBe(
+        height(page.getByRole("button", { name: "Bold" }).element()),
+      );
+      expect(height(font), density).toBe(
+        height(page.getByRole("button", { name: "Italic" }).element()),
+      );
+    }
+    delete html.dataset.qxDensity;
   });
 
   it("marks the chosen option with an Ember check and skips disabled ones", async () => {

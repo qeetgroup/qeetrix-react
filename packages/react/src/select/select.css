@@ -48,6 +48,15 @@
     cursor: not-allowed;
   }
 }
+/* A toolbar's sizes, beside Buttons of the same size. */
+.qx-select-trigger[data-size="md"] {
+  block-size: var(--qx-size-control-md);
+}
+.qx-select-trigger[data-size="sm"] {
+  block-size: var(--qx-size-control-sm);
+  padding-inline: var(--qx-space-inset-sm);
+  font: var(--qx-typography-body-sm);
+}
 .qx-select-value {
   flex: 1;
   min-inline-size: 0;
@@ -136,6 +145,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+/* An option's meta (a count): subtle tabular figures at its end, before the check. */
+.qx-select-option-meta {
+  flex: none;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+  font-variant-numeric: tabular-nums;
 }
 .qx-select-option-check {
   display: flex;

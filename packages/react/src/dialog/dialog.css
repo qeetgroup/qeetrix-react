@@ -116,6 +116,15 @@
   gap: var(--qx-space-gap-sm);
   padding: 0 var(--qx-space-inset-xl) var(--qx-space-inset-xl);
 }
+/* The footer's start: a link or a summary, pushing the actions to the end. */
+.qx-dialog-footer-start {
+  display: flex;
+  align-items: center;
+  min-inline-size: 0;
+  margin-inline-end: auto;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}
 .qx-dialog-close {
   position: absolute;
   inset-block-start: 12px;

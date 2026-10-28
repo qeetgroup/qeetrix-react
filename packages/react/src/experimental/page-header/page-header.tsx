@@ -11,6 +11,11 @@ export interface PageHeaderProps extends Omit<ComponentProps<"div">, "title"> {
   back?: ReactNode;
   /** Where the page sits: a Breadcrumb. */
   breadcrumb?: ReactNode;
+  /**
+   * A record's picture before its title and description, such as an organisation's logo or a
+   * person's Avatar (`decorative`, since the title names them). It stays out of the heading.
+   */
+  leading?: ReactNode;
   /** The page title: the page's one `<h1>`. */
   title: ReactNode;
   /**
@@ -24,7 +29,11 @@ export interface PageHeaderProps extends Omit<ComponentProps<"div">, "title"> {
   description?: ReactNode;
   /** Buttons at the end: the primary last; at most one solid and one soft, the rest in a menu. */
   actions?: ReactNode;
-  /** Key numbers for the page: a StatGroup, ruled edge to edge under the title. */
+  /**
+   * Key numbers for the page: a StatGroup, ruled edge to edge under the title, its first and last
+   * cells on the page gutter. A Stat's `chart` and `action` carry a small chart and a link into the
+   * list, for a richer summary band.
+   */
   summary?: ReactNode;
   /**
    * A TabsList, attached to the header's foot: the first label on the page gutter, its rule edge to
@@ -48,6 +57,7 @@ export interface PageContentProps extends ComponentProps<"div"> {
 export function PageHeader({
   back,
   breadcrumb,
+  leading,
   title,
   count,
   status,
@@ -58,6 +68,26 @@ export function PageHeader({
   className,
   ...props
 }: PageHeaderProps): ReactElement {
+  const titles = (
+    <div className="qx-page-header-titles">
+      <div className="qx-page-header-title">
+        <Heading level={1} size="title-lg">
+          {title}
+        </Heading>
+        {count != null && (
+          <span className="qx-page-header-count" data-slot="page-header-count">
+            {typeof count === "number" ? <ProvidedNumber value={count} /> : count}
+          </span>
+        )}
+        {status}
+      </div>
+      {description != null && (
+        <p className="qx-page-header-description" data-slot="page-header-description">
+          {description}
+        </p>
+      )}
+    </div>
+  );
   return (
     <div
       {...props}
@@ -68,24 +98,16 @@ export function PageHeader({
       {back != null && <div className="qx-page-header-back-row">{back}</div>}
       {breadcrumb != null && <div className="qx-page-header-breadcrumb">{breadcrumb}</div>}
       <div className="qx-page-header-row">
-        <div className="qx-page-header-titles">
-          <div className="qx-page-header-title">
-            <Heading level={1} size="title-lg">
-              {title}
-            </Heading>
-            {count != null && (
-              <span className="qx-page-header-count" data-slot="page-header-count">
-                {typeof count === "number" ? <ProvidedNumber value={count} /> : count}
-              </span>
-            )}
-            {status}
+        {leading != null ? (
+          <div className="qx-page-header-lead" data-slot="page-header-lead">
+            <div className="qx-page-header-leading" data-slot="page-header-leading">
+              {leading}
+            </div>
+            {titles}
           </div>
-          {description != null && (
-            <p className="qx-page-header-description" data-slot="page-header-description">
-              {description}
-            </p>
-          )}
-        </div>
+        ) : (
+          titles
+        )}
         {actions != null && (
           <div className="qx-page-header-actions" data-slot="page-header-actions">
             {actions}

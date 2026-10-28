@@ -1,0 +1,76 @@
+/* Conversation (QTRX-76): the transcript scrolls; the person's turns sit at the end on the neutral
+   tint (not Ember, which means nothing here), the assistant's run across. A turn's actions show
+   while it's hovered or focused, and always on touch screens. The composer is the field and its
+   Send (Ember) or Stop (graphite) button on one line, its note under them. */
+.qx-conversation {
+  min-block-size: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.qx-conversation-log {
+  display: grid;
+  gap: var(--qx-space-gap-lg);
+}
+.qx-turn {
+  display: grid;
+  gap: var(--qx-space-gap-xs);
+  min-inline-size: 0;
+  &[data-speaker="user"] {
+    justify-items: end;
+  }
+}
+.qx-turn-content {
+  min-inline-size: 0;
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  overflow-wrap: anywhere;
+  [data-speaker="user"] > & {
+    max-inline-size: 85%;
+    padding: var(--qx-space-inset-sm) var(--qx-space-inset-md);
+    border-radius: var(--qx-radius-control);
+    background: var(--qx-color-bg-neutral-subtle);
+    white-space: pre-wrap;
+  }
+}
+.qx-turn-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+}
+@media (hover: hover) {
+  .qx-turn:not(:hover, :focus-within) > .qx-turn-actions {
+    opacity: 0;
+  }
+}
+.qx-turn-thinking {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}
+.qx-turn-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--qx-space-gap-xs);
+  margin: 0;
+  color: var(--qx-color-text-danger);
+  font: var(--qx-typography-body-sm);
+  > svg {
+    flex: none;
+    margin-block-start: 2px;
+  }
+}
+
+.qx-composer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--qx-space-gap-sm);
+}
+.qx-composer-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}

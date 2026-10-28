@@ -151,3 +151,31 @@ describe("Drawer", () => {
     await screenshotSchemes("Drawer", null);
   });
 });
+
+describe("DrawerFooter's start", () => {
+  it("holds a link at the footer's start, the actions staying at its end", async () => {
+    await render(
+      <Drawer defaultOpen>
+        <DrawerContent title="Add people">
+          <DrawerBody>Invite by email.</DrawerBody>
+          <DrawerFooter start={<a href="#import">Adding many? Import a file</a>}>
+            <Button variant="ghost">Cancel</Button>
+            <Button>Invite</Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>,
+    );
+    const footer = document.querySelector("[data-slot=drawer-footer]") as HTMLElement;
+    const start = footer.querySelector("[data-slot=drawer-footer-start]") as HTMLElement;
+    const invite = page.getByRole("button", { name: "Invite" }).element();
+    const f = footer.getBoundingClientRect();
+    const padding = Number.parseFloat(getComputedStyle(footer).paddingInlineStart);
+    expect(Math.round(start.getBoundingClientRect().left - f.left)).toBe(Math.round(padding));
+    expect(Math.round(f.right - invite.getBoundingClientRect().right)).toBe(
+      Math.round(Number.parseFloat(getComputedStyle(footer).paddingInlineEnd)),
+    );
+    await expect
+      .element(page.getByRole("link", { name: "Adding many? Import a file" }))
+      .toBeVisible();
+  });
+});

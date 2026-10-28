@@ -6,9 +6,11 @@ import {
   createContext,
   type ReactElement,
   type ReactNode,
+  type RefObject,
   use,
   useEffect,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { useMediaQuery } from "../internal/media";
 import {
@@ -17,6 +19,7 @@ import {
   type QeetrixMessages,
   type QeetrixMessagesInput,
 } from "../internal/messages";
+import { readStored, writeStored } from "../internal/storage";
 
 export type Direction = "ltr" | "rtl";
 export type ColorScheme = "light" | "dark" | "system";
@@ -50,6 +53,12 @@ export interface QeetrixProviderProps {
   defaultColorScheme?: ColorScheme;
   /** Called when `setColorScheme` asks for a change: persist it, e.g. in a cookie. */
   onColorSchemeChange?: (colorScheme: ColorScheme) => void;
+  /**
+   * Saves the choice in localStorage under this key and starts from it, as `colorSchemeScript`
+   * reads it before the first paint: `qx-color-scheme`, say. Only for the provider that manages
+   * the scheme.
+   */
+  storageKey?: string;
   children?: ReactNode;
 }
 
@@ -100,19 +109,40 @@ function writeScheme(): void {
   else html.setAttribute(ATTRIBUTE, value);
 }
 
+const SCHEMES: readonly string[] = ["light", "dark", "system"];
+
+function readSaved(key: string): ColorScheme | null {
+  const saved = readStored(key);
+  return saved !== null && SCHEMES.includes(saved) ? (saved as ColorScheme) : null;
+}
+
+function subscribeStorage(onChange: () => void): () => void {
+  window.addEventListener("storage", onChange);
+  return () => window.removeEventListener("storage", onChange);
+}
+
 function ColorSchemeRoot({
   colorScheme,
   defaultColorScheme,
   onColorSchemeChange,
+  storageKey,
   children,
 }: {
   colorScheme: ColorScheme | undefined;
   defaultColorScheme: ColorScheme | undefined;
   onColorSchemeChange: ((colorScheme: ColorScheme) => void) | undefined;
+  storageKey: string | undefined;
   children: ReactNode;
 }): ReactElement {
-  const [own, setOwn] = useState<ColorScheme>(defaultColorScheme ?? "system");
-  const scheme = colorScheme ?? own;
+  const [own, setOwn] = useState<ColorScheme | null>(null);
+  // The saved choice (the server renders the default; colorSchemeScript has already put the saved
+  // one on <html>), kept in step with other tabs.
+  const saved = useSyncExternalStore(
+    subscribeStorage,
+    () => (storageKey ? readSaved(storageKey) : null),
+    () => null,
+  );
+  const scheme = colorScheme ?? own ?? saved ?? defaultColorScheme ?? "system";
   const prefersDark = useMediaQuery("(prefers-color-scheme: dark)", false);
   const resolved: ResolvedColorScheme =
     scheme === "system" ? (prefersDark ? "dark" : "light") : scheme;
@@ -129,6 +159,7 @@ function ColorSchemeRoot({
   }, [resolved]);
   const setColorScheme = (next: ColorScheme) => {
     if (colorScheme === undefined) setOwn(next);
+    if (storageKey) writeStored(storageKey, next);
     onColorSchemeChange?.(next);
   };
   return (
@@ -160,6 +191,7 @@ export function QeetrixProvider({
   colorScheme,
   defaultColorScheme,
   onColorSchemeChange,
+  storageKey,
   children,
 }: QeetrixProviderProps): ReactElement {
   const outer = use(SettingsContext);
@@ -183,6 +215,7 @@ export function QeetrixProvider({
           colorScheme={colorScheme}
           defaultColorScheme={defaultColorScheme}
           onColorSchemeChange={onColorSchemeChange}
+          storageKey={storageKey}
         >
           {directed}
         </ColorSchemeRoot>
@@ -221,4 +254,35 @@ export function useMessages<Group extends keyof QeetrixMessages>(
 ): QeetrixMessages[Group] {
   const provided = use(SettingsContext).messages[group];
   return { ...messages[group], ...provided, ...own } as QeetrixMessages[Group];
+}
+
+/** Where popups render: an element, a shadow root, or a ref to one. */
+export type PortalContainerTarget =
+  | HTMLElement
+  | ShadowRoot
+  | RefObject<HTMLElement | ShadowRoot | null>
+  | null;
+
+const PortalContext: Context<PortalContainerTarget | undefined> = createContext<
+  PortalContainerTarget | undefined
+>(undefined);
+
+export interface PortalContainerProps {
+  /** The element the popups inside render into: a native `<dialog>`, say, or its ref. */
+  container: PortalContainerTarget;
+  children?: ReactNode;
+}
+
+/**
+ * Renders the popups inside it (menus, popovers, selects, tooltips, comboboxes, dialogs) into
+ * `container` instead of the body: inside a native modal `<dialog>`, which makes the rest of the
+ * page inert, a shadow root or another top-layer element.
+ */
+export function PortalContainer({ container, children }: PortalContainerProps): ReactElement {
+  return <PortalContext value={container}>{children}</PortalContext>;
+}
+
+/** The nearest PortalContainer's target; `undefined` (the body) without one. Internal. */
+export function usePortalContainer(): PortalContainerTarget | undefined {
+  return use(PortalContext);
 }

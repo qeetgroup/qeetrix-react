@@ -90,3 +90,35 @@ describe("highlight", () => {
     ]);
   });
 });
+
+describe("CSS", () => {
+  it("colours at-rules and properties as keywords, custom properties and hex as literals", () => {
+    const css =
+      "@layer qx.components {\n  .qx-tag { color: var(--qx-color-text-brand); inline-size: 12px; /* note */ }\n}";
+    const kinds = (text: string) =>
+      highlight(css, "css")
+        .flat()
+        .filter((token: Token) => token.text === text)
+        .map((token: Token) => token.kind);
+    expect(kinds("@layer")).toEqual(["keyword"]);
+    expect(kinds("color")).toEqual(["keyword"]);
+    expect(kinds("inline-size")).toEqual(["keyword"]);
+    expect(kinds("--qx-color-text-brand")).toEqual(["literal"]);
+    expect(kinds("12px")).toEqual(["number"]);
+    expect(kinds("/* note */")).toEqual(["comment"]);
+  });
+});
+
+describe("highlightHtml", () => {
+  it("is escaped HTML in the code colours, for a page without React", async () => {
+    const { highlightHtml } = await import("../src/experimental/code-block/highlight");
+    const out = highlightHtml('<a href="#">x</a>\n', "html");
+    expect(out).toContain(
+      '<span data-token="punctuation" style="color:var(--qx-color-code-punctuation)">&lt;</span>',
+    );
+    expect(out).toContain(
+      '<span data-token="string" style="color:var(--qx-color-code-string)">&quot;#&quot;</span>',
+    );
+    expect(out.endsWith("\n")).toBe(false);
+  });
+});

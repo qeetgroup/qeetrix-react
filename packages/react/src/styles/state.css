@@ -1,0 +1,6 @@
+/* Qeetrix state layer, after the components: the hidden attribute hides any Qeetrix part, whatever
+   display its component sets, since a later layer wins over any specificity in an earlier one.
+   hidden="until-found" is left to the browser, so the text stays findable. */
+:where([class^="qx-"], [class*=" qx-"])[hidden]:not([hidden="until-found"]) {
+  display: none;
+}

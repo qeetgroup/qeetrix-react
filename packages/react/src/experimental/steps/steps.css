@@ -52,6 +52,16 @@
     box-shadow: inset 0 0 0 var(--qx-border-width-strong) var(--qx-color-border-brand);
     color: var(--qx-color-text-brand);
   }
+  [data-state="failed"] & {
+    background: var(--qx-color-bg-danger-bold);
+    box-shadow: none;
+    color: var(--qx-color-text-on-bold);
+  }
+  [data-state="attention"] & {
+    background: var(--qx-color-bg-warning-bold);
+    box-shadow: none;
+    color: var(--qx-color-text-on-warning);
+  }
 }
 .qx-step-text {
   display: grid;

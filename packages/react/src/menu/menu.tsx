@@ -15,6 +15,7 @@ import {
 } from "react";
 import type { QeetrixIcon } from "../internal/control";
 import { cx } from "../internal/cx";
+import { usePortalContainer } from "../provider/provider";
 
 /**
  * Where a MenuContent opens: below a Menu's trigger, at the inline end of a submenu's trigger item
@@ -84,7 +85,14 @@ export interface MenuCheckboxItemProps
 
 export interface MenuRadioItemProps
   extends Omit<BaseMenu.RadioItem.Props, "className" | "style">,
-    ItemLookProps {}
+    ItemLookProps {
+  /**
+   * Close the menu once this item is chosen, as a menu that picks one value should. Pass `false`
+   * where several settings are changed in a row. A closed menu unmounts its items, so hold the
+   * choice in state (MenuRadioGroup's `value` / `onValueChange`). Default `true`.
+   */
+  closeOnClick?: boolean;
+}
 
 export interface MenuSubmenuTriggerProps
   extends Omit<BaseMenu.SubmenuTrigger.Props, "className" | "style"> {
@@ -187,9 +195,10 @@ export function MenuContent({
   children,
   ...props
 }: MenuContentProps): ReactElement {
+  const portalContainer = usePortalContainer();
   const kind = use(MenuKindContext);
   return (
-    <BaseMenu.Portal>
+    <BaseMenu.Portal container={portalContainer}>
       <BaseMenu.Positioner
         side={side}
         align={align}
@@ -325,6 +334,7 @@ export function MenuCheckboxItem({
 export function MenuRadioItem({
   shortcut,
   description,
+  closeOnClick = true,
   className,
   children,
   ...props
@@ -334,6 +344,7 @@ export function MenuRadioItem({
     <BaseMenu.RadioItem
       {...item.props}
       {...props}
+      closeOnClick={closeOnClick}
       className={cx("qx-menu-item", className)}
       data-slot="menu-radio-item"
       data-description={description != null ? "" : undefined}

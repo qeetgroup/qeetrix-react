@@ -5,10 +5,35 @@
    actions columns shrink to their controls. Rows that open a record point, and their primary
    link underlines under the pointer. */
 .qx-table {
+  /* What a sticky first column sits on: set it to the surface the table is on. */
+  --qx-table-surface: var(--qx-color-surface-default);
   display: flex;
   flex-direction: column;
   gap: var(--qx-space-gap-sm);
   min-inline-size: 0;
+  /* Columns with a priority hide as the table narrows (TableColumn.priority). */
+  container-type: inline-size;
+}
+/* Only a table wider than its space scrolls: a scroll container would hold the sticky header. */
+.qx-table-scroll {
+  min-inline-size: 0;
+  &[data-overflowing] {
+    overflow-x: auto;
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
+  }
+}
+@container (width < 640px) {
+  .qx-table-element [data-priority="low"] {
+    display: none;
+  }
+}
+@container (width < 480px) {
+  .qx-table-element [data-priority="medium"] {
+    display: none;
+  }
 }
 .qx-table-element {
   /* The busy line's containing block. */
@@ -77,11 +102,16 @@
   text-align: center;
 }
 /* A selected row keeps its tint under the pointer; messages and placeholders get none. */
-.qx-table-row[data-selected] > .qx-table-cell {
+.qx-table-row:is([data-selected], [data-current]) > .qx-table-cell {
   background: var(--qx-color-bg-selected);
 }
 .qx-table-body
-  > .qx-table-row:not([data-selected], .qx-table-message, .qx-table-placeholder):hover
+  > .qx-table-row:not(
+    [data-selected],
+    [data-current],
+    .qx-table-message,
+    .qx-table-placeholder
+  ):hover
   > .qx-table-cell {
   background: var(--qx-color-bg-neutral-subtle);
 }
@@ -89,6 +119,10 @@
    The link inherits the cell's look; keyboard focus frames it, and tints its row like the pointer. */
 .qx-table-row[data-clickable] {
   cursor: pointer;
+}
+/* The link's content, which describes it (its name is the row's label): no box of its own. */
+.qx-table-row-link-content {
+  display: contents;
 }
 .qx-table-row-link {
   display: block;
@@ -105,7 +139,7 @@
   text-underline-offset: 3px;
   cursor: pointer;
   &:is(:hover, :focus-visible),
-  .qx-table-row:hover > .qx-table-cell > & {
+  .qx-table-row:hover > .qx-table-cell & {
     text-decoration-line: underline;
   }
   &:focus-visible {
@@ -121,7 +155,7 @@
 /* While a new page or sort loads, the rows on show stay readable (dimming them failed contrast) and
    an Ember segment slides along the foot of the header band. It's drawn by the table itself, out of
    the flow, so no row moves; under reduced motion it spans the band and fades instead. */
-.qx-table[data-loading] > .qx-table-element::after {
+.qx-table[data-loading] .qx-table-element::after {
   content: "";
   position: absolute;
   inset-block-start: calc(var(--qx-size-row) - var(--qx-border-width-strong));
@@ -137,7 +171,7 @@
   animation-iteration-count: infinite;
 }
 /* Right to left, the segment runs from the right. (A nested & can't stand for a pseudo-element.) */
-[dir="rtl"] .qx-table[data-loading] > .qx-table-element::after {
+[dir="rtl"] .qx-table[data-loading] .qx-table-element::after {
   animation-direction: reverse;
 }
 /* From just past the start edge to just past the end: a 30% segment's position runs over 70%. */
@@ -150,7 +184,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .qx-table[data-loading] > .qx-table-element::after {
+  .qx-table[data-loading] .qx-table-element::after {
     background-size: 100% 100%;
     animation: qx-table-busy-fade 1.6s ease-in-out infinite;
   }
@@ -174,6 +208,15 @@
     padding-inline: var(--qx-space-inset-md) var(--qx-space-inset-sm);
     background: var(--qx-color-bg-selected);
   }
+}
+/* The toolbar fills the bar, so a search and its filters use the table's width before they wrap. */
+.qx-table-toolbar {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  min-inline-size: 0;
 }
 .qx-table-count {
   font: var(--qx-typography-label-md);
@@ -227,8 +270,81 @@
 
 /* Forced colours drop background images, so the busy segment is drawn in the system highlight. */
 @media (forced-colors: active) {
-  .qx-table[data-loading] > .qx-table-element::after {
+  .qx-table[data-loading] .qx-table-element::after {
     forced-color-adjust: none;
     background-image: linear-gradient(Highlight 0 0);
+  }
+}
+
+/* Tree rows: the primary cell indents by depth, a fold button (or its space) before the name; the
+   chevron turns down while the row is open. The page's first row can say where it continues from. */
+.qx-table-tree {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  padding-inline-start: calc(var(--qx-table-depth, 0) * 1.25rem);
+}
+.qx-table-fold {
+  flex: none;
+  inline-size: var(--qx-size-control-sm);
+  & svg {
+    transition: rotate var(--qx-motion-duration-fast) var(--qx-motion-easing-standard);
+  }
+  &[data-open] svg {
+    rotate: 90deg;
+  }
+  &:dir(rtl):not([data-open]) svg {
+    rotate: 180deg;
+  }
+}
+.qx-table-tree-name {
+  display: grid;
+  min-inline-size: 0;
+}
+.qx-table-tree-path {
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}
+
+/* A matrix: the first column stays while the table scrolls sideways, on the table's surface, with
+   a rule at its end; header cells hold links or buttons in the header's look. */
+.qx-table[data-sticky-first] :is(.qx-table-head, .qx-table-cell):first-child {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: calc(var(--qx-z-base) + 1);
+  background-color: var(--qx-table-surface);
+  background-image: linear-gradient(
+    to left,
+    var(--qx-color-border-subtle) var(--qx-border-width-default),
+    transparent var(--qx-border-width-default)
+  );
+  &:dir(rtl) {
+    background-image: linear-gradient(
+      to right,
+      var(--qx-color-border-subtle) var(--qx-border-width-default),
+      transparent var(--qx-border-width-default)
+    );
+  }
+}
+.qx-table[data-sticky-first] .qx-table-head:first-child {
+  z-index: calc(var(--qx-z-sticky) + 1);
+  background-color: var(--qx-color-bg-neutral-subtle);
+}
+.qx-table-head :is(a, button:not(.qx-table-sort)) {
+  padding: 0;
+  border: 0;
+  border-radius: var(--qx-radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-decoration-line: none;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  &:hover {
+    text-decoration-line: underline;
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
   }
 }

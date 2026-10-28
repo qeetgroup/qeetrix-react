@@ -3,6 +3,7 @@
 import { Popover as BasePopover } from "@base-ui/react/popover";
 import { type CSSProperties, type ReactElement, type ReactNode, useEffect } from "react";
 import { cx } from "../internal/cx";
+import { usePortalContainer } from "../provider/provider";
 
 export type PopoverProps = BasePopover.Root.Props;
 export type PopoverTriggerProps = BasePopover.Trigger.Props;
@@ -68,6 +69,7 @@ export function PopoverContent({
   children,
   ...props
 }: PopoverContentProps): ReactElement {
+  const portalContainer = usePortalContainer();
   const named = Boolean(title != null || props["aria-label"] || props["aria-labelledby"]);
   useEffect(() => {
     if (process.env.NODE_ENV !== "production" && !named) {
@@ -77,7 +79,7 @@ export function PopoverContent({
     }
   }, [named]);
   return (
-    <BasePopover.Portal>
+    <BasePopover.Portal container={portalContainer}>
       <BasePopover.Positioner
         side={side}
         align={align}

@@ -1,0 +1,6 @@
+/* RelativeTime (07-components.md, C3): text in its context; tabular figures so a column of times
+   doesn't jitter as they update. */
+.qx-relative-time {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

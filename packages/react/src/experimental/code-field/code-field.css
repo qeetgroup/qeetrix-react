@@ -1,0 +1,101 @@
+/* CodeField (QTRX-59): the Input's filled box and bottom line, in the code type. The text is typed
+   in a transparent textarea laid exactly over its highlighted copy; both grow with the code and
+   scroll together in one box, with line numbers in a gutter at the start. */
+.qx-code-field {
+  display: flex;
+  max-block-size: calc(var(--qx-code-field-max-rows) * 1lh + 2 * var(--qx-space-inset-sm));
+  overflow: auto;
+  border-start-start-radius: var(--qx-radius-control);
+  border-start-end-radius: var(--qx-radius-control);
+  background: var(--qx-color-bg-neutral-subtle);
+  box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-strong);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-code-md);
+  font-variant-ligatures: none;
+  &:has(> .qx-code-field-editor > [data-invalid]) {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-danger);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+    box-shadow: none;
+  }
+  &:focus-within {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+    box-shadow: none;
+  }
+  &:has(> .qx-code-field-editor > :disabled) {
+    background: var(--qx-color-bg-disabled);
+    color: var(--qx-color-text-disabled);
+  }
+}
+.qx-code-field-gutter {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: calc(var(--qx-z-base) + 1);
+  display: grid;
+  flex: none;
+  align-content: start;
+  min-inline-size: calc(var(--qx-code-digits) * 1ch + 2 * var(--qx-space-gap-sm));
+  min-block-size: calc(var(--qx-code-field-rows) * 1lh + 2 * var(--qx-space-inset-sm));
+  padding: var(--qx-space-inset-sm) var(--qx-space-gap-sm);
+  border-inline-end: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  background: inherit;
+  color: var(--qx-color-text-subtlest);
+  text-align: end;
+  user-select: none;
+}
+.qx-code-field-editor {
+  display: grid;
+  flex: 1;
+  min-inline-size: 0;
+  > * {
+    grid-area: 1 / 1;
+  }
+}
+.qx-code-field-highlight,
+.qx-code-field-control {
+  box-sizing: border-box;
+  margin: 0;
+  padding: var(--qx-space-inset-sm) var(--qx-space-inset-md);
+  border: 0;
+  font: inherit;
+  font-variant-ligatures: none;
+  letter-spacing: normal;
+  tab-size: 2;
+  white-space: pre;
+}
+.qx-code-field-highlight {
+  pointer-events: none;
+  > code {
+    font: inherit;
+  }
+}
+.qx-code-field-line {
+  display: block;
+  min-block-size: 1lh;
+}
+.qx-code-field-control {
+  min-block-size: calc(var(--qx-code-field-rows) * 1lh + 2 * var(--qx-space-inset-sm));
+  overflow: hidden;
+  resize: none;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--qx-color-text-default);
+  outline: 0;
+  &::selection {
+    background: var(--qx-color-bg-selected);
+    color: transparent;
+  }
+  &::placeholder {
+    color: var(--qx-color-text-subtlest);
+  }
+}
+
+@media (forced-colors: active) {
+  /* The transparent text would vanish: show the typed text itself, uncoloured. */
+  .qx-code-field-control {
+    color: CanvasText;
+  }
+  .qx-code-field-highlight {
+    visibility: hidden;
+  }
+}

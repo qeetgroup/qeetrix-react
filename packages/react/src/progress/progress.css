@@ -29,6 +29,18 @@
   overflow: hidden;
   background: var(--qx-color-border-default);
 }
+/* A target on a Meter's track: a 2px tick in the text colour, overhanging the track 3px each side,
+   placed from the start edge so it mirrors in right-to-left layouts. */
+.qx-progress-track[data-target] {
+  overflow: visible;
+}
+.qx-meter-target {
+  position: absolute;
+  inset-block: -3px;
+  inset-inline-start: calc(var(--qx-meter-target) - 1px);
+  inline-size: 2px;
+  background: var(--qx-color-text-default);
+}
 .qx-progress-indicator {
   block-size: 100%;
   background: var(--qx-color-bg-brand-bold);

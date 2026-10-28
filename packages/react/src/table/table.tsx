@@ -2,13 +2,18 @@
 
 import { ArrowDownIcon } from "@qeetrix/icons/icons/arrow-down";
 import { ArrowUpIcon } from "@qeetrix/icons/icons/arrow-up";
+import { ChevronRightIcon } from "@qeetrix/icons/icons/chevron-right";
 import { ChevronsUpDownIcon } from "@qeetrix/icons/icons/chevrons-up-down";
 import { EllipsisIcon } from "@qeetrix/icons/icons/ellipsis";
 import {
   type ComponentProps,
+  type CSSProperties,
+  type KeyboardEvent,
   type MouseEvent,
   type ReactElement,
   type ReactNode,
+  useEffect,
+  useId,
   useRef,
   useState,
 } from "react";
@@ -30,10 +35,13 @@ import {
   TableElement,
   TableHead,
   TableHeader,
+  type TablePriority,
   TableRow,
 } from "./parts";
+import { foldTreeRows, treePositions } from "./tree";
 
-export type { TableAlign } from "./parts";
+export type { TableAlign, TablePriority } from "./parts";
+export { foldTreeRows, type TableTree } from "./tree";
 
 export type SortDirection = "ascending" | "descending";
 
@@ -60,6 +68,11 @@ export interface TableColumn<Row> {
   align?: TableAlign;
   /** Numbers, amounts and dates: tabular figures, end-aligned. */
   numeric?: boolean;
+  /**
+   * How long the column stays as the table narrows: `low` hides under 640px, `medium` under 480px.
+   * Put what it shows in a column that stays too, such as the primary one. Default `high`.
+   */
+  priority?: TablePriority;
   /** A fixed width, such as `120` or `"20%"`; the other columns share the rest. */
   width?: number | string;
   /**
@@ -94,12 +107,24 @@ export interface TableProps<Row> extends Omit<ComponentProps<"div">, "children" 
   defaultSelected?: readonly string[];
   /** Called with the new selection. */
   onSelectedChange?: (ids: string[]) => void;
+  /**
+   * Whether a row can be selected, e.g. not the signed-in person in a list whose bulk actions would
+   * remove them. Its checkbox is disabled, and the header's leaves it out. Default: every row.
+   */
+  rowSelectable?: (row: Row) => boolean;
+  /** Why a row can't be selected: its checkbox's description, read out with it. */
+  rowUnselectableReason?: (row: Row) => string | undefined;
   /** Buttons for the selection, in a bar that takes the toolbar's place while any row is selected. */
   bulkActions?: (ids: string[]) => ReactNode;
   /** Above the table while nothing is selected: search and filters. */
   toolbar?: ReactNode;
   /** A row's actions, as MenuItems, in a menu at its end. */
   rowActions?: (row: Row) => ReactNode;
+  /**
+   * The row whose record is open beside the list, e.g. in a drawer: marked `aria-current` and
+   * tinted as a selected row is.
+   */
+  currentRow?: string;
   /**
    * The address of the row's record. The primary column's cell becomes a link to it, and a click
    * anywhere else on the row follows it too, except on the row's controls or while selecting text.
@@ -127,6 +152,30 @@ export interface TableProps<Row> extends Omit<ComponentProps<"div">, "children" 
   /** In place of the rows when they couldn't load, e.g. an EmptyState with a retry button. */
   error?: ReactNode;
   /** This table's strings, over QeetrixProvider's and the English defaults. */
+  /**
+   * Tree rows: each row's depth, 0 at the top. Pass the rows in tree order (each parent, then the
+   * rows inside it); the table leaves out the rows inside a folded one, puts a fold button before
+   * the primary cell's link and becomes a tree grid (← folds, → opens, ↑ and ↓ move between rows).
+   */
+  rowDepth?: (row: Row) => number;
+  /** Whether a row has rows inside it, so it gets a fold button. */
+  rowHasChildren?: (row: Row) => boolean;
+  /** The open rows' ids, for a controlled tree. Expand all: every id that has children. */
+  expanded?: readonly string[];
+  /** The open rows' ids at first, for an uncontrolled tree. */
+  defaultExpanded?: readonly string[];
+  /** Called with the open rows' ids when a row folds or opens. */
+  onExpandedChange?: (ids: string[]) => void;
+  /**
+   * A row's parents, "Engineering › Identity", shown above its name when it's the page's first row
+   * and its parent is on an earlier page: "Continued · Engineering › Identity".
+   */
+  rowPath?: (row: Row) => string;
+  /**
+   * The first column stays while the table scrolls sideways, for a matrix: a permission per row, a
+   * role per column. Set `--qx-table-surface` on the table to the colour it sits on.
+   */
+  stickyFirstColumn?: boolean;
   messages?: Partial<QeetrixMessages["table"]>;
 }
 
@@ -181,7 +230,7 @@ function rowButton(props: Record<string, unknown>): ReactElement {
  */
 export function Table<Row>({
   label,
-  rows,
+  rows: given,
   rowId,
   rowLabel,
   columns,
@@ -189,15 +238,25 @@ export function Table<Row>({
   defaultSort = null,
   onSortChange,
   selectable = false,
+  rowSelectable,
+  rowUnselectableReason,
   selected,
   defaultSelected = [],
   onSelectedChange,
   bulkActions,
   toolbar,
   rowActions,
+  currentRow,
   rowHref,
   renderRowLink,
   onRowClick,
+  rowDepth,
+  rowHasChildren,
+  expanded,
+  defaultExpanded = [],
+  onExpandedChange,
+  rowPath,
+  stickyFirstColumn = false,
   loading = false,
   loadingRows = 5,
   empty,
@@ -207,11 +266,37 @@ export function Table<Row>({
   ...props
 }: TableProps<Row>): ReactElement {
   const strings = useMessages("table", messages);
+  const baseId = useId();
   const locale = useLocale();
   const selectAll = useRef<HTMLButtonElement>(null);
+  // Wider than its space, the table scrolls sideways in a labelled region keyboard users can reach.
+  const scroller = useRef<HTMLDivElement>(null);
+  const [overflowing, setOverflowing] = useState(false);
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const measure = () => setOverflowing(el.scrollWidth > el.clientWidth + 1);
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    if (el.firstElementChild) observer.observe(el.firstElementChild);
+    return () => observer.disconnect();
+  }, []);
   const [ownSort, setOwnSort] = useState(defaultSort);
   const currentSort = sort === undefined ? ownSort : sort;
   const [ownSelected, setOwnSelected] = useState(defaultSelected);
+  const [ownExpanded, setOwnExpanded] = useState(defaultExpanded);
+  const open = expanded ?? ownExpanded;
+  const toggleOpen = (id: string, next = !open.includes(id)) => {
+    if (next === open.includes(id)) return;
+    const ids = next ? [...open, id] : open.filter((other) => other !== id);
+    if (expanded === undefined) setOwnExpanded(ids);
+    onExpandedChange?.(ids);
+  };
+  const rows = rowDepth
+    ? foldTreeRows(given, { rowId, rowDepth, rowHasChildren, expanded: open })
+    : given;
+  const depths = rowDepth ? rows.map(rowDepth) : [];
+  const places = rowDepth ? treePositions(depths) : undefined;
   const chosen = selected ?? ownSelected;
 
   const setSort = (next: TableSort | null) => {
@@ -231,16 +316,19 @@ export function Table<Row>({
     else setSort(null);
   };
 
-  // The header checkbox speaks for this page; rows selected on other pages stay selected.
+  // The header checkbox speaks for this page's selectable rows; rows selected on other pages stay
+  // selected.
   const ids = rows.map(rowId);
+  const canSelect = rows.map((row) => rowSelectable?.(row) !== false);
+  const selectableIds = ids.filter((_, index) => canSelect[index]);
   const isChosen = new Set(chosen);
-  const chosenHere = ids.filter((id) => isChosen.has(id)).length;
-  const allHere = ids.length > 0 && chosenHere === ids.length;
+  const chosenHere = selectableIds.filter((id) => isChosen.has(id)).length;
+  const allHere = selectableIds.length > 0 && chosenHere === selectableIds.length;
   const toggleAll = () =>
     setChosen(
       allHere
-        ? chosen.filter((id) => !ids.includes(id))
-        : [...chosen, ...ids.filter((id) => !isChosen.has(id))],
+        ? chosen.filter((id) => !selectableIds.includes(id))
+        : [...chosen, ...selectableIds.filter((id) => !isChosen.has(id))],
     );
   const toggle = (id: string) =>
     setChosen(isChosen.has(id) ? chosen.filter((other) => other !== id) : [...chosen, id]);
@@ -252,12 +340,22 @@ export function Table<Row>({
 
   // Rows that open a record: the primary column's cell holds the link, or a button.
   const opens = rowHref !== undefined || renderRowLink !== undefined || onRowClick !== undefined;
-  const primary = opens ? (columns.find((column) => column.primary) ?? columns[0])?.id : undefined;
-  const rowLink = (row: Row, content: ReactNode): ReactElement => {
+  const primary =
+    opens || rowDepth ? (columns.find((column) => column.primary) ?? columns[0])?.id : undefined;
+  // Named by the row's label, as its checkbox and actions button are, with the rest of the cell as
+  // its description: "Priya Sharma, link", not everything the primary cell shows.
+  const rowLink = (row: Row, content: ReactNode, index: number): ReactElement => {
+    const described = `${baseId}-row-${index}`;
     const link = {
       className: "qx-table-row-link",
       "data-slot": "table-row-link",
-      children: content,
+      "aria-label": rowLabel(row),
+      "aria-describedby": described,
+      children: (
+        <span id={described} className="qx-table-row-link-content">
+          {content}
+        </span>
+      ),
       ...(onRowClick ? { onClick: () => onRowClick(row) } : {}),
     };
     return rowHref || renderRowLink
@@ -266,6 +364,87 @@ export function Table<Row>({
           ...(rowHref ? { href: rowHref(row) } : {}),
         })
       : rowButton(link);
+  };
+
+  /** A tree row's primary cell: its indent, its fold button, then its link (or its content). */
+  const treeCell = (row: Row, index: number, id: string, name: string): ReactElement => {
+    const column = columns.find((each) => each.id === primary) as TableColumn<Row>;
+    const depth = depths[index] ?? 0;
+    const isOpen = open.includes(id);
+    const path = index === 0 && depth > 0 ? rowPath?.(row) : undefined;
+    return (
+      <span
+        className="qx-table-tree"
+        data-slot="table-tree"
+        style={{ "--qx-table-depth": depth } as CSSProperties}
+      >
+        {rowHasChildren?.(row) ? (
+          <IconButton
+            icon={ChevronRightIcon}
+            aria-label={fill(isOpen ? strings.collapse : strings.expand, { row: name })}
+            size="sm"
+            tone="neutral"
+            tooltip={false}
+            className="qx-table-fold"
+            data-slot="table-fold"
+            data-open={isOpen ? "" : undefined}
+            onClick={() => toggleOpen(id)}
+          />
+        ) : (
+          <span className="qx-table-fold" aria-hidden />
+        )}
+        <span className="qx-table-tree-name">
+          {path && (
+            <span className="qx-table-tree-path" data-slot="table-tree-path">
+              {fill(strings.continued, { path })}
+            </span>
+          )}
+          {opens ? rowLink(row, column.cell(row), index) : column.cell(row)}
+        </span>
+      </span>
+    );
+  };
+
+  // ← folds an open row or moves to its parent, → opens a folded one, ↑ and ↓ move between rows:
+  // from a row's link or fold button to the same control on the next row.
+  const treeKey = (
+    event: KeyboardEvent<HTMLTableRowElement>,
+    index: number,
+    id: string,
+    row: Row,
+  ) => {
+    const target = event.target as Element;
+    const control = target.closest("[data-slot=table-row-link], [data-slot=table-fold]");
+    if (!control || event.altKey || event.ctrlKey || event.metaKey) return;
+    const rtl = getComputedStyle(event.currentTarget).direction === "rtl";
+    const key = rtl
+      ? (({ ArrowLeft: "ArrowRight", ArrowRight: "ArrowLeft" } as Record<string, string>)[
+          event.key
+        ] ?? event.key)
+      : event.key;
+    const focusRow = (to: number) => {
+      const rowsHere = event.currentTarget.parentElement?.children;
+      const next = rowsHere?.[to];
+      const slot = control.getAttribute("data-slot");
+      (
+        next?.querySelector<HTMLElement>(`[data-slot=${slot}]`) ??
+        next?.querySelector<HTMLElement>("[data-slot=table-row-link], [data-slot=table-fold]")
+      )?.focus();
+    };
+    const hasChildren = rowHasChildren?.(row) ?? false;
+    const isOpen = open.includes(id);
+    if (key === "ArrowRight" && hasChildren && !isOpen) toggleOpen(id, true);
+    else if (key === "ArrowLeft" && hasChildren && isOpen) toggleOpen(id, false);
+    else if (key === "ArrowLeft" && (depths[index] ?? 0) > 0) {
+      const depth = depths[index] ?? 0;
+      let parent = index - 1;
+      while (parent >= 0 && (depths[parent] ?? 0) >= depth) parent -= 1;
+      if (parent < 0) return;
+      focusRow(parent);
+    } else if (key === "ArrowDown" && index < rows.length - 1) focusRow(index + 1);
+    else if (key === "ArrowUp" && index > 0) focusRow(index - 1);
+    else return;
+    event.preventDefault();
   };
 
   /** One cell across the table, under the header: the empty, error and loading messages. */
@@ -301,43 +480,70 @@ export function Table<Row>({
     body = rows.map((row, index) => {
       const id = ids[index] ?? "";
       const name = rowLabel(row);
+      const reason = canSelect[index] ? undefined : rowUnselectableReason?.(row);
+      const actions = rowActions?.(row);
       return (
         <TableRow
           key={id}
           selected={isChosen.has(id)}
+          current={currentRow === id}
           data-clickable={opens ? "" : undefined}
           onClick={opens ? openRow : undefined}
+          {...(places
+            ? {
+                "aria-level": (depths[index] ?? 0) + 1,
+                "aria-posinset": places.position[index],
+                "aria-setsize": places.size[index],
+                "aria-expanded": rowHasChildren?.(row) ? open.includes(id) : undefined,
+                onKeyDown: (event: KeyboardEvent<HTMLTableRowElement>) =>
+                  treeKey(event, index, id, row),
+              }
+            : {})}
         >
           {selectable && (
             <TableCell className="qx-table-select">
               <Checkbox
                 aria-label={fill(strings.selectRow, { row: name })}
+                aria-describedby={reason ? `${baseId}-why-${index}` : undefined}
                 checked={isChosen.has(id)}
+                disabled={!canSelect[index]}
                 onCheckedChange={() => toggle(id)}
               />
+              {reason && <VisuallyHidden id={`${baseId}-why-${index}`}>{reason}</VisuallyHidden>}
             </TableCell>
           )}
           {columns.map((column) => (
-            <TableCell key={column.id} align={column.align} numeric={column.numeric}>
-              {column.id === primary ? rowLink(row, column.cell(row)) : column.cell(row)}
+            <TableCell
+              key={column.id}
+              align={column.align}
+              numeric={column.numeric}
+              priority={column.priority}
+            >
+              {column.id !== primary
+                ? column.cell(row)
+                : rowDepth
+                  ? treeCell(row, index, id, name)
+                  : rowLink(row, column.cell(row), index)}
             </TableCell>
           ))}
           {rowActions && (
             <TableCell className="qx-table-actions" align="end">
-              <Menu>
-                <MenuTrigger
-                  render={
-                    <IconButton
-                      icon={EllipsisIcon}
-                      aria-label={fill(strings.rowActions, { row: name })}
-                      tone="neutral"
-                      size="sm"
-                      tooltip={false}
-                    />
-                  }
-                />
-                <MenuContent align="end">{rowActions(row)}</MenuContent>
-              </Menu>
+              {actions != null && actions !== false && (
+                <Menu>
+                  <MenuTrigger
+                    render={
+                      <IconButton
+                        icon={EllipsisIcon}
+                        aria-label={fill(strings.rowActions, { row: name })}
+                        tone="neutral"
+                        size="sm"
+                        tooltip={false}
+                      />
+                    }
+                  />
+                  <MenuContent align="end">{actions}</MenuContent>
+                </Menu>
+              )}
             </TableCell>
           )}
         </TableRow>
@@ -351,6 +557,7 @@ export function Table<Row>({
       className={cx("qx-table", className)}
       data-slot="table"
       data-loading={refreshing ? "" : undefined}
+      data-sticky-first={stickyFirstColumn ? "" : undefined}
     >
       {(barred || toolbar != null) && (
         <div className="qx-table-bar" data-slot="table-bar" data-selected={barred ? "" : undefined}>
@@ -375,68 +582,84 @@ export function Table<Row>({
               </Button>
             </>
           ) : (
-            toolbar
+            <div className="qx-table-toolbar" data-slot="table-toolbar">
+              {toolbar}
+            </div>
           )}
         </div>
       )}
-      <TableElement aria-label={label} aria-busy={loading || undefined}>
-        <TableHeader>
-          <TableRow>
-            {selectable && (
-              <TableHead className="qx-table-select">
-                <Checkbox
-                  ref={selectAll}
-                  aria-label={strings.selectAll}
-                  checked={allHere}
-                  indeterminate={chosenHere > 0 && !allHere}
-                  disabled={ids.length === 0}
-                  onCheckedChange={toggleAll}
-                />
-              </TableHead>
-            )}
-            {columns.map((column) => {
-              const direction =
-                currentSort?.column === column.id ? currentSort.direction : undefined;
-              const Icon =
-                direction === "ascending"
-                  ? ArrowUpIcon
-                  : direction === "descending"
-                    ? ArrowDownIcon
-                    : ChevronsUpDownIcon;
-              return (
-                <TableHead
-                  key={column.id}
-                  align={column.align}
-                  numeric={column.numeric}
-                  aria-sort={direction}
-                  data-sorted={direction ? "" : undefined}
-                  style={column.width === undefined ? undefined : { inlineSize: column.width }}
-                >
-                  {column.sortable ? (
-                    <button
-                      type="button"
-                      className="qx-table-sort"
-                      data-slot="table-sort"
-                      onClick={() => sortBy(column)}
-                    >
-                      {column.header}
-                      <Icon shape="sharp" size={14} aria-hidden className="qx-table-sort-icon" />
-                    </button>
-                  ) : (
-                    column.header
-                  )}
+      <div
+        ref={scroller}
+        className="qx-table-scroll"
+        data-slot="table-scroll"
+        data-overflowing={overflowing ? "" : undefined}
+        // Only while it scrolls: a region named for the table, in the tab order.
+        {...(overflowing ? { role: "region", "aria-label": label, tabIndex: 0 } : {})}
+      >
+        <TableElement
+          aria-label={label}
+          aria-busy={loading || undefined}
+          role={rowDepth ? "treegrid" : undefined}
+        >
+          <TableHeader>
+            <TableRow>
+              {selectable && (
+                <TableHead className="qx-table-select">
+                  <Checkbox
+                    ref={selectAll}
+                    aria-label={strings.selectAll}
+                    checked={allHere}
+                    indeterminate={chosenHere > 0 && !allHere}
+                    disabled={selectableIds.length === 0}
+                    onCheckedChange={toggleAll}
+                  />
                 </TableHead>
-              );
-            })}
-            {rowActions && (
-              <TableHead className="qx-table-actions">
-                <VisuallyHidden>{strings.actions}</VisuallyHidden>
-              </TableHead>
-            )}
-          </TableRow>
-        </TableHeader>
-        <TableBody>{body}</TableBody>
-      </TableElement>
+              )}
+              {columns.map((column) => {
+                const direction =
+                  currentSort?.column === column.id ? currentSort.direction : undefined;
+                const Icon =
+                  direction === "ascending"
+                    ? ArrowUpIcon
+                    : direction === "descending"
+                      ? ArrowDownIcon
+                      : ChevronsUpDownIcon;
+                return (
+                  <TableHead
+                    key={column.id}
+                    align={column.align}
+                    numeric={column.numeric}
+                    priority={column.priority}
+                    aria-sort={direction}
+                    data-sorted={direction ? "" : undefined}
+                    style={column.width === undefined ? undefined : { inlineSize: column.width }}
+                  >
+                    {column.sortable ? (
+                      <button
+                        type="button"
+                        className="qx-table-sort"
+                        data-slot="table-sort"
+                        onClick={() => sortBy(column)}
+                      >
+                        {column.header}
+                        <Icon shape="sharp" size={14} aria-hidden className="qx-table-sort-icon" />
+                      </button>
+                    ) : (
+                      column.header
+                    )}
+                  </TableHead>
+                );
+              })}
+              {rowActions && (
+                <TableHead className="qx-table-actions">
+                  <VisuallyHidden>{strings.actions}</VisuallyHidden>
+                </TableHead>
+              )}
+            </TableRow>
+          </TableHeader>
+          <TableBody>{body}</TableBody>
+        </TableElement>
+      </div>
       {/* Two regions, so a refresh that ends doesn't repeat the selection count. */}
       <VisuallyHidden aria-live="polite">{loading ? strings.loading : ""}</VisuallyHidden>
       <VisuallyHidden aria-live="polite">{barred ? count : ""}</VisuallyHidden>

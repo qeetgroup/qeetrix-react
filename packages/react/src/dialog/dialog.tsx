@@ -19,7 +19,7 @@ import { cx } from "../internal/cx";
 import type { QeetrixMessages } from "../internal/messages";
 import { mergeRefs } from "../internal/refs";
 import { FOCUSABLE, useScrollFocus } from "../internal/scroll-focus";
-import { useMessages } from "../provider/provider";
+import { useMessages, usePortalContainer } from "../provider/provider";
 
 /** The kind of decision: `standard`, or a `danger` / `warning` alert dialog. */
 export type DialogIntent = "standard" | "danger" | "warning";
@@ -77,7 +77,13 @@ export interface DialogContentProps
 }
 
 export interface DialogBodyProps extends ComponentProps<"div"> {}
-export interface DialogFooterProps extends ComponentProps<"div"> {}
+export interface DialogFooterProps extends ComponentProps<"div"> {
+  /**
+   * A quiet link or a one-line summary at the footer's start, the actions staying at its end:
+   * "Adding many? Import a file". It wraps onto its own line where there's no room.
+   */
+  start?: ReactNode;
+}
 
 /** Holds a dialog's open state: `open` / `defaultOpen` / `onOpenChange(open, details)`. */
 export function Dialog({
@@ -146,6 +152,7 @@ export function DialogContent({
   children,
   ...props
 }: DialogContentProps): ReactElement {
+  const portalContainer = usePortalContainer();
   const { intent, dismissible } = use(DialogContext);
   const strings = useMessages("overlay", messages);
   const popup = useRef<HTMLDivElement>(null);
@@ -166,7 +173,7 @@ export function DialogContent({
     return next ?? true;
   };
   return (
-    <BaseDialog.Portal>
+    <BaseDialog.Portal container={portalContainer}>
       <BaseDialog.Backdrop className="qx-dialog-backdrop" data-slot="dialog-backdrop" />
       <BaseDialog.Viewport
         className="qx-dialog-viewport"
@@ -201,7 +208,13 @@ export function DialogContent({
             <div className="qx-dialog-close" data-slot="dialog-close">
               <BaseDialog.Close
                 render={
-                  <IconButton icon={XIcon} aria-label={strings.close} size="sm" tone="neutral" />
+                  <IconButton
+                    icon={XIcon}
+                    aria-label={strings.close}
+                    size="sm"
+                    tone="neutral"
+                    tooltip={false}
+                  />
                 }
               />
             </div>
@@ -231,6 +244,20 @@ export function DialogBody({ className, ref, tabIndex, ...props }: DialogBodyPro
 }
 
 /** The actions, end-aligned: tertiary first, then the primary or destructive action. */
-export function DialogFooter({ className, ...props }: DialogFooterProps): ReactElement {
-  return <div {...props} className={cx("qx-dialog-footer", className)} data-slot="dialog-footer" />;
+export function DialogFooter({
+  start,
+  className,
+  children,
+  ...props
+}: DialogFooterProps): ReactElement {
+  return (
+    <div {...props} className={cx("qx-dialog-footer", className)} data-slot="dialog-footer">
+      {start != null && (
+        <div className="qx-dialog-footer-start" data-slot="dialog-footer-start">
+          {start}
+        </div>
+      )}
+      {children}
+    </div>
+  );
 }

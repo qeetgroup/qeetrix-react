@@ -345,3 +345,38 @@ describe("Combobox", () => {
     await expectAccessible(document.querySelector("[data-slot=combobox-popup]") as HTMLElement);
   });
 });
+
+describe("Combobox with allowCustom", () => {
+  const PATHS = [
+    { value: "subject.role", label: "subject.role" },
+    { value: "resource.owner", label: "resource.owner" },
+  ];
+
+  it("offers typed text that matches no option, and chooses it as the value", async () => {
+    const onValueChange = vi.fn();
+    await render(
+      <Combobox<string>
+        aria-label="Attribute"
+        items={PATHS}
+        allowCustom
+        onValueChange={onValueChange}
+      />,
+    );
+    const input = page.getByRole("combobox", { name: "Attribute" });
+    await input.click();
+    await userEvent.keyboard("subject.department");
+    const custom = page.getByRole("option", { name: "Use “subject.department”" });
+    await expect.element(custom).toBeVisible();
+    await custom.click();
+    expect(onValueChange).toHaveBeenLastCalledWith("subject.department", expect.anything());
+    await expect.element(input).toHaveValue("subject.department");
+  });
+
+  it("offers nothing extra when the text is an option's label", async () => {
+    await render(<Combobox<string> aria-label="Attribute" items={PATHS} allowCustom />);
+    await page.getByRole("combobox", { name: "Attribute" }).click();
+    await userEvent.keyboard("subject.role");
+    await expect.element(page.getByRole("option", { name: "subject.role" })).toBeVisible();
+    expect(page.getByRole("option", { name: /^Use / }).elements()).toHaveLength(0);
+  });
+});

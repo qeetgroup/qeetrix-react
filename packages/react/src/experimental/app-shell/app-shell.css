@@ -132,7 +132,7 @@
   flex-direction: column;
   grid-column: 3;
   grid-row: 2;
-  inline-size: 320px;
+  inline-size: var(--qx-app-shell-panel-width, 320px);
   block-size: calc(100dvh - var(--qx-app-shell-top));
   border-inline-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
   background: var(--qx-color-surface-default);
@@ -161,6 +161,30 @@
   padding: var(--qx-space-inset-lg);
 }
 
+/* A resizable panel's handle: a 8px target on its start edge, an Ember line while in use. */
+.qx-app-shell-resizer {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: -4px;
+  /* Over the panel's own content, within the panel's stacking context. */
+  z-index: calc(var(--qx-z-base) + 1);
+  inline-size: 8px;
+  cursor: col-resize;
+  touch-action: none;
+  &::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 3px;
+    inline-size: var(--qx-border-width-strong);
+  }
+  &:is(:hover, :focus-visible, :active)::after {
+    background: var(--qx-color-border-brand);
+  }
+  &:focus-visible {
+    outline: none;
+  }
+}
 /* Below the large window class, the panel overlays the page instead of pushing it. */
 @media (width < 1200px) {
   .qx-app-shell-panel {
@@ -184,7 +208,7 @@
     grid-column: 1;
   }
   .qx-app-shell-panel {
-    inline-size: min(320px, 100vw);
+    inline-size: min(var(--qx-app-shell-panel-width, 320px), 100vw);
   }
   .qx-app-shell-notifications {
     padding-inline: var(--qx-space-inset-lg);
@@ -234,6 +258,55 @@
   &[data-ending-style] {
     transition-duration: var(--qx-motion-duration-normal);
     transition-timing-function: var(--qx-motion-easing-exit);
+  }
+}
+
+/* Embedded (a shell inside a page): it fills its box, not the window. The page scrolls inside it,
+   the bar and the columns fill the box's height, and the layout follows the box's width through
+   container queries, overriding the window's media queries above. */
+.qx-app-shell[data-embedded] {
+  container: qx-app-shell / inline-size;
+  position: relative;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  block-size: 100%;
+  min-block-size: 0;
+  overflow: hidden;
+  > .qx-app-shell-top {
+    position: relative;
+  }
+  > :is(.qx-app-shell-nav, .qx-app-shell-panel) {
+    position: relative;
+    inset-block-start: auto;
+    block-size: auto;
+    min-block-size: 0;
+    box-shadow: none;
+  }
+  > .qx-app-shell-nav {
+    display: block;
+  }
+  > .qx-app-shell-main {
+    grid-column: 2;
+    min-block-size: 0;
+    overflow-y: auto;
+  }
+  :is(.qx-app-shell-backdrop, .qx-app-shell-viewport) {
+    position: absolute;
+  }
+}
+@container qx-app-shell (width < 1200px) {
+  .qx-app-shell[data-embedded] > .qx-app-shell-panel {
+    position: absolute;
+    inset-block: var(--qx-app-shell-top) 0;
+    inset-inline-end: 0;
+    box-shadow: var(--qx-shadow-overlay);
+  }
+}
+@container qx-app-shell (width < 840px) {
+  .qx-app-shell[data-embedded] > .qx-app-shell-nav {
+    display: none;
+  }
+  .qx-app-shell[data-embedded] > .qx-app-shell-panel {
+    inline-size: min(var(--qx-app-shell-panel-width, 320px), 100cqi);
   }
 }
 

@@ -8,7 +8,8 @@
  * TypeScript modules
  *   - a module that uses Base UI, client hooks or context starts with "use client", and the
  *     directive appears nowhere but the first statement;
- *   - no dangerouslySetInnerHTML, Math.random or localStorage.
+ *   - no dangerouslySetInnerHTML, Math.random or localStorage (src/internal/storage.ts, the one
+ *     guarded module that remembers a product's keyed choices, excepted).
  * CSS (src/<family>/<family>.css)
  *   - colours, corners, shadows, type, motion and stacking come from var(--qx-*) tokens;
  *   - every var(--qx-*) names a token in the installed @qeetrix/tokens, or a property declared
@@ -49,6 +50,9 @@ const FORBIDDEN = [
   [/\blocalStorage\b/, "uses localStorage directly"],
 ];
 
+// src/internal/storage.ts is the one module that reads and writes localStorage, guarded there.
+const STORAGE_MODULE = /src\/internal\/storage\.ts$/;
+
 for (const file of files.filter((f) => /\.tsx?$/.test(f) && !isTest(f))) {
   const code = readFileSync(file, "utf8");
   const firstStatement = code.replace(/^\s*(\/\*[\s\S]*?\*\/|\/\/[^\n]*\n)\s*/g, "").trimStart();
@@ -63,7 +67,11 @@ for (const file of files.filter((f) => /\.tsx?$/.test(f) && !isTest(f))) {
       if (pattern.test(bare)) report(file, `${why} but does not start with "use client"`);
     }
   }
-  for (const [pattern, why] of FORBIDDEN) if (pattern.test(bare)) report(file, why);
+  for (const [pattern, why] of FORBIDDEN) {
+    if (pattern.test(bare) && !(why.includes("localStorage") && STORAGE_MODULE.test(file))) {
+      report(file, why);
+    }
+  }
 }
 
 // ---- CSS -----------------------------------------------------------------------------------

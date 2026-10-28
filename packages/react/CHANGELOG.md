@@ -1,5 +1,196 @@
 # @qeetrix/react
 
+## 0.2.0
+
+Fixes and additions from the Qeet ID console's Jira issues (QTRX). Nothing is removed or renamed.
+A minor, not a patch: one default changes (a MenuRadioItem closes its menu on a choice), and three
+props interfaces that were empty gained props, which the API check counts as changed lines.
+
+### Migrating from 0.1
+
+- **A menu of `MenuRadioItem`s now closes on a choice.** A menu where several settings change in
+  a row passes `closeOnClick={false}` on its items. A closed menu unmounts its items, so a picker
+  holds its value in state (`value` / `onValueChange` on MenuRadioGroup).
+- **Navigation styled as a button:** move `<Button render={<RouterLink … />}>` to
+  `<LinkButton render={<RouterLink … />}>`, which is announced as a link.
+- **Routed sub-page tabs:** move Tabs that navigate in `onValueChange` to `TabNav` and
+  `TabNavLink`.
+- **A Tooltip has a pointer, 8px from its trigger** (it was 6px with none). A layout that relied
+  on 6px passes `sideOffset={6}`.
+- Nothing else needs a change.
+
+### New
+
+- **`LinkButton`** (QTRX-8): navigation drawn as a Button. It renders a plain link, `<a href>` or
+  the router link given in `render` (`render={<RouterLink to="/users" />}`), with Button's
+  `variant`, `tone`, `size`, trailing `icon` and `fullWidth`. It keeps a link's semantics: it's
+  announced as a link, with no `role="button"`, `type` or `tabindex`; Enter follows it, and it can
+  be opened in a new tab. Server-safe. A Button given a link in `render` is still announced as a
+  button, so use LinkButton for navigation.
+- **`TabNav` and `TabNavLink`** (QTRX-19): tabs for sub-pages that are pages of their own, drawn
+  as a TabsList. A `<nav>` (its `aria-label` required) of links: the current one is
+  `aria-current="page"` (from `current`, or set by a router link) and carries the weight and the
+  3px Ember bar. `icon`, `filledWhenSelected`, `badge` and `render` as Tab's. It goes in
+  PageHeader's `tabs` as a TabsList does. Tabs stay for views within one page.
+- **The `qx.state` layer** (QTRX-46): after `qx.components`, holding one rule: the `hidden`
+  attribute hides any Qeetrix part, whatever display its component sets (`hidden="until-found"` is
+  left alone). Every per-family stylesheet (`dist/css/<family>.css`) now declares the three layers
+  first and imports `state.css`.
+- **Table: `table-toolbar`** (QTRX-17): the toolbar sits in its own slot, which fills the bar and
+  wraps, so a search and filters use the table's width.
+
+- **Meter: `target`** (QTRX-14): a goal on the range, drawn as a 2px tick that overhangs the track,
+  placed from the start edge (it mirrors in right-to-left), and read out with the value: "40%,
+  target 80%" (`messages.meter.withTarget`).
+- **Table:**
+  - **`rowSelectable` and `rowUnselectableReason`** (QTRX-16): a row that can't be selected has a
+    disabled checkbox, described by the reason; the header's checkbox selects, clears and counts
+    only the selectable rows.
+  - **`currentRow`** (QTRX-70): the row whose record is open beside the list: `aria-current` and
+    the selected tint.
+  - **`rowActions` returning nothing** leaves that row without its menu button (QTRX-69); the
+    column stays.
+  - **Column `priority`** (QTRX-58): `low` columns hide while the table is narrower than 640px,
+    `medium` under 480px (container queries); `high`, the default, always shows.
+  - **It scrolls sideways itself** when wider than its space (QTRX-67): the table sits in a
+    `table-scroll` wrapper that, only while it overflows, scrolls and is a region named for the
+    table, in the tab order. It doesn't scroll otherwise, so the sticky header keeps sticking to
+    the page. No ScrollArea is needed around a Table.
+- **Select: an item's `meta`** (QTRX-20): a short fact at the option's end, such as a count, in
+  subtle tabular figures; read out with the option, not shown in the closed trigger.
+- **DrawerFooter and DialogFooter: `start`** (QTRX-23): a quiet link or a one-line summary at the
+  footer's start, the actions staying at its end; it wraps where there's no room.
+- **Stat: `currency` and `format`** (QTRX-41): money formatted for the locale, a whole amount with
+  no fraction: `<Stat value={1842600} currency="INR" />` reads ₹18,42,600 in en-IN.
+- **PageHeader: `leading`** (QTRX-48): a record's logo or Avatar before its title and description,
+  its top on the title's first line, outside the heading.
+
+- **Pagination: a cursor mode, and `ShowMore`** (QTRX-57): for a cursor API, `hasPrevious` /
+  `hasNext` with `onPrevious` / `onNext` give Previous and Next alone (no First or Last), the range
+  shown when the page knows its `offset`. `ShowMore` appends the next page of a growing list ("Show
+  older events") and, once there's nothing more, says so (`end`), announced politely.
+- **Combobox: `allowCustom`** (QTRX-66): while what's typed matches no option, the list offers it
+  ("Use “subject.department”") and choosing it sets the text as the value. String values, flat items.
+- **Select: `size`** (QTRX-72): `md` and `sm` sit beside Buttons of that size in a toolbar; `lg`, a
+  form field's height, stays the default.
+- **Field: a function child** (QTRX-73): for a control that isn't a form input (a rich-text editor,
+  a ToggleGroup), it receives `aria-labelledby`, `aria-describedby` and `aria-invalid` to spread on
+  it (`FieldControlProps`), so the label, description and error name and describe it.
+- **DescriptionItem: `description` and `action`** (QTRX-74): a sentence under the value and an
+  action at the row's end (in its own `dd`): a Settings row.
+- **Steps: a step's `status`** (QTRX-80): `failed` (a danger marker with ×) or `attention` (a
+  warning marker), read after the name ("Verify the record, Failed"), or `done` / `current` /
+  `upcoming` set outright, so a later step can stay done while an earlier one needs work.
+- **AppShell panels: `width`, `minWidth`, `maxWidth`, `resizable`, `onWidthChange`** (QTRX-75): a
+  panel's width, and a window-splitter handle on its start edge (drag it, or use the arrow keys,
+  Home and End), the right way round in right-to-left.
+
+
+New experimental families and parts (from `@qeetrix/react/experimental` unless named):
+
+- **Small charts** (QTRX-13, 63, 77, 78, 79), in the data-viz colours with 2px gaps and 2px data
+  ends, text in text colours: **`Sparkline`** (decoration, or an image with `label`), **`ShareBar`**
+  (parts of a whole; an image named for its parts, or with a `legend` whose items can link),
+  **`ColumnChart`** (a stacked column a period on one scale, named for its busiest period; columns
+  can link), **`BarList`** (ranked amounts, largest first), **`SpanChart`** (spans on one time
+  axis, each said in words), and **`ChartTooltip`** and **`ChartLegend`** for a chart library's
+  slots, titled from the point.
+- **`Treemap`** and **`ProportionalCircles`** (QTRX-24): parts of a whole. A squarified treemap
+  (`squarify` is exported) nested one level, in two sequential tints by depth and graphite for
+  what has no group; a tile's link is its header stretched over the tile, its name listing the
+  children. Circles whose area is true to the value (a radius floor), a row per group, the count
+  inside a circle that holds it, each said in words.
+- **Stat: `chart` and `action`** (QTRX-18): a small chart under the note and a link into the list,
+  for a PageHeader summary band's richer cells; StatGroup keeps the gutter and the rules.
+- **`MultiEmailField`** (QTRX-22): several addresses, typed, pasted or separated by commas, spaces
+  or new lines, each a ruled row with its state from `check` ("Already a member") and a remove
+  button; Backspace removes the last; `max` keeps the rest in the box and says so; changes are
+  announced.
+- **`ColorSwatchGroup`** and **`ColorField`** (QTRX-52): a radio group of named swatches (token or
+  hex), the chosen one ringed; a hex field whose swatch is the system picker, with the eyedropper
+  where the browser has one, `suggestions`, a `resetLabel` and a `contrast` line that warns under
+  4.5:1. `toHexColor` and `contrastRatio` are exported.
+- **`CodeField`** (QTRX-59): code to edit inside a Field, coloured as it's typed, with line
+  numbers; Tab indents, Shift+Tab outdents, Escape then Tab leaves.
+- **`Composer`**, **`Conversation`** and **`Turn`** (QTRX-76): an assistant's message field (Enter
+  sends, Shift+Enter adds a line, Send becomes Stop), a polite log that follows new turns while
+  you're at the bottom, and turns that name their speaker for screen readers.
+- **`Toolbar`** (with `ToolbarButton`, `ToolbarGroup`, `ToolbarSeparator`) and **`Workspace`**
+  (with `WorkspacePane`, `WorkspaceMain`, `WorkspaceOutput`) (QTRX-64): one Tab stop and arrow keys
+  across a tool's actions; ruled panes edge to edge with output docked under the canvas, stacking
+  in a narrow box.
+- **`GraphCanvas`** (QTRX-65): a layered tree top down with elbow lines and their relation, zoom and
+  fit, one Tab stop with the arrow keys along the tree, each node saying what it's reached from.
+- **`FloatingPanel`** (QTRX-53): a non-modal panel moved by its head and resized from its corner,
+  by pointer or arrow keys, kept in the window, mirrored right to left, its place remembered
+  (`storageKey` or `onPlaceChange`), put back on a double-click; a bottom sheet on narrow screens.
+- **`SiteHeader`**, **`SiteNav`**, **`SiteNavItem`** and **`SiteNavLink`** (QTRX-12): a website's
+  bar on the Ember line, its sections with panels (arrow keys, Escape back to the trigger) and the
+  current one's Ember bar, utilities and one primary action; a menu on narrow screens.
+- **`Kbd`** (QTRX-28), **`RelativeTime`** (QTRX-56), **`CopyField`** (QTRX-55), **`CheckList`**
+  (QTRX-60), **`InstructionList`** (QTRX-61) and **`StateRuler`** (QTRX-62).
+- **Table: tree rows** (QTRX-25): `rowDepth`, `rowHasChildren`, `expanded` / `defaultExpanded` /
+  `onExpandedChange` and `rowPath`. A fold button sits before the row link (so `rowHref` still
+  works); the table is a tree grid (`aria-level`, `aria-expanded`, `aria-posinset`, `aria-setsize`;
+  ← folds, → opens, ↑ and ↓ move); the page's first row says where it continues from.
+  `foldTreeRows` pages the rows that show.
+- **Table: `stickyFirstColumn`** (QTRX-68): the first column stays while a matrix scrolls
+  sideways; header cells hold links or buttons in the header's look; `align: "center"` centres a
+  checkbox.
+- **Sidebar levels** (QTRX-43, 45): two levels of categories, the current page opening every one
+  around it, the filter searching the whole tree, each level stepping in on a guide line; a
+  category with an `href` is a page too, with its own fold button.
+- **AppShell: `embedded`** (QTRX-38): a shell inside a page fills its box, with no `<main>` or skip
+  link; its layout follows the box's width and its navigation drawer opens inside it.
+- **`PortalContainer`** (QTRX-47), from the root: popups inside it (menus, popovers, selects,
+  tooltips, comboboxes, dialogs, drawers) render into a given element, such as a native modal
+  `<dialog>`, instead of the body.
+- **`colorSchemeScript()`** and **QeetrixProvider `storageKey`** (QTRX-30): one inline script sets
+  the saved scheme before the first paint, a fixed string a CSP can allow by hash; the provider
+  starts from the same saved choice and saves new ones under the same key.
+- **`@qeetrix/react/manifest`** (QTRX-39): every family, its status, kind, the version it arrived
+  in, its entry point and its parts. `bun run manifest` regenerates it; a test fails while it's out
+  of date.
+- **CodeBlock: CSS, and highlighting without React** (QTRX-29): `css` is a language; `highlight`
+  (tokens) and `highlightHtml` (HTML in the code colours) are exported for static pages.
+
+### Changed
+
+- **Tooltip: a pointer** in the middle of the side facing the trigger, a sharp 10 × 5px triangle in
+  the tooltip's graphite that follows the trigger when the popup shifts to stay on screen, and
+  mirrors with the side. The default `sideOffset` is 8px (was 6), the pointer filling 5 of them.
+- **ThemeSwitcher, the one theme control** (QTRX-44): the menu's current choice is marked by an
+  Ember check, the menu is 9.5rem wide, and `menuSide="top"` opens it upward at the foot of the
+  navigation or a page. With QeetrixProvider's `storageKey="qx-color-scheme"` the choice is saved
+  for `colorSchemeScript`.
+- **CodeBlock is server-safe**: the code is highlighted where it renders, and only its Copy button
+  and strings hydrate.
+- **`MenuRadioItem` closes its menu on a choice** (QTRX-42), as a menu that picks one value should.
+  Pass `closeOnClick={false}` where several settings change in a row. A closed menu unmounts its
+  items, so hold the value in state (`value` / `onValueChange` on MenuRadioGroup).
+
+### Fixed
+
+- **Link rendered as a button** (QTRX-71): it drops the button's box (border, padding, background),
+  so an action in place reads as a link.
+- **Table:** a row link (or row button) is named by `rowLabel(row)`, as its checkbox and actions
+  button are, and described by the rest of the primary cell (QTRX-21): "Priya Sharma, link", not
+  everything the cell shows.
+- **Tabs:** the selected tab carries the Ember bar from the first paint (QTRX-49). Before Base UI
+  measures the sliding indicator (on the server, before hydration) the tab draws the bar itself.
+- **Dialog and Drawer:** opened from the keyboard with nothing to fill in, they close on the first
+  Escape (QTRX-54). Their Close button shows no tooltip, which had taken the first Escape.
+- **Avatar:** a company's legal form doesn't count towards its initials (QTRX-40): "Kaveri Foods
+  Private Limited" is KF, and a name left with one word takes its first two letters, so "Acme Pvt
+  Ltd" is AC (it was AL). Pvt, Private, Ltd, Limited, LLP, OPC, Inc, LLC, PLC, Corp, Co, GmbH, Pte
+  and Pty, with or without dots.
+- **Heading:** the display sizes use the Geo letterforms (QTRX-36), as design rules §5 give them.
+- **FilterTags:** its docs say what it does with no filters (QTRX-15): it shows the summary alone,
+  for a search that narrows the list without a tag, and nothing without a summary.
+- **Package:** a family can hold its own JavaScript budget (`familyJsByFamily` in
+  size-budget.json); Table's is 6.3 kB gzip (tree rows, tree-grid keys and the sticky column
+  included), the rest stay at 4.
+
 ## 0.1.3
 
 Two experimental components for every product's header, footer and sign-in page, from the Qeet ID

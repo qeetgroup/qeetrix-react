@@ -48,6 +48,21 @@ export interface SidebarProps extends Omit<ComponentProps<"div">, "children" | "
 /** The filter's text, lower-cased; and whether an enclosing category matched it by its own label. */
 const FilterContext: Context<string> = createContext("");
 const ParentMatchContext: Context<boolean> = createContext(false);
+/** How deep an item sits: 0 at the top, 1 inside a category, 2 inside a category's category. */
+const DepthContext: Context<number> = createContext(0);
+
+type ItemNode = ReactElement<{ label?: string; current?: boolean; children?: ReactNode }>;
+const itemsOf = (children: ReactNode): ItemNode[] =>
+  Children.toArray(children).filter(isValidElement) as ItemNode[];
+/** Whether any item under these, at any depth, is the current page. */
+const holdsCurrent = (items: ItemNode[]): boolean =>
+  items.some((item) => item.props.current || holdsCurrent(itemsOf(item.props.children)));
+/** Whether any item under these, at any depth, matches the filter. */
+const holdsMatch = (items: ItemNode[], matches: (text: string) => boolean): boolean =>
+  items.some(
+    (item) =>
+      matches(String(item.props.label)) || holdsMatch(itemsOf(item.props.children), matches),
+  );
 
 export interface SidebarGroupProps extends Omit<ComponentProps<"div">, "children"> {
   /** The group's label; without one, the group is separated by space alone. */
@@ -60,7 +75,10 @@ export interface SidebarItemProps
   extends Omit<ComponentProps<"a">, "children" | "className" | "style" | "onClick" | "ref"> {
   /** The item's text. In the rail it becomes the tooltip and stays the accessible name. */
   label: string;
-  /** Where it goes. A category (an item with children) takes no `href`. */
+  /**
+   * Where it goes. A category with an `href` is a page too: the row is its link, and a chevron
+   * button at the row's end folds it without navigating.
+   */
   href?: string;
   /** A router link instead of `<a>`, e.g. `render={<Link to="/users" />}`. */
   render?: RenderProp;
@@ -75,7 +93,10 @@ export interface SidebarItemProps
   current?: boolean;
   /** At the end: a count or a Badge. Hidden in the rail. */
   badge?: ReactNode;
-  /** A category's initial state. By default it starts open when it holds the current page. */
+  /**
+   * A category's initial state. By default it starts open when it is, or holds at any depth, the
+   * current page.
+   */
   defaultOpen?: boolean;
   /**
    * Shown but not available, e.g. outside the plan: greyed, out of the Tab order and not followed.
@@ -84,7 +105,10 @@ export interface SidebarItemProps
   disabled?: boolean;
   /** Called when the link is followed. */
   onClick?: (event: MouseEvent<HTMLElement>) => void;
-  /** One level of nested SidebarItems: the item becomes a category. */
+  /**
+   * Nested SidebarItems: the item becomes a category. Two levels of categories are supported; each
+   * steps in from its parent's label on a guide line.
+   */
   children?: ReactNode;
   /** Placement of the item's row (its `<li>`). */
   className?: string;
@@ -98,7 +122,7 @@ export interface SidebarItemProps
 }
 
 /**
- * A console's navigation: links only, one level of nesting, every item in the Tab order. Inside an
+ * A console's navigation: links only, up to two levels of categories, every item in the Tab order. Inside an
  * AppShell it follows the shell: a rail when collapsed, a drawer on narrow screens.
  */
 export function Sidebar({
@@ -215,20 +239,22 @@ export function SidebarItem({
   const parentMatched = use(ParentMatchContext);
   const rail = shell.collapsed && !shell.inDrawer;
   const panelId = useId();
-  const nested = Children.toArray(children).filter(isValidElement);
+  const depth = use(DepthContext);
+  const nested = itemsOf(children);
   const isCategory = nested.length > 0;
-  const holdsCurrent = nested.some((child) => (child.props as { current?: boolean }).current);
-  const [open, setOpen] = useState(defaultOpen ?? holdsCurrent);
+  const inside = holdsCurrent(nested);
+  const [open, setOpen] = useState(defaultOpen ?? (inside || (isCategory && !!current)));
 
-  // Filtering: an item stays if it matches, if its category matched, or if a child matches.
+  // Filtering: an item stays if it matches, if a category around it matched, or if anything under
+  // it matches, at any depth; its categories open, so a match shows with its path.
   const matches = (text: string) => text.toLocaleLowerCase().includes(query);
   const selfMatch = query === "" || parentMatched || matches(label);
-  const childMatch =
-    query !== "" &&
-    nested.some((child) => matches(String((child.props as { label?: string }).label)));
+  const childMatch = query !== "" && holdsMatch(nested, matches);
   if (!selfMatch && !childMatch) return null;
   const expanded = (query !== "" ? true : open) && !rail;
-  const marked = current || (isCategory && holdsCurrent && !expanded);
+  const marked = current || (isCategory && inside && !expanded);
+  // A category that is also a page: its row is the link, and a separate button folds it.
+  const page = isCategory && (href !== undefined || render !== undefined);
   const Filled = Icon as ComponentType<IconProps> | undefined;
 
   const content = (
@@ -259,57 +285,59 @@ export function SidebarItem({
           </span>
         )}
       </span>
-      {isCategory && (
+      {isCategory && !page && (
         <ChevronDownIcon shape="round" size={16} aria-hidden className="qx-sidebar-chevron" />
       )}
     </>
   );
 
-  let control: ReactElement = isCategory ? (
-    <button
-      {...(props as ComponentProps<"button">)}
-      type="button"
-      className="qx-sidebar-item"
-      aria-expanded={expanded}
-      aria-controls={panelId}
-      disabled={disabled}
-      data-current={marked ? "" : undefined}
-      data-open={expanded ? "" : undefined}
-      data-disabled={disabled ? "" : undefined}
-      onClick={() => {
-        if (rail) {
-          shell.expand();
-          setOpen(true);
-        } else {
-          setOpen(!open);
-        }
-      }}
-    >
-      {content}
-    </button>
-  ) : (
-    renderElement("a", render, {
-      ...props,
-      // Disabled, it keeps the link role without an href, so it can't be followed or tabbed to.
-      ...(disabled
-        ? { role: "link", "aria-disabled": true, tabIndex: render ? -1 : undefined }
-        : { href }),
-      className: "qx-sidebar-item",
-      "aria-current": current ? "page" : undefined,
-      "data-current": current ? "" : undefined,
-      "data-disabled": disabled ? "" : undefined,
-      onClick: (event: MouseEvent<HTMLElement>) => {
-        if (disabled) {
-          // A router link checks this before it navigates.
-          event.preventDefault();
-          return;
-        }
-        onClick?.(event);
-        if (shell.inDrawer) shell.closeDrawer();
-      },
-      children: content,
-    })
-  );
+  let control: ReactElement =
+    isCategory && !page ? (
+      <button
+        {...(props as ComponentProps<"button">)}
+        type="button"
+        className="qx-sidebar-item"
+        aria-expanded={expanded}
+        aria-controls={panelId}
+        disabled={disabled}
+        data-current={marked ? "" : undefined}
+        data-open={expanded ? "" : undefined}
+        data-disabled={disabled ? "" : undefined}
+        onClick={() => {
+          if (rail) {
+            shell.expand();
+            setOpen(true);
+          } else {
+            setOpen(!open);
+          }
+        }}
+      >
+        {content}
+      </button>
+    ) : (
+      renderElement("a", render, {
+        ...props,
+        // Disabled, it keeps the link role without an href, so it can't be followed or tabbed to.
+        ...(disabled
+          ? { role: "link", "aria-disabled": true, tabIndex: render ? -1 : undefined }
+          : { href }),
+        className: "qx-sidebar-item",
+        "aria-current": current ? "page" : undefined,
+        "data-current": marked ? "" : undefined,
+        "data-foldable": page ? "" : undefined,
+        "data-disabled": disabled ? "" : undefined,
+        onClick: (event: MouseEvent<HTMLElement>) => {
+          if (disabled) {
+            // A router link checks this before it navigates.
+            event.preventDefault();
+            return;
+          }
+          onClick?.(event);
+          if (shell.inDrawer) shell.closeDrawer();
+        },
+        children: content,
+      })
+    );
   // The tooltip wrapper is always there, disabled outside the rail: the element tree stays the
   // same when the rail expands under the pointer, so a click that started in the rail still lands.
   control = (
@@ -319,11 +347,32 @@ export function SidebarItem({
   );
 
   return (
-    <li className={cx("qx-sidebar-entry", className)} style={style} data-slot="sidebar-item">
+    <li
+      className={cx("qx-sidebar-entry", className)}
+      style={{ "--qx-sidebar-depth": depth, ...style } as CSSProperties}
+      data-slot="sidebar-item"
+    >
       {control}
+      {page && (
+        <button
+          type="button"
+          className="qx-sidebar-fold"
+          data-slot="sidebar-item-fold"
+          aria-label={label}
+          aria-expanded={expanded}
+          aria-controls={panelId}
+          data-open={expanded ? "" : undefined}
+          disabled={disabled}
+          onClick={() => setOpen(!open)}
+        >
+          <ChevronDownIcon shape="round" size={16} aria-hidden className="qx-sidebar-chevron" />
+        </button>
+      )}
       {isCategory && (
         <ul id={panelId} className="qx-sidebar-list qx-sidebar-sublist" hidden={!expanded}>
-          <ParentMatchContext value={query !== "" && matches(label)}>{nested}</ParentMatchContext>
+          <DepthContext value={depth + 1}>
+            <ParentMatchContext value={query !== "" && matches(label)}>{nested}</ParentMatchContext>
+          </DepthContext>
         </ul>
       )}
     </li>

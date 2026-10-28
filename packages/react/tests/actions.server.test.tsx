@@ -1,12 +1,12 @@
 /**
  * The actions on the server: client components (Button, Toggle) still render to HTML, and the
- * server-safe ones (Link, Spinner) carry no client code.
+ * server-safe ones (Link, LinkButton, Spinner) carry no client code.
  */
 import { readFileSync } from "node:fs";
 import { ArrowRightIcon } from "@qeetrix/icons/icons/arrow-right";
 import { renderToString } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { Button, IconButton, Link, Spinner, Toggle, ToggleGroup } from "../src/index";
+import { Button, IconButton, Link, LinkButton, Spinner, Toggle, ToggleGroup } from "../src/index";
 import { hi } from "../src/locales/hi";
 import { QeetrixProvider } from "../src/provider/provider";
 
@@ -46,6 +46,17 @@ describe("actions render on the server", () => {
     expect(html(<Toggle icon={ArrowRightIcon} aria-label="Next" />)).toMatch(
       /^<button[^>]*aria-label="Next"[^>]*data-slot="toggle"[^>]*data-icon-only=""/,
     );
+  });
+
+  it("LinkButton: a plain link drawn as a Button, with no button semantics", () => {
+    const out = html(
+      <LinkButton href="/invoices" icon={ArrowRightIcon}>
+        Invoices
+      </LinkButton>,
+    );
+    expect(out).toMatch(/^<a href="\/invoices" class="qx-button" data-slot="link-button"/);
+    expect(out).not.toMatch(/role=|type=|tabindex=/);
+    expect(out.indexOf("button-label")).toBeLessThan(out.indexOf("button-icon"));
   });
 
   it("Link: external adds rel, target and the screen-reader note", () => {

@@ -31,6 +31,18 @@
 }
 
 /* At most N columns, each at least 8rem: fewer columns where there isn't room. */
+/* A sentence under the value, on its own line. */
+.qx-description-note {
+  flex-basis: 100%;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}
+/* An action on the fact, at the row's end. */
+.qx-description-action {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0;
+}
 .qx-description-list[data-layout="columns"] {
   grid-template-columns: repeat(
       auto-fill,
@@ -65,9 +77,16 @@
   & + .qx-description-item {
     border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
   }
+  &[data-action] {
+    grid-template-columns: minmax(8rem, 30%) minmax(0, 1fr) auto;
+    align-items: center;
+  }
 }
 @container (width < 24rem) {
-  .qx-description-list[data-layout="rows"] > .qx-description-item {
+  .qx-description-list[data-layout="rows"] > .qx-description-item:is(*, [data-action]) {
     grid-template-columns: minmax(0, 1fr);
+    & > .qx-description-action {
+      justify-content: flex-start;
+    }
   }
 }

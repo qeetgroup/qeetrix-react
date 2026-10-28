@@ -102,10 +102,14 @@ describe("per-family stylesheets", () => {
   const imports = (family: string) =>
     [...css(family).matchAll(/@import "\.\/([a-z-]+)\.css";/g)].map((m) => m[1]);
 
-  it("import the base layer and every family they render", () => {
-    expect(imports("button")).toEqual(["base", "spinner", "tooltip"]);
-    expect(imports("checkbox")).toEqual(["base", "field"]);
-    expect(imports("text-field")).toEqual(["base", "field", "input"]);
-    expect(imports("stack")).toEqual(["base"]);
+  it("import the base and state layers and every family they render", () => {
+    expect(imports("button")).toEqual(["base", "state", "spinner", "tooltip"]);
+    expect(imports("checkbox")).toEqual(["base", "state", "field"]);
+    expect(imports("text-field")).toEqual(["base", "state", "field", "input"]);
+    expect(imports("stack")).toEqual(["base", "state"]);
+  });
+
+  it("declare the layer order first, so qx.state follows the components when used alone", () => {
+    expect(css("button").startsWith("@layer qx.base, qx.components, qx.state;\n")).toBe(true);
   });
 });

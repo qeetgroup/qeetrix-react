@@ -186,12 +186,65 @@
   }
 }
 /* Nested items line up with their parent's label: padding + icon + gap. */
+/* Each level under the first steps in 16px from its parent's label, on a guide line there. */
 .qx-sidebar-sublist .qx-sidebar-item {
-  padding-inline-start: calc(var(--qx-space-inset-lg) + 16px + 10px);
+  padding-inline-start: calc(
+    var(--qx-space-inset-lg) +
+    16px +
+    10px +
+    (var(--qx-sidebar-depth, 1) - 1) *
+    16px
+  );
   font-weight: var(--qx-typography-body-md-font-weight);
 }
 .qx-sidebar-sublist .qx-sidebar-item[data-current] {
   font-weight: var(--qx-typography-title-sm-font-weight);
+}
+.qx-sidebar-sublist .qx-sidebar-sublist {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: calc(
+      var(--qx-space-inset-lg) +
+      16px +
+      10px +
+      (var(--qx-sidebar-depth, 1) - 1) *
+      16px +
+      4px
+    );
+    border-inline-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  }
+}
+/* A category that is also a page: the link fills the row, the fold button sits at its end. */
+.qx-sidebar-entry:has(> .qx-sidebar-fold) {
+  position: relative;
+}
+.qx-sidebar-item[data-foldable] {
+  padding-inline-end: calc(var(--qx-space-inset-md) + 24px);
+}
+.qx-sidebar-fold {
+  position: absolute;
+  inset-block-start: calc((var(--qx-size-control-lg) - 24px) / 2);
+  inset-inline-end: var(--qx-space-inset-sm);
+  display: grid;
+  place-items: center;
+  inline-size: 24px;
+  block-size: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--qx-radius-control);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  &:hover {
+    background: var(--qx-color-overlay-hover);
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
 }
 
 /* The rail: the same rows, 48px wide, so each icon is already centred; labels move to tooltips.
@@ -225,7 +278,8 @@
     clip-path: inset(50%);
   }
   .qx-sidebar-badge,
-  .qx-sidebar-chevron {
+  .qx-sidebar-chevron,
+  .qx-sidebar-fold {
     display: none;
   }
 }

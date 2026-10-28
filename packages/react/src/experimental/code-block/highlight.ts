@@ -1,7 +1,8 @@
 /**
  * A small syntax highlighter for the code a product shows: shell commands, JavaScript and
- * TypeScript (with JSX), JSON, and XML or HTML. Ordered patterns per language, first match wins;
- * it colours what's useful to read, it doesn't parse. Six kinds, one for each code colour token.
+ * TypeScript (with JSX), JSON, XML or HTML, and CSS. Ordered patterns per language, first match
+ * wins; it colours what's useful to read, it doesn't parse. Six kinds, one for each code colour
+ * token. Server-safe: a static page can highlight at build time with `highlightHtml`.
  */
 
 export type CodeLanguage =
@@ -12,6 +13,7 @@ export type CodeLanguage =
   | "json"
   | "xml"
   | "html"
+  | "css"
   | "text";
 
 export type TokenKind =
@@ -71,6 +73,17 @@ const RULES: Record<Exclude<CodeLanguage, "text">, Rules> = {
     ["plain", /\s+|[^<>"'=\s]+/y],
   ],
   html: [],
+  css: [
+    ["comment", /\/\*[\s\S]*?\*\//y],
+    ["string", /"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'/y],
+    // Custom properties, hex colours and !important.
+    ["literal", /--[\w-]+|#[0-9a-fA-F]{3,8}\b|!important\b/y],
+    // At-rules, and a declaration's property: the name after { or ; that a colon follows.
+    ["keyword", /@[\w-]+|(?<=(?:^|[{;])\s*)[a-z-]+(?=\s*:(?!:))/y],
+    ["number", /-?(?:\d+\.?\d*|\.\d+)(?:%|[a-zA-Z]+)?/y],
+    ["punctuation", /[{}()[\];:,>+~*=]/y],
+    ["plain", /[\w-]+|\s+|./y],
+  ],
 };
 RULES.html = RULES.xml;
 
@@ -120,4 +133,26 @@ export function highlight(code: string, language: CodeLanguage): Token[][] {
     });
   }
   return lines;
+}
+
+const escapeHtml = (text: string) =>
+  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+/**
+ * Highlighted code as HTML, for a page without React: a line per line, each token but plain text a
+ * `<span data-token>` coloured by its `--qx-color-code-*` token, so it reads right in both schemes
+ * with no stylesheet of its own. Put it in a `<pre><code>` in the code face.
+ */
+export function highlightHtml(code: string, language: CodeLanguage): string {
+  return highlight(code.replace(/\n$/, ""), language)
+    .map((line) =>
+      line
+        .map((token) =>
+          token.kind === "plain"
+            ? escapeHtml(token.text)
+            : `<span data-token="${token.kind}" style="color:var(--qx-color-code-${token.kind})">${escapeHtml(token.text)}</span>`,
+        )
+        .join(""),
+    )
+    .join("\n");
 }
