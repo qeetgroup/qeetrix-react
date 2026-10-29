@@ -31,6 +31,8 @@ const NAMES: Record<Exclude<CodeLanguage, "shell" | "text">, string> = {
   xml: "XML",
   html: "HTML",
   css: "CSS",
+  kotlin: "Kotlin",
+  swift: "Swift",
 };
 
 /** An indented line in parts: its leading spaces and tabs, the columns they take (a tab is two),

@@ -109,6 +109,89 @@ describe("CSS", () => {
   });
 });
 
+describe("Kotlin and Swift", () => {
+  const kinds = (code: string, language: "kotlin" | "swift", text: string) =>
+    highlight(code, language)
+      .flat()
+      .filter((token: Token) => token.text === text)
+      .map((token: Token) => token.kind);
+
+  it("Kotlin: annotations, keywords, strings, Compose's hex colours and units", () => {
+    const kotlin = [
+      "// A Qeetrix button",
+      "@Composable",
+      "fun SignIn(onClick: () -> Unit) {",
+      '  val label = """Sign in"""',
+      "  Button(onClick, color = Color(0xFF6200EE), padding = 16.dp, alpha = 0.5f) { Text(label) }",
+      "}",
+      "data class User(val id: Long = 1L, val name: String? = null)",
+    ].join("\n");
+    expect(kinds(kotlin, "kotlin", "// A Qeetrix button")).toEqual(["comment"]);
+    expect(kinds(kotlin, "kotlin", "@Composable")).toEqual(["keyword"]);
+    expect(kinds(kotlin, "kotlin", "fun")).toEqual(["keyword"]);
+    expect(kinds(kotlin, "kotlin", "val")).toEqual(["keyword", "keyword", "keyword"]);
+    expect(kinds(kotlin, "kotlin", "data")).toEqual(["keyword"]);
+    expect(kinds(kotlin, "kotlin", '"""Sign in"""')).toEqual(["string"]);
+    expect(kinds(kotlin, "kotlin", "0xFF6200EE")).toEqual(["number"]);
+    expect(kinds(kotlin, "kotlin", "16")).toEqual(["number"]);
+    expect(kinds(kotlin, "kotlin", "0.5f")).toEqual(["number"]);
+    expect(kinds(kotlin, "kotlin", "1L")).toEqual(["number"]);
+    expect(kinds(kotlin, "kotlin", "null")).toEqual(["literal"]);
+    expect(kinds(kotlin, "kotlin", "->")).toEqual(["punctuation"]);
+    expect(kinds(kotlin, "kotlin", "dp")).toEqual(["plain"]);
+  });
+
+  it("Kotlin: a soft modifier is a keyword only before a declaration, and a backticked name is a name", () => {
+    const kotlin =
+      "open class Panel\nvar open by remember { mutableStateOf(false) }\nfun `is open when tapped`() {}";
+    expect(kinds(kotlin, "kotlin", "open")).toEqual(["keyword", "plain"]);
+    expect(kinds(kotlin, "kotlin", "`is open when tapped`")).toEqual(["plain"]);
+    expect(kinds(kotlin, "kotlin", "by")).toEqual(["keyword"]);
+    expect(kinds(kotlin, "kotlin", "false")).toEqual(["literal"]);
+  });
+
+  it("Swift: attributes, macros, keywords, strings, ranges and nil", () => {
+    const swift = [
+      "/* A Qeetrix button */",
+      "struct SignIn: View {",
+      "  @State private var open = false",
+      '  let title = "Sign in \\(name)"',
+      "  var body: some View { Button(title) { open.toggle() }.padding(16) }",
+      "}",
+      "#Preview { SignIn() }",
+      "for i in 0..<3 where i != 1 { print(i ?? nil) }",
+    ].join("\n");
+    expect(kinds(swift, "swift", "/* A Qeetrix button */")).toEqual(["comment"]);
+    expect(kinds(swift, "swift", "struct")).toEqual(["keyword"]);
+    expect(kinds(swift, "swift", "@State")).toEqual(["keyword"]);
+    expect(kinds(swift, "swift", "#Preview")).toEqual(["keyword"]);
+    expect(kinds(swift, "swift", "some")).toEqual(["keyword"]);
+    expect(kinds(swift, "swift", "open")).toEqual(["plain", "plain"]);
+    expect(kinds(swift, "swift", '"Sign in \\(name)"')).toEqual(["string"]);
+    expect(kinds(swift, "swift", "16")).toEqual(["number"]);
+    expect(kinds(swift, "swift", "..<")).toEqual(["punctuation"]);
+    expect(kinds(swift, "swift", "??")).toEqual(["punctuation"]);
+    expect(kinds(swift, "swift", "nil")).toEqual(["literal"]);
+    expect(kinds(swift, "swift", "false")).toEqual(["literal"]);
+  });
+
+  it("Swift: raw and multi-line strings, and open before a declaration", () => {
+    const swift = 'open class Panel {}\nlet pattern = #"\\d+"#\nlet note = """\n  Two lines\n  """';
+    expect(kinds(swift, "swift", "open")).toEqual(["keyword"]);
+    expect(kinds(swift, "swift", '#"\\d+"#')).toEqual(["string"]);
+    const lines = highlight(swift, "swift");
+    expect(lines.at(-1)?.map((token) => token.kind)).toEqual(["string"]);
+  });
+
+  it("stays fast on text that never closes", () => {
+    const start = performance.now();
+    highlight(`"""${'a"'.repeat(20_000)}`, "kotlin");
+    highlight(`#"${'a"'.repeat(20_000)}`, "swift");
+    highlight(`0x${"f".repeat(20_000)}g`, "kotlin");
+    expect(performance.now() - start).toBeLessThan(1000);
+  });
+});
+
 describe("highlightHtml", () => {
   it("is escaped HTML in the code colours, for a page without React", async () => {
     const { highlightHtml } = await import("../src/experimental/code-block/highlight");
