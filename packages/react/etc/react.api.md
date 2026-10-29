@@ -29,6 +29,7 @@ import { RadioGroup as RadioGroup_2 } from '@base-ui/react/radio-group';
 import { ReactElement } from 'react';
 import { ReactNode } from 'react';
 import { Ref } from 'react';
+import { RefObject } from 'react';
 import { ScrollArea as ScrollArea_2 } from '@base-ui/react/scroll-area';
 import { Select as Select_2 } from '@base-ui/react/select';
 import { Slider as Slider_2 } from '@base-ui/react/slider';
@@ -230,6 +231,15 @@ export type CollapsibleTriggerProps = Collapsible_2.Trigger.Props;
 // @public (undocumented)
 export type ColorScheme = "light" | "dark" | "system";
 
+// @public
+export function colorSchemeScript(input?: ColorSchemeScriptOptions): string;
+
+// @public (undocumented)
+export interface ColorSchemeScriptOptions {
+    defaultColorScheme?: ColorScheme;
+    storageKey?: string;
+}
+
 // @public (undocumented)
 export interface ColorSchemeState {
     colorScheme: ColorScheme;
@@ -287,7 +297,9 @@ export interface DialogContentProps extends Omit<Dialog_2.Popup.Props, "classNam
 export function DialogFooter(input: DialogFooterProps): ReactElement;
 
 // @public (undocumented)
-export interface DialogFooterProps extends ComponentProps<"div"> {}
+export interface DialogFooterProps extends ComponentProps<"div"> {
+    start?: ReactNode;
+}
 
 // @public
 export type DialogIntent = "standard" | "danger" | "warning";
@@ -345,7 +357,9 @@ export interface DrawerContentProps extends Omit<Drawer_2.Popup.Props, "classNam
 export function DrawerFooter(input: DrawerFooterProps): ReactElement;
 
 // @public (undocumented)
-export interface DrawerFooterProps extends ComponentProps<"div"> {}
+export interface DrawerFooterProps extends ComponentProps<"div"> {
+    start?: ReactNode;
+}
 
 // @public (undocumented)
 export interface DrawerProps extends Omit<Drawer_2.Root.Props, "swipeDirection"> {
@@ -369,6 +383,16 @@ export type DrawerTriggerProps = Drawer_2.Trigger.Props;
 export function Field(input: FieldProps): ReactElement;
 
 // @public
+export interface FieldControlProps {
+    // (undocumented)
+    "aria-describedby": string | undefined;
+    // (undocumented)
+    "aria-invalid": true | undefined;
+    // (undocumented)
+    "aria-labelledby": string;
+}
+
+// @public
 export interface FieldMessageProps {
     description?: ReactNode;
     error?: ReactNode;
@@ -376,7 +400,7 @@ export interface FieldMessageProps {
 
 // @public (undocumented)
 export interface FieldProps extends Omit<Field_2.Root.Props, "className" | "style" | "render" | "children">, FieldMessageProps {
-    children?: ReactNode;
+    children?: ReactNode | ((control: FieldControlProps) => ReactNode);
     className?: string;
     help?: ReactNode;
     hideLabel?: boolean;
@@ -530,6 +554,20 @@ export type Inset = "none" | "xs" | "sm" | "md" | "lg" | "xl";
 // @public
 export function Link(input: LinkProps): ReactElement;
 
+// @public
+export function LinkButton(input: LinkButtonProps): ReactElement;
+
+// @public (undocumented)
+export interface LinkButtonProps extends Omit<ComponentProps<"a">, "children"> {
+    children?: ReactNode;
+    fullWidth?: boolean;
+    icon?: QeetrixIcon;
+    render?: RenderProp;
+    size?: ControlSize;
+    tone?: ButtonTone;
+    variant?: ButtonVariant;
+}
+
 // @public (undocumented)
 export interface LinkProps extends ComponentProps<"a"> {
     external?: boolean;
@@ -604,7 +642,9 @@ export type MenuRadioGroupProps = Menu_2.RadioGroup.Props;
 export function MenuRadioItem(input: MenuRadioItemProps): ReactElement;
 
 // @public (undocumented)
-export interface MenuRadioItemProps extends Omit<Menu_2.RadioItem.Props, "className" | "style">, ItemLookProps {}
+export interface MenuRadioItemProps extends Omit<Menu_2.RadioItem.Props, "className" | "style">, ItemLookProps {
+    closeOnClick?: boolean;
+}
 
 // @public
 export function MenuSeparator(input: MenuSeparatorProps): ReactElement;
@@ -643,6 +683,8 @@ export function Meter(input: MeterProps): ReactElement;
 //
 // @public (undocumented)
 export interface MeterProps extends Omit<Meter_2.Root.Props, "className" | "style" | "children" | "value" | "min" | "max" | "format" | "locale">, BarLook {
+    messages?: Partial<QeetrixMessages["meter"]>;
+    target?: number;
     tone?: MeterTone;
     value: number;
 }
@@ -690,6 +732,19 @@ export function PopoverTrigger(props: PopoverTriggerProps): ReactElement;
 export type PopoverTriggerProps = Popover_2.Trigger.Props;
 
 // @public
+export function PortalContainer(input: PortalContainerProps): ReactElement;
+
+// @public (undocumented)
+export interface PortalContainerProps {
+    // (undocumented)
+    children?: ReactNode;
+    container: PortalContainerTarget;
+}
+
+// @public
+export type PortalContainerTarget = HTMLElement | ShadowRoot | RefObject<HTMLElement | ShadowRoot | null> | null;
+
+// @public
 export function Progress(input: ProgressProps): ReactElement;
 
 // @public (undocumented)
@@ -725,6 +780,7 @@ export interface QeetrixProviderProps {
     locale?: string;
     messages?: QeetrixMessagesInput;
     onColorSchemeChange?: (colorScheme: ColorScheme) => void;
+    storageKey?: string;
 }
 
 // @public
@@ -779,6 +835,7 @@ export interface SelectItem<Value> {
     disabled?: boolean;
     // (undocumented)
     label: ReactNode;
+    meta?: ReactNode;
     // (undocumented)
     value: Value;
 }
@@ -801,6 +858,7 @@ export interface SelectProps<Value, Multiple extends boolean | undefined = false
     items: ReadonlyArray<SelectItem<Value> | SelectItemGroup<Value>>;
     placeholder?: ReactNode;
     ref?: Ref<HTMLButtonElement>;
+    size?: ControlSize;
     style?: CSSProperties;
 }
 
@@ -924,35 +982,50 @@ export interface TableColumn<Row> {
     id: string;
     numeric?: boolean;
     primary?: boolean;
+    priority?: TablePriority;
     sortable?: boolean;
     sortFirst?: SortDirection;
     width?: number | string;
 }
 
+// @public
+export type TablePriority = "high" | "medium" | "low";
+
 // @public (undocumented)
 export interface TableProps<Row> extends Omit<ComponentProps<"div">, "children" | "onChange"> {
     bulkActions?: (ids: string[]) => ReactNode;
     columns: readonly TableColumn<Row>[];
+    currentRow?: string;
+    defaultExpanded?: readonly string[];
     defaultSelected?: readonly string[];
     defaultSort?: TableSort | null;
     empty?: ReactNode;
     error?: ReactNode;
+    expanded?: readonly string[];
     label: string;
     loading?: boolean;
     loadingRows?: number;
+    // (undocumented)
     messages?: Partial<QeetrixMessages["table"]>;
+    onExpandedChange?: (ids: string[]) => void;
     onRowClick?: (row: Row) => void;
     onSelectedChange?: (ids: string[]) => void;
     onSortChange?: (sort: TableSort | null) => void;
     renderRowLink?: (row: Row) => RenderProp;
     rowActions?: (row: Row) => ReactNode;
+    rowDepth?: (row: Row) => number;
+    rowHasChildren?: (row: Row) => boolean;
     rowHref?: (row: Row) => string;
     rowId: (row: Row) => string;
     rowLabel: (row: Row) => string;
+    rowPath?: (row: Row) => string;
     rows: readonly Row[];
+    rowSelectable?: (row: Row) => boolean;
+    rowUnselectableReason?: (row: Row) => string | undefined;
     selectable?: boolean;
     selected?: readonly string[];
     sort?: TableSort | null;
+    stickyFirstColumn?: boolean;
     toolbar?: ReactNode;
 }
 
@@ -960,6 +1033,28 @@ export interface TableProps<Row> extends Omit<ComponentProps<"div">, "children" 
 export interface TableSort {
     column: string;
     direction: SortDirection;
+}
+
+// @public
+export function TabNav(input: TabNavProps): ReactElement;
+
+// @public
+export function TabNavLink(input: TabNavLinkProps): ReactElement;
+
+// @public (undocumented)
+export interface TabNavLinkProps extends Omit<ComponentProps<"a">, "children"> {
+    badge?: ReactNode;
+    children?: ReactNode;
+    current?: boolean;
+    filledWhenSelected?: boolean;
+    icon?: QeetrixIcon;
+    render?: RenderProp;
+}
+
+// @public (undocumented)
+export interface TabNavProps extends Omit<ComponentProps<"nav">, "children"> {
+    "aria-label": string;
+    children?: ReactNode;
 }
 
 // @public (undocumented)

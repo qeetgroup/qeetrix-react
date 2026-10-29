@@ -106,6 +106,15 @@
   padding: var(--qx-space-inset-lg) var(--qx-space-inset-xl);
   border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
 }
+/* The footer's start: a link or a summary, pushing the actions to the end. */
+.qx-drawer-footer-start {
+  display: flex;
+  align-items: center;
+  min-inline-size: 0;
+  margin-inline-end: auto;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}
 .qx-drawer-close {
   position: absolute;
   inset-block-start: 20px;

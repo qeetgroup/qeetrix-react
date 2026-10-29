@@ -64,6 +64,17 @@
   justify-content: space-between;
   gap: var(--qx-space-gap-md);
 }
+/* A record's picture before its titles, its top on the title's first line. */
+.qx-page-header-lead {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--qx-space-gap-md);
+  min-inline-size: 0;
+}
+.qx-page-header-leading {
+  display: flex;
+  flex: none;
+}
 .qx-page-header-titles {
   display: flex;
   flex-direction: column;

@@ -85,7 +85,8 @@ function content(icon: QeetrixIcon | undefined, size: ControlSize, loading: bool
 
 /**
  * An action. One `solid` and one `soft` per region, everything else `ghost`. Disabled buttons stay
- * focusable, so the reason they're disabled can be read.
+ * focusable, so the reason they're disabled can be read. For navigation that looks like a button,
+ * use LinkButton: a Button given a link in `render` is still announced as a button.
  */
 export function Button({
   variant = "solid",

@@ -1,0 +1,58 @@
+/* CopyField: a read-only value and its Copy button. As a field, the label above a box with the
+   read-only field's bottom line; as a row, a ruled fact row lining up with DescriptionItem. */
+.qx-copy-field {
+  display: grid;
+  gap: var(--qx-space-gap-xs);
+  min-inline-size: 0;
+}
+.qx-copy-field-label {
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+}
+.qx-copy-field-box {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  min-inline-size: 0;
+  min-block-size: var(--qx-size-control-lg);
+  padding-inline: var(--qx-space-inset-md) var(--qx-space-inset-xs);
+  box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-subtle);
+}
+.qx-copy-field-value {
+  flex: 1;
+  min-inline-size: 0;
+  padding-block: var(--qx-space-inset-xs);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-code-sm);
+  overflow-wrap: anywhere;
+  user-select: all;
+  [data-wrap="none"] > .qx-copy-field-box > & {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+.qx-copy-field-description {
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}
+
+/* A fact row: the label, then the value and Copy, on one ruled line. */
+.qx-copy-field[data-layout="row"] {
+  grid-template-columns: minmax(8rem, 30%) minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: var(--qx-space-gap-md);
+  padding-block: var(--qx-space-gap-sm);
+  & + & {
+    border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  }
+  > .qx-copy-field-box {
+    min-block-size: 0;
+    padding-inline: 0;
+    box-shadow: none;
+  }
+  > .qx-copy-field-description {
+    grid-column: 2;
+  }
+}

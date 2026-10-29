@@ -1,0 +1,69 @@
+/* CheckList: a ruled, raised sheet of checks; each its icon, title and detail, and its result in
+   words at the end, in the status colour. */
+.qx-check-list {
+  border: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  border-radius: var(--qx-radius-surface);
+  background: var(--qx-color-surface-raised);
+}
+.qx-check-list-items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.qx-check-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--qx-space-gap-md);
+  min-block-size: 3rem;
+  padding: var(--qx-space-inset-sm) var(--qx-space-inset-md);
+  & + & {
+    border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  }
+}
+.qx-check-item-icon {
+  display: flex;
+  color: var(--qx-color-icon-subtle);
+  [data-status="passed"] > & {
+    color: var(--qx-color-icon-success);
+  }
+  [data-status="failed"] > & {
+    color: var(--qx-color-icon-danger);
+  }
+}
+.qx-check-item-text {
+  display: grid;
+  gap: var(--qx-space-gap-xs);
+  min-inline-size: 0;
+}
+.qx-check-item-title {
+  font: var(--qx-typography-label-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+}
+.qx-check-item-detail {
+  overflow-wrap: anywhere;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}
+.qx-check-item-status {
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  [data-status="passed"] > & {
+    color: var(--qx-color-text-success);
+  }
+  [data-status="failed"] > & {
+    color: var(--qx-color-text-danger);
+  }
+}
+.qx-check-list-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--qx-space-gap-sm);
+  padding: var(--qx-space-inset-sm) var(--qx-space-inset-md);
+  border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}

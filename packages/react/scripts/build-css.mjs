@@ -5,6 +5,7 @@
  * nesting, Base UI's state attributes and var(--qx-*) token values only. This writes:
  *
  *   dist/css/base.css        the qx.base layer
+ *   dist/css/state.css       the qx.state layer: the hidden attribute hides any Qeetrix part
  *   dist/css/<family>.css    the family's styles, inside the qx.components layer, after @imports of
  *                            base.css and of every family whose components it renders (Button
  *                            renders Spinner), so one family's stylesheet works on its own
@@ -33,7 +34,7 @@ const TARGETS = {
   firefox: version(128),
 };
 
-const LAYERS = ["qx.base", "qx.components"];
+const LAYERS = ["qx.base", "qx.components", "qx.state"];
 
 function compile(filename, source) {
   const { code, warnings } = transform({
@@ -96,6 +97,11 @@ const baseCss = layer(
 );
 writeFileSync(new URL("css/base.css", DIST), baseCss);
 blocks.push(baseCss);
+const stateCss = layer(
+  "qx.state",
+  compile("styles/state.css", readFileSync(new URL("styles/state.css", SRC), "utf8")),
+);
+writeFileSync(new URL("css/state.css", DIST), stateCss);
 
 for (const name of families.filter(styled)) {
   const file = `${name}/${base(name)}.css`;
@@ -104,10 +110,14 @@ for (const name of families.filter(styled)) {
     : "";
   // @import paths are relative to this family's own file in dist/css/.
   const from = posix.dirname(`${name}.css`);
-  const head = ["base", ...imports(name).filter(styled)].map((dep) => {
-    const rel = posix.relative(from, `${dep}.css`);
-    return `@import "${rel.startsWith(".") ? rel : `./${rel}`}";`;
-  });
+  // The layer order first, so a family's file used alone still puts qx.state after its components.
+  const head = [
+    `@layer ${LAYERS.join(", ")};`,
+    ...["base", "state", ...imports(name).filter(styled)].map((dep) => {
+      const rel = posix.relative(from, `${dep}.css`);
+      return `@import "${rel.startsWith(".") ? rel : `./${rel}`}";`;
+    }),
+  ];
   writeFileSync(new URL(`css/${name}.css`, DIST), `${head.join("\n")}\n\n${css}`);
   if (css) blocks.push(css);
 }
@@ -122,7 +132,7 @@ const header = [
 
 writeFileSync(
   new URL("styles.css", DIST),
-  `${header}\n@layer ${LAYERS.join(", ")};\n\n${blocks.join("\n")}`,
+  `${header}\n@layer ${LAYERS.join(", ")};\n\n${[...blocks, stateCss].join("\n")}`,
 );
 const count = families.filter(ownCss).length;
 console.log(

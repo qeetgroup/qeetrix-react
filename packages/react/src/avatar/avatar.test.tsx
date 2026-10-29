@@ -60,6 +60,27 @@ describe("Avatar", () => {
     await expect.element(avatar).toHaveTextContent("PS");
   });
 
+  it("leaves out an organisation's legal form: Acme Pvt Ltd is AC, Nimbus Labs LLP is NL", async () => {
+    const names: Record<string, string> = {
+      "Acme Pvt Ltd": "AC",
+      "Acme Pvt. Ltd.": "AC",
+      "Kaveri Foods Private Limited": "KF",
+      "Nimbus Labs LLP": "NL",
+      "Qeet Group": "QG",
+      Priya: "P",
+    };
+    await render(
+      <div>
+        {Object.keys(names).map((name) => (
+          <Avatar key={name} name={name} shape="square" />
+        ))}
+      </div>,
+    );
+    for (const [name, letters] of Object.entries(names)) {
+      await expect.element(page.getByRole("img", { name })).toHaveTextContent(letters);
+    }
+  });
+
   it("keeps Indic graphemes whole", async () => {
     await render(<Avatar name="प्रिया शर्मा" />);
     await expect.element(page.getByRole("img", { name: "प्रिया शर्मा" })).toHaveTextContent("प्रिश");
@@ -86,7 +107,7 @@ describe("Avatar", () => {
     for (const avatar of avatars) {
       expect(avatar.dataset.shape).toBe("square");
       expect(getComputedStyle(avatar).borderRadius).toBe("4px");
-      expect(avatar.textContent).toBe("AL");
+      expect(avatar.textContent).toBe("AC");
     }
     await expect.element(page.getByRole("img", { name: "Acme Pvt Ltd" }).first()).toBeVisible();
   });

@@ -1,5 +1,9 @@
 export {
   Tab,
+  TabNav,
+  TabNavLink,
+  type TabNavLinkProps,
+  type TabNavProps,
   type TabProps,
   Tabs,
   TabsList,

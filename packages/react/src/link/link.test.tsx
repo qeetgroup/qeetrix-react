@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
+import { tokenColor } from "../../tests/support/color";
 import { tab } from "../../tests/support/keyboard";
 import { screenshotSchemes } from "../../tests/support/screenshots";
 import { Stage } from "../../tests/support/stage";
@@ -99,6 +100,21 @@ describe("Link", () => {
     const link = page.getByRole("link", { name: "Invoices" });
     await expect.element(link).toHaveAttribute("data-router", "");
     await expect.element(link).toHaveAttribute("data-slot", "link");
+  });
+
+  it("rendered as a button, for an action in place, keeps a link's look without a button's box", async () => {
+    await render(
+      <p>
+        Opened from <Link render={<button type="button" />}>a related event</Link>.
+      </p>,
+    );
+    const action = page.getByRole("button", { name: "a related event" }).element();
+    const style = getComputedStyle(action);
+    expect(style.borderTopWidth).toBe("0px");
+    expect(style.paddingInlineStart).toBe("0px");
+    expect(style.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(style.textDecorationLine).toBe("underline");
+    expect(style.color).toBe(tokenColor("--qx-color-text-link"));
   });
 
   it("is accessible and looks right in both schemes", async () => {

@@ -19,7 +19,7 @@ import { cx } from "../internal/cx";
 import type { QeetrixMessages } from "../internal/messages";
 import { mergeRefs } from "../internal/refs";
 import { useScrollFocus } from "../internal/scroll-focus";
-import { useMessages } from "../provider/provider";
+import { useMessages, usePortalContainer } from "../provider/provider";
 
 /** The edge a drawer opens from, in the text direction: `end` is the right edge in English. */
 export type DrawerSide = "start" | "end";
@@ -79,7 +79,13 @@ export interface DrawerBodyProps extends Omit<BaseDrawer.Content.Props, "classNa
   /** Placement only. */
   className?: string;
 }
-export interface DrawerFooterProps extends ComponentProps<"div"> {}
+export interface DrawerFooterProps extends ComponentProps<"div"> {
+  /**
+   * A quiet link or a one-line summary at the footer's start, the actions staying at its end:
+   * "Adding many? Import a file". It wraps onto its own line where there's no room.
+   */
+  start?: ReactNode;
+}
 
 /** Holds a drawer's open state: `open` / `defaultOpen` / `onOpenChange(open, details)`. */
 export function Drawer({
@@ -138,6 +144,7 @@ export function DrawerContent({
   children,
   ...props
 }: DrawerContentProps): ReactElement {
+  const portalContainer = usePortalContainer();
   const { side, dismissible } = use(DrawerContext);
   const strings = useMessages("overlay", messages);
   const popup = useRef<HTMLDivElement>(null);
@@ -147,7 +154,7 @@ export function DrawerContent({
     (popup.current?.querySelector<HTMLElement>(`[data-slot="drawer-body"] :is(${FOCUSABLE})`) ??
       true);
   return (
-    <BaseDrawer.Portal>
+    <BaseDrawer.Portal container={portalContainer}>
       <BaseDrawer.Backdrop className="qx-drawer-backdrop" data-slot="drawer-backdrop" />
       <BaseDrawer.Viewport
         className="qx-drawer-viewport"
@@ -181,7 +188,13 @@ export function DrawerContent({
             <div className="qx-drawer-close" data-slot="drawer-close">
               <BaseDrawer.Close
                 render={
-                  <IconButton icon={XIcon} aria-label={strings.close} size="sm" tone="neutral" />
+                  <IconButton
+                    icon={XIcon}
+                    aria-label={strings.close}
+                    size="sm"
+                    tone="neutral"
+                    tooltip={false}
+                  />
                 }
               />
             </div>
@@ -212,6 +225,20 @@ export function DrawerBody({ className, ref, tabIndex, ...props }: DrawerBodyPro
 }
 
 /** The actions, end-aligned under a rule: tertiary first, then the primary action. */
-export function DrawerFooter({ className, ...props }: DrawerFooterProps): ReactElement {
-  return <div {...props} className={cx("qx-drawer-footer", className)} data-slot="drawer-footer" />;
+export function DrawerFooter({
+  start,
+  className,
+  children,
+  ...props
+}: DrawerFooterProps): ReactElement {
+  return (
+    <div {...props} className={cx("qx-drawer-footer", className)} data-slot="drawer-footer">
+      {start != null && (
+        <div className="qx-drawer-footer-start" data-slot="drawer-footer-start">
+          {start}
+        </div>
+      )}
+      {children}
+    </div>
+  );
 }

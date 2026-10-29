@@ -94,7 +94,7 @@ note.
 | **Dates** | `Calendar`, `RangeCalendar`, `DatePicker`, `DateRangePicker` |
 | **Data display** | `Stat` · `StatGroup`, `DescriptionList`, `Timeline`, `TreeView`, `AvatarGroup`, `AvatarItem`, `CodeBlock`, `QRCode` |
 | **Feedback** | `Alert`, `EmptyState`, `DataState`, `Steps`, `Pagination` |
-| **Actions** | `CopyButton`, `CommandPalette` |
+| **Actions** | `CopyButton`, `CommandPalette`, `ThemeSwitcher`, `ProviderButton` · `ProviderButtonGroup` |
 
 Browse every component, live, in the [Qeetrix Storybook](https://github.com/qeetgroup/qeetrix-story).
 

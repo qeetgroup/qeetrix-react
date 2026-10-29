@@ -225,7 +225,7 @@ attributes, never of overriding component CSS.
 
 | Setting | How |
 |:--|:--|
-| **Colour scheme** | `QeetrixProvider defaultColorScheme="system"` (or `"light"`, `"dark"`) sets `data-qx-color-scheme` on `<html>`; `useColorScheme()` reads and changes it |
+| **Colour scheme** | `QeetrixProvider defaultColorScheme="system"` (or `"light"`, `"dark"`) sets `data-qx-color-scheme` on `<html>`; `useColorScheme()` reads and changes it, and `ThemeSwitcher` (experimental) is the switch for it |
 | **Density** | `data-qx-density="compact"`, `"default"` or `"comfortable"` on any region: compact for consoles, comfortable for sign-in and checkout |
 | **A tenant's brand** | `brandTheme("#1a73e8")` from `@qeetrix/tokens` turns one colour into the brand tokens for both schemes, with contrast guaranteed |
 
@@ -298,7 +298,7 @@ change in a patch release, always with a changelog note, until they're stable.
 | **Dates** | `Calendar`, `RangeCalendar`, `DatePicker`, `DateRangePicker` (with presets) |
 | **Data display** | `Stat` (`StatGroup`), `DescriptionList`, `Timeline`, `TreeView`, `AvatarGroup`, `AvatarItem`, `CodeBlock`, `QRCode` |
 | **Feedback** | `Alert`, `EmptyState`, `DataState`, `Steps`, `Pagination` |
-| **Actions** | `CopyButton`, `CommandPalette` |
+| **Actions** | `CopyButton`, `CommandPalette`, `ThemeSwitcher`, `ProviderButton` (`ProviderButtonGroup`) |
 
 ```tsx
 import {
@@ -357,6 +357,23 @@ rail that expands while hovered. The secure-entry parts handle secrets and codes
     endAdornment={<CopyButton value={secret} label="Copy client secret" size="sm" />} />
 </Field>
 <Field label="Verification code"><OTPInput size="lg" onValueComplete={verify} /></Field>
+```
+
+The theme switch and the sign-in providers look and behave the same in every product. The
+providers' logos are your own artwork (e.g. `@thesvg/react`); Qeetrix ships none:
+
+```tsx
+<ThemeSwitcher />  {/* QeetrixProvider's scheme, in a menu; variant="segmented" for three toggles */}
+
+<ProviderButtonGroup aria-label="Sign in with another account">
+  <ProviderButton logo={<Google />} aria-label="Sign in with Google" onClick={signInWithGoogle}>
+    Google
+  </ProviderButton>
+  <ProviderButton logo={<Apple />} logoInvert="light" aria-label="Sign in with Apple"
+    render={<a href="/oauth/apple" />}>
+    Apple
+  </ProviderButton>
+</ProviderButtonGroup>
 ```
 
 ## Entry points and server components

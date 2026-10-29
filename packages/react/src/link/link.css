@@ -1,5 +1,15 @@
 /* Link: navigation. Inline, so a long link wraps with the sentence it's in; an external link's
    arrow sits at the end of its last line, tied to the last word. */
+/* A Link rendered as a button (an action in place that reads as a link) drops the button's box. */
+button.qx-link {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
 .qx-link {
   border-radius: var(--qx-radius-sm);
   color: var(--qx-color-text-link);

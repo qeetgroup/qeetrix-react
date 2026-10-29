@@ -110,6 +110,24 @@ describe("Dialog", () => {
     await expect.element(trigger).toHaveFocus();
   });
 
+  it("opened from the keyboard with nothing to fill in, closes on the first Escape", async () => {
+    await render(
+      <Dialog>
+        <DialogTrigger render={<Button variant="soft">Keys</Button>} />
+        <DialogContent title="Keys" size="sm">
+          <DialogBody>Press ? to see this list.</DialogBody>
+        </DialogContent>
+      </Dialog>,
+    );
+    await userEvent.keyboard("{Tab}");
+    await userEvent.keyboard("{Enter}");
+    // Focus lands on Close, from the keyboard; it shows no tooltip to catch the Escape.
+    await expect.element(page.getByRole("button", { name: "Close" })).toHaveFocus();
+    await expect.element(page.getByRole("tooltip")).not.toBeInTheDocument();
+    await userEvent.keyboard("{Escape}");
+    await expect.element(page.getByRole("dialog")).not.toBeInTheDocument();
+  });
+
   it("puts its close button last in the focus order, at the top end", async () => {
     await render(<RenameDialog defaultOpen />);
     const popup = document.querySelector("[data-slot=dialog-popup]") as HTMLElement;

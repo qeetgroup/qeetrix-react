@@ -1,0 +1,95 @@
+/* FloatingPanel (QTRX-53): a raised, ruled sheet over the page, with the overlay shadow; its head
+   is the move target, its end corner the resize handle. On a narrow screen it's a bottom sheet. */
+.qx-floating-panel {
+  position: fixed;
+  inset-block-start: var(--qx-panel-top, 24px);
+  inset-inline-start: var(--qx-panel-start, auto);
+  z-index: var(--qx-z-overlay);
+  display: flex;
+  flex-direction: column;
+  inline-size: var(--qx-panel-width, 360px);
+  block-size: var(--qx-panel-height, 480px);
+  overflow: hidden;
+  border: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  border-radius: var(--qx-radius-overlay);
+  background: var(--qx-color-surface-overlay);
+  box-shadow: var(--qx-shadow-overlay);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  outline: 0;
+}
+.qx-floating-panel-head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  min-block-size: calc(var(--qx-size-control-lg) + 8px);
+  padding-inline: var(--qx-space-gap-xs);
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  background: var(--qx-color-surface-canvas);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  &:active {
+    cursor: grabbing;
+  }
+}
+.qx-floating-panel-title {
+  flex: 1;
+  min-inline-size: 0;
+  margin: 0;
+  overflow: hidden;
+  font: var(--qx-typography-label-md);
+  font-weight: var(--qx-typography-title-sm-font-weight);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qx-floating-panel-move {
+  cursor: inherit;
+}
+.qx-floating-panel-body {
+  flex: 1;
+  min-block-size: 0;
+  overflow: auto;
+  padding: var(--qx-space-inset-lg);
+}
+.qx-floating-panel-resize {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  cursor: nwse-resize;
+  touch-action: none;
+  &:dir(rtl) {
+    cursor: nesw-resize;
+    scale: -1 1;
+  }
+}
+
+@media (width < 640px) {
+  .qx-floating-panel {
+    inset: auto 0 0;
+    inline-size: auto;
+    block-size: auto;
+    max-block-size: 70dvh;
+    border-inline: 0;
+    border-block-end: 0;
+    border-radius: 0;
+    border-start-start-radius: var(--qx-radius-overlay);
+    border-start-end-radius: var(--qx-radius-overlay);
+  }
+  .qx-floating-panel-head {
+    cursor: auto;
+  }
+  .qx-floating-panel-move,
+  .qx-floating-panel-resize {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .qx-floating-panel {
+    border-color: CanvasText;
+  }
+}

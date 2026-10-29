@@ -1,6 +1,10 @@
 {
-  "$comment": "gzip budgets in kB, enforced by scripts/check-dist.mjs. The full stylesheet budget sits below Mantine's (41 kB) and HeroUI's (39 kB) complete stylesheets; raise a budget only with a reason in the PR.",
+  "$comment": "gzip budgets in kB, enforced by scripts/check-dist.mjs. The full stylesheet budget sits below Mantine's (41 kB) and HeroUI's (39 kB) complete stylesheets; raise a budget only with a reason in the PR. familyJsByFamily holds a family over familyJs on its own: table is the one data-driven table every list uses (sort, selection, row links, actions, toolbar, column priority, scrolling, tree rows with tree-grid keys, a sticky first column); experimental/code-block holds the highlighter's seven languages, split so the code renders on the server and only Copy hydrates.",
   "stylesheet": 35,
   "familyCss": 3,
-  "familyJs": 4
+  "familyJs": 4,
+  "familyJsByFamily": {
+    "table": 6.3,
+    "experimental/code-block": 4.3
+  }
 }

@@ -222,3 +222,14 @@
     fill: Highlight;
   }
 }
+/* A summary band's richer cells: a small chart under the note, then a link into the list. */
+.qx-stat-chart {
+  grid-column: 1 / -1;
+  min-inline-size: 0;
+  margin: var(--qx-space-gap-sm) 0 0;
+}
+.qx-stat-action {
+  grid-column: 1 / -1;
+  margin: var(--qx-space-gap-sm) 0 0;
+  font: var(--qx-typography-label-sm);
+}

@@ -6,3 +6,4 @@ export {
   IconButton,
   type IconButtonProps,
 } from "./button";
+export { LinkButton, type LinkButtonProps } from "./link-button";

@@ -1,6 +1,8 @@
 "use client";
 
 import { CheckIcon } from "@qeetrix/icons/icons/check";
+import { TriangleAlertIcon } from "@qeetrix/icons/icons/triangle-alert";
+import { XIcon } from "@qeetrix/icons/icons/x";
 import type { ComponentProps, ReactElement, ReactNode } from "react";
 import { cx } from "../../internal/cx";
 import type { QeetrixMessages } from "../../internal/messages";
@@ -8,6 +10,12 @@ import { useMessages } from "../../provider/provider";
 import { VisuallyHidden } from "../../visually-hidden/visually-hidden";
 
 export type StepsOrientation = "horizontal" | "vertical";
+
+/**
+ * A step's state when `current` alone can't say it: `failed` (a check that didn't pass) or
+ * `attention` (it needs work), or `done`, `current` and `upcoming` set outright.
+ */
+export type StepStatus = "done" | "current" | "upcoming" | "failed" | "attention";
 
 export interface Step {
   /**
@@ -17,6 +25,11 @@ export interface Step {
   label: ReactNode;
   /** A line under the label, in the vertical layout: what the step is, or what was chosen. */
   description?: ReactNode;
+  /**
+   * The step's state over the one `current` gives it, so a later step can stay done while an
+   * earlier one needs work. Read after the name: "Verify the record, Failed".
+   */
+  status?: StepStatus;
 }
 
 export interface StepsProps extends Omit<ComponentProps<"ol">, "children"> {
@@ -61,15 +74,32 @@ export function Steps({
       data-orientation={orientation}
     >
       {steps.map((step, index) => {
-        const state = index < current ? "done" : index === current ? "current" : "upcoming";
+        const state: StepStatus =
+          step.status ?? (index < current ? "done" : index === current ? "current" : "upcoming");
+        const words =
+          state === "current"
+            ? undefined
+            : state === "done"
+              ? strings.done
+              : state === "upcoming"
+                ? strings.upcoming
+                : strings[state];
         const content = (
           <>
             <span className="qx-step-marker" data-slot="step-marker" aria-hidden>
-              {state === "done" ? <CheckIcon shape="sharp" size={14} strokeWidth={3} /> : index + 1}
+              {state === "done" ? (
+                <CheckIcon shape="sharp" size={14} strokeWidth={3} />
+              ) : state === "failed" ? (
+                <XIcon shape="sharp" size={14} strokeWidth={3} />
+              ) : state === "attention" ? (
+                <TriangleAlertIcon shape="sharp" size={14} strokeWidth={2.5} />
+              ) : (
+                index + 1
+              )}
             </span>
             <span className="qx-step-text">
               <span className="qx-step-label">
-                {state === "current" ? (
+                {words === undefined ? (
                   step.label
                 ) : (
                   // The name and its status in one run of text: a hidden suffix beside the visible
@@ -77,7 +107,7 @@ export function Steps({
                   <>
                     <span aria-hidden>{step.label}</span>
                     <VisuallyHidden>
-                      {step.label}, {state === "done" ? strings.done : strings.upcoming}
+                      {step.label}, {words}
                     </VisuallyHidden>
                   </>
                 )}
@@ -95,7 +125,7 @@ export function Steps({
             className="qx-step"
             data-slot="step"
             data-state={state}
-            aria-current={state === "current" ? "step" : undefined}
+            aria-current={index === current ? "step" : undefined}
           >
             {state === "done" && onStepSelect ? (
               <button type="button" className="qx-step-body" onClick={() => onStepSelect(index)}>

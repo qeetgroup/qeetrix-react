@@ -5,7 +5,7 @@ import { expectAccessible } from "../../../tests/support/axe";
 import { screenshotEveryMode } from "../../../tests/support/screenshots";
 import { hi } from "../../locales/hi";
 import { QeetrixProvider } from "../../provider/provider";
-import { Pagination } from "./pagination";
+import { Pagination, ShowMore } from "./pagination";
 
 const range = () => document.querySelector("[data-slot=pagination-range]") as HTMLElement;
 /** The left edges of the range's numbers, in the order they're read. */
@@ -175,5 +175,65 @@ describe("Pagination", () => {
     );
     await expectAccessible(container);
     await screenshotEveryMode("Pagination", "[data-qx-stage]");
+  });
+});
+
+describe("Pagination with a cursor API", () => {
+  it("offers Previous and Next alone, from hasPrevious and hasNext", async () => {
+    const onNext = vi.fn();
+    const onPrevious = vi.fn();
+    await render(
+      <Pagination
+        pageSize={25}
+        hasPrevious={false}
+        hasNext
+        onNext={onNext}
+        onPrevious={onPrevious}
+      />,
+    );
+    expect(page.getByRole("button", { name: "First page" }).elements()).toHaveLength(0);
+    expect(page.getByRole("button", { name: "Last page" }).elements()).toHaveLength(0);
+    expect(document.querySelector("[data-slot=pagination-range]")).toBeNull();
+    await expect
+      .element(page.getByRole("button", { name: "Previous page" }))
+      .toHaveAttribute("aria-disabled", "true");
+    await page.getByRole("button", { name: "Next page" }).click();
+    expect(onNext).toHaveBeenCalledOnce();
+    expect(onPrevious).not.toHaveBeenCalled();
+  });
+
+  it("shows the range when the page knows its offset", async () => {
+    await render(
+      <Pagination
+        pageSize={25}
+        offset={25}
+        hasPrevious
+        hasNext={false}
+        onNext={() => {}}
+        onPrevious={() => {}}
+      />,
+    );
+    await expect.element(page.getByText("26–50")).toBeVisible();
+    await expect
+      .element(page.getByRole("button", { name: "Next page" }))
+      .toHaveAttribute("aria-disabled", "true");
+  });
+});
+
+describe("ShowMore", () => {
+  it("appends the next page, then says that's everything", async () => {
+    const onMore = vi.fn();
+    const { rerender } = await render(
+      <ShowMore hasMore onMore={onMore} label="Show older events" />,
+    );
+    await page.getByRole("button", { name: "Show older events" }).click();
+    expect(onMore).toHaveBeenCalledOnce();
+    await rerender(
+      <ShowMore hasMore={false} onMore={onMore} end="That's everything since 29 September" />,
+    );
+    expect(page.getByRole("button").elements()).toHaveLength(0);
+    await expect
+      .element(page.getByRole("status"))
+      .toHaveTextContent("That's everything since 29 September");
   });
 });

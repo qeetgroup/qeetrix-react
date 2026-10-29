@@ -8,7 +8,7 @@ import { Avatar } from "../../avatar/avatar";
 import type { QeetrixIcon } from "../../internal/control";
 import type { QeetrixMessages } from "../../internal/messages";
 import { fill } from "../../internal/template";
-import { useMessages } from "../../provider/provider";
+import { useMessages, usePortalContainer } from "../../provider/provider";
 
 /** Something to find and go to: a record, a page, a setting or an action. */
 export interface CommandItem {
@@ -111,6 +111,7 @@ export function CommandPalette({
   placeholder,
   messages,
 }: CommandPaletteProps): ReactElement {
+  const portalContainer = usePortalContainer();
   const strings = useMessages("commandPalette", messages);
   const [own, setOwn] = useState(defaultOpen);
   const shown = open ?? own;
@@ -154,7 +155,7 @@ export function CommandPalette({
 
   return (
     <BaseDialog.Root open={shown} onOpenChange={setShown}>
-      <BaseDialog.Portal>
+      <BaseDialog.Portal container={portalContainer}>
         <BaseDialog.Backdrop className="qx-command-backdrop" />
         <BaseDialog.Popup
           className="qx-command"

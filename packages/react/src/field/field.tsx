@@ -10,6 +10,7 @@ import {
   createContext,
   type ReactElement,
   type ReactNode,
+  useId,
   useLayoutEffect,
   useState,
 } from "react";
@@ -61,8 +62,19 @@ export interface FieldProps
   className?: string;
   /** Placement only, like `className`. */
   style?: CSSProperties;
-  /** The control: an Input, a Textarea, or any Base UI form control. */
-  children?: ReactNode;
+  /**
+   * The control: an Input, a Textarea, or any Base UI form control. For a control that isn't a
+   * form input (a rich-text editor, a ToggleGroup), pass a function: it receives the props that
+   * name and describe it (`aria-labelledby`, `aria-describedby`, `aria-invalid`) to spread on it.
+   */
+  children?: ReactNode | ((control: FieldControlProps) => ReactNode);
+}
+
+/** What a Field gives a control that isn't a form input, so the label names it. */
+export interface FieldControlProps {
+  "aria-labelledby": string;
+  "aria-describedby": string | undefined;
+  "aria-invalid": true | undefined;
 }
 
 interface ErrorRowProps extends ComponentProps<"div"> {
@@ -89,19 +101,32 @@ function ErrorRow({ onPresence, children, ...props }: ErrorRowProps): ReactEleme
  * error replaces the description, on screen and for assistive technology: while an error shows,
  * the description isn't rendered, so the control is described by the error alone.
  */
-export function FieldMessages({ description, error }: FieldMessageProps): ReactElement {
+export function FieldMessages({
+  description,
+  error,
+  descriptionId,
+  errorId,
+}: FieldMessageProps & {
+  descriptionId?: string | undefined;
+  errorId?: string | undefined;
+}): ReactElement {
   // An `error` prop shows from the first render, the server's included; a validation message
   // appears later and reports itself through the error row.
   const [errorShown, setErrorShown] = useState(error != null);
   return (
     <>
       {description != null && !errorShown && (
-        <BaseField.Description className="qx-field-description" data-slot="field-description">
+        <BaseField.Description
+          id={descriptionId}
+          className="qx-field-description"
+          data-slot="field-description"
+        >
           {description}
         </BaseField.Description>
       )}
       {/* Without explicit children, Base UI fills in the validation or server message. */}
       <BaseField.Error
+        id={errorId}
         className="qx-field-error"
         data-slot="field-error"
         match={error != null ? true : undefined}
@@ -130,6 +155,7 @@ export function labelText(
 }
 
 interface FieldLabelProps {
+  id?: string | undefined;
   label: ReactNode;
   optional: boolean | undefined;
   hideLabel: boolean | undefined;
@@ -139,6 +165,7 @@ interface FieldLabelProps {
 
 /** A field's label, with "(optional)", and the ⓘ after it when the field has help. */
 export function FieldLabel({
+  id,
   label,
   optional,
   hideLabel,
@@ -147,6 +174,7 @@ export function FieldLabel({
 }: FieldLabelProps): ReactElement {
   const fieldLabel = (
     <BaseField.Label
+      id={id}
       className="qx-field-label"
       data-slot="field-label"
       data-hidden={hideLabel ? "" : undefined}
@@ -199,22 +227,39 @@ export function Field({
   ...props
 }: FieldProps): ReactElement {
   const strings = useMessages("field", messages);
+  const ids = useId();
+  const custom = typeof children === "function";
+  const isInvalid = invalid ?? (error != null ? true : undefined);
+  const control = custom
+    ? children({
+        "aria-labelledby": `${ids}-label`,
+        "aria-describedby":
+          error != null ? `${ids}-error` : description != null ? `${ids}-description` : undefined,
+        "aria-invalid": isInvalid ? true : undefined,
+      })
+    : children;
   return (
     <BaseField.Root
       {...props}
-      invalid={invalid ?? (error != null ? true : undefined)}
+      invalid={isInvalid}
       className={cx("qx-field", className)}
       data-slot="field"
     >
       <FieldLabel
+        id={custom ? `${ids}-label` : undefined}
         label={label}
         optional={optional}
         hideLabel={hideLabel}
         help={help}
         strings={strings}
       />
-      <InFieldContext value>{children}</InFieldContext>
-      <FieldMessages description={description} error={error} />
+      <InFieldContext value>{control}</InFieldContext>
+      <FieldMessages
+        description={description}
+        error={error}
+        descriptionId={custom ? `${ids}-description` : undefined}
+        errorId={custom ? `${ids}-error` : undefined}
+      />
     </BaseField.Root>
   );
 }

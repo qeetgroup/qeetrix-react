@@ -67,6 +67,28 @@ describe("tones", () => {
     ]);
   });
 
+  it("Meter: a target is a tick on the track and part of what's read out, in either direction", async () => {
+    for (const dir of ["ltr", "rtl"] as const) {
+      const { unmount } = await render(
+        <div dir={dir} style={{ inlineSize: 200 }}>
+          <Meter label="Two-step" value={40} target={80} />
+        </div>,
+      );
+      const meter = page.getByRole("meter", { name: "Two-step" });
+      await expect.element(meter).toHaveAttribute("aria-valuetext", "40%, target 80%");
+      const track = document.querySelector("[data-slot=meter-track]") as HTMLElement;
+      const tick = document.querySelector("[data-slot=meter-target]") as HTMLElement;
+      const t = track.getBoundingClientRect();
+      const k = tick.getBoundingClientRect();
+      const centre = k.left + k.width / 2;
+      expect(Math.round(dir === "ltr" ? centre - t.left : t.right - centre)).toBe(160);
+      expect(k.width).toBe(2);
+      expect(k.height).toBe(t.height + 6);
+      expect(tick.getAttribute("aria-hidden")).toBe("true");
+      await unmount();
+    }
+  });
+
   it("gives Meter Badge's tones, neutral and info included", async () => {
     const tones = ["brand", "neutral", "info", "success", "warning", "danger"] as const;
     const { container } = await render(

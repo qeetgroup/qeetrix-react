@@ -1,0 +1,60 @@
+/* MultiEmailField (QTRX-22): the filled box, then a ruled row per address under it: its state's
+   icon, the address, what will happen to it, and a remove button. */
+.qx-multi-email-field {
+  display: grid;
+  gap: var(--qx-space-gap-sm);
+  min-inline-size: 0;
+}
+.qx-multi-email-field-limit {
+  margin: 0;
+  color: var(--qx-color-text-warning);
+  font: var(--qx-typography-body-sm);
+}
+.qx-multi-email-field-entries {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-block: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+}
+.qx-multi-email-field-entry {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  padding-block: var(--qx-space-inset-xs);
+  font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  & + & {
+    border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  }
+}
+.qx-multi-email-field-icon {
+  color: var(--qx-color-icon-subtle);
+  [data-tone="success"] > & {
+    color: var(--qx-color-icon-success);
+  }
+  [data-tone="info"] > & {
+    color: var(--qx-color-icon-info);
+  }
+  [data-tone="danger"] > & {
+    color: var(--qx-color-icon-danger);
+  }
+}
+.qx-multi-email-field-email {
+  overflow: hidden;
+  color: var(--qx-color-text-default);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  [data-tone="skipped"] > & {
+    color: var(--qx-color-text-subtle);
+    text-decoration: line-through;
+  }
+}
+.qx-multi-email-field-note {
+  color: var(--qx-color-text-subtle);
+  white-space: nowrap;
+  [data-tone="danger"] > & {
+    color: var(--qx-color-text-danger);
+  }
+}

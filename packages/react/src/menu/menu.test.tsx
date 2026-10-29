@@ -2,6 +2,7 @@ import { CopyIcon } from "@qeetrix/icons/icons/copy";
 import { EllipsisIcon } from "@qeetrix/icons/icons/ellipsis";
 import { PencilIcon } from "@qeetrix/icons/icons/pencil";
 import { TrashIcon } from "@qeetrix/icons/icons/trash";
+import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
@@ -27,6 +28,22 @@ import {
 } from "./menu";
 
 const html = document.documentElement;
+
+/** A picker: one value, held in state, the menu closing on a choice. */
+function CurrencyPicker() {
+  const [currency, setCurrency] = useState("inr");
+  return (
+    <Menu>
+      <MenuTrigger render={<Button variant="soft">Currency</Button>} />
+      <MenuContent>
+        <MenuRadioGroup value={currency} onValueChange={(next) => setCurrency(String(next))}>
+          <MenuRadioItem value="inr">INR</MenuRadioItem>
+          <MenuRadioItem value="usd">USD</MenuRadioItem>
+        </MenuRadioGroup>
+      </MenuContent>
+    </Menu>
+  );
+}
 
 function RowMenu({ onEdit, defaultOpen }: { onEdit?: () => void; defaultOpen?: boolean }) {
   return (
@@ -167,16 +184,45 @@ describe("Menu", () => {
     expect(heights).toEqual({ compact: 28, default: 32, comfortable: 36 });
   });
 
-  it("toggles checkbox items, selects radio items and opens submenus", async () => {
+  it("toggles checkbox items and opens submenus", async () => {
     await render(<RowMenu defaultOpen />);
     const gstin = page.getByRole("menuitemcheckbox", { name: "GSTIN" });
     await gstin.click();
     await expect.element(gstin).toHaveAttribute("aria-checked", "true");
-    const usd = page.getByRole("menuitemradio", { name: "USD" });
-    await usd.click();
-    await expect.element(usd).toHaveAttribute("aria-checked", "true");
     await page.getByRole("menuitem", { name: "Export as" }).hover();
     await expect.element(page.getByRole("menuitem", { name: "PDF" })).toBeVisible();
+  });
+
+  it("closes once a radio item is chosen, keeping the choice; closeOnClick={false} keeps it open", async () => {
+    await render(<CurrencyPicker />);
+    const trigger = page.getByRole("button", { name: "Currency" });
+    await trigger.click();
+    await page.getByRole("menuitemradio", { name: "USD" }).click();
+    await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
+    await trigger.click();
+    await expect
+      .element(page.getByRole("menuitemradio", { name: "USD" }))
+      .toHaveAttribute("aria-checked", "true");
+    await userEvent.keyboard("{Escape}");
+
+    await render(
+      <Menu defaultOpen>
+        <MenuTrigger render={<Button variant="soft">Density</Button>} />
+        <MenuContent>
+          <MenuRadioGroup defaultValue="compact">
+            <MenuRadioItem value="compact" closeOnClick={false}>
+              Compact
+            </MenuRadioItem>
+            <MenuRadioItem value="comfortable" closeOnClick={false}>
+              Comfortable
+            </MenuRadioItem>
+          </MenuRadioGroup>
+        </MenuContent>
+      </Menu>,
+    );
+    const comfortable = page.getByRole("menuitemradio", { name: "Comfortable" });
+    await comfortable.click();
+    await expect.element(comfortable).toHaveAttribute("aria-checked", "true");
   });
 
   it("names its positioner and every part of an item", async () => {

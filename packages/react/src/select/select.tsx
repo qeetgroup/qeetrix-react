@@ -4,13 +4,20 @@ import { Select as BaseSelect } from "@base-ui/react/select";
 import { CheckIcon } from "@qeetrix/icons/icons/check";
 import { ChevronDownIcon } from "@qeetrix/icons/icons/chevron-down";
 import type { CSSProperties, ReactElement, ReactNode, Ref } from "react";
+import type { ControlSize } from "../internal/control";
 import { cx } from "../internal/cx";
+import { usePortalContainer } from "../provider/provider";
 
 /** One option. */
 export interface SelectItem<Value> {
   value: Value;
   label: ReactNode;
   disabled?: boolean;
+  /**
+   * A short fact at the option's end, such as how many records it leaves ("19"): read out with the
+   * option, but not shown in the closed trigger, which takes only the label.
+   */
+  meta?: ReactNode;
 }
 
 /** Options under a group label. */
@@ -25,6 +32,11 @@ export interface SelectProps<Value, Multiple extends boolean | undefined = false
   items: ReadonlyArray<SelectItem<Value> | SelectItemGroup<Value>>;
   /** Shown while nothing is chosen. An example, never an instruction ("e.g. Monthly"). */
   placeholder?: ReactNode;
+  /**
+   * The trigger's height: `lg`, a form field's (default); `md` or `sm` to sit beside the Buttons of
+   * that size in a toolbar, such as an editor's paragraph style.
+   */
+  size?: ControlSize;
   /** The trigger's id. */
   id?: string;
   /** The trigger, which a Field labels. */
@@ -54,6 +66,11 @@ function Option<Value>({ item }: { item: SelectItem<Value> }): ReactElement {
       data-slot="select-option"
     >
       <BaseSelect.ItemText className="qx-select-option-text">{item.label}</BaseSelect.ItemText>
+      {item.meta != null && (
+        <span className="qx-select-option-meta" data-slot="select-option-meta">
+          {item.meta}
+        </span>
+      )}
       <BaseSelect.ItemIndicator className="qx-select-option-check">
         <CheckIcon shape="sharp" size={16} aria-hidden />
       </BaseSelect.ItemIndicator>
@@ -68,6 +85,7 @@ function Option<Value>({ item }: { item: SelectItem<Value> }): ReactElement {
 export function Select<Value, Multiple extends boolean | undefined = false>({
   items,
   placeholder,
+  size = "lg",
   id,
   ref,
   "aria-label": ariaLabel,
@@ -77,6 +95,7 @@ export function Select<Value, Multiple extends boolean | undefined = false>({
   style,
   ...props
 }: SelectProps<Value, Multiple>): ReactElement {
+  const portalContainer = usePortalContainer();
   const flat = items.flatMap((entry) => (isGroup(entry) ? entry.items : [entry]));
   const labelOf = (value: unknown): ReactNode =>
     flat.find((item) => Object.is(item.value, value))?.label;
@@ -90,6 +109,7 @@ export function Select<Value, Multiple extends boolean | undefined = false>({
         className={cx("qx-select-trigger", className)}
         style={style}
         data-slot="select-trigger"
+        data-size={size}
       >
         <BaseSelect.Value
           className="qx-select-value"
@@ -111,7 +131,7 @@ export function Select<Value, Multiple extends boolean | undefined = false>({
           <ChevronDownIcon shape="sharp" size={16} aria-hidden />
         </BaseSelect.Icon>
       </BaseSelect.Trigger>
-      <BaseSelect.Portal>
+      <BaseSelect.Portal container={portalContainer}>
         <BaseSelect.Positioner
           alignItemWithTrigger={false}
           sideOffset={4}

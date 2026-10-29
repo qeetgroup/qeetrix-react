@@ -5,6 +5,10 @@
   font: var(--qx-typography-heading-lg);
   font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
   color: var(--qx-color-text-default);
+  /* Display sizes headline a welcoming page in the Geo letterforms (design rules §5, §17). */
+  &[data-size^="display"] {
+    font-variation-settings: "GEOM" var(--qx-font-geometry-display);
+  }
   &[data-size="display-lg"] {
     font-size: var(--qx-typography-display-lg-font-size);
     line-height: var(--qx-typography-display-lg-line-height);

@@ -267,6 +267,25 @@ describe("Table", () => {
     expect(avatar.top - row.getBoundingClientRect().top).toBeGreaterThanOrEqual(4);
   });
 
+  it("lets its toolbar fill the bar, so a search and filters use the table's width", async () => {
+    await page.viewport(800, 400);
+    await render(
+      <Invoices
+        toolbar={
+          <>
+            <Input aria-label="Search invoices" style={{ flex: 1 }} />
+            <IconButton icon={DownloadIcon} aria-label="Download" tone="neutral" size="lg" />
+          </>
+        }
+      />,
+    );
+    const bar = (document.querySelector(".qx-table-bar") as HTMLElement).getBoundingClientRect();
+    const toolbar = document.querySelector("[data-slot=table-toolbar]") as HTMLElement;
+    expect(toolbar.getBoundingClientRect().width).toBe(bar.width);
+    const download = page.getByRole("button", { name: "Download" }).element();
+    expect(Math.round(download.getBoundingClientRect().right)).toBe(Math.round(bar.right));
+  });
+
   it("in a Card, lines its toolbar up with its columns, in a band above the header", async () => {
     await page.viewport(800, 400);
     await render(
@@ -467,6 +486,117 @@ describe("Table", () => {
     await page.getByText("Paid").first().click();
     expect(window.location.hash).toBe("#/invoices/INV-0042");
     window.location.hash = "";
+  });
+
+  it("keeps an unselectable row out: its checkbox is disabled with its reason, the header skips it", async () => {
+    const onSelectedChange = vi.fn();
+    await render(
+      <Invoices
+        selectable
+        onSelectedChange={onSelectedChange}
+        rowSelectable={(row) => row.id !== "INV-0043"}
+        rowUnselectableReason={() => "Paid invoices can't be voided"}
+      />,
+    );
+    const locked = page.getByRole("checkbox", { name: "Select INV-0043" });
+    expect(locked.element().hasAttribute("data-disabled")).toBe(true);
+    await expect.element(locked).toHaveAccessibleDescription("Paid invoices can't be voided");
+    await page.getByRole("checkbox", { name: "Select all rows" }).click();
+    const chosen = onSelectedChange.mock.calls.at(-1)?.[0] as string[];
+    expect(chosen).not.toContain("INV-0043");
+    expect(chosen.length).toBeGreaterThan(0);
+    await expect
+      .element(page.getByRole("checkbox", { name: "Select all rows" }))
+      .toHaveAttribute("aria-checked", "true");
+  });
+
+  it("hides low- and medium-priority columns as the table narrows", async () => {
+    const columns: TableColumn<Invoice>[] = COLUMNS.map((column, index) =>
+      index === 1
+        ? { ...column, priority: "low" }
+        : index === 2
+          ? { ...column, priority: "medium" }
+          : column,
+    );
+    const { container } = await render(
+      <div style={{ inlineSize: 700 }}>
+        <Invoices columns={columns} />
+      </div>,
+    );
+    const shown = () =>
+      [...container.querySelectorAll("thead th")].filter(
+        (th) => getComputedStyle(th).display !== "none",
+      ).length;
+    expect(shown()).toBe(columns.length);
+    (container.firstElementChild as HTMLElement).style.inlineSize = "600px";
+    await expect.poll(shown).toBe(columns.length - 1);
+    (container.firstElementChild as HTMLElement).style.inlineSize = "400px";
+    await expect.poll(shown).toBe(columns.length - 2);
+  });
+
+  it("marks the current row, whose record is open beside the list", async () => {
+    await render(<Invoices currentRow="INV-0043" />);
+    const row = page.getByRole("row", { name: /INV-0043/ });
+    await expect.element(row).toHaveAttribute("aria-current", "true");
+    const cell = row.element().querySelector("td") as HTMLElement;
+    expect(getComputedStyle(cell).backgroundColor).toBe(tokenColor("--qx-color-bg-selected"));
+  });
+
+  it("leaves a row without its actions menu when rowActions returns nothing", async () => {
+    await render(
+      <Invoices
+        rowActions={(row) => (row.status === "Paid" ? null : <MenuItem>Send a reminder</MenuItem>)}
+      />,
+    );
+    expect(page.getByRole("button", { name: "Actions for INV-0042" }).elements()).toHaveLength(0);
+    await expect.element(page.getByRole("button", { name: "Actions for INV-0043" })).toBeVisible();
+  });
+
+  it("scrolls sideways itself when wider than its space, as a labelled region keyboard users reach", async () => {
+    // Content that can't shrink, as a wide table's has: four 260px columns in 600px.
+    const wide = COLUMNS.map((column) => ({
+      ...column,
+      cell: (row: Invoice) => (
+        <span style={{ display: "inline-block", inlineSize: 260 }}>{column.cell(row)}</span>
+      ),
+    }));
+    const { container } = await render(
+      <div style={{ inlineSize: 600 }}>
+        <Invoices columns={wide} />
+      </div>,
+    );
+    const scroll = container.querySelector("[data-slot=table-scroll]") as HTMLElement;
+    await expect.poll(() => scroll.hasAttribute("data-overflowing")).toBe(true);
+    await expect.element(page.getByRole("region", { name: "Recent invoices" })).toBeVisible();
+    expect(scroll.tabIndex).toBe(0);
+    expect(getComputedStyle(scroll).overflowX).toBe("auto");
+    (container.firstElementChild as HTMLElement).style.inlineSize = "1400px";
+    await expect.poll(() => scroll.hasAttribute("data-overflowing")).toBe(false);
+    expect(scroll.hasAttribute("tabindex")).toBe(false);
+  });
+
+  it("names a row's link by its rowLabel, and describes it by the rest of the cell", async () => {
+    await render(
+      <Invoices
+        rowHref={(row) => `#/invoices/${row.id}`}
+        columns={[
+          {
+            id: "invoice",
+            header: "Invoice",
+            primary: true,
+            cell: (row) => (
+              <>
+                {row.id}
+                <span> · {row.customer}</span>
+              </>
+            ),
+          },
+        ]}
+      />,
+    );
+    const link = page.getByRole("link", { name: "INV-0043" });
+    await expect.element(link).toHaveAccessibleName("INV-0043");
+    await expect.element(link).toHaveAccessibleDescription("INV-0043 · Bharat Foods");
   });
 
   it("puts a router's link in the primary column, and passes modifier keys to it", async () => {

@@ -116,10 +116,11 @@ export function Collapsible(props: CollapsibleProps): ReactElement {
 
 /**
  * Shows and hides the panel. Render your own control: `render={<Button variant="ghost" />}`. A
- * Qeetrix component rendered here keeps its own `data-slot`.
+ * Qeetrix component rendered here keeps its own `data-slot`. Give that Button (or IconButton)
+ * `icon={ChevronDownIcon}`: its chevron turns as the panel opens, as an AccordionItem's does.
  */
 export function CollapsibleTrigger(props: CollapsibleTriggerProps): ReactElement {
-  return <BaseCollapsible.Trigger {...props} data-slot="collapsible-trigger" />;
+  return <BaseCollapsible.Trigger {...props} data-slot="collapsible-trigger" data-qx-fold="" />;
 }
 
 /** The content that shows and hides, with the accordion's height animation. */

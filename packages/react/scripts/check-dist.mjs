@@ -183,7 +183,11 @@ for (const name of budgeted) {
   const total = walk(dir)
     .filter((f) => f.endsWith(".js"))
     .reduce((sum, f) => sum + gz(f), 0);
-  sizes.push([`dist/${name}/ (JavaScript)`, total, budget.familyJs]);
+  sizes.push([
+    `dist/${name}/ (JavaScript)`,
+    total,
+    budget.familyJsByFamily?.[name] ?? budget.familyJs,
+  ]);
 }
 for (const [label, size, limit] of sizes) {
   if (size > limit * 1024) report(`${label} is ${kb(size)} gzip, over its ${limit} kB budget`);

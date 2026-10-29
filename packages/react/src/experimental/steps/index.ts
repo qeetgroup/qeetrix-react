@@ -1,1 +1,1 @@
-export { type Step, Steps, type StepsOrientation, type StepsProps } from "./steps";
+export { type Step, type StepStatus, Steps, type StepsOrientation, type StepsProps } from "./steps";

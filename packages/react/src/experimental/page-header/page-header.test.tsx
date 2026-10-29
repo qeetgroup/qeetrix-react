@@ -5,6 +5,7 @@ import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../../tests/support/axe";
 import { screenshotSchemes } from "../../../tests/support/screenshots";
+import { Avatar } from "../../avatar/avatar";
 import { Badge } from "../../badge/badge";
 import { Button } from "../../button/button";
 import { hi } from "../../locales/hi";
@@ -69,6 +70,21 @@ describe("PageHeader", () => {
     const { container } = await render(<Header />);
     await expect.element(page.getByRole("heading", { level: 1, name: "Users" })).toBeVisible();
     expect(container.querySelector("[data-slot=page-header-count]")?.textContent).toBe("1,284");
+  });
+
+  // QTRX-82: shown inside another page, it takes that page's outline, and looks the same.
+  it("takes a heading level, for a PageHeader shown inside another page", async () => {
+    const { container } = await render(
+      <div>
+        <PageHeader title="Users" />
+        <PageHeader title="Invoices" headingLevel={3} />
+      </div>,
+    );
+    await expect.element(page.getByRole("heading", { level: 1, name: "Users" })).toBeVisible();
+    await expect.element(page.getByRole("heading", { level: 3, name: "Invoices" })).toBeVisible();
+    expect(page.getByRole("heading", { level: 1 }).elements()).toHaveLength(1);
+    const [h1, h3] = [...container.querySelectorAll<HTMLElement>("h1, h3")];
+    expect(getComputedStyle(h3 as HTMLElement).font).toBe(getComputedStyle(h1 as HTMLElement).font);
   });
 
   it("runs its summary edge to edge, with the first number on the page gutter", async () => {
@@ -196,5 +212,25 @@ describe("PageHeader", () => {
     );
     await expectAccessible(container);
     await screenshotSchemes("PageHeader · back link", "[data-slot=page-header]");
+  });
+});
+
+describe("PageHeader's leading", () => {
+  it("puts a record's picture before its title, outside the heading, its top on the title's", async () => {
+    await render(
+      <PageHeader
+        leading={<Avatar name="Acme Retail" shape="square" size="lg" decorative />}
+        title="Acme Retail"
+        description="acme.example · Enterprise"
+      />,
+    );
+    const heading = page.getByRole("heading", { level: 1 });
+    await expect.element(heading).toHaveAccessibleName("Acme Retail");
+    const avatar = document.querySelector("[data-slot=avatar]") as HTMLElement;
+    expect(heading.element().contains(avatar)).toBe(false);
+    const a = avatar.getBoundingClientRect();
+    const h = heading.element().getBoundingClientRect();
+    expect(a.right).toBeLessThan(h.left);
+    expect(Math.round(a.top)).toBe(Math.round(h.top));
   });
 });

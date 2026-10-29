@@ -1,0 +1,94 @@
+/* Colour choice (QTRX-52): square swatches with a 1px inner rule (so white shows on white), the
+   chosen one ringed in the text colour; a hex field whose swatch is the system picker. */
+.qx-color-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--qx-space-gap-sm);
+}
+.qx-color-swatch {
+  inline-size: 24px;
+  block-size: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--qx-radius-sm);
+  background: var(--qx-color-swatch);
+  box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-default);
+  cursor: pointer;
+  &[data-checked] {
+    outline: var(--qx-border-width-strong) solid var(--qx-color-text-default);
+    outline-offset: 2px;
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
+  }
+  &[data-disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.qx-color-field {
+  display: grid;
+  gap: var(--qx-space-gap-sm);
+  min-inline-size: 0;
+}
+.qx-color-field-swatch {
+  position: relative;
+  display: block;
+  inline-size: 20px;
+  block-size: 20px;
+  border-radius: var(--qx-radius-sm);
+  background: var(--qx-color-swatch);
+  box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-default);
+  cursor: pointer;
+  /* No colour yet: an empty, dashed square says "none". */
+  &[data-empty] {
+    border: var(--qx-border-width-default) dashed var(--qx-color-border-strong);
+    background: transparent;
+    box-shadow: none;
+  }
+  &:focus-within {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
+  }
+  > input {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    cursor: inherit;
+  }
+}
+.qx-color-field-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--qx-space-gap-sm) var(--qx-space-gap-md);
+}
+.qx-color-field-contrast {
+  margin: 0;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+  &[data-low] {
+    color: var(--qx-color-text-warning);
+  }
+  &:empty {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .qx-color-swatch,
+  .qx-color-field-swatch {
+    forced-color-adjust: none;
+    border: var(--qx-border-width-default) solid CanvasText;
+  }
+  .qx-color-swatch[data-checked] {
+    outline-color: Highlight;
+  }
+}

@@ -1,0 +1,250 @@
+/* Small charts (QTRX-13, 63, 77, 78, 79): thin marks in the data-viz colours, a 2px surface gap
+   between fills, 2px corners at the data ends, text in text colours (never the series colour). */
+
+/* Sparkline: a 2px line, a 10% wash and a ringed dot on the latest value. */
+.qx-sparkline {
+  display: block;
+  flex: none;
+  overflow: visible;
+}
+.qx-sparkline-dot {
+  fill: currentColor;
+  stroke: var(--qx-color-surface-raised);
+  stroke-width: 2;
+}
+
+/* ShareBar: one 8px bar, a part per share. */
+.qx-share-bar {
+  display: grid;
+  gap: var(--qx-space-gap-sm);
+  min-inline-size: 0;
+}
+.qx-share-bar-track {
+  display: flex;
+  gap: 2px;
+  block-size: 8px;
+}
+.qx-share-bar-part {
+  flex-basis: 0;
+  min-inline-size: 2px;
+  &:first-child {
+    border-start-start-radius: var(--qx-radius-sm);
+    border-end-start-radius: var(--qx-radius-sm);
+  }
+  &:last-child {
+    border-start-end-radius: var(--qx-radius-sm);
+    border-end-end-radius: var(--qx-radius-sm);
+  }
+}
+
+/* The legend, shared by ShareBar and ChartLegend: a swatch, the count, the name. */
+.qx-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--qx-space-gap-xs) var(--qx-space-gap-lg);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}
+.qx-chart-legend-item,
+.qx-chart-legend-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+}
+.qx-chart-legend-link {
+  color: inherit;
+  text-decoration: none;
+  &:hover {
+    color: var(--qx-color-text-default);
+    text-decoration: underline;
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
+  }
+}
+.qx-chart-legend-value {
+  color: var(--qx-color-text-default);
+  font-variant-numeric: tabular-nums;
+}
+.qx-chart-swatch {
+  flex: none;
+  inline-size: 8px;
+  block-size: 8px;
+  border-radius: var(--qx-radius-sm);
+}
+
+/* ColumnChart: a column a period, its parts stacked from the baseline, 2px apart. */
+.qx-column-chart {
+  box-sizing: content-box;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  block-size: var(--qx-column-chart-height);
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-dataviz-axis);
+}
+.qx-column-chart-column {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column-reverse;
+  gap: 2px;
+  align-self: stretch;
+  min-inline-size: 2px;
+}
+a.qx-column-chart-column {
+  &:hover {
+    background: var(--qx-color-overlay-hover);
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: 1px;
+  }
+}
+.qx-column-chart-part {
+  flex: 0 1 auto;
+  &:last-child {
+    border-start-start-radius: var(--qx-radius-sm);
+    border-start-end-radius: var(--qx-radius-sm);
+  }
+}
+
+/* BarList: the label, its bar on the shared scale, the count. */
+.qx-bar-list {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(4rem, 1fr) auto;
+  gap: var(--qx-space-gap-sm) var(--qx-space-gap-md);
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: var(--qx-typography-body-sm);
+}
+.qx-bar-list-item {
+  display: contents;
+}
+.qx-bar-list-label {
+  overflow: hidden;
+  color: var(--qx-color-text-default);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qx-bar-list-link {
+  color: inherit;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
+  }
+}
+.qx-bar-list-track {
+  display: block;
+  block-size: 8px;
+}
+.qx-bar-list-bar {
+  display: block;
+  block-size: 100%;
+  min-inline-size: 2px;
+  border-start-end-radius: var(--qx-radius-sm);
+  border-end-end-radius: var(--qx-radius-sm);
+  background: currentColor;
+}
+.qx-bar-list-value {
+  color: var(--qx-color-text-subtle);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+/* SpanChart: a row a span, on one time axis. */
+.qx-span-chart {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(8rem, 1fr);
+  gap: var(--qx-space-gap-xs) var(--qx-space-gap-md);
+  font: var(--qx-typography-body-sm);
+}
+.qx-span-chart-rows {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  row-gap: var(--qx-space-gap-sm);
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.qx-span-chart-row {
+  display: contents;
+}
+.qx-span-chart-label {
+  overflow: hidden;
+  color: var(--qx-color-text-default);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qx-span-chart-track {
+  position: relative;
+  display: block;
+  block-size: 8px;
+  background: var(--qx-color-dataviz-grid);
+}
+.qx-span-chart-bar {
+  position: absolute;
+  inset-block: 0;
+  min-inline-size: 2px;
+  border-radius: var(--qx-radius-sm);
+}
+.qx-span-chart-axis {
+  display: flex;
+  grid-column: 2;
+  justify-content: space-between;
+  gap: var(--qx-space-gap-md);
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-label-sm);
+}
+
+/* ChartTooltip: an overlay sheet; the point's title, then a row per series. */
+.qx-chart-tooltip {
+  display: grid;
+  gap: 2px;
+  padding: var(--qx-space-inset-sm) var(--qx-space-inset-md);
+  border-radius: var(--qx-radius-overlay);
+  background: var(--qx-color-surface-overlay);
+  box-shadow: var(--qx-shadow-overlay);
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+}
+.qx-chart-tooltip-title {
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-label-md);
+}
+.qx-chart-tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+}
+.qx-chart-tooltip-value {
+  margin-inline-start: auto;
+  padding-inline-start: var(--qx-space-gap-md);
+  color: var(--qx-color-text-default);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Forced colours: the fills are dropped, so marks and swatches draw in the system colours. */
+@media (forced-colors: active) {
+  .qx-share-bar-part,
+  .qx-column-chart-part,
+  .qx-bar-list-bar,
+  .qx-span-chart-bar,
+  .qx-chart-swatch {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+  .qx-chart-tooltip {
+    border: var(--qx-border-width-default) solid CanvasText;
+  }
+}

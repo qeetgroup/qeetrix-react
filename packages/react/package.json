@@ -1,6 +1,6 @@
 {
   "name": "@qeetrix/react",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Qeetrix React components: accessible, token-driven primitives on Base UI for every Qeet product.",
   "keywords": [
     "qeetrix",
@@ -199,6 +199,10 @@
       "types": "./dist/locales/hi.d.ts",
       "default": "./dist/locales/hi.js"
     },
+    "./manifest": {
+      "types": "./dist/manifest/index.d.ts",
+      "default": "./dist/manifest/index.js"
+    },
     "./styles.css": "./dist/styles.css",
     "./css/*": "./dist/css/*",
     "./package.json": "./package.json"
@@ -210,6 +214,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "api": "api-extractor run --local",
+    "manifest": "node scripts/build-manifest.mjs",
     "check": "bun run check:source && bun run check:dist && bun run check:api && bun run check:package",
     "check:source": "node scripts/check-source.mjs",
     "check:dist": "node scripts/check-dist.mjs",

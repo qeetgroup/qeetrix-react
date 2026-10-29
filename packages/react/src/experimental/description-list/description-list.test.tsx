@@ -4,6 +4,7 @@ import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../../tests/support/axe";
 import { screenshotEveryMode } from "../../../tests/support/screenshots";
 import { Badge } from "../../badge/badge";
+import { Button } from "../../button/button";
 import { Card } from "../../card/card";
 import { hi } from "../../locales/hi";
 import { QeetrixProvider } from "../../provider/provider";
@@ -57,6 +58,33 @@ describe("DescriptionList", () => {
     expect(box(".qx-description-term").bottom).toBeLessThanOrEqual(
       box(".qx-description-value").top,
     );
+  });
+
+  it("holds a Settings row: a sentence under the value and an action at the row's end", async () => {
+    const { container } = await render(
+      <div style={{ inlineSize: 640 }}>
+        <DescriptionList>
+          <DescriptionItem
+            term="Name"
+            description="Shown in the top bar and in invitations."
+            action={<Button variant="ghost">Change</Button>}
+          >
+            Qeet Group
+          </DescriptionItem>
+        </DescriptionList>
+      </div>,
+    );
+    await expectAccessible(container);
+    const item = container.querySelector("[data-slot=description-item]") as HTMLElement;
+    const change = page.getByRole("button", { name: "Change" }).element();
+    expect(Math.round(item.getBoundingClientRect().right)).toBe(
+      Math.round(change.getBoundingClientRect().right),
+    );
+    const note = page.getByText("Shown in the top bar and in invitations.").element();
+    const value = container.querySelector("[data-slot=description-value]") as HTMLElement;
+    expect(value.textContent).toContain("Qeet Group");
+    expect(note.getBoundingClientRect().top).toBeGreaterThan(value.getBoundingClientRect().top);
+    expect(change.closest("dd")).not.toBeNull();
   });
 
   it("lays columns out up to the count, fewer where there isn't room", async () => {

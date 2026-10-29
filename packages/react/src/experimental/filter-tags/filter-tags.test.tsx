@@ -82,6 +82,16 @@ describe("FilterTags", () => {
     await expect.element(page.getByRole("searchbox", { name: "Search users" })).toHaveFocus();
   });
 
+  it("with no filters, shows the summary alone (a search narrows the list), or nothing without one", async () => {
+    const { container, rerender } = await render(
+      <FilterTags filters={[]} onRemove={() => {}} summary="3 of 1,284 users" />,
+    );
+    await expect.element(page.getByText("3 of 1,284 users")).toHaveAttribute("aria-live", "polite");
+    expect(container.querySelectorAll(".qx-filter-tag")).toHaveLength(0);
+    await rerender(<FilterTags filters={[]} onRemove={() => {}} />);
+    expect(container.querySelector("[data-slot=filter-tags]")).toBeNull();
+  });
+
   it("speaks Hindi through QeetrixProvider", async () => {
     await render(
       <QeetrixProvider locale="hi-IN" messages={hi}>

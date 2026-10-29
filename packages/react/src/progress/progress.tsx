@@ -4,7 +4,9 @@ import { Meter as BaseMeter } from "@base-ui/react/meter";
 import { Progress as BaseProgress } from "@base-ui/react/progress";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import { cx } from "../internal/cx";
-import { useLocale } from "../provider/provider";
+import type { QeetrixMessages } from "../internal/messages";
+import { fill } from "../internal/template";
+import { useLocale, useMessages } from "../provider/provider";
 
 interface BarLook {
   /** The visible label. Without one, give it an `aria-label`. */
@@ -59,6 +61,13 @@ export interface MeterProps
    * for how it stands. Default `brand`.
    */
   tone?: MeterTone;
+  /**
+   * A goal on the range, such as 80% of people with two-step: a tick on the track, and in what's read
+   * out ("40%, target 80%"), written as the value is.
+   */
+  target?: number;
+  /** The read-out with a target, over QeetrixProvider's and the English default. */
+  messages?: Partial<QeetrixMessages["meter"]>;
 }
 
 /**
@@ -103,14 +112,34 @@ export function Meter({
   showValue,
   tone = "brand",
   locale,
+  target,
+  messages,
   className,
   ...props
 }: MeterProps): ReactElement {
   const providerLocale = useLocale();
+  const strings = useMessages("meter", messages);
+  const resolved = locale ?? providerLocale;
+  const min = props.min ?? 0;
+  const max = props.max ?? 100;
+  const share = target === undefined ? 0 : Math.min(Math.max((target - min) / (max - min), 0), 1);
+  // The target is written as Base UI writes the value: with `format`, or as a share of the range.
+  const written =
+    target === undefined
+      ? ""
+      : props.format
+        ? new Intl.NumberFormat(resolved, props.format).format(target)
+        : new Intl.NumberFormat(resolved, { style: "percent" }).format(share);
   return (
     <BaseMeter.Root
       {...props}
-      locale={locale ?? providerLocale}
+      getAriaValueText={
+        props.getAriaValueText ??
+        (target === undefined
+          ? undefined
+          : (value: string) => fill(strings.withTarget, { value, target: written }))
+      }
+      locale={resolved}
       className={cx("qx-progress", className)}
       data-slot="meter"
       data-tone={tone}
@@ -123,8 +152,20 @@ export function Meter({
           {showValue && <BaseMeter.Value className="qx-progress-value" />}
         </div>
       )}
-      <BaseMeter.Track className="qx-progress-track" data-slot="meter-track">
+      <BaseMeter.Track
+        className="qx-progress-track"
+        data-slot="meter-track"
+        data-target={target === undefined ? undefined : ""}
+      >
         <BaseMeter.Indicator className="qx-progress-indicator" data-slot="meter-indicator" />
+        {target !== undefined && (
+          <span
+            className="qx-meter-target"
+            data-slot="meter-target"
+            aria-hidden
+            style={{ "--qx-meter-target": `${share * 100}%` } as CSSProperties}
+          />
+        )}
       </BaseMeter.Track>
     </BaseMeter.Root>
   );

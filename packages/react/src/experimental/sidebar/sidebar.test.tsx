@@ -249,3 +249,88 @@ describe("Sidebar", () => {
     await screenshotEveryMode("Sidebar", "[data-slot=sidebar]");
   });
 });
+
+function DocsNav({ current = "toggle" }: { current?: string }) {
+  return (
+    <div style={{ inlineSize: 260, blockSize: 560 }}>
+      <Sidebar label="Docs" filter>
+        <SidebarGroup>
+          <SidebarItem label="Get started" href="#start" icon={FileTextIcon} />
+          <SidebarItem
+            label="Components"
+            href="#components"
+            icon={LayoutGridIcon}
+            current={current === "components"}
+          >
+            <SidebarItem label="Actions" href="#actions" current={current === "actions"}>
+              <SidebarItem label="Button" href="#button" current={current === "button"} />
+              <SidebarItem label="Toggle" href="#toggle" current={current === "toggle"} />
+            </SidebarItem>
+            <SidebarItem label="Layout">
+              <SidebarItem label="Stack" href="#stack" />
+            </SidebarItem>
+          </SidebarItem>
+        </SidebarGroup>
+      </Sidebar>
+    </div>
+  );
+}
+
+describe("Sidebar levels", () => {
+  it("opens every category around the current page, two levels deep, and marks the page", async () => {
+    await render(<DocsNav />);
+    const toggle = page.getByRole("link", { name: "Toggle" });
+    await expect.element(toggle).toBeVisible();
+    await expect.element(toggle).toHaveAttribute("aria-current", "page");
+    await expect
+      .element(page.getByRole("button", { name: "Components" }))
+      .toHaveAttribute("aria-expanded", "true");
+    await expect
+      .element(page.getByRole("button", { name: "Actions" }))
+      .toHaveAttribute("aria-expanded", "true");
+    expect(page.getByRole("link", { name: "Stack" }).query()).toBeNull();
+  });
+
+  it("steps each level in from its parent's label", async () => {
+    await render(<DocsNav />);
+    const left = (name: string) =>
+      (
+        page.getByRole("link", { name }).element().querySelector(".qx-sidebar-label") as HTMLElement
+      ).getBoundingClientRect().left;
+    expect(left("Actions")).toBe(left("Components"));
+    expect(left("Toggle") - left("Actions")).toBe(16);
+  });
+
+  it("filters the whole tree, keeping a match's categories open around it", async () => {
+    await render(<DocsNav current="none" />);
+    await userEvent.type(page.getByRole("searchbox", { name: "Filter navigation" }), "toggle");
+    await expect.element(page.getByRole("link", { name: "Toggle" })).toBeVisible();
+    await expect.element(page.getByRole("link", { name: "Components" })).toBeVisible();
+    await expect.element(page.getByRole("link", { name: "Actions" })).toBeVisible();
+    expect(page.getByRole("link", { name: "Button" }).query()).toBeNull();
+    expect(page.getByRole("link", { name: "Get started" }).query()).toBeNull();
+  });
+
+  it("makes a category a page: its row is the link, and a button at its end folds it", async () => {
+    await render(<DocsNav current="actions" />);
+    const actions = page.getByRole("link", { name: "Actions" });
+    await expect.element(actions).toHaveAttribute("href", "#actions");
+    await expect.element(actions).toHaveAttribute("aria-current", "page");
+    const fold = page.getByRole("button", { name: "Actions" });
+    await expect.element(fold).toHaveAttribute("aria-expanded", "true");
+    await userEvent.click(fold);
+    await expect.element(fold).toHaveAttribute("aria-expanded", "false");
+    expect(page.getByRole("link", { name: "Toggle" }).query()).toBeNull();
+    expect(window.location.hash).toBe("");
+    const row = actions.element().getBoundingClientRect();
+    const button = fold.element().getBoundingClientRect();
+    expect(button.right).toBeLessThanOrEqual(row.right);
+    expect(button.left).toBeGreaterThan(row.left + row.width / 2);
+  });
+
+  it("is accessible and looks right in every mode", async () => {
+    await render(<DocsNav />);
+    await expectAccessible(document.body);
+    await screenshotEveryMode("Sidebar · levels", "[data-slot=sidebar]");
+  });
+});

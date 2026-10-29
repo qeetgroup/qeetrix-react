@@ -1,0 +1,40 @@
+/* StateRuler: a record's states in a ruled row, the current one in full colour under an Ember rule. */
+.qx-state-ruler {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-block: var(--qx-border-width-default) solid var(--qx-color-border-default);
+}
+.qx-state-ruler-item {
+  display: grid;
+  align-content: start;
+  gap: var(--qx-space-gap-xs);
+  padding: var(--qx-space-inset-md) var(--qx-space-inset-md) var(--qx-space-inset-md) 0;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+  & + & {
+    padding-inline-start: var(--qx-space-inset-md);
+    border-inline-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  }
+  &[aria-current="true"] {
+    box-shadow: inset 0 var(--qx-border-width-accent) 0 var(--qx-color-border-brand);
+    color: var(--qx-color-text-default);
+  }
+}
+.qx-state-ruler-label {
+  font: var(--qx-typography-label-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+}
+@container (width < 32rem) {
+  .qx-state-ruler {
+    grid-auto-flow: row;
+  }
+  .qx-state-ruler-item + .qx-state-ruler-item {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+    border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  }
+}

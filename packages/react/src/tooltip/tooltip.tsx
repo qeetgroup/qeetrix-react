@@ -12,6 +12,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { usePortalContainer } from "../provider/provider";
 
 export interface TooltipProps extends Omit<BaseTooltip.Root.Props, "children"> {
   /** The text. Short, never interactive and never essential. */
@@ -22,7 +23,7 @@ export interface TooltipProps extends Omit<BaseTooltip.Root.Props, "children"> {
   side?: BaseTooltip.Positioner.Props["side"];
   /** Alignment along that side. Default `center`. */
   align?: BaseTooltip.Positioner.Props["align"];
-  /** Distance from the trigger, in pixels. Default `6`. */
+  /** Distance from the trigger to the popup's edge, in pixels; the pointer fills 5 of them. Default `8`. */
   sideOffset?: number;
   /**
    * Hover time before it opens, in milliseconds; keyboard focus opens it at once. Default `500`, or
@@ -81,7 +82,7 @@ export function Tooltip({
   children,
   side = "top",
   align,
-  sideOffset = 6,
+  sideOffset = 8,
   delay,
   closeDelay,
   open: openProp,
@@ -89,6 +90,7 @@ export function Tooltip({
   onOpenChange,
   ...props
 }: TooltipProps): ReactElement {
+  const portalContainer = usePortalContainer();
   const providerDelay = use(ProviderDelay);
   const popupId = useId();
   // Usually a button; any element the child renders works the same.
@@ -137,7 +139,7 @@ export function Tooltip({
         delay={delay ?? providerDelay ?? 500}
         closeDelay={closeDelay}
       />
-      <BaseTooltip.Portal>
+      <BaseTooltip.Portal container={portalContainer}>
         <BaseTooltip.Positioner
           side={side}
           align={align}
@@ -152,6 +154,7 @@ export function Tooltip({
             data-slot="tooltip-popup"
           >
             {content}
+            <BaseTooltip.Arrow className="qx-tooltip-arrow" data-slot="tooltip-arrow" />
           </BaseTooltip.Popup>
         </BaseTooltip.Positioner>
       </BaseTooltip.Portal>

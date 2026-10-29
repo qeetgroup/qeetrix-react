@@ -246,3 +246,35 @@ describe("Field", () => {
     await screenshotEveryMode("Field · help", null);
   });
 });
+
+describe("Field around a control that isn't a form input", () => {
+  it("names and describes it through the props its children function gets", async () => {
+    await render(
+      <Field label="Body" description="What people read in the email." error="Write a body.">
+        {(control) => (
+          // biome-ignore lint/a11y/useSemanticElements: a rich-text editor's surface
+          <div role="textbox" aria-multiline="true" contentEditable tabIndex={0} {...control} />
+        )}
+      </Field>,
+    );
+    const editor = page.getByRole("textbox", { name: "Body" });
+    await expect.element(editor).toBeVisible();
+    await expect.element(editor).toHaveAccessibleDescription("Write a body.");
+    await expect.element(editor).toHaveAttribute("aria-invalid", "true");
+  });
+
+  it("describes it by its description while there's no error", async () => {
+    await render(
+      <Field label="Alignment" description="How the text lines up.">
+        {(control) => (
+          <fieldset {...control}>
+            <button type="button">Start</button>
+          </fieldset>
+        )}
+      </Field>,
+    );
+    const group = page.getByRole("group", { name: "Alignment" });
+    await expect.element(group).toHaveAccessibleDescription("How the text lines up.");
+    expect(group.element().hasAttribute("aria-invalid")).toBe(false);
+  });
+});

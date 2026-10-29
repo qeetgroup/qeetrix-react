@@ -34,6 +34,18 @@ describe("Button", () => {
     expect(icon.getAttribute("aria-hidden")).toBe("true");
   });
 
+  it("hides when hidden, though its display is inline-flex", async () => {
+    await render(
+      <>
+        <Button hidden>Save</Button>
+        <IconButton hidden icon={DownloadIcon} aria-label="Download" tooltip={false} />
+      </>,
+    );
+    for (const el of document.querySelectorAll<HTMLElement>(".qx-button")) {
+      expect(getComputedStyle(el).display).toBe("none");
+    }
+  });
+
   it("shows the Ember focus frame on keyboard focus", async () => {
     await render(<Button>Save</Button>);
     await userEvent.keyboard("{Tab}");

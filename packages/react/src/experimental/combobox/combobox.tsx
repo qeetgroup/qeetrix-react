@@ -20,7 +20,7 @@ import { useLabelText } from "../../internal/label-text";
 import type { QeetrixMessages } from "../../internal/messages";
 import { mergeRefs } from "../../internal/refs";
 import { fill } from "../../internal/template";
-import { useMessages } from "../../provider/provider";
+import { useMessages, usePortalContainer } from "../../provider/provider";
 import { Spinner } from "../../spinner/spinner";
 
 /** What a Combobox stores: an ID, never an object. */
@@ -108,6 +108,12 @@ export interface ComboboxProps<
    * "No matches", and is marked busy. Default `false`.
    */
   loading?: boolean;
+  /**
+   * Accept text that isn't one of the options, such as an attribute path not used yet: while
+   * what's typed matches no option's label, the list offers it ("Use “subject.department”"), and
+   * choosing it sets the text as the value. For string values and flat `items`. Default `false`.
+   */
+  allowCustom?: boolean;
   /** This field's strings, over QeetrixProvider's and the English defaults. */
   messages?: Partial<QeetrixMessages["combobox"]>;
 }
@@ -122,8 +128,11 @@ const labelsOf = <Value extends ComboboxValue>(items: ReadonlyArray<ComboboxItem
 
 function Option<Value extends ComboboxValue>({
   item,
+  label,
 }: {
   item: ComboboxItem<Value>;
+  /** Shown in place of the item's label: "Use “…”" for typed text. */
+  label?: string | undefined;
 }): ReactElement {
   return (
     <BaseCombobox.Item
@@ -134,7 +143,7 @@ function Option<Value extends ComboboxValue>({
     >
       <span className="qx-combobox-option-text">
         <span className="qx-combobox-option-label" data-slot="combobox-option-label">
-          {item.label}
+          {label ?? item.label}
         </span>
         {item.description && (
           <span className="qx-combobox-option-description" data-slot="combobox-option-description">
@@ -178,9 +187,11 @@ export function Combobox<
   searchDelay = 300,
   loading = false,
   onInputValueChange,
+  allowCustom = false,
   messages,
   ...props
 }: ComboboxProps<Value, Multiple>): ReactElement {
+  const portalContainer = usePortalContainer();
   const strings = useMessages("combobox", messages);
   const input = useRef<HTMLInputElement>(null);
   const field = useLabelText(input) || ariaLabel;
@@ -200,13 +211,31 @@ export function Combobox<
   const labelOf = (value: Value) =>
     flat.find((item) => Object.is(item.value, value))?.label ?? labels.get(value) ?? String(value);
 
+  // Typed text that matches no option, offered as its own option with `allowCustom`.
+  const [typed, setTyped] = useState("");
+  const text = typed.trim();
+  const customItem = useMemo(
+    () =>
+      allowCustom &&
+      !grouped &&
+      text !== "" &&
+      !flat.some((item) => item.label.toLocaleLowerCase() === text.toLocaleLowerCase())
+        ? ({ value: text as Value, label: text } as ComboboxItem<Value>)
+        : undefined,
+    [allowCustom, grouped, text, flat],
+  );
   const collection = useMemo(
     () =>
-      BaseCombobox.createItems(items as ReadonlyArray<ComboboxItem<Value>>, {
-        getValue: (item) => item.value,
-        getLabel: (item) => item.label,
-      }),
-    [items],
+      BaseCombobox.createItems(
+        (customItem
+          ? [...(items as ReadonlyArray<ComboboxItem<Value>>), customItem]
+          : items) as ReadonlyArray<ComboboxItem<Value>>,
+        {
+          getValue: (item) => item.value,
+          getLabel: (item) => item.label,
+        },
+      ),
+    [items, customItem],
   );
 
   // Server search: what's typed waits for a pause; `searched` is the last query asked, so clearing
@@ -227,6 +256,7 @@ export function Combobox<
   }, [pending, searchDelay]);
 
   const onInput: RootProps<Value, Multiple>["onInputValueChange"] = (text, details) => {
+    if (allowCustom) setTyped(details.reason === "input-change" ? text : "");
     if (onSearch) {
       if (details.reason === "input-change") setPending(text);
       else {
@@ -330,7 +360,7 @@ export function Combobox<
           <ChevronDownIcon shape="sharp" size={16} aria-hidden />
         </BaseCombobox.Trigger>
       </BaseCombobox.InputGroup>
-      <BaseCombobox.Portal>
+      <BaseCombobox.Portal container={portalContainer}>
         <BaseCombobox.Positioner sideOffset={4} className="qx-combobox-positioner">
           <BaseCombobox.Popup className="qx-combobox-popup" data-slot="combobox-popup">
             <BaseCombobox.Status className="qx-combobox-status" data-slot="combobox-status">
@@ -370,7 +400,17 @@ export function Combobox<
                       </BaseCombobox.Collection>
                     </BaseCombobox.Group>
                   )
-                : (item: ComboboxItem<Value>) => <Option key={String(item.value)} item={item} />}
+                : (item: ComboboxItem<Value>) => (
+                    <Option
+                      key={String(item.value)}
+                      item={item}
+                      label={
+                        item === customItem
+                          ? fill(strings.custom, { value: item.label })
+                          : undefined
+                      }
+                    />
+                  )}
             </BaseCombobox.List>
           </BaseCombobox.Popup>
         </BaseCombobox.Positioner>

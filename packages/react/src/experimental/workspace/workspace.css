@@ -1,0 +1,174 @@
+/* Toolbar and Workspace (QTRX-64): a ruled toolbar, then panes edge to edge separated by 1px rules
+   and tone (the canvas on the canvas tone, panes on the default surface), no cards. */
+.qx-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--qx-space-gap-sm) var(--qx-space-gap-lg);
+  min-block-size: calc(var(--qx-size-control-lg) + 2 * var(--qx-space-inset-sm));
+  padding: var(--qx-space-inset-sm) var(--qx-space-layout-md);
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  background: var(--qx-color-surface-default);
+}
+.qx-toolbar-start,
+.qx-toolbar-end,
+.qx-toolbar-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  min-inline-size: 0;
+}
+.qx-toolbar-end {
+  margin-inline-start: auto;
+}
+.qx-toolbar-separator {
+  align-self: stretch;
+  inline-size: var(--qx-border-width-default);
+  margin-block: var(--qx-space-gap-xs);
+  background: var(--qx-color-border-subtle);
+}
+
+.qx-workspace {
+  container: qx-workspace / inline-size;
+  display: grid;
+  grid-template-columns: 15.5rem minmax(0, 1fr) 21rem;
+  block-size: 100%;
+  min-block-size: 0;
+  /* Stacked on a narrow box, the panes scroll together. */
+  overflow: auto;
+  &[data-layout="main-inspector"] {
+    grid-template-columns: minmax(0, 1fr) 24rem;
+  }
+  &[data-layout="list-main"] {
+    grid-template-columns: 15.5rem minmax(0, 1fr);
+  }
+  &[data-layout="main"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.qx-workspace-pane {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 0;
+  min-inline-size: 0;
+  background: var(--qx-color-surface-default);
+  &[data-side="list"] {
+    border-inline-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  }
+  &[data-side="inspector"] {
+    border-inline-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  }
+}
+.qx-workspace-pane-head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  min-block-size: 2.5rem;
+  padding-inline: var(--qx-space-inset-lg);
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+}
+.qx-workspace-pane-label {
+  color: var(--qx-color-text-subtlest);
+  font: var(--qx-typography-label-caps);
+  letter-spacing: var(--qx-typography-label-caps-letter-spacing);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.qx-workspace-pane-meta {
+  overflow: hidden;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qx-workspace-pane-action {
+  margin-inline-start: auto;
+  font: var(--qx-typography-label-md);
+}
+.qx-workspace-pane-body {
+  flex: 1;
+  min-block-size: 0;
+  overflow: auto;
+}
+.qx-workspace-pane-foot {
+  flex: none;
+  border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+}
+.qx-workspace-main {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  min-block-size: 0;
+  min-inline-size: 0;
+  background: var(--qx-color-surface-canvas);
+  &[data-output] {
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+}
+.qx-workspace-canvas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qx-space-gap-lg);
+  min-block-size: 0;
+  overflow: auto;
+  padding: var(--qx-space-inset-lg) var(--qx-space-inset-xl);
+}
+/* The canvas scrolls; what's on it keeps its own height. */
+.qx-workspace-canvas > * {
+  flex-shrink: 0;
+}
+.qx-workspace-output {
+  display: flex;
+  flex-direction: column;
+  block-size: 15rem;
+  min-block-size: 0;
+  border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  background: var(--qx-color-surface-default);
+}
+.qx-workspace-output-head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--qx-space-gap-md);
+  padding-inline: var(--qx-space-inset-sm) var(--qx-space-inset-lg);
+  border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+}
+/* The head's rule is the strip's: the tabs draw none of their own. */
+.qx-workspace-output-head > .qx-tabs-list {
+  border-block-end: 0;
+  box-shadow: none;
+}
+.qx-workspace-output-end {
+  display: flex;
+  align-items: center;
+  gap: var(--qx-space-gap-md);
+}
+.qx-workspace-output-body {
+  display: grid;
+  flex: 1;
+  align-content: start;
+  gap: var(--qx-space-gap-md);
+  min-block-size: 0;
+  overflow: auto;
+  padding: var(--qx-space-inset-lg);
+}
+
+/* A narrow box: the panes stack, in reading order, each its own height. */
+@container qx-workspace (width < 840px) {
+  .qx-workspace > * {
+    grid-column: 1 / -1;
+    border-inline: 0;
+  }
+  .qx-workspace > .qx-workspace-pane {
+    border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  }
+}
+
+@media (forced-colors: active) {
+  .qx-toolbar-separator {
+    background: CanvasText;
+  }
+}

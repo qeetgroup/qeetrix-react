@@ -38,18 +38,54 @@ const graphemes =
     ? new Intl.Segmenter(undefined, { granularity: "grapheme" })
     : undefined;
 
-function firstGrapheme(word: string): string {
-  if (!graphemes) return Array.from(word)[0] ?? "";
-  for (const { segment } of graphemes.segment(word)) return segment;
-  return "";
+/** The first `count` graphemes of a word. */
+function firstGraphemes(word: string, count = 1): string {
+  if (!graphemes) return Array.from(word).slice(0, count).join("");
+  let out = "";
+  let taken = 0;
+  for (const { segment } of graphemes.segment(word)) {
+    if (taken++ === count) break;
+    out += segment;
+  }
+  return out;
 }
 
-/** The first grapheme of the first and last words: "Priya Sharma" is "PS". */
+/**
+ * Legal forms that end a company's name, with or without dots: "Acme Pvt. Ltd." is Acme. Indian
+ * forms first (Private Limited, LLP, OPC), then the common international ones.
+ */
+const LEGAL_FORMS = new Set([
+  "pvt",
+  "private",
+  "ltd",
+  "limited",
+  "llp",
+  "opc",
+  "inc",
+  "incorporated",
+  "llc",
+  "plc",
+  "corp",
+  "co",
+  "gmbh",
+  "pte",
+  "pty",
+]);
+const isLegalForm = (word: string) => LEGAL_FORMS.has(word.replace(/[.,]/g, "").toLowerCase());
+
+/**
+ * The first grapheme of the first and last words: "Priya Sharma" is "PS". A company's legal form
+ * doesn't count, so "Kaveri Foods Private Limited" is "KF"; a name left with one word takes its
+ * first two, so "Acme Pvt Ltd" is "AC".
+ */
 function initials(name: string): string {
   const words = name.trim().split(/\s+/).filter(Boolean);
+  let kept = words.length;
+  while (kept > 1 && isLegalForm(words[kept - 1] ?? "")) kept--;
   const first = words[0] ?? "";
-  const last = words.length > 1 ? (words.at(-1) ?? "") : "";
-  return (firstGrapheme(first) + firstGrapheme(last)).toLocaleUpperCase();
+  if (kept === 1 && kept < words.length) return firstGraphemes(first, 2).toLocaleUpperCase();
+  const last = kept > 1 ? (words[kept - 1] ?? "") : "";
+  return (firstGraphemes(first) + firstGraphemes(last)).toLocaleUpperCase();
 }
 
 /**
