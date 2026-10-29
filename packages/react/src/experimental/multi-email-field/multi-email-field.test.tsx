@@ -120,6 +120,42 @@ describe("MultiEmailField", () => {
       .toBeVisible();
   });
 
+  it("tells an address from what isn't one, and a long pasted string doesn't slow it down", async () => {
+    const attack = `!@!${"!.".repeat(20_000)}`;
+    const started = performance.now();
+    const { container } = await render(
+      <MultiEmailField
+        aria-label="Email addresses"
+        defaultValue={[
+          "asha@qeet.in",
+          "a.b+c@mail.qeet.co.in",
+          "no-at-sign",
+          "two@@qeet.in",
+          "a@b@qeet.in",
+          "nodot@qeet",
+          "trailing@qeet.",
+          "@qeet.in",
+          attack,
+        ]}
+      />,
+    );
+    expect(performance.now() - started).toBeLessThan(1000);
+    const tones = [...container.querySelectorAll("[data-slot=multi-email-field] li")].map((li) =>
+      li.getAttribute("data-tone"),
+    );
+    expect(tones).toEqual([
+      "neutral",
+      "neutral",
+      "danger",
+      "danger",
+      "danger",
+      "danger",
+      "danger",
+      "danger",
+      "danger",
+    ]);
+  });
+
   it("is accessible and looks right in both schemes", async () => {
     const { container } = await render(
       <Stage>

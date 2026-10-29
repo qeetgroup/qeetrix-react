@@ -50,7 +50,19 @@ export interface MultiEmailFieldProps
   messages?: Partial<QeetrixMessages["multiEmailField"]> | undefined;
 }
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/**
+ * An email address's shape: one @ with something before it, no spaces, and a dot inside the part
+ * after it. Checked by position, not by a regular expression, so a long pasted string can't make
+ * it backtrack (polynomial ReDoS).
+ */
+function isEmail(text: string): boolean {
+  if (text.length > 254 || /\s/.test(text)) return false;
+  const at = text.indexOf("@");
+  if (at < 1 || at !== text.lastIndexOf("@")) return false;
+  const domain = text.slice(at + 1);
+  const dot = domain.lastIndexOf(".");
+  return dot > 0 && dot < domain.length - 1;
+}
 const SEPARATORS = /[\s,;]+/;
 const ICONS = {
   neutral: MailIcon,
@@ -123,7 +135,7 @@ export function MultiEmailField({
   };
 
   const state = (email: string): EmailEntryState =>
-    EMAIL.test(email) ? (check?.(email) ?? {}) : { tone: "danger", note: strings.invalid };
+    isEmail(email) ? (check?.(email) ?? {}) : { tone: "danger", note: strings.invalid };
 
   const keyDown = (event: Parameters<NonNullable<InputProps["onKeyDown"]>>[0]) => {
     onKeyDown?.(event);
