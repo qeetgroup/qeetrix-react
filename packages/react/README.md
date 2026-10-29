@@ -30,7 +30,7 @@ bun add @qeetrix/react @qeetrix/tokens @base-ui/react @qeetrix/icons
 
 | Package | Why |
 |:--|:--|
-| `@qeetrix/tokens` | The design tokens every component reads. Use the version the peer range names (`^0.0.9` for 0.1.1). |
+| `@qeetrix/tokens` | The design tokens every component reads. Use a version the peer range names (any 0.0.x from 0.0.10, for 0.2.1). |
 | `@base-ui/react` | Powers the interactive components |
 | `@qeetrix/icons` | Icons: a component's `icon` prop takes any of them, e.g. `icon={PlusIcon}` |
 | `react`, `react-dom` | 19.2 or later |
@@ -255,8 +255,10 @@ import { hi } from "@qeetrix/react/locales/hi";
 - **Right to left:** set `direction="rtl"` on the provider and `dir="rtl"` on `<html>`. Components
   use logical properties, so they mirror by themselves, and their own arrows and chevrons point the
   right way.
-- **Your own arrows:** `@qeetrix/icons` draws icons in their physical orientation and never mirrors
-  them. When an icon you pass means forward or back, opt in with `mirrorInRtl`:
+- **Icons that point a reading direction** (log-in, log-out, send, reply, undo, redo, the text
+  alignments and indents) mirror by themselves in `@qeetrix/icons` 2.0: the base styles turn them.
+- **Your own arrows:** arrows and chevrons are drawn in their physical orientation and never
+  mirror on their own. When an icon you pass means forward or back, opt in with `mirrorInRtl`:
 
 ```tsx
 import { ArrowRightIcon } from "@qeetrix/icons/icons/arrow-right";
