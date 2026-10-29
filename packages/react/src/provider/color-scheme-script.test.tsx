@@ -10,6 +10,7 @@ const run = (script: string) => new Function(script)();
 afterEach(() => {
   localStorage.clear();
   html.removeAttribute("data-qx-color-scheme");
+  html.removeAttribute("data-qx-platform");
 });
 
 function Choice() {
@@ -41,6 +42,41 @@ describe("colorSchemeScript", () => {
   it("is one fixed string for given options, so a CSP can allow it by hash", () => {
     expect(colorSchemeScript()).toBe(colorSchemeScript());
     expect(colorSchemeScript({ storageKey: "a" })).not.toBe(colorSchemeScript());
+  });
+
+  it("marks Apple platforms on <html>, for Kbd's faces before React runs", () => {
+    run(colorSchemeScript());
+    const apple = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+    expect(html.getAttribute("data-qx-platform")).toBe(apple ? "apple" : null);
+  });
+
+  it("with followSystem, follows the system while System is chosen, and only then", () => {
+    // A stand-in for matchMedia: its change listener is the one followSystem adds.
+    const listeners: Array<() => void> = [];
+    let dark = false;
+    const real = window.matchMedia;
+    window.matchMedia = ((query: string) => ({
+      get matches() {
+        return dark;
+      },
+      media: query,
+      addEventListener: (_: string, listener: () => void) => listeners.push(listener),
+    })) as unknown as typeof window.matchMedia;
+    try {
+      run(colorSchemeScript());
+      expect(listeners).toHaveLength(0);
+      run(colorSchemeScript({ followSystem: true }));
+      expect(html.getAttribute("data-qx-color-scheme")).toBe("light");
+      dark = true;
+      for (const listener of listeners) listener();
+      expect(html.getAttribute("data-qx-color-scheme")).toBe("dark");
+      // A choice saved later holds: the listener reads it.
+      localStorage.setItem("qx-color-scheme", "light");
+      for (const listener of listeners) listener();
+      expect(html.getAttribute("data-qx-color-scheme")).toBe("light");
+    } finally {
+      window.matchMedia = real;
+    }
   });
 });
 

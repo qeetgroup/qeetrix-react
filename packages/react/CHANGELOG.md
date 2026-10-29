@@ -1,5 +1,36 @@
 # @qeetrix/react
 
+## 0.2.2
+
+Fixes from the new ui.qeet.in's Jira issues (QTRX-84 to QTRX-88). Nothing is removed or renamed.
+
+### Fixed
+
+- **TopBar and PageHeader follow an embedded AppShell's box** (QTRX-84), as the shell does: the bar
+  goes compact under 840px of the box (its search leaves, the scope path is one switcher) and takes
+  its phone layout under 600px, and PageHeader's gutter narrows under 840px, whatever the window's
+  width. Outside an embedded shell they follow the window, as before.
+- **ColorField in a Field** (QTRX-86): its suggestions keep out of the field. Their radios have ids
+  of their own (they all took the field's), no `name` (the form sent the field's value twice), and
+  the group is named "Suggested colours", not by the field's label. A ColorSwatchGroup is a field
+  of its own, each swatch an item in it, wherever it sits.
+- **Kbd** (QTRX-87): a key's glyph is centred on its ink, not the em box, where Qeet Sans sets
+  capitals and ⌘ high: it read 1.5px high in both sizes.
+- **Table on a narrow page** (QTRX-88): the selection's bar wraps, its count, bulk actions and
+  Clear staying inside the table on a phone; and before it's measured (rendered on the server,
+  before hydration, or on a page that never hydrates) a wide table scrolls rather than overflow its
+  box. Measured, it still scrolls only while it's wider, so the sticky header sticks to the page.
+
+### New
+
+- **A page without React** (QTRX-85):
+  - `colorSchemeScript()` also sets `<html data-qx-platform="apple">` on Apple platforms, and Kbd
+    reads it, so ⌘ ⌥ ⇧ show from the first paint and on a page that never runs React. A key whose
+    face differs by platform renders both faces, the same markup on the server and the client.
+  - `colorSchemeScript({ followSystem: true })` keeps following the device while the saved choice
+    is System; a choice saved later under the same key holds.
+  - The script's text changes: recompute its hash if a CSP allows it by one.
+
 ## 0.2.1
 
 Installs beside the released `@qeetrix/tokens` 0.0.10 and `@qeetrix/icons` 2.0.0. No component

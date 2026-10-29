@@ -237,6 +237,7 @@ export function colorSchemeScript(input?: ColorSchemeScriptOptions): string;
 // @public (undocumented)
 export interface ColorSchemeScriptOptions {
     defaultColorScheme?: ColorScheme;
+    followSystem?: boolean;
     storageKey?: string;
 }
 

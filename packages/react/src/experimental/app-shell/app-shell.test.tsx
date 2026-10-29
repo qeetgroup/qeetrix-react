@@ -7,7 +7,8 @@ import { QeetIdConsole } from "../../../tests/fixtures/qeet-id-console";
 import { expectAccessible } from "../../../tests/support/axe";
 import { screenshotEveryMode } from "../../../tests/support/screenshots";
 import { settled } from "../../../tests/support/settled";
-import { TopBar } from "../top-bar/top-bar";
+import { PageHeader } from "../page-header/page-header";
+import { TopBar, TopBarSearch } from "../top-bar/top-bar";
 import { AppShell } from "./app-shell";
 
 const nav = () => document.querySelector("[data-slot=app-shell-nav]") as HTMLElement;
@@ -285,6 +286,48 @@ describe("AppShell", () => {
     expect(shell.contains(drawer.element())).toBe(true);
     const viewport = shell.querySelector(".qx-app-shell-viewport") as HTMLElement;
     expect(Math.round(viewport.getBoundingClientRect().width)).toBe(600);
+  });
+
+  it("embedded, lays out its TopBar and PageHeader by its box's width, not the window's", async () => {
+    const framed = (width: number) => (
+      <div style={{ inlineSize: width, blockSize: 500 }}>
+        <AppShell
+          embedded
+          topBar={
+            <TopBar product="Qeet ID" search={<TopBarSearch placeholder="Search or jump to…" />} />
+          }
+          sidebar={<nav aria-label="Qeet ID">Users</nav>}
+        >
+          <PageHeader title="Users" headingLevel={2} />
+        </AppShell>
+      </div>
+    );
+    const parts = (container: HTMLElement) => ({
+      bar: container.querySelector("[data-slot=top-bar]") as HTMLElement,
+      search: container.querySelector(".qx-top-bar-search") as HTMLElement,
+      header: container.querySelector("[data-slot=page-header]") as HTMLElement,
+    });
+    const gutter = (header: HTMLElement) =>
+      getComputedStyle(header).getPropertyValue("--qx-page-gutter").trim();
+    const narrow = getComputedStyle(document.documentElement)
+      .getPropertyValue("--qx-space-inset-lg")
+      .trim();
+    // A narrow box on a wide window: the bar is compact, its search gone, the gutter narrow.
+    await page.viewport(1440, 900);
+    const small = await render(framed(700));
+    let { bar, search, header } = parts(small.container);
+    await expect.poll(() => bar.hasAttribute("data-compact")).toBe(true);
+    expect(getComputedStyle(search).display).toBe("none");
+    expect(gutter(header)).toBe(narrow);
+    small.unmount();
+    // A wide box on a narrow window: the bar and the gutter are a desktop's, as the shell is.
+    await page.viewport(700, 900);
+    const large = await render(framed(1100));
+    ({ bar, search, header } = parts(large.container));
+    await expect.poll(() => bar.hasAttribute("data-compact")).toBe(false);
+    expect(getComputedStyle(search).display).not.toBe("none");
+    expect(gutter(header)).not.toBe(narrow);
+    await page.viewport(1440, 900);
   });
 
   it("is accessible and looks right in every mode", async () => {

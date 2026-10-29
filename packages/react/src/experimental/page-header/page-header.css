@@ -146,11 +146,20 @@
   }
 }
 
+/* Below the expanded window class the gutter narrows; inside an embedded AppShell, below its box's. */
 @media (width < 840px) {
-  .qx-page-header {
+  .qx-page-header:not(.qx-app-shell[data-embedded] *) {
     --qx-page-gutter: var(--qx-space-inset-lg);
   }
-  .qx-page-content {
+  .qx-page-content:not(.qx-app-shell[data-embedded] *) {
+    padding-inline: var(--qx-space-inset-lg);
+  }
+}
+@container qx-app-shell (width < 840px) {
+  .qx-app-shell[data-embedded] .qx-page-header {
+    --qx-page-gutter: var(--qx-space-inset-lg);
+  }
+  .qx-app-shell[data-embedded] .qx-page-content {
     padding-inline: var(--qx-space-inset-lg);
   }
 }

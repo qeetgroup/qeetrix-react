@@ -270,8 +270,10 @@ export function Table<Row>({
   const locale = useLocale();
   const selectAll = useRef<HTMLButtonElement>(null);
   // Wider than its space, the table scrolls sideways in a labelled region keyboard users can reach.
+  // Until it's measured (on the server, before hydration) it may scroll, so it never overflows its
+  // box; once measured, only while it's wider.
   const scroller = useRef<HTMLDivElement>(null);
-  const [overflowing, setOverflowing] = useState(false);
+  const [overflowing, setOverflowing] = useState<boolean | null>(null);
   useEffect(() => {
     const el = scroller.current;
     if (!el || typeof ResizeObserver === "undefined") return;
@@ -592,6 +594,7 @@ export function Table<Row>({
         ref={scroller}
         className="qx-table-scroll"
         data-slot="table-scroll"
+        data-measured={overflowing === null ? undefined : ""}
         data-overflowing={overflowing ? "" : undefined}
         // Only while it scrolls: a region named for the table, in the tab order.
         {...(overflowing ? { role: "region", "aria-label": label, tabIndex: 0 } : {})}

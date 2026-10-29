@@ -180,11 +180,17 @@ describe("Table", () => {
       />,
     );
     await expect.element(page.getByRole("textbox", { name: "Search invoices" })).toBeVisible();
+    const barHeight = () =>
+      (document.querySelector("[data-slot=table-bar]") as HTMLElement).getBoundingClientRect()
+        .height;
+    const toolbarHeight = barHeight();
     await checkbox("Select INV-0042").click();
     await checkbox("Select INV-0043").click();
     await expect
       .poll(() => document.querySelector(".qx-table-count")?.textContent)
       .toBe("2 selected");
+    // The same height on one line, so the header doesn't jump when the first row is ticked.
+    expect(barHeight()).toBe(toolbarHeight);
     expect(liveCount()).toBe("2 selected");
     expect(page.getByRole("textbox", { name: "Search invoices" }).query()).toBeNull();
     await page.getByRole("button", { name: "Send reminder" }).click();
@@ -573,6 +579,63 @@ describe("Table", () => {
     (container.firstElementChild as HTMLElement).style.inlineSize = "1400px";
     await expect.poll(() => scroll.hasAttribute("data-overflowing")).toBe(false);
     expect(scroll.hasAttribute("tabindex")).toBe(false);
+    // Measured and fitting, it isn't a scroll container: the sticky header sticks to the page.
+    expect(scroll.hasAttribute("data-measured")).toBe(true);
+    expect(getComputedStyle(scroll).overflowX).toBe("visible");
+  });
+
+  it("scrolls until it's measured, so a wide table rendered on the server doesn't overflow", async () => {
+    // No ResizeObserver: the table is never measured, as before hydration or on a static page.
+    const saved = window.ResizeObserver;
+    Object.defineProperty(window, "ResizeObserver", { value: undefined, configurable: true });
+    try {
+      const wide = COLUMNS.map((column) => ({
+        ...column,
+        cell: (row: Invoice) => (
+          <span style={{ display: "inline-block", inlineSize: 260 }}>{column.cell(row)}</span>
+        ),
+      }));
+      const { container } = await render(
+        <div style={{ inlineSize: 600 }}>
+          <Invoices columns={wide} />
+        </div>,
+      );
+      const box = container.firstElementChild as HTMLElement;
+      const scroll = container.querySelector("[data-slot=table-scroll]") as HTMLElement;
+      expect(scroll.hasAttribute("data-measured")).toBe(false);
+      expect(getComputedStyle(scroll).overflowX).toBe("auto");
+      expect(box.scrollWidth).toBeLessThanOrEqual(600);
+    } finally {
+      Object.defineProperty(window, "ResizeObserver", { value: saved, configurable: true });
+    }
+  });
+
+  it("wraps the selection's bar on a narrow page: its count, actions and Clear stay inside", async () => {
+    const { container } = await render(
+      <div style={{ inlineSize: 320 }}>
+        <Invoices
+          selectable
+          defaultSelected={["INV-0042"]}
+          bulkActions={() => (
+            <>
+              <Button size="sm" variant="soft">
+                Send reminders
+              </Button>
+              <Button size="sm" variant="soft" tone="danger">
+                Delete invoices
+              </Button>
+            </>
+          )}
+        />
+      </div>,
+    );
+    const bar = container.querySelector("[data-slot=table-bar]") as HTMLElement;
+    const edge = bar.getBoundingClientRect();
+    for (const button of bar.querySelectorAll("button")) {
+      expect(button.getBoundingClientRect().right).toBeLessThanOrEqual(edge.right + 0.5);
+    }
+    expect((container.firstElementChild as HTMLElement).scrollWidth).toBeLessThanOrEqual(320);
+    expect(edge.height).toBeGreaterThan(48);
   });
 
   it("names a row's link by its rowLabel, and describes it by the rest of the cell", async () => {
