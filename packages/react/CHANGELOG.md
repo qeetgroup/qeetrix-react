@@ -62,6 +62,12 @@ props interfaces that were empty gained props, which the API check counts as cha
   footer's start, the actions staying at its end; it wraps where there's no room.
 - **Stat: `currency` and `format`** (QTRX-41): money formatted for the locale, a whole amount with
   no fraction: `<Stat value={1842600} currency="INR" />` reads ₹18,42,600 in en-IN.
+- **PageHeader: `headingLevel`** (QTRX-82): the title's level, default `1`, so a PageHeader shown
+  inside another page (a docs example, a preview in a drawer, a summary in a dialog) keeps that
+  page's outline. It looks the same at every level.
+- **Collapsible: a turning chevron** (QTRX-81): a Button or IconButton rendered by
+  CollapsibleTrigger with `icon={ChevronDownIcon}` turns its chevron 180° as the panel opens, with
+  the accordion's timing; under reduced motion it turns at once.
 - **PageHeader: `leading`** (QTRX-48): a record's logo or Avatar before its title and description,
   its top on the title's first line, outside the heading.
 

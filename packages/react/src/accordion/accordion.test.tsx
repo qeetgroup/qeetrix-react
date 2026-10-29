@@ -1,3 +1,4 @@
+import { ChevronDownIcon } from "@qeetrix/icons/icons/chevron-down";
 import { describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
@@ -6,7 +7,7 @@ import { tokenColor } from "../../tests/support/color";
 import { screenshotEveryMode } from "../../tests/support/screenshots";
 import { settled } from "../../tests/support/settled";
 import { Stage } from "../../tests/support/stage";
-import { Button } from "../button/button";
+import { Button, IconButton } from "../button/button";
 import { Card } from "../card/card";
 import {
   Accordion,
@@ -139,5 +140,58 @@ describe("Collapsible", () => {
     await expect.element(trigger).toHaveAttribute("aria-expanded", "false");
     await trigger.click();
     await expect.element(page.getByText("Bank: HDFC, IFSC HDFC0000001")).toBeVisible();
+  });
+
+  // QTRX-81: open and closed look different, as an AccordionItem's do.
+  it("turns the chevron of the Button it renders as the panel opens, and back as it closes", async () => {
+    await render(
+      <Collapsible>
+        <CollapsibleTrigger
+          render={
+            <Button variant="ghost" icon={ChevronDownIcon}>
+              Advanced options
+            </Button>
+          }
+        />
+        <CollapsiblePanel>Webhook signing secret</CollapsiblePanel>
+      </Collapsible>,
+    );
+    const trigger = page.getByRole("button", { name: "Advanced options" });
+    const icon = () => trigger.element().querySelector("[data-slot=button-icon]") as SVGElement;
+    expect(trigger.element().getAttribute("data-slot")).toBe("button");
+    expect(getComputedStyle(icon()).rotate).toBe("none");
+    expect(getComputedStyle(icon()).transitionProperty).toBe("rotate");
+    await trigger.click();
+    await expect.poll(() => getComputedStyle(icon()).rotate).toBe("180deg");
+    await trigger.click();
+    await expect.poll(() => getComputedStyle(icon()).rotate).toBe("none");
+  });
+
+  it("turns an IconButton's chevron too", async () => {
+    await render(
+      <Collapsible>
+        <CollapsibleTrigger
+          render={<IconButton icon={ChevronDownIcon} aria-label="Show details" tooltip={false} />}
+        />
+        <CollapsiblePanel>Details</CollapsiblePanel>
+      </Collapsible>,
+    );
+    const trigger = page.getByRole("button", { name: "Show details" });
+    await trigger.click();
+    const icon = trigger.element().querySelector("svg") as SVGElement;
+    await expect.poll(() => getComputedStyle(icon).rotate).toBe("180deg");
+  });
+
+  it("leaves a Button's chevron alone outside a Collapsible", async () => {
+    await render(
+      <Button variant="ghost" icon={ChevronDownIcon} data-panel-open="">
+        More
+      </Button>,
+    );
+    const icon = page
+      .getByRole("button", { name: "More" })
+      .element()
+      .querySelector("svg") as SVGElement;
+    expect(getComputedStyle(icon).rotate).toBe("none");
   });
 });

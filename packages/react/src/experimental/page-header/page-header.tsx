@@ -1,5 +1,5 @@
 import type { ComponentProps, ReactElement, ReactNode } from "react";
-import { Heading } from "../../heading/heading";
+import { Heading, type HeadingLevel } from "../../heading/heading";
 import { cx } from "../../internal/cx";
 import { ProvidedNumber } from "../../internal/provided";
 
@@ -16,8 +16,14 @@ export interface PageHeaderProps extends Omit<ComponentProps<"div">, "title"> {
    * person's Avatar (`decorative`, since the title names them). It stays out of the heading.
    */
   leading?: ReactNode;
-  /** The page title: the page's one `<h1>`. */
+  /** The page title: the page's one `<h1>`, unless `headingLevel` says otherwise. */
   title: ReactNode;
+  /**
+   * The title's heading level. Default `1`, the page's own title; a PageHeader shown inside
+   * another page (a docs example, a preview in a drawer, a summary in a dialog) takes the level
+   * that fits there. It looks the same at every level.
+   */
+  headingLevel?: HeadingLevel | undefined;
   /**
    * A number beside the title, e.g. the table's total. A number is formatted in QeetrixProvider's
    * locale (`en-IN` without one).
@@ -59,6 +65,7 @@ export function PageHeader({
   breadcrumb,
   leading,
   title,
+  headingLevel = 1,
   count,
   status,
   description,
@@ -71,7 +78,7 @@ export function PageHeader({
   const titles = (
     <div className="qx-page-header-titles">
       <div className="qx-page-header-title">
-        <Heading level={1} size="title-lg">
+        <Heading level={headingLevel} size="title-lg">
           {title}
         </Heading>
         {count != null && (

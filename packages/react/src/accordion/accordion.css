@@ -46,6 +46,16 @@
     rotate: 180deg;
   }
 }
+/* A Collapsible's trigger: the chevron of the Button or IconButton it renders turns as the panel
+   opens, with the accordion's timing (durations collapse under reduced motion). */
+[data-qx-fold] .qx-button-icon {
+  transition-property: rotate;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-standard);
+}
+[data-qx-fold][data-panel-open] .qx-button-icon {
+  rotate: 180deg;
+}
 .qx-accordion-panel,
 .qx-collapsible-panel {
   block-size: var(--accordion-panel-height, var(--collapsible-panel-height));
