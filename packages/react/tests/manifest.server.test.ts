@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import pkg from "../package.json" with { type: "json" };
 // @ts-expect-error: a plain script, without declarations
-import { families } from "../scripts/build-manifest.mjs";
+import { families, manifestJson } from "../scripts/build-manifest.mjs";
 import { manifest } from "../src/manifest";
 
 interface Found {
@@ -30,5 +30,11 @@ describe("@qeetrix/react/manifest", () => {
     expect(manifest.find((family) => family.name === "tabs")?.parts).toEqual(
       expect.arrayContaining(["Tabs", "TabsList", "Tab", "TabsPanel"]),
     );
+  });
+
+  it("ships the same data as JSON, for tools that run no JavaScript (QTRX-92)", () => {
+    expect(pkg.exports["./manifest.json"]).toBe("./dist/manifest.json");
+    expect(pkg.scripts.build).toContain("build-manifest.mjs --json");
+    expect(JSON.parse(manifestJson(manifest))).toEqual(manifest);
   });
 });

@@ -1,6 +1,7 @@
 /**
  * A small syntax highlighter for the code a product shows: shell commands, JavaScript and
- * TypeScript (with JSX), JSON, XML or HTML, and CSS. Ordered patterns per language, first match
+ * TypeScript (with JSX), JSON, XML or HTML, CSS, and Kotlin and Swift for the native libraries'
+ * examples (Gradle's .kts files are Kotlin). Ordered patterns per language, first match
  * wins; it colours what's useful to read, it doesn't parse. Six kinds, one for each code colour
  * token. Server-safe: a static page can highlight at build time with `highlightHtml`.
  */
@@ -14,6 +15,8 @@ export type CodeLanguage =
   | "xml"
   | "html"
   | "css"
+  | "kotlin"
+  | "swift"
   | "text";
 
 export type TokenKind =
@@ -44,6 +47,16 @@ const SCRIPT: Rules = [
   ["punctuation", /<\/|\/>|=>|[{}()[\];,.<>/=:?!&|+*%^~-]/y],
   ["plain", /[\w$]+|\s+|./y],
 ];
+
+const KOTLIN_KEYWORDS =
+  "abstract|annotation|as|break|by|catch|class|companion|const|constructor|continue|crossinline|do|else|enum|external|final|finally|for|fun|if|import|in|infix|init|inline|interface|internal|is|lateinit|noinline|object|operator|override|package|private|protected|public|reified|return|sealed|super|suspend|tailrec|this|throw|try|typealias|val|var|vararg|when|where|while";
+
+const SWIFT_KEYWORDS =
+  "actor|any|as|associatedtype|async|await|break|case|catch|class|continue|convenience|default|defer|deinit|didSet|do|else|enum|extension|fallthrough|fileprivate|final|for|func|guard|if|import|in|indirect|init|inout|internal|is|lazy|let|mutating|nonisolated|operator|override|private|protocol|public|repeat|required|rethrows|return|self|Self|some|static|struct|subscript|super|switch|throw|throws|try|typealias|unowned|var|weak|where|while|willSet";
+
+// Kotlin and Swift share C's comments, and a name in backticks is a name, not a keyword.
+const C_COMMENT: [TokenKind, RegExp] = ["comment", /\/\/.*|\/\*[\s\S]*?\*\//y];
+const BACKTICK_NAME: [TokenKind, RegExp] = ["plain", /`[^`\n]+`/y];
 
 const RULES: Record<Exclude<CodeLanguage, "text">, Rules> = {
   shell: [
@@ -83,6 +96,48 @@ const RULES: Record<Exclude<CodeLanguage, "text">, Rules> = {
     ["number", /-?(?:\d+\.?\d*|\.\d+)(?:%|[a-zA-Z]+)?/y],
     ["punctuation", /[{}()[\];:,>+~*=]/y],
     ["plain", /[\w-]+|\s+|./y],
+  ],
+  kotlin: [
+    C_COMMENT,
+    ["string", /"""[\s\S]*?"""|"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)'/y],
+    BACKTICK_NAME,
+    // Annotations, the keywords, and the modifiers that are keywords only before a declaration.
+    [
+      "keyword",
+      new RegExp(
+        `@\\w+|\\b(?:${KOTLIN_KEYWORDS})\\b|\\b(?:data|value|open|inner|expect|actual)\\b(?=\\s+(?:class|interface|object|fun|val|var)\\b)`,
+        "y",
+      ),
+    ],
+    ["literal", /\b(?:true|false|null)\b/y],
+    // Compose's colours are hex: Color(0xFF6200EE).
+    [
+      "number",
+      /\b(?:0[xX][\da-fA-F_]+|0[bB][01_]+|\d[\d_]*(?:\.\d[\d_]*)?(?:[eE][+-]?\d+)?[fF]?)[uU]?L?\b/y,
+    ],
+    ["punctuation", /->|::|\?[:.]|!!|\.\.<?|[{}()[\];,.<>/=:?!&|+*%^~-]/y],
+    ["plain", /[\w$]+|\s+|./y],
+  ],
+  swift: [
+    C_COMMENT,
+    ["string", /#"[^\n]*?"#|"""[\s\S]*?"""|"(?:[^"\\\n]|\\.)*"/y],
+    BACKTICK_NAME,
+    // Attributes (@State, @MainActor), directives and macros (#if, #Preview), the keywords, and
+    // open, which is a keyword only before a declaration.
+    [
+      "keyword",
+      new RegExp(
+        `[@#]\\w+|\\b(?:${SWIFT_KEYWORDS})\\b|\\bopen\\b(?=\\s+(?:class|func|var|let|subscript|init|extension)\\b)`,
+        "y",
+      ),
+    ],
+    ["literal", /\b(?:true|false|nil)\b/y],
+    [
+      "number",
+      /\b(?:0[xX][\da-fA-F_]+|0[oO][0-7_]+|0[bB][01_]+|\d[\d_]*(?:\.\d[\d_]*)?(?:[eE][+-]?\d+)?)\b/y,
+    ],
+    ["punctuation", /->|\.\.[.<]|\?\?|[{}()[\];,.<>/=:?!&|+*%^~-]/y],
+    ["plain", /[\w$]+|\s+|./y],
   ],
 };
 RULES.html = RULES.xml;

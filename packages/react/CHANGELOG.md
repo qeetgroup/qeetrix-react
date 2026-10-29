@@ -1,5 +1,27 @@
 # @qeetrix/react
 
+## 0.2.3
+
+For the native libraries, found moving qeetrix-android and qeetrix-ios onto 0.2.2 (QTRX-92) and
+mocking up their pages on ui.qeet.in (QTRX-93). Nothing is removed or renamed.
+
+### New
+
+- **`@qeetrix/react/manifest.json`** (QTRX-92): the component manifest as JSON, for tools that run
+  no JavaScript, such as the native libraries' Gradle and Swift sync scripts. It's the same array
+  as `@qeetrix/react/manifest`: the build's last step writes it from the built module, and the dist
+  check fails if the two ever differ.
+- **Kotlin and Swift in CodeBlock and `highlightHtml`** (QTRX-93): `language="kotlin"` (Gradle's
+  `.kts` too) and `language="swift"`, in the same six kinds as the other languages.
+  - **Kotlin:** annotations (`@Composable`), keywords, raw `"""` strings, and numbers including
+    Compose's hex colours (`0xFF6200EE`) and suffixes (`0.5f`, `1L`).
+  - **Swift:** attributes and macros (`@State`, `#Preview`), keywords (`some`, `guard`), raw
+    `#"…"#` and multi-line strings, ranges (`..<`) and `nil`.
+  - In both, a modifier that's also a common name (`open`, and in Kotlin `data`, `value`, `inner`)
+    is a keyword only before a declaration, and a name in backticks stays a name. The headers read
+    "Kotlin" and "Swift".
+  - CodeBlock's budget is 4.9 kB (was 4.3) for the two languages.
+
 ## 0.2.2
 
 Fixes from the new ui.qeet.in's Jira issues (QTRX-84 to QTRX-88). Nothing is removed or renamed.

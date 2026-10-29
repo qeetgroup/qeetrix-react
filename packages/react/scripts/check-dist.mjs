@@ -14,11 +14,12 @@
  *     @qeetrix/ui);
  *   - every component the build renames (`Button$1`) gets its public name back, so React shows
  *     `Button`, not `Button$1`, in DevTools and code snippets;
+ *   - dist/manifest.json holds exactly the data dist/manifest/index.js exports (QTRX-92);
  *   - JavaScript and CSS stay within size-budget.json (gzip).
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { gzipSync } from "node:zlib";
 
 const root = process.argv[2] ?? fileURLToPath(new URL("..", import.meta.url));
@@ -158,6 +159,21 @@ for (const file of walk(dist).filter((f) => f.endsWith(".js"))) {
       report(
         `${relative(root, file)} exports ${exported} as ${local}; its name won't show as ${exported}`,
       );
+    }
+  }
+}
+
+// ---- the manifest's JSON form matches its module -------------------------------------------
+const manifestModule = join(dist, "manifest", "index.js");
+if (existsSync(manifestModule)) {
+  const manifestFile = join(dist, "manifest.json");
+  if (!existsSync(manifestFile)) {
+    report("dist/manifest.json is missing (`node scripts/build-manifest.mjs --json`)");
+  } else {
+    const { manifest } = await import(pathToFileURL(manifestModule).href);
+    const json = readFileSync(manifestFile, "utf8");
+    if (json !== `${JSON.stringify(manifest, null, 2)}\n`) {
+      report("dist/manifest.json differs from dist/manifest/index.js; rebuild");
     }
   }
 }

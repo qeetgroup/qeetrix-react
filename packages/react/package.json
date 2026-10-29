@@ -1,6 +1,6 @@
 {
   "name": "@qeetrix/react",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Qeetrix React components: accessible, token-driven primitives on Base UI for every Qeet product.",
   "keywords": [
     "qeetrix",
@@ -203,13 +203,14 @@
       "types": "./dist/manifest/index.d.ts",
       "default": "./dist/manifest/index.js"
     },
+    "./manifest.json": "./dist/manifest.json",
     "./styles.css": "./dist/styles.css",
     "./css/*": "./dist/css/*",
     "./package.json": "./package.json"
   },
   "style": "./dist/styles.css",
   "scripts": {
-    "build": "tsdown && node scripts/build-css.mjs",
+    "build": "tsdown && node scripts/build-css.mjs && node scripts/build-manifest.mjs --json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -219,7 +220,7 @@
     "check:source": "node scripts/check-source.mjs",
     "check:dist": "node scripts/check-dist.mjs",
     "check:api": "api-extractor run",
-    "check:package": "publint --strict && attw --pack . --profile esm-only --exclude-entrypoints ./styles.css ./css/*",
+    "check:package": "publint --strict && attw --pack . --profile esm-only --exclude-entrypoints ./styles.css ./css/* ./manifest.json",
     "prepack": "bun run build"
   },
   "dependencies": {
