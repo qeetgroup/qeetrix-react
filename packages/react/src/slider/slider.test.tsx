@@ -45,6 +45,43 @@ describe("Slider", () => {
       .toHaveAttribute("aria-valuenow", "5000");
   });
 
+  it("says a meaningful value with getAriaValueText, such as a log scale's", async () => {
+    // A 0–100 position on a log scale from 100 to 1,000,000 monthly active users (QTRX-89).
+    const users = (position: number) => Math.round(10 ** (2 + position / 25));
+    await render(
+      <Slider
+        label="Monthly active users"
+        defaultValue={50}
+        min={0}
+        max={100}
+        getAriaValueText={(_, position) =>
+          `${users(position).toLocaleString("en-IN")} monthly active users`
+        }
+      />,
+    );
+    const thumb = page.getByRole("slider", { name: "Monthly active users" });
+    await expect.element(thumb).toHaveAttribute("aria-valuenow", "50");
+    await expect.element(thumb).toHaveAttribute("aria-valuetext", "10,000 monthly active users");
+  });
+
+  it("lets a range say each end with getAriaValueText", async () => {
+    await render(
+      <Slider
+        label="Amount"
+        defaultValue={[1000, 5000]}
+        min={0}
+        max={10000}
+        getAriaValueText={(formatted, _, index) => `${index === 0 ? "from" : "to"} ₹${formatted}`}
+      />,
+    );
+    await expect
+      .element(page.getByRole("slider", { name: "Amount, minimum", exact: true }))
+      .toHaveAttribute("aria-valuetext", "from ₹1,000");
+    await expect
+      .element(page.getByRole("slider", { name: "Amount, maximum", exact: true }))
+      .toHaveAttribute("aria-valuetext", "to ₹5,000");
+  });
+
   it("names a range's thumbs after an aria-label, a label that isn't text, or neither", async () => {
     await render(
       <Stack>

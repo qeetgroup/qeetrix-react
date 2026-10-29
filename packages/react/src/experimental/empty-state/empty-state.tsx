@@ -1,14 +1,14 @@
 import type { ComponentProps, ReactElement, ReactNode } from "react";
 import { Heading, type HeadingLevel } from "../../heading/heading";
-import type { QeetrixIcon } from "../../internal/control";
 import { cx } from "../../internal/cx";
+import { drawIcon, type IconSource } from "../../internal/icon";
 
 export type EmptyStateSize = "page" | "section";
 export type EmptyStateTone = "neutral" | "danger";
 
 export interface EmptyStateProps extends Omit<ComponentProps<"div">, "title"> {
   /** A 24px sharp icon from `@qeetrix/icons`. */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /** What's missing or what went wrong, in a few words: "No users yet". */
   title: ReactNode;
   /** One or two sentences: why, and what to do. */
@@ -55,15 +55,12 @@ export function EmptyState({
       data-size={size}
       data-tone={tone}
     >
-      {Icon && (
-        <Icon
-          shape="sharp"
-          size={24}
-          aria-hidden
-          className="qx-empty-state-icon"
-          data-slot="empty-state-icon"
-        />
-      )}
+      {Icon &&
+        drawIcon(Icon, {
+          size: 24,
+          className: "qx-empty-state-icon",
+          "data-slot": "empty-state-icon",
+        })}
       {level !== undefined ? (
         <Heading level={level} size={size === "page" ? "title-md" : "title-sm"} align="center">
           {title}

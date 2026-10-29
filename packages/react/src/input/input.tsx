@@ -3,12 +3,12 @@
 import { Field as BaseField } from "@base-ui/react/field";
 import { Input as BaseInput } from "@base-ui/react/input";
 import type { ComponentProps, CSSProperties, ReactElement, ReactNode } from "react";
-import type { QeetrixIcon } from "../internal/control";
 import { cx } from "../internal/cx";
+import { drawIcon, type IconSource } from "../internal/icon";
 
 export interface InputProps extends Omit<BaseInput.Props, "className" | "style" | "render"> {
   /** A leading icon from `@qeetrix/icons` (search, mail): sharp, 16px, decorative. */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /** Before the value: a text affix such as ₹. */
   startAdornment?: ReactNode;
   /** After the value: an affix such as % or .qeet.in, or a tool such as a show-password button. */
@@ -33,15 +33,7 @@ export function Input({
 }: InputProps): ReactElement {
   return (
     <div className={cx("qx-input", className)} style={style} data-slot="input">
-      {Icon && (
-        <Icon
-          shape="sharp"
-          size={16}
-          aria-hidden
-          className="qx-input-icon"
-          data-slot="input-icon"
-        />
-      )}
+      {Icon && drawIcon(Icon, { size: 16, className: "qx-input-icon", "data-slot": "input-icon" })}
       {startAdornment != null && (
         <span className="qx-input-adornment" data-slot="input-start">
           {startAdornment}

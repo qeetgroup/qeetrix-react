@@ -32,6 +32,7 @@ export * from "./heading";
 export * from "./inline";
 export * from "./input";
 export type { ControlSize, QeetrixIcon } from "./internal/control";
+export type { IconSource } from "./internal/icon";
 export type { RenderProp } from "./internal/render";
 export type { Inset, Space, TextAlign } from "./internal/space";
 export * from "./link";

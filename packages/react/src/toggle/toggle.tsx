@@ -2,16 +2,10 @@
 
 import { Toggle as BaseToggle } from "@base-ui/react/toggle";
 import { ToggleGroup as BaseToggleGroup } from "@base-ui/react/toggle-group";
-import type { IconProps } from "@qeetrix/icons";
-import {
-  type ComponentProps,
-  type ComponentType,
-  type ReactElement,
-  type ReactNode,
-  useEffect,
-} from "react";
-import { type ControlSize, iconSize, type QeetrixIcon } from "../internal/control";
+import { type ComponentProps, type ReactElement, type ReactNode, useEffect } from "react";
+import { type ControlSize, iconSize } from "../internal/control";
 import { cx } from "../internal/cx";
+import { drawIcon, type IconSource } from "../internal/icon";
 import { Tooltip, type TooltipProps } from "../tooltip/tooltip";
 
 export interface ToggleProps
@@ -30,7 +24,7 @@ export interface ToggleProps
    * An icon from `@qeetrix/icons`, in the sharp shape. A toggle with only an icon needs an
    * `aria-label`, which it shows as a tooltip.
    */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /**
    * Show the icon's filled drawing while pressed; only for icons that have one. Default `false`.
    */
@@ -49,25 +43,6 @@ export interface ToggleProps
   children?: ReactNode;
   /** Render a different element through Base UI. */
   render?: BaseToggle.Props["render"];
-}
-
-function FilledIcon({
-  icon: Icon,
-  size,
-}: {
-  icon: ComponentType<IconProps>;
-  size: number;
-}): ReactElement {
-  return (
-    <Icon
-      shape="sharp"
-      variant="filled"
-      size={size}
-      aria-hidden
-      className="qx-toggle-icon-filled"
-      data-slot="toggle-icon-filled"
-    />
-  );
 }
 
 /**
@@ -105,19 +80,22 @@ export function Toggle({
       data-size={size}
       data-icon-only={iconOnly ? "" : undefined}
     >
-      {Icon ? (
-        <Icon
-          shape="sharp"
-          size={iconSize(size)}
-          aria-hidden
-          className="qx-toggle-icon-outline"
-          data-slot="toggle-icon"
-        />
-      ) : null}
-      {Icon && filledWhenPressed ? (
-        // `filledWhenPressed` is the caller's promise that this icon has a filled drawing.
-        <FilledIcon icon={Icon as ComponentType<IconProps>} size={iconSize(size)} />
-      ) : null}
+      {Icon
+        ? drawIcon(Icon, {
+            size: iconSize(size),
+            className: "qx-toggle-icon-outline",
+            "data-slot": "toggle-icon",
+          })
+        : null}
+      {Icon && filledWhenPressed
+        ? // `filledWhenPressed` is the caller's promise that this icon has a filled drawing.
+          drawIcon(Icon, {
+            size: iconSize(size),
+            variant: "filled",
+            className: "qx-toggle-icon-filled",
+            "data-slot": "toggle-icon-filled",
+          })
+        : null}
       {children}
     </BaseToggle>
   );

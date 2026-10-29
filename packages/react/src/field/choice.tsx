@@ -10,8 +10,8 @@ import {
   type ReactNode,
   use,
 } from "react";
-import type { QeetrixIcon } from "../internal/control";
 import { cx } from "../internal/cx";
+import { drawIcon, type IconSource } from "../internal/icon";
 import { type FieldMessageProps, FieldMessages, InFieldContext } from "./field";
 
 /**
@@ -73,7 +73,7 @@ interface ChoiceRowProps {
   description: ReactNode;
   disabled: boolean | undefined;
   /** An icon before the text: 16px in a row, 20px in a box on a tile. */
-  icon?: QeetrixIcon | undefined;
+  icon?: IconSource | undefined;
   className: string | undefined;
   style: CSSProperties | undefined;
   /** The control. */
@@ -109,7 +109,7 @@ export function ChoiceRow({
           {children}
           {Icon && (
             <span className="qx-choice-icon" aria-hidden>
-              <Icon shape="sharp" size={tile ? 20 : 16} />
+              {drawIcon(Icon, { size: tile ? 20 : 16 })}
             </span>
           )}
           <span className="qx-choice-text">{label}</span>

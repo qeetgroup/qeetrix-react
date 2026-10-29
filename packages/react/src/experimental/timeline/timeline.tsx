@@ -1,6 +1,6 @@
 import type { ComponentProps, ReactElement, ReactNode } from "react";
-import type { QeetrixIcon } from "../../internal/control";
 import { cx } from "../../internal/cx";
+import { drawIcon, type IconSource } from "../../internal/icon";
 
 export type TimelineVariant = "default" | "compact";
 /** The event's colour, as Badge's tones: `danger` for a failure, `success` for a completion. */
@@ -29,7 +29,7 @@ export interface TimelineItemProps extends Omit<ComponentProps<"li">, "title"> {
   /** When, as a machine-readable date, so `time` is a `<time>` element. */
   dateTime?: string;
   /** A 16px icon for the kind of event. */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /**
    * Colours the icon or dot: `danger` for a failure, such as a refused sign-in (its title turns
    * danger too), `success`, `warning`, `info` or `brand`. Default `neutral`.
@@ -96,7 +96,7 @@ export function TimelineItem({
       data-tone={tone}
     >
       <span className="qx-timeline-marker" data-slot="timeline-marker" aria-hidden>
-        {Icon && <Icon shape="sharp" size={16} />}
+        {Icon && drawIcon(Icon, { size: 16 })}
       </span>
       <span className="qx-timeline-body" data-slot="timeline-body">
         <span className="qx-timeline-title" data-slot="timeline-title">

@@ -1,12 +1,11 @@
 "use client";
 
 import { Tabs as BaseTabs } from "@base-ui/react/tabs";
-import type { IconProps } from "@qeetrix/icons";
-import type { ComponentProps, ComponentType, CSSProperties, ReactElement, ReactNode } from "react";
+import type { ComponentProps, CSSProperties, ReactElement, ReactNode } from "react";
 import { Badge } from "../badge/badge";
 import { formatNumber } from "../format/format";
-import type { QeetrixIcon } from "../internal/control";
 import { cx } from "../internal/cx";
+import { drawIcon, type IconSource } from "../internal/icon";
 import { type RenderProp, renderElement } from "../internal/render";
 import { useLocale } from "../provider/provider";
 
@@ -36,7 +35,7 @@ export interface TabsListProps extends Omit<BaseTabs.List.Props, "className" | "
 
 export interface TabProps extends Omit<BaseTabs.Tab.Props, "className" | "style" | "children"> {
   /** A leading 16px icon from `@qeetrix/icons`, sharp. */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /** Show the icon's filled drawing while selected. Only for icons that have one. */
   filledWhenSelected?: boolean;
   /** The label. */
@@ -98,21 +97,16 @@ export function Tab({
   ...props
 }: TabProps): ReactElement {
   const locale = useLocale();
-  const Filled = Icon as ComponentType<IconProps> | undefined;
   return (
     <BaseTabs.Tab {...props} className={cx("qx-tab", className)} data-slot="tab">
-      {Icon && (
-        <Icon shape="sharp" size={16} aria-hidden className="qx-tab-icon qx-tab-icon-outline" />
-      )}
-      {Filled && filledWhenSelected && (
-        <Filled
-          shape="sharp"
-          variant="filled"
-          size={16}
-          aria-hidden
-          className="qx-tab-icon qx-tab-icon-filled"
-        />
-      )}
+      {Icon && drawIcon(Icon, { size: 16, className: "qx-tab-icon qx-tab-icon-outline" })}
+      {Icon &&
+        filledWhenSelected &&
+        drawIcon(Icon, {
+          size: 16,
+          variant: "filled",
+          className: "qx-tab-icon qx-tab-icon-filled",
+        })}
       {/* The label and its count on one baseline, so a 12px count doesn't sit 2px high. */}
       <span className="qx-tab-label" data-slot="tab-label">
         {children}
@@ -144,7 +138,7 @@ export interface TabNavLinkProps extends Omit<ComponentProps<"a">, "children"> {
   /** The page this link is on: `aria-current="page"` and the Ember bar. */
   current?: boolean;
   /** A leading 16px icon from `@qeetrix/icons`, sharp. */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /** Show the icon's filled drawing while current. Only for icons that have one. */
   filledWhenSelected?: boolean;
   /** The label. */
@@ -189,7 +183,6 @@ export function TabNavLink({
   ...props
 }: TabNavLinkProps): ReactElement {
   const locale = useLocale();
-  const Filled = Icon as ComponentType<IconProps> | undefined;
   return renderElement("a", render, {
     ...props,
     "aria-current": current ? "page" : props["aria-current"],
@@ -197,18 +190,14 @@ export function TabNavLink({
     "data-slot": "tab-nav-link",
     children: (
       <>
-        {Icon && (
-          <Icon shape="sharp" size={16} aria-hidden className="qx-tab-icon qx-tab-icon-outline" />
-        )}
-        {Filled && filledWhenSelected && (
-          <Filled
-            shape="sharp"
-            variant="filled"
-            size={16}
-            aria-hidden
-            className="qx-tab-icon qx-tab-icon-filled"
-          />
-        )}
+        {Icon && drawIcon(Icon, { size: 16, className: "qx-tab-icon qx-tab-icon-outline" })}
+        {Icon &&
+          filledWhenSelected &&
+          drawIcon(Icon, {
+            size: 16,
+            variant: "filled",
+            className: "qx-tab-icon qx-tab-icon-filled",
+          })}
         <span className="qx-tab-label" data-slot="tab-label">
           {children}
           {badge != null && (

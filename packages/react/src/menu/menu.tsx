@@ -13,8 +13,8 @@ import {
   use,
   useId,
 } from "react";
-import type { QeetrixIcon } from "../internal/control";
 import { cx } from "../internal/cx";
+import { drawIcon, type IconSource } from "../internal/icon";
 import { usePortalContainer } from "../provider/provider";
 
 /**
@@ -74,7 +74,7 @@ export interface MenuItemProps
   extends Omit<BaseMenu.Item.Props, "className" | "style">,
     ItemLookProps {
   /** A leading icon from `@qeetrix/icons`: sharp, 16px. */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /** `danger` for a destructive action; put it last, after a separator. Default `default`. */
   tone?: MenuItemTone;
 }
@@ -97,7 +97,7 @@ export interface MenuRadioItemProps
 export interface MenuSubmenuTriggerProps
   extends Omit<BaseMenu.SubmenuTrigger.Props, "className" | "style"> {
   /** A leading icon from `@qeetrix/icons`: sharp, 16px. */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /** Placement only. */
   className?: string;
   /** Inline styles for the item, for placement only. */
@@ -287,15 +287,8 @@ export function MenuItem({
       data-tone={tone}
       data-description={description != null ? "" : undefined}
     >
-      {Icon && (
-        <Icon
-          shape="sharp"
-          size={16}
-          aria-hidden
-          className="qx-menu-item-icon"
-          data-slot="menu-item-icon"
-        />
-      )}
+      {Icon &&
+        drawIcon(Icon, { size: 16, className: "qx-menu-item-icon", "data-slot": "menu-item-icon" })}
       {item.text}
       <Shortcut>{shortcut}</Shortcut>
     </BaseMenu.Item>
@@ -412,15 +405,8 @@ export function MenuSubmenuTrigger({
       className={cx("qx-menu-item", className)}
       data-slot="menu-submenu-trigger"
     >
-      {Icon && (
-        <Icon
-          shape="sharp"
-          size={16}
-          aria-hidden
-          className="qx-menu-item-icon"
-          data-slot="menu-item-icon"
-        />
-      )}
+      {Icon &&
+        drawIcon(Icon, { size: 16, className: "qx-menu-item-icon", "data-slot": "menu-item-icon" })}
       <span className="qx-menu-item-label" data-slot="menu-item-label">
         {children}
       </span>

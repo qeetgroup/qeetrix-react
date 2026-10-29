@@ -1,6 +1,6 @@
 import type { ComponentProps, ReactElement } from "react";
-import type { QeetrixIcon } from "../internal/control";
 import { cx } from "../internal/cx";
+import { drawIcon, type IconSource } from "../internal/icon";
 
 export type BadgeTone = "neutral" | "brand" | "info" | "success" | "warning" | "danger";
 
@@ -22,7 +22,7 @@ export interface BadgeProps extends ComponentProps<"span"> {
   /** `md` (20px) or `sm` (16px), for tight rows and beside small text. Default `md`. */
   size?: BadgeSize;
   /** A leading icon from `@qeetrix/icons`: sharp, `--qx-size-icon-2xs` (12px), decorative. */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
 }
 
 /**
@@ -47,16 +47,9 @@ export function Badge({
       data-variant={variant}
       data-size={size}
     >
-      {Icon && (
-        <Icon
-          shape="sharp"
-          // The width and height attributes before CSS loads; --qx-size-icon-2xs sizes it after.
-          size={12}
-          aria-hidden
-          className="qx-badge-icon"
-          data-slot="badge-icon"
-        />
-      )}
+      {Icon &&
+        // The width and height attributes before CSS loads; --qx-size-icon-2xs sizes it after.
+        drawIcon(Icon, { size: 12, className: "qx-badge-icon", "data-slot": "badge-icon" })}
       <span className="qx-badge-label" data-slot="badge-label">
         {children}
       </span>

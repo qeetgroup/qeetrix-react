@@ -14,8 +14,8 @@ import {
   useRef,
   useState,
 } from "react";
-import type { QeetrixIcon } from "../../internal/control";
 import { cx } from "../../internal/cx";
+import { drawIcon, type IconSource } from "../../internal/icon";
 import { mergeRefs } from "../../internal/refs";
 
 /** A node in the tree: an organisation unit, a group, a permission. */
@@ -25,7 +25,7 @@ export interface TreeNode {
   /** The node's name: shown, read out, and matched when a letter is typed. */
   label: string;
   /** A 16px icon before the label. */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /** At the end of the row: a count, a status. */
   meta?: ReactNode;
   /** The nodes under this one. A node with children opens and closes. */
@@ -315,15 +315,8 @@ export function TreeView({
                 {tick === "mixed" && <MinusIcon shape="sharp" size={12} strokeWidth={3} />}
               </span>
             )}
-            {Icon && (
-              <Icon
-                shape="sharp"
-                size={16}
-                aria-hidden
-                className="qx-tree-icon"
-                data-slot="tree-icon"
-              />
-            )}
+            {Icon &&
+              drawIcon(Icon, { size: 16, className: "qx-tree-icon", "data-slot": "tree-icon" })}
             <span className="qx-tree-label" data-slot="tree-label">
               {node.label}
             </span>

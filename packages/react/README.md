@@ -32,7 +32,7 @@ bun add @qeetrix/react @qeetrix/tokens @base-ui/react @qeetrix/icons
 |:--|:--|
 | `@qeetrix/tokens` | The design tokens every component reads. Use a version the peer range names (any 0.0.x from 0.0.10, for 0.2.1). |
 | `@base-ui/react` | Powers the interactive components |
-| `@qeetrix/icons` | Icons: a component's `icon` prop takes any of them, e.g. `icon={PlusIcon}` |
+| `@qeetrix/icons` | Icons: a component's `icon` prop takes any of them, `icon={PlusIcon}`, or as an element, `icon={<PlusIcon />}`, which a Server Component can pass (write `shape="sharp"` there) |
 | `react`, `react-dom` | 19.2 or later |
 
 ## Styles

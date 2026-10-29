@@ -13,15 +13,15 @@ import {
   type ChoiceVariant,
 } from "../field/choice";
 import type { FieldMessageProps } from "../field/field";
-import type { QeetrixIcon } from "../internal/control";
 import { cx } from "../internal/cx";
+import type { IconSource } from "../internal/icon";
 
 interface CheckboxOwnProps
   extends Omit<BaseCheckbox.Root.Props, "className" | "style" | "children"> {
   /** A line under the label. */
   description?: ReactNode;
   /** An icon before the label; on a tile, in a box at its start. */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /** Placement of the row (or of the control alone, with no label) only. */
   className?: string;
   /** Placement only, like `className`. */

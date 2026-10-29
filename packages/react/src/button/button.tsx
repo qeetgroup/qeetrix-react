@@ -2,8 +2,9 @@
 
 import { Button as BaseButton } from "@base-ui/react/button";
 import type { ComponentProps, ReactElement, ReactNode } from "react";
-import { type ControlSize, iconSize, type QeetrixIcon } from "../internal/control";
+import { type ControlSize, iconSize } from "../internal/control";
 import { cx } from "../internal/cx";
+import { drawIcon, type IconSource } from "../internal/icon";
 import { Spinner } from "../spinner/spinner";
 import { Tooltip, type TooltipProps } from "../tooltip/tooltip";
 
@@ -38,7 +39,7 @@ export interface ButtonProps extends ButtonBaseProps {
   /** The label. Write it as a verb: "Create invoice". */
   children?: ReactNode;
   /** A trailing icon from `@qeetrix/icons`; rendered in the sharp shape. */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /** Fill the width of the container (forms, mobile). */
   fullWidth?: boolean;
 }
@@ -50,7 +51,7 @@ export interface IconButtonProps extends ButtonBaseProps {
    */
   variant?: ButtonVariant;
   /** The icon, from `@qeetrix/icons`; rendered in the sharp shape. */
-  icon: QeetrixIcon;
+  icon: IconSource;
   /** Required: an icon-only button has no visible label. */
   "aria-label": string;
   /**
@@ -62,7 +63,7 @@ export interface IconButtonProps extends ButtonBaseProps {
   tooltipSide?: TooltipProps["side"];
 }
 
-function content(icon: QeetrixIcon | undefined, size: ControlSize, loading: boolean): ReactNode {
+function content(icon: IconSource | undefined, size: ControlSize, loading: boolean): ReactNode {
   if (loading) {
     return (
       <span className="qx-button-spinner" data-slot="button-spinner">
@@ -71,16 +72,11 @@ function content(icon: QeetrixIcon | undefined, size: ControlSize, loading: bool
     );
   }
   if (!icon) return null;
-  const Icon = icon;
-  return (
-    <Icon
-      shape="sharp"
-      size={iconSize(size)}
-      aria-hidden
-      className="qx-button-icon"
-      data-slot="button-icon"
-    />
-  );
+  return drawIcon(icon, {
+    size: iconSize(size),
+    className: "qx-button-icon",
+    "data-slot": "button-icon",
+  });
 }
 
 /**

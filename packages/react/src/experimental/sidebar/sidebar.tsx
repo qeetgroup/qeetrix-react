@@ -1,12 +1,10 @@
 "use client";
 
-import type { IconProps } from "@qeetrix/icons";
 import { ChevronDownIcon } from "@qeetrix/icons/icons/chevron-down";
 import { SearchIcon } from "@qeetrix/icons/icons/search";
 import {
   Children,
   type ComponentProps,
-  type ComponentType,
   type Context,
   type CSSProperties,
   createContext,
@@ -22,8 +20,8 @@ import {
 } from "react";
 import { IconButton } from "../../button/button";
 import { Input } from "../../input/input";
-import type { QeetrixIcon } from "../../internal/control";
 import { cx } from "../../internal/cx";
+import { drawIcon, type IconSource } from "../../internal/icon";
 import type { QeetrixMessages } from "../../internal/messages";
 import { type RenderProp, renderElement } from "../../internal/render";
 import { useMessages } from "../../provider/provider";
@@ -86,7 +84,7 @@ export interface SidebarItemProps
    * A 16px icon from `@qeetrix/icons`, in its round shape: navigation is the one place Qeetrix uses
    * round icons. Icons represent destinations, not actions.
    */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /** Show the icon's filled drawing while current. Only for icons that have one. */
   filledWhenCurrent?: boolean;
   /** This item is the current page: `aria-current="page"` and the Ember bar. */
@@ -255,27 +253,23 @@ export function SidebarItem({
   const marked = current || (isCategory && inside && !expanded);
   // A category that is also a page: its row is the link, and a separate button folds it.
   const page = isCategory && (href !== undefined || render !== undefined);
-  const Filled = Icon as ComponentType<IconProps> | undefined;
 
   const content = (
     <>
-      {Icon && (
-        <Icon
-          shape="round"
-          size={16}
-          aria-hidden
-          className="qx-sidebar-icon qx-sidebar-icon-outline"
-        />
-      )}
-      {Filled && filledWhenCurrent && (
-        <Filled
-          shape="round"
-          variant="filled"
-          size={16}
-          aria-hidden
-          className="qx-sidebar-icon qx-sidebar-icon-filled"
-        />
-      )}
+      {Icon &&
+        drawIcon(Icon, {
+          size: 16,
+          shape: "round",
+          className: "qx-sidebar-icon qx-sidebar-icon-outline",
+        })}
+      {Icon &&
+        filledWhenCurrent &&
+        drawIcon(Icon, {
+          size: 16,
+          shape: "round",
+          variant: "filled",
+          className: "qx-sidebar-icon qx-sidebar-icon-filled",
+        })}
       {/* The label and its count on one baseline; the pair is centred on the row. */}
       <span className="qx-sidebar-text">
         <span className="qx-sidebar-label">{label}</span>
