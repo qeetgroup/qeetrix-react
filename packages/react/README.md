@@ -40,9 +40,23 @@ bun add @qeetrix/react @qeetrix/tokens @base-ui/react @qeetrix/icons
 Load the tokens, then the component styles, once at the root of your app:
 
 ```css
-@import "@qeetrix/tokens";
+@import "@qeetrix/tokens/tokens.css";
 @import "@qeetrix/react/styles.css" layer(components);
 ```
+
+- **The full path, `@qeetrix/tokens/tokens.css`,** resolves in every bundler. The bare
+  `@import "@qeetrix/tokens"` needs a resolver that reads the package's `style` condition, as
+  Tailwind v4 does; Vite's CSS `@import` doesn't, and the build stops.
+- **With Tailwind v4,** declare its layer order first. Otherwise the `components` layer is declared
+  by the Qeetrix import, ranks lowest, and Tailwind's preflight overrides Qeetrix (buttons lose their
+  padding, headings their sizes) with no warning:
+
+  ```css
+  @layer theme, base, components, utilities;
+  @import "@qeetrix/tokens/tokens.css";
+  @import "@qeetrix/react/styles.css" layer(components);
+  @import "tailwindcss";
+  ```
 
 - **Precompiled:** your Tailwind setup doesn't need to scan this package, and it ships no utility
   classes.
@@ -234,6 +248,16 @@ const { resolvedColorScheme, setColorScheme } = useColorScheme();
 
 <main data-qx-density="compact">{consolePage}</main>
 ```
+
+**The scheme before the first paint:** `colorSchemeScript()` in the `<head>` sets the saved choice on
+`<html>` before React runs, and `QeetrixProvider storageKey="qx-color-scheme"` saves new ones under
+the same key. On Apple platforms it also sets `<html data-qx-platform="apple">`, so `Kbd` shows ⌘ ⌥ ⇧
+from the first paint.
+
+**A page without React** (a static site's chrome): `colorSchemeScript({ followSystem: true })` keeps
+following the device while the choice is System, and `Kbd` rendered to HTML shows the right keys
+from that attribute. `ThemeSwitcher` needs React to run: on such a page, draw the switch as a plain
+control that saves `light`, `dark` or `system` under the same key and sets `data-qx-color-scheme`.
 
 ## Language and direction
 

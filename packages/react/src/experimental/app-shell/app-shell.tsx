@@ -111,8 +111,12 @@ interface ShellState {
   collapsed: boolean;
   /** This sidebar is the narrow-screen drawer's copy. */
   inDrawer: boolean;
-  /** Below the `expanded` window class. */
+  /** Below the `expanded` window class; embedded, below 840px of its box. */
   narrow: boolean;
+  /** An embedded shell: its parts follow its box's width, as its layout does, not the window's. */
+  embedded: boolean;
+  /** Embedded, its box is under 600px, a phone's width (outside one, parts ask the window). */
+  phone: boolean;
   /** Fix the sidebar open. */
   expand: () => void;
   /** Close the narrow-screen navigation drawer. */
@@ -131,6 +135,8 @@ const outside: ShellState = {
   collapsed: false,
   inDrawer: false,
   narrow: false,
+  embedded: false,
+  phone: false,
   expand: () => {},
   closeDrawer: () => {},
   openNavigation: () => {},
@@ -196,19 +202,21 @@ export function AppShell({
   const Main = embedded ? "div" : "main";
   const wideWindow = useMediaQuery(WIDE, true);
   const portalContainer = usePortalContainer();
-  // Embedded, the box's width decides the layout, as the CSS's container queries do.
+  // Embedded, the box's width decides the layout, as the CSS's container queries do: wide (840px
+  // and over), narrow, or a phone's (under 600px), for the TopBar inside it as much as the shell.
   const root = useRef<HTMLDivElement>(null);
-  const [wideBox, setWideBox] = useState(true);
+  const [box, setBox] = useState<"wide" | "narrow" | "phone">("wide");
   useEffect(() => {
     const el = root.current;
     if (!embedded || !el || typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(([entry]) =>
-      setWideBox((entry?.contentRect.width ?? 0) >= 840),
-    );
+    const observer = new ResizeObserver(([entry]) => {
+      const width = entry?.contentRect.width ?? 0;
+      setBox(width >= 840 ? "wide" : width >= 600 ? "narrow" : "phone");
+    });
     observer.observe(el);
     return () => observer.disconnect();
   }, [embedded]);
-  const wide = embedded ? wideBox : wideWindow;
+  const wide = embedded ? box === "wide" : wideWindow;
   const rtl = useDirection() === "rtl";
   const panelTitle = useId();
 
@@ -249,6 +257,8 @@ export function AppShell({
     collapsed: collapsed && !peek,
     inDrawer: false,
     narrow: !wide,
+    embedded,
+    phone: embedded && box === "phone",
     expand: () => {
       endPeek();
       setCollapsed(false);

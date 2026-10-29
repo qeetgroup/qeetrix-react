@@ -25,6 +25,7 @@ import {
   ErrorSummary,
   FileUpload,
   Form,
+  Kbd,
   NumberField,
   OTPInput,
   PageHeader,
@@ -53,6 +54,16 @@ const source = (path: string) =>
   readFileSync(new URL(`../src/experimental/${path}`, import.meta.url), "utf8");
 
 describe("experimental components on the server", () => {
+  it("Kbd renders both faces of a platform key, the same on the server and the client", () => {
+    const out = html(<Kbd keys="Mod+K" />);
+    expect(out).toContain('data-platform="other"');
+    expect(out).toContain('data-platform="apple"');
+    expect(out).toContain("Ctrl");
+    expect(out).toContain("⌘");
+    // The outer Kbd marks Apple only once React runs; the stylesheet reads <html> before then.
+    expect(out).not.toMatch(/^<kbd[^>]* data-platform=/);
+  });
+
   it("Breadcrumb and EmptyState carry no client code", () => {
     expect(source("breadcrumb/breadcrumb.tsx")).not.toMatch(/^["']use client["']/);
     expect(source("empty-state/empty-state.tsx")).not.toMatch(/^["']use client["']/);

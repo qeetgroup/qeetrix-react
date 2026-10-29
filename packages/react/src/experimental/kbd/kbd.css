@@ -28,10 +28,30 @@
     background: transparent;
     border-block-end-color: var(--qx-color-border-default);
   }
+  /* Qeet Sans sets capitals and the modifier symbols high in the em box: the glyph moves down to
+     its ink's centre, in either size. */
+  & [aria-hidden] {
+    translate: 0 0.13em;
+  }
   /* A step of a sequence follows its hidden "then". */
   .qx-visually-hidden + & {
     margin-inline-start: 4px;
   }
+}
+
+/* A face of a key: no box of its own. Where it differs by platform both render, and one shows:
+   Apple's on <html data-qx-platform="apple"> (colorSchemeScript) or a Kbd that found Apple. */
+.qx-kbd-face {
+  display: contents;
+}
+.qx-kbd-face[data-platform="apple"],
+:is(:root[data-qx-platform="apple"], .qx-kbd[data-platform="apple"])
+  .qx-kbd-face[data-platform="other"] {
+  display: none;
+}
+:is(:root[data-qx-platform="apple"], .qx-kbd[data-platform="apple"])
+  .qx-kbd-face[data-platform="apple"] {
+  display: contents;
 }
 
 @media (forced-colors: active) {

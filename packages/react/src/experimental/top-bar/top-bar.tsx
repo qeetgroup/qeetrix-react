@@ -143,8 +143,11 @@ export function TopBar({
 }: TopBarProps): ReactElement {
   const shell = useShellState();
   const strings = useMessages("topBar", messages);
-  const compact = useMediaQuery(COMPACT, false);
-  const phone = useMediaQuery(PHONE, false);
+  const windowCompact = useMediaQuery(COMPACT, false);
+  const windowPhone = useMediaQuery(PHONE, false);
+  // Inside an embedded AppShell its box decides, as it does the shell's layout, not the window.
+  const compact = shell.embedded ? shell.narrow : windowCompact;
+  const phone = shell.embedded ? shell.phone : windowPhone;
   const path = items(context);
   // In the compact bar, each TopBarSwitcher reports what it shows; the innermost is on the bar.
   const [steps, setSteps] = useState<readonly (ScopeStep | undefined)[]>([]);

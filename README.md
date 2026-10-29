@@ -41,8 +41,9 @@ bun add @qeetrix/react @qeetrix/tokens @base-ui/react @qeetrix/icons
 ```
 
 ```css
-/* Once, in your root stylesheet: the tokens first. */
-@import "@qeetrix/tokens";
+/* Once, in your root stylesheet: the tokens first. With Tailwind v4, declare its layer order
+   before these (@layer theme, base, components, utilities;), then @import "tailwindcss" after. */
+@import "@qeetrix/tokens/tokens.css";
 @import "@qeetrix/react/styles.css" layer(components);
 ```
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { Field as BaseField } from "@base-ui/react/field";
 import { Radio as BaseRadio } from "@base-ui/react/radio";
 import { RadioGroup as BaseRadioGroup } from "@base-ui/react/radio-group";
 import { PipetteIcon } from "@qeetrix/icons/icons/pipette";
@@ -83,29 +84,35 @@ export function ColorSwatchGroup({
   className,
   style,
 }: ColorSwatchGroupProps): ReactElement {
+  // A field of its own, each swatch an item in it: in a Field (ColorField's suggestions, say) Base UI
+  // would otherwise give its radios that field's id, name and label, and count them towards its
+  // dirty and filled state. It's always named by its own aria-label.
   return (
-    <BaseRadioGroup
-      aria-label={label}
-      {...(value !== undefined ? { value } : {})}
-      {...(defaultValue !== undefined ? { defaultValue } : {})}
-      onValueChange={(next) => onValueChange?.(String(next))}
-      disabled={disabled}
-      className={cx("qx-color-swatches", className)}
-      style={style}
-      data-slot="color-swatch-group"
-    >
-      {options.map((option) => (
-        <BaseRadio.Root
-          key={option.value}
-          value={option.value}
-          aria-label={option.label}
-          title={option.label}
-          className="qx-color-swatch"
-          data-slot="color-swatch"
-          style={{ "--qx-color-swatch": shown(option) } as CSSProperties}
-        />
-      ))}
-    </BaseRadioGroup>
+    <BaseField.Root render={<span className="qx-color-swatch-field" />}>
+      <BaseRadioGroup
+        aria-label={label}
+        {...(value !== undefined ? { value } : {})}
+        {...(defaultValue !== undefined ? { defaultValue } : {})}
+        onValueChange={(next) => onValueChange?.(String(next))}
+        disabled={disabled}
+        className={cx("qx-color-swatches", className)}
+        style={style}
+        data-slot="color-swatch-group"
+      >
+        {options.map((option) => (
+          <BaseField.Item key={option.value} render={<span className="qx-color-swatch-item" />}>
+            <BaseRadio.Root
+              value={option.value}
+              aria-label={option.label}
+              title={option.label}
+              className="qx-color-swatch"
+              data-slot="color-swatch"
+              style={{ "--qx-color-swatch": shown(option) } as CSSProperties}
+            />
+          </BaseField.Item>
+        ))}
+      </BaseRadioGroup>
+    </BaseField.Root>
   );
 }
 

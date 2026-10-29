@@ -107,6 +107,23 @@ describe("ColorField", () => {
     await expect.element(page.getByText("6.7:1 contrast on the sign-in card")).toBeVisible();
   });
 
+  it("in a Field, keeps its suggestions out of the field: their own ids, no name, their own label", async () => {
+    const { container } = await render(
+      <form>
+        <Field label="Brand colour" name="brand">
+          <ColorField defaultValue="#3B82F6" suggestions={presets} />
+        </Field>
+      </form>,
+    );
+    const ids = [...container.querySelectorAll("[id]")].map((element) => element.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    await expect.element(page.getByRole("radiogroup", { name: "Suggested colours" })).toBeVisible();
+    await expect.element(page.getByRole("textbox", { name: "Brand colour" })).toBeVisible();
+    // The form sends the field's value once: the suggestions' radios carry no name of their own.
+    const form = container.querySelector("form") as HTMLFormElement;
+    expect(new FormData(form).getAll("brand")).toEqual(["#3B82F6"]);
+  });
+
   it("takes a suggestion and resets to the default", async () => {
     await render(<Brand initial="#123456" />);
     await userEvent.click(page.getByRole("radio", { name: "Orange" }));

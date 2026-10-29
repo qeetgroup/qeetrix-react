@@ -5,6 +5,11 @@
   flex-wrap: wrap;
   gap: var(--qx-space-gap-sm);
 }
+/* The group's field and each swatch's item: no box of their own, so the swatches sit in its row. */
+.qx-color-swatch-field,
+.qx-color-swatch-item {
+  display: contents;
+}
 .qx-color-swatch {
   inline-size: 24px;
   block-size: 24px;

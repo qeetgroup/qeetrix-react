@@ -78,6 +78,24 @@ export function useApplePlatform(): boolean {
   return useSyncExternalStore(subscribe, isApple, () => false);
 }
 
+/** One face of a key: what shows, and what's said. */
+function Face({
+  shown,
+  said,
+  platform,
+}: {
+  shown: string;
+  said: string;
+  platform?: "apple" | "other";
+}): ReactElement {
+  return (
+    <span className="qx-kbd-face" data-platform={platform}>
+      <span aria-hidden="true">{shown}</span>
+      <VisuallyHidden>{said}</VisuallyHidden>
+    </span>
+  );
+}
+
 /**
  * A keyboard shortcut (07-components.md, C3), shown where the action is. It only shows the keys:
  * wire the shortcut itself in the product. Each key is a `<kbd>`; screen readers hear key names
@@ -85,24 +103,43 @@ export function useApplePlatform(): boolean {
  */
 export function Kbd({ keys, size = "md", messages, className, ...props }: KbdProps): ReactElement {
   const strings = useMessages("kbd", messages);
+  // A key whose face differs by platform (Mod, Alt, Shift…) renders both, and the stylesheet shows
+  // one: Apple's where <html data-qx-platform="apple"> (colorSchemeScript sets it before the first
+  // paint, and on a page that never runs React), or where this Kbd's data-platform says so once
+  // React has. The markup is the same on the server and the client.
   const apple = useApplePlatform();
   const steps = keys
     .trim()
     .split(/\s+/)
     .map((chord) => chord.split("+").filter(Boolean));
   return (
-    <kbd {...props} className={cx("qx-kbd", className)} data-slot="kbd" data-size={size}>
+    <kbd
+      {...props}
+      className={cx("qx-kbd", className)}
+      data-slot="kbd"
+      data-size={size}
+      data-platform={apple ? "apple" : undefined}
+    >
       {steps.map((chord, step) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: a shortcut is a fixed sequence
         <Fragment key={step}>
           {step > 0 && <VisuallyHidden>{` ${strings.sequence} `}</VisuallyHidden>}
           {chord.map((key, index) => {
-            const { shown, said } = face(key, apple, strings);
+            const other = face(key, false, strings);
+            const mac = face(key, true, strings);
+            const lead = index > 0 ? " " : "";
+            const same = other.shown === mac.shown && other.said === mac.said;
             return (
               // biome-ignore lint/suspicious/noArrayIndexKey: keys of one chord, in order
               <kbd key={index} className="qx-kbd-key" data-slot="kbd-key">
-                <span aria-hidden="true">{shown}</span>
-                <VisuallyHidden>{index > 0 ? ` ${said}` : said}</VisuallyHidden>
+                {same ? (
+                  <Face shown={other.shown} said={lead + other.said} />
+                ) : (
+                  <>
+                    <Face shown={other.shown} said={lead + other.said} platform="other" />
+                    <Face shown={mac.shown} said={lead + mac.said} platform="apple" />
+                  </>
+                )}
               </kbd>
             );
           })}

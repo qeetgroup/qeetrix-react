@@ -14,9 +14,12 @@
   /* Columns with a priority hide as the table narrows (TableColumn.priority). */
   container-type: inline-size;
 }
-/* Only a table wider than its space scrolls: a scroll container would hold the sticky header. */
+/* Only a table wider than its space scrolls: a scroll container would hold the sticky header. Until
+   it's measured (rendered on the server, before hydration, or never hydrated) it may scroll, so a
+   wide one doesn't overflow its box. */
 .qx-table-scroll {
   min-inline-size: 0;
+  &:not([data-measured]),
   &[data-overflowing] {
     overflow-x: auto;
   }
@@ -201,9 +204,11 @@
 .qx-table-bar {
   box-sizing: content-box;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--qx-space-gap-sm);
   min-block-size: var(--qx-size-control-lg);
+  /* On a narrow page the selection's count, actions and Clear wrap rather than run past the table. */
   &[data-selected] {
     padding-inline: var(--qx-space-inset-md) var(--qx-space-inset-sm);
     background: var(--qx-color-bg-selected);
@@ -227,6 +232,7 @@
 .qx-table-bulk {
   display: flex;
   flex: 1;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--qx-space-gap-xs);
 }
