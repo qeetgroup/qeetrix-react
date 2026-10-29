@@ -1,5 +1,20 @@
 # @qeetrix/react
 
+## 0.2.1
+
+Installs beside the released `@qeetrix/tokens` 0.0.10 and `@qeetrix/icons` 2.0.0. No component
+changes.
+
+- **Peer `@qeetrix/tokens` is `>=0.0.10 <0.1.0`** (was `^0.0.9`). On a 0.0.x version a caret
+  range allows only that version, so 0.2.0 next to tokens 0.0.10 failed npm's install with
+  `ERESOLVE`. The range now takes every 0.0.x from 0.0.10, the version the components are tested
+  against: its font subsets, plain `tokens.css` and re-stepped categorical colours need no change
+  here.
+- **`@qeetrix/icons` is `^2.0.0`** (was `^1.0.12`, which installed 1.0.13). The 18 icons that point
+  a reading direction (log-in, send, undo, …) now carry `data-qx-mirror`, which the base styles'
+  `[dir="rtl"] [data-qx-mirror]` rule already turns in right-to-left. Arrows and chevrons are
+  unchanged: they still mirror only through `mirrorInRtl()`.
+
 ## 0.2.0
 
 Fixes and additions from the Qeet ID console's Jira issues (QTRX). Nothing is removed or renamed.

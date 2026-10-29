@@ -107,8 +107,8 @@ Browse every component, live, in the [Qeetrix Storybook](https://github.com/qeet
 | [qeetrix-icons](https://github.com/qeetgroup/qeetrix-icons) | [`@qeetrix/icons`](https://www.npmjs.com/package/@qeetrix/icons) | Icons in round and sharp, and the Qeet logos |
 | [qeetrix-story](https://github.com/qeetgroup/qeetrix-story) | — | The Storybook workshop: every component, foundation and console pattern |
 
-Pair `@qeetrix/react` with the `@qeetrix/tokens` version its peer range names: 0.1.1 needs
-tokens `^0.0.9`.
+Pair `@qeetrix/react` with a `@qeetrix/tokens` version its peer range names: 0.2.1 takes any
+0.0.x from 0.0.10.
 
 ## Quality bar
 
