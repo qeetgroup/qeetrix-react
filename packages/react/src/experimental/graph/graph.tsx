@@ -14,8 +14,8 @@ import {
   useState,
 } from "react";
 import { IconButton } from "../../button/button";
-import type { QeetrixIcon } from "../../internal/control";
 import { cx } from "../../internal/cx";
+import { drawIcon, type IconSource } from "../../internal/icon";
 import type { QeetrixMessages } from "../../internal/messages";
 import { fill } from "../../internal/template";
 import { useMessages } from "../../provider/provider";
@@ -28,7 +28,7 @@ export interface GraphNode {
   /** A second line: its type, or how many it holds. */
   meta?: ReactNode;
   /** A 16px icon for its kind. */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /** The node it's reached through; the one without a parent is the root, at the top. */
   parent?: string;
   /** The relation on the line from its parent: "member", "editor". */
@@ -278,7 +278,7 @@ export function GraphCanvas({
                   onKeyDown={(event) => move(event, node)}
                   onClick={() => onSelect?.(node.id)}
                 >
-                  {Icon && <Icon size={16} aria-hidden />}
+                  {Icon && drawIcon(Icon, { size: 16, shape: "round" })}
                   <span className="qx-graph-node-text">
                     <strong>
                       {node.label}

@@ -9,6 +9,7 @@ import type { ComponentProps, ReactElement, ReactNode } from "react";
 import { IconButton } from "../../button/button";
 import type { QeetrixIcon } from "../../internal/control";
 import { cx } from "../../internal/cx";
+import { drawIcon, type IconSource } from "../../internal/icon";
 import type { QeetrixMessages } from "../../internal/messages";
 import { useMessages } from "../../provider/provider";
 import { VisuallyHidden } from "../../visually-hidden/visually-hidden";
@@ -32,7 +33,7 @@ export interface AlertProps extends Omit<ComponentProps<"div">, "title"> {
    */
   variant?: AlertVariant;
   /** In place of the tone's icon, from `@qeetrix/icons`: an eye for "viewing as". */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /** What happened, in a few words: "Directory sync failed". */
   title: ReactNode;
   /** One or two sentences: why, and what to do. */
@@ -88,7 +89,7 @@ export function Alert({
       data-tone={tone}
       data-variant={variant}
     >
-      <Icon shape="sharp" size={16} aria-hidden className="qx-alert-icon" data-slot="alert-icon" />
+      {drawIcon(Icon, { size: 16, className: "qx-alert-icon", "data-slot": "alert-icon" })}
       <div className="qx-alert-body" data-slot="alert-body">
         <div className="qx-alert-text" data-slot="alert-text">
           <div className="qx-alert-title" data-slot="alert-title">

@@ -1,6 +1,7 @@
 import type { ComponentProps, ReactElement, ReactNode } from "react";
-import { type ControlSize, iconSize, type QeetrixIcon } from "../internal/control";
+import { type ControlSize, iconSize } from "../internal/control";
 import { cx } from "../internal/cx";
+import { drawIcon, type IconSource } from "../internal/icon";
 import { type RenderProp, renderElement } from "../internal/render";
 import type { ButtonTone, ButtonVariant } from "./button";
 
@@ -17,7 +18,7 @@ export interface LinkButtonProps extends Omit<ComponentProps<"a">, "children"> {
   /** The label. Say where it goes: "View invoices". */
   children?: ReactNode;
   /** A trailing icon from `@qeetrix/icons`; rendered in the sharp shape. */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /** Fill the width of the container (forms, mobile). */
   fullWidth?: boolean;
   /** Render a router link, e.g. `render={<RouterLink to="/users" />}`. */
@@ -57,13 +58,11 @@ export function LinkButton({
         </span>
         {Icon && (
           <span className="qx-button-zone" data-slot="button-zone">
-            <Icon
-              shape="sharp"
-              size={iconSize(size)}
-              aria-hidden
-              className="qx-button-icon"
-              data-slot="button-icon"
-            />
+            {drawIcon(Icon, {
+              size: iconSize(size),
+              className: "qx-button-icon",
+              "data-slot": "button-icon",
+            })}
           </span>
         )}
       </>

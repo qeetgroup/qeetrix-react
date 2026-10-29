@@ -14,8 +14,8 @@ import {
   useRef,
   useState,
 } from "react";
-import type { QeetrixIcon } from "../../internal/control";
 import { cx } from "../../internal/cx";
+import { drawIcon, type IconSource } from "../../internal/icon";
 import { useLabelText } from "../../internal/label-text";
 import type { QeetrixMessages } from "../../internal/messages";
 import { mergeRefs } from "../../internal/refs";
@@ -73,7 +73,7 @@ export interface ComboboxProps<
   /** Shown while the field is empty. An example, never an instruction ("e.g. Priya Sharma"). */
   placeholder?: string;
   /** A 16px leading icon from `@qeetrix/icons`, sharp, e.g. search. */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /** The input's id. */
   id?: string;
   /** The input, which a Field labels. */
@@ -302,15 +302,8 @@ export function Combobox<
         data-slot="combobox"
         data-multiple={multiple ? "" : undefined}
       >
-        {Icon && (
-          <Icon
-            shape="sharp"
-            size={16}
-            aria-hidden
-            className="qx-combobox-icon"
-            data-slot="combobox-icon"
-          />
-        )}
+        {Icon &&
+          drawIcon(Icon, { size: 16, className: "qx-combobox-icon", "data-slot": "combobox-icon" })}
         {multiple ? (
           <BaseCombobox.Value>
             {(value: Value[]) => (

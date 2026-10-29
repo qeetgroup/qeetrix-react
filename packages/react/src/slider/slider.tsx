@@ -28,6 +28,13 @@ export interface SliderProps<Value extends number | readonly number[] = number>
    * Default `false`.
    */
   showValue?: boolean;
+  /**
+   * What a screen reader says for a thumb's value where the number alone means little: a position
+   * on a log scale, or a value with its unit ("25,000 monthly active users"). It gets the formatted
+   * value, the value and the thumb's index, so a range can say each end. Default: the formatted
+   * value.
+   */
+  getAriaValueText?: (formattedValue: string, value: number, index: number) => string;
   /** A range's thumb names, over QeetrixProvider's and the English defaults. */
   messages?: Partial<QeetrixMessages["slider"]>;
   /** Placement only. */
@@ -59,6 +66,7 @@ export function Slider<Value extends number | readonly number[] = number>({
   description,
   error,
   showValue,
+  getAriaValueText,
   messages,
   "aria-label": ariaLabel,
   locale,
@@ -123,6 +131,7 @@ export function Slider<Value extends number | readonly number[] = number>({
                 range ? (namedByNode ? null : thumbName) : ariaLabel ? () => ariaLabel : null
               }
               aria-labelledby={namedByNode ? `${id}-thumb-${index}` : undefined}
+              getAriaValueText={getAriaValueText}
               className="qx-slider-thumb"
               data-slot="slider-thumb"
             />

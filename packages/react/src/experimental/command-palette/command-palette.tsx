@@ -5,7 +5,7 @@ import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { SearchIcon } from "@qeetrix/icons/icons/search";
 import { type ReactElement, type ReactNode, useEffect, useEffectEvent, useState } from "react";
 import { Avatar } from "../../avatar/avatar";
-import type { QeetrixIcon } from "../../internal/control";
+import { drawIcon, type IconSource } from "../../internal/icon";
 import type { QeetrixMessages } from "../../internal/messages";
 import { fill } from "../../internal/template";
 import { useMessages, usePortalContainer } from "../../provider/provider";
@@ -21,7 +21,7 @@ export interface CommandItem {
   /** At the end: where it lives ("Security › Policies"), or a kind ("OIDC"). */
   meta?: ReactNode;
   /** A 16px icon before the label. */
-  icon?: QeetrixIcon;
+  icon?: IconSource;
   /** A person's avatar before the label, instead of an icon. */
   avatar?: { name: string; src?: string };
   /** The keys of its own shortcut, shown at the end: `["I"]`. */
@@ -235,14 +235,8 @@ export function CommandPalette({
                                   {...(item.avatar.src ? { src: item.avatar.src } : {})}
                                 />
                               ) : (
-                                Icon && (
-                                  <Icon
-                                    shape="sharp"
-                                    size={16}
-                                    aria-hidden
-                                    className="qx-command-item-icon"
-                                  />
-                                )
+                                Icon &&
+                                drawIcon(Icon, { size: 16, className: "qx-command-item-icon" })
                               )}
                             </span>
                           )}

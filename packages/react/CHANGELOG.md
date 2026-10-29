@@ -1,12 +1,35 @@
 # @qeetrix/react
 
-## 0.2.3
+## 0.3.0
 
-For the native libraries, found moving qeetrix-android and qeetrix-ios onto 0.2.2 (QTRX-92) and
-mocking up their pages on ui.qeet.in (QTRX-93). Nothing is removed or renamed.
+For the native libraries (QTRX-92, QTRX-93) and qeet-id-website (QTRX-89, QTRX-90). 0.2.3 was never
+published; its changes are here. Nothing is removed or renamed.
+
+### Migrating from 0.2
+
+- **Nothing needs a change.** It's a minor because every `icon` prop's type widens from
+  `QeetrixIcon` to `IconSource`, a component or an element, which the API check counts as changed
+  lines. Code that reads a props type's `icon` (`ButtonProps["icon"]`) and renders it as a component
+  takes `QeetrixIcon` instead, or checks `isValidElement` first.
 
 ### New
 
+- **Icon props take an element** (QTRX-90): `icon={<FingerprintPatternIcon />}` as well as
+  `icon={FingerprintPatternIcon}`, on every component with an `icon` prop (Button, IconButton,
+  LinkButton, Toggle, Tab, TabNavLink, Input, Badge, menu items, the choice tiles, and the
+  experimental ones). A Server Component can pass an element where it can't pass a function, so a
+  server-rendered page needs no client wrapper per icon. Qeetrix draws either the same way: its
+  size, `aria-hidden`, its class and slot, and the sharp shape. An element keeps its other props,
+  such as `data-qx-mirror`.
+  - **From a Server Component** the element arrives as the `<svg>` the icon drew on the server, so
+    Qeetrix sizes it and hides it but can't redraw it. Write `<FingerprintPatternIcon shape="sharp" />`
+    there to match, and a Toggle's `filledWhenPressed` or a Tab's `filledWhenSelected` keeps the
+    outline (there's no filled drawing to swap to).
+  - The type is `IconSource`, from the root entry.
+- **Slider: `getAriaValueText`** (QTRX-89), forwarded to every thumb, for a value the number alone
+  doesn't say: a position on a log scale ("25,000 monthly active users", not "42"), or a value with
+  its unit. It gets the formatted value, the value and the thumb's index, as Base UI's does, so a
+  range can say each end.
 - **`@qeetrix/react/manifest.json`** (QTRX-92): the component manifest as JSON, for tools that run
   no JavaScript, such as the native libraries' Gradle and Swift sync scripts. It's the same array
   as `@qeetrix/react/manifest`: the build's last step writes it from the built module, and the dist

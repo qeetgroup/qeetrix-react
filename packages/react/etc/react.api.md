@@ -90,7 +90,7 @@ export function Badge(input: BadgeProps): ReactElement;
 
 // @public (undocumented)
 export interface BadgeProps extends ComponentProps<"span"> {
-    icon?: QeetrixIcon;
+    icon?: IconSource;
     size?: BadgeSize;
     tone?: BadgeTone;
     variant?: BadgeVariant;
@@ -137,7 +137,7 @@ export function Button(input: ButtonProps): ReactElement;
 export interface ButtonProps extends ButtonBaseProps {
     children?: ReactNode;
     fullWidth?: boolean;
-    icon?: QeetrixIcon;
+    icon?: IconSource;
     variant?: ButtonVariant;
 }
 
@@ -516,11 +516,14 @@ export function IconButton(input: IconButtonProps): ReactElement;
 // @public (undocumented)
 export interface IconButtonProps extends ButtonBaseProps {
     "aria-label": string;
-    icon: QeetrixIcon;
+    icon: IconSource;
     tooltip?: ReactNode | false;
     tooltipSide?: TooltipProps["side"];
     variant?: ButtonVariant;
 }
+
+// @public
+export type IconSource = QeetrixIcon | ReactElement<IconProps<"outline">>;
 
 // @public
 export function Inline(input: InlineProps): ReactElement;
@@ -544,7 +547,7 @@ export function Input(input: InputProps): ReactElement;
 export interface InputProps extends Omit<Input_2.Props, "className" | "style" | "render"> {
     className?: string;
     endAdornment?: ReactNode;
-    icon?: QeetrixIcon;
+    icon?: IconSource;
     startAdornment?: ReactNode;
     style?: CSSProperties;
 }
@@ -562,7 +565,7 @@ export function LinkButton(input: LinkButtonProps): ReactElement;
 export interface LinkButtonProps extends Omit<ComponentProps<"a">, "children"> {
     children?: ReactNode;
     fullWidth?: boolean;
-    icon?: QeetrixIcon;
+    icon?: IconSource;
     render?: RenderProp;
     size?: ControlSize;
     tone?: ButtonTone;
@@ -623,7 +626,7 @@ export function MenuItem(input: MenuItemProps): ReactElement;
 
 // @public (undocumented)
 export interface MenuItemProps extends Omit<Menu_2.Item.Props, "className" | "style">, ItemLookProps {
-    icon?: QeetrixIcon;
+    icon?: IconSource;
     tone?: MenuItemTone;
 }
 
@@ -667,7 +670,7 @@ export function MenuSubmenuTrigger(input: MenuSubmenuTriggerProps): ReactElement
 // @public (undocumented)
 export interface MenuSubmenuTriggerProps extends Omit<Menu_2.SubmenuTrigger.Props, "className" | "style"> {
     className?: string;
-    icon?: QeetrixIcon;
+    icon?: IconSource;
     style?: CSSProperties;
 }
 
@@ -915,6 +918,7 @@ export interface SliderProps<Value extends number | readonly number[] = number> 
     className?: string;
     description?: ReactNode;
     error?: ReactNode;
+    getAriaValueText?: (formattedValue: string, value: number, index: number) => string;
     label?: ReactNode;
     messages?: Partial<QeetrixMessages["slider"]>;
     showValue?: boolean;
@@ -1048,7 +1052,7 @@ export interface TabNavLinkProps extends Omit<ComponentProps<"a">, "children"> {
     children?: ReactNode;
     current?: boolean;
     filledWhenSelected?: boolean;
-    icon?: QeetrixIcon;
+    icon?: IconSource;
     render?: RenderProp;
 }
 
@@ -1065,7 +1069,7 @@ export interface TabProps extends Omit<Tabs_2.Tab.Props, "className" | "style" |
     // (undocumented)
     className?: string;
     filledWhenSelected?: boolean;
-    icon?: QeetrixIcon;
+    icon?: IconSource;
     // (undocumented)
     style?: CSSProperties;
 }
@@ -1226,7 +1230,7 @@ export interface ToggleProps extends Omit<ComponentProps<"button">, "value" | "d
     children?: ReactNode;
     defaultPressed?: boolean;
     filledWhenPressed?: boolean;
-    icon?: QeetrixIcon;
+    icon?: IconSource;
     onPressedChange?: Toggle_2.Props["onPressedChange"];
     pressed?: boolean;
     render?: Toggle_2.Props["render"];

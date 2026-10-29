@@ -19,8 +19,8 @@ import {
   useState,
 } from "react";
 import { IconButton } from "../../button/button";
-import type { QeetrixIcon } from "../../internal/control";
 import { cx } from "../../internal/cx";
+import type { IconSource } from "../../internal/icon";
 import { useMediaQuery } from "../../internal/media";
 import type { QeetrixMessages } from "../../internal/messages";
 import { mergeRefs } from "../../internal/refs";
@@ -43,7 +43,7 @@ export interface AppShellDrawer {
   /** The trigger's label and the panel's title. */
   label: string;
   /** The trigger's icon, from `@qeetrix/icons`. */
-  icon: QeetrixIcon;
+  icon: IconSource;
   /** The panel's content. */
   content: ReactNode;
   /** A dot on the trigger: something new inside. */
