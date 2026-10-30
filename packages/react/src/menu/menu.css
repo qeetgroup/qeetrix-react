@@ -39,16 +39,23 @@
   color: var(--qx-color-icon-subtle);
 }
 
+/* An item is `size.control.md` for one line. A label that doesn't fit the menu's 320px wraps, and
+   the item grows (QTRX-177): nothing is cut, whatever the text size. The icon, mark, shortcut and
+   submenu chevron stay on the first line. */
 .qx-menu-item {
+  --qx-menu-item-line: calc(
+    var(--qx-typography-body-md-font-size) *
+    var(--qx-typography-body-md-line-height)
+  );
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--qx-space-gap-sm);
-  block-size: var(--qx-size-control-md);
+  min-block-size: var(--qx-size-control-md);
+  padding-block: calc((var(--qx-size-control-md) - var(--qx-menu-item-line)) / 2);
   padding-inline: var(--qx-space-inset-md);
   font: var(--qx-typography-body-md);
   font-variation-settings: "GEOM" var(--qx-font-geometry-body);
-  white-space: nowrap;
   cursor: default;
   user-select: none;
   outline: 0;
@@ -79,15 +86,19 @@
     }
   }
 }
+.qx-menu-item > :is(.qx-menu-item-icon, .qx-menu-mark, .qx-menu-submenu-icon) {
+  margin-block: calc((var(--qx-menu-item-line) - 16px) / 2);
+}
 .qx-menu-item-label {
   flex: 1;
   min-inline-size: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 .qx-menu-shortcut {
   margin-inline-start: var(--qx-space-gap-lg);
   font: var(--qx-typography-code-sm);
+  line-height: var(--qx-menu-item-line);
+  white-space: nowrap;
   color: var(--qx-color-text-subtlest);
 }
 .qx-menu-submenu-icon {
@@ -117,25 +128,8 @@
   background: currentcolor;
 }
 
-/* An item with a description: the label keeps a single item's line, the description wraps under
-   it, and the icon, mark and shortcut stay on the label's line. */
-.qx-menu-item[data-description] {
-  --qx-menu-item-line: calc(
-    var(--qx-typography-body-md-font-size) *
-    var(--qx-typography-body-md-line-height)
-  );
-  align-items: flex-start;
-  block-size: auto;
-  min-block-size: var(--qx-size-control-md);
-  padding-block: calc((var(--qx-size-control-md) - var(--qx-menu-item-line)) / 2);
-  white-space: normal;
-  > :is(.qx-menu-item-icon, .qx-menu-mark) {
-    margin-block: calc((var(--qx-menu-item-line) - 16px) / 2);
-  }
-  > .qx-menu-shortcut {
-    line-height: var(--qx-menu-item-line);
-  }
-}
+/* An item with a description: the description wraps under the label, which starts on the item's
+   first line with the icon, mark and shortcut. */
 .qx-menu-item-text {
   display: flex;
   flex: 1;
@@ -143,7 +137,6 @@
   min-inline-size: 0;
   > .qx-menu-item-label {
     flex: none;
-    white-space: nowrap;
   }
 }
 .qx-menu-item-description {

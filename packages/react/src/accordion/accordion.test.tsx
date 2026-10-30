@@ -57,6 +57,18 @@ describe("Accordion", () => {
     expect(panel.getBoundingClientRect().height).toBeGreaterThan(20);
   });
 
+  it("dims a disabled trigger's chevron with its text (QTRX-167)", async () => {
+    await render(<Advanced />);
+    const chevron = (name: string) =>
+      page.getByRole("button", { name }).element().querySelector("svg") as SVGElement;
+    expect(getComputedStyle(chevron("Legacy export")).color).toBe(
+      tokenColor("--qx-color-icon-disabled"),
+    );
+    expect(getComputedStyle(chevron("Tax settings")).color).toBe(
+      tokenColor("--qx-color-icon-subtle"),
+    );
+  });
+
   it("makes each trigger a Tab stop, as the APG accordion pattern now does", async () => {
     await render(<Advanced />);
     await userEvent.keyboard("{Tab}");

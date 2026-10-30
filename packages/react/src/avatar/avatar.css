@@ -47,9 +47,85 @@
   object-fit: cover;
 }
 
-/* Forced colours: the fill is dropped, so the shape gets an edge. */
+/* A status (QTRX-181): a round dot on the bottom-end corner in its tone's icon colour, which keeps
+   3:1 on every surface, a selected or hovered row's too. It's cut out of the avatar with a 2px gap
+   rather than ringed in a surface colour, so it reads on any background. Its size steps with the
+   avatar's, its centre on a circle's edge. The fill moves to a masked layer, and the photo is
+   clipped and masked itself, so the dot, a child, stays whole. */
+.qx-avatar[data-status] {
+  --qx-avatar-status-size: 10px;
+  --qx-avatar-status-x: calc(100% - var(--qx-avatar-status-size) / 2);
+  --qx-avatar-status-cut: radial-gradient(
+    circle at var(--qx-avatar-status-x) calc(100% - var(--qx-avatar-status-size) / 2),
+    transparent calc(var(--qx-avatar-status-size) / 2 + var(--qx-border-width-strong)),
+    black calc(var(--qx-avatar-status-size) / 2 + var(--qx-border-width-strong) + 0.5px)
+  );
+  position: relative;
+  overflow: visible;
+  background: none;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--qx-color-bg-neutral-subtle-pressed);
+    mask: var(--qx-avatar-status-cut);
+  }
+  & > .qx-avatar-image {
+    position: relative;
+    border-radius: inherit;
+    mask: var(--qx-avatar-status-cut);
+  }
+  & > .qx-avatar-fallback {
+    position: relative;
+  }
+  &[data-size="sm"] {
+    --qx-avatar-status-size: 8px;
+  }
+  &[data-size="lg"] {
+    --qx-avatar-status-size: 12px;
+  }
+  &[data-size="xl"] {
+    --qx-avatar-status-size: 14px;
+  }
+}
+/* The gap is a mask, placed physically: on the left in right to left, where the dot is. */
+[dir="rtl"] .qx-avatar[data-status] {
+  --qx-avatar-status-x: calc(var(--qx-avatar-status-size) / 2);
+}
+.qx-avatar-status {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  inline-size: var(--qx-avatar-status-size);
+  block-size: var(--qx-avatar-status-size);
+  border-radius: var(--qx-radius-full);
+  background: var(--qx-color-icon-subtle);
+  &[data-tone="brand"] {
+    background: var(--qx-color-icon-brand);
+  }
+  &[data-tone="info"] {
+    background: var(--qx-color-icon-info);
+  }
+  &[data-tone="success"] {
+    background: var(--qx-color-icon-success);
+  }
+  &[data-tone="warning"] {
+    background: var(--qx-color-icon-warning);
+  }
+  &[data-tone="danger"] {
+    background: var(--qx-color-icon-danger);
+  }
+}
+
+/* Forced colours: the fill is dropped, so the shape gets an edge; the dot is drawn in the text
+   colour, its meaning in the name. */
 @media (forced-colors: active) {
   .qx-avatar {
     border: var(--qx-border-width-default) solid CanvasText;
+  }
+  .qx-avatar-status {
+    forced-color-adjust: none;
+    background: CanvasText;
   }
 }

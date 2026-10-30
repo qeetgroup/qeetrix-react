@@ -184,6 +184,38 @@ describe("Menu", () => {
     expect(heights).toEqual({ compact: 28, default: 32, comfortable: 36 });
   });
 
+  it("wraps a label too long for its 320px, the item growing, its icon and shortcut on the first line (QTRX-177)", async () => {
+    const label = "Move to the archived projects folder of Kaveri Foods Private Limited";
+    await render(
+      <Menu defaultOpen>
+        <MenuTrigger render={<Button>Actions</Button>} />
+        <MenuContent>
+          <MenuItem icon={PencilIcon} shortcut="⌘E">
+            Rename
+          </MenuItem>
+          <MenuItem icon={CopyIcon} shortcut="⌘M">
+            {label}
+          </MenuItem>
+        </MenuContent>
+      </Menu>,
+    );
+    const short = page.getByRole("menuitem", { name: "Rename" }).element() as HTMLElement;
+    const long = page.getByRole("menuitem", { name: label }).element() as HTMLElement;
+    const text = long.querySelector("[data-slot=menu-item-label]") as HTMLElement;
+    // Every word shows: no ellipsis, nothing hidden.
+    expect(text.scrollWidth).toBeLessThanOrEqual(text.clientWidth);
+    expect(getComputedStyle(text).textOverflow).not.toBe("ellipsis");
+    const line = short.getBoundingClientRect().height;
+    expect(long.getBoundingClientRect().height).toBeGreaterThan(line);
+    expect(long.closest(".qx-menu")?.getBoundingClientRect().width).toBeLessThanOrEqual(320);
+    // The icon and the shortcut sit where a one-line item puts them.
+    const top = (item: HTMLElement, slot: string) =>
+      (item.querySelector(`[data-slot=${slot}]`) as Element).getBoundingClientRect().top -
+      item.getBoundingClientRect().top;
+    expect(top(long, "menu-item-icon")).toBe(top(short, "menu-item-icon"));
+    expect(top(long, "menu-shortcut")).toBeCloseTo(top(short, "menu-shortcut"), 1);
+  });
+
   it("toggles checkbox items and opens submenus", async () => {
     await render(<RowMenu defaultOpen />);
     const gstin = page.getByRole("menuitemcheckbox", { name: "GSTIN" });

@@ -85,7 +85,10 @@ export interface SidebarItemProps
    * round icons. Icons represent destinations, not actions.
    */
   icon?: IconSource;
-  /** Show the icon's filled drawing while current. Only for icons that have one. */
+  /**
+   * Show the icon's filled drawing while current (05 §11: the current item has a filled icon). An
+   * icon with no filled drawing keeps its outline. `false` keeps the outline always. Default `true`.
+   */
   filledWhenCurrent?: boolean;
   /** This item is the current page: `aria-current="page"` and the Ember bar. */
   current?: boolean;
@@ -221,7 +224,7 @@ export function SidebarItem({
   href,
   render,
   icon: Icon,
-  filledWhenCurrent,
+  filledWhenCurrent = true,
   current,
   badge,
   defaultOpen,

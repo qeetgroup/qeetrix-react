@@ -1,5 +1,20 @@
 /* Progress and Meter: Slider's header, a 4px track and an Ember indicator. Both take a tone: Progress
    success or danger for how a task ended, Meter any of Badge's tones. */
+
+/* Every tone's fill keeps 3:1 against the track in both schemes (05 §20, WCAG 1.4.11; QTRX-176).
+   In light the track is border.default, and warning's light amber fill gives way to border.warning
+   (3.08:1). In dark the track is surface.sunken, below the bold fills (info 3.67, success 3.91,
+   danger 3.32, brand 4.40:1). Set per scheme, as the tokens are: the nearest data-qx-color-scheme
+   decides, so a section shown in the other scheme gets it right. */
+:root,
+[data-qx-color-scheme="light"] {
+  --qx-progress-track: var(--qx-color-border-default);
+  --qx-progress-warning: var(--qx-color-border-warning);
+}
+[data-qx-color-scheme="dark"] {
+  --qx-progress-track: var(--qx-color-surface-sunken);
+  --qx-progress-warning: var(--qx-color-bg-warning-bold);
+}
 .qx-progress {
   display: flex;
   flex-direction: column;
@@ -27,7 +42,7 @@
   position: relative;
   block-size: 4px;
   overflow: hidden;
-  background: var(--qx-color-border-default);
+  background: var(--qx-progress-track);
 }
 /* A target on a Meter's track: a 2px tick in the text colour, overhanging the track 3px each side,
    placed from the start edge so it mirrors in right-to-left layouts. */
@@ -57,7 +72,7 @@
     background: var(--qx-color-bg-success-bold);
   }
   [data-tone="warning"] & {
-    background: var(--qx-color-bg-warning-bold);
+    background: var(--qx-progress-warning);
   }
   [data-tone="danger"] & {
     background: var(--qx-color-bg-danger-bold);
@@ -69,8 +84,16 @@
     animation-timing-function: var(--qx-motion-easing-standard);
     animation-iteration-count: infinite;
   }
+  /* The slide follows the reading direction: it enters at the inline start and leaves at the end,
+     so in right to left it runs from the right (QTRX-166). A translate is physical, hence its own
+     keyframes. */
+  [dir="rtl"] &[data-indeterminate] {
+    animation-name: qx-progress-slide-rtl;
+  }
 }
 
+/* The 30% segment starts just before the start edge and ends just past the end one (334% of its
+   width is the track's 100% plus its own). */
 @keyframes qx-progress-slide {
   from {
     translate: -100% 0;
@@ -79,11 +102,20 @@
     translate: 334% 0;
   }
 }
+@keyframes qx-progress-slide-rtl {
+  from {
+    translate: 100% 0;
+  }
+  to {
+    translate: -334% 0;
+  }
+}
 
 /* Under reduced motion the tokens set every duration to 0, which would hide the wait. The segment
    spans the track and fades instead; the fade's duration is deliberately not a token. */
 @media (prefers-reduced-motion: reduce) {
-  .qx-progress-indicator[data-indeterminate] {
+  .qx-progress-indicator[data-indeterminate],
+  [dir="rtl"] .qx-progress-indicator[data-indeterminate] {
     inline-size: 100%;
     animation: qx-progress-fade 1.6s ease-in-out infinite;
   }

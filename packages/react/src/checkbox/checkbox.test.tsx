@@ -4,7 +4,9 @@ import { describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
+import { tokenColor } from "../../tests/support/color";
 import { screenshotSchemes } from "../../tests/support/screenshots";
+import { settled } from "../../tests/support/settled";
 import { Stage } from "../../tests/support/stage";
 import { Inline } from "../inline/inline";
 import { Stack } from "../stack/stack";
@@ -126,6 +128,27 @@ describe("CheckboxGroup", () => {
     await expect
       .element(page.getByRole("checkbox", { name: "Email" }))
       .toHaveAttribute("data-invalid", "");
+  });
+
+  it("keeps an invalid box's danger edge under the pointer, checked or not (QTRX-161)", async () => {
+    await render(
+      <CheckboxGroup label="Notify me by" error="Choose at least one." defaultValue={["sms"]}>
+        <Checkbox value="email" label="Email" />
+        <Checkbox value="sms" label="SMS" />
+      </CheckboxGroup>,
+    );
+    const danger = tokenColor("--qx-color-border-danger");
+    for (const name of ["Email", "SMS"]) {
+      const box = page.getByRole("checkbox", { name }).element();
+      expect(getComputedStyle(box).borderColor).toBe(danger);
+      await userEvent.hover(box);
+      await settled();
+      expect(getComputedStyle(box).borderColor).toBe(danger);
+    }
+    // The checked box still answers the pointer with its fill.
+    expect(
+      getComputedStyle(page.getByRole("checkbox", { name: "SMS" }).element()).background,
+    ).toContain(tokenColor("--qx-color-bg-brand-bold-hover"));
   });
 
   it("is accessible and looks right in both schemes", async () => {

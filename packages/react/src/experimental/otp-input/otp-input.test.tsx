@@ -2,9 +2,12 @@ import { describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../../tests/support/axe";
+import { tokenColor } from "../../../tests/support/color";
 import { screenshotEveryMode } from "../../../tests/support/screenshots";
+import { settled } from "../../../tests/support/settled";
 import { Stage } from "../../../tests/support/stage";
 import { Field } from "../../field/field";
+import { Input } from "../../input/input";
 import { hi } from "../../locales/hi";
 import { QeetrixProvider } from "../../provider/provider";
 import { OTPInput } from "./otp-input";
@@ -155,6 +158,51 @@ describe("OTPInput", () => {
     expect(container.querySelectorAll(".qx-otp-input-separator")).toHaveLength(1);
     const [third, separator] = [slots()[2], container.querySelector(".qx-otp-input-separator")];
     expect(third?.nextElementSibling).toBe(separator);
+  });
+
+  it("frames the focused slot of an invalid code in Ember, as Input does (QTRX-163)", async () => {
+    await render(
+      <>
+        <Field label="Verification code" error="That code didn't work. Enter the new one.">
+          <OTPInput defaultValue="12" />
+        </Field>
+        <Field label="Email" error="Enter an email address.">
+          <Input defaultValue="priya@" />
+        </Field>
+      </>,
+    );
+    const [focused, other] = slots() as [HTMLInputElement, HTMLInputElement];
+    focused.focus();
+    const focus = tokenColor("--qx-color-border-focus");
+    expect(getComputedStyle(focused).outlineColor).toBe(focus);
+    expect(getComputedStyle(other).outlineColor).toBe(tokenColor("--qx-color-border-danger"));
+    // The same rule as a focused invalid Input.
+    const email = page.getByRole("textbox", { name: "Email" }).element() as HTMLInputElement;
+    email.focus();
+    expect(getComputedStyle(email.parentElement as HTMLElement).outlineColor).toBe(focus);
+  });
+
+  it("looks read-only when read-only, as Input does: no fill, no hover tint (QTRX-165)", async () => {
+    await render(
+      <>
+        <Field label="Verification code">
+          <OTPInput defaultValue="482913" readOnly />
+        </Field>
+        <Field label="Email">
+          <Input defaultValue="priya@acme.in" readOnly />
+        </Field>
+      </>,
+    );
+    const slot = slots()[0] as HTMLInputElement;
+    const box = (page.getByRole("textbox", { name: "Email" }).element() as HTMLElement)
+      .parentElement as HTMLElement;
+    expect(slot.hasAttribute("data-readonly")).toBe(true);
+    await userEvent.hover(slot);
+    await settled();
+    const [slotStyle, boxStyle] = [getComputedStyle(slot), getComputedStyle(box)];
+    expect(slotStyle.backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    expect(slotStyle.boxShadow).toBe(boxStyle.boxShadow);
+    expect(slotStyle.cursor).toBe("default");
   });
 
   it("speaks Hindi through QeetrixProvider", async () => {

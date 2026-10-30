@@ -145,7 +145,7 @@ export function Invoices() {
 | **Display and status** | |
 | `Table` | One data-driven table: columns and rows, sorting, selection with bulk actions, row actions, clickable rows and a loading line |
 | `Badge` | A status pill in six tones, `subtle` or `solid`, `md` or `sm` |
-| `Avatar` | A photo or initials; `shape="square"` for organisations, apps and tenants |
+| `Avatar` | A photo or initials; `shape="square"` for organisations, apps and tenants; a `status` dot read with the name |
 | `Progress`, `Meter` | A task advancing, or a measurement within a range, in tones |
 | `Spinner`, `Skeleton` | An indeterminate wait; a placeholder shaped like the content, with a `lines` preset |
 
@@ -320,7 +320,7 @@ change in a patch release, always with a changelog note, until they're stable.
 | Area | Components |
 |:--|:--|
 | **Console frame** | `AppShell`, `TopBar` (`TopBarSwitcher`, `TopBarSearch`), `Sidebar` (`SidebarGroup`, `SidebarItem`), `PageHeader` (`PageHeaderBack`), `PageContent`, `Breadcrumb` |
-| **Forms and input** | `Form`, `ErrorSummary`, `Combobox` (with server search), `SearchField`, `NumberField`, `PasswordInput`, `OTPInput`, `FileUpload`, `FilterTags` |
+| **Forms and input** | `Form`, `ErrorSummary`, `Combobox` (with server search), `SearchField`, `NumberField`, `PasswordInput`, `OTPInput`, `FileUpload`, `FilterTags`, `Chip` (`ChipGroup`) |
 | **Dates** | `Calendar`, `RangeCalendar`, `DatePicker`, `DateRangePicker` (with presets) |
 | **Data display** | `Stat` (`StatGroup`), `DescriptionList`, `Timeline`, `TreeView`, `AvatarGroup`, `AvatarItem`, `CodeBlock`, `QRCode` |
 | **Feedback** | `Alert`, `EmptyState`, `DataState`, `Steps`, `Pagination` |

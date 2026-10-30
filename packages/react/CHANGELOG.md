@@ -1,5 +1,89 @@
 # @qeetrix/react
 
+## 0.4.0
+
+From qeetrix-android's migration to 0.3.0 (QTRX-157 to QTRX-181): fixes it found in the CSS, a
+status dot on Avatar, and Chip. Nothing is removed or renamed. A minor: one default changes (filled
+icons on the selected tab and the current sidebar item), and there's a new component.
+
+### Migrating from 0.3
+
+- **A Tab, TabNavLink or SidebarItem with an icon now shows the filled drawing while selected or
+  current** (QTRX-168). Pass `filledWhenSelected={false}` (Tab, TabNavLink) or
+  `filledWhenCurrent={false}` (SidebarItem) to keep the outline. An icon with no filled drawing
+  draws its outline either way, so most code needs no change.
+- **Long text wraps instead of ending in an ellipsis** in Select options, Menu items and AvatarItem
+  (QTRX-177, QTRX-178): those rows grow. A layout that counted on one line per item gives them room.
+- Nothing else needs a change.
+
+### Changed
+
+- **Filled icons by default** (QTRX-168): `filledWhenSelected` on Tab and TabNavLink, and
+  `filledWhenCurrent` on SidebarItem, default to `true`, as 06 §8 and 05 §11 make the filled icon
+  part of the selected and current state. A behaviour change, so this is a minor.
+
+### New
+
+- **Chip and ChipGroup** (QTRX-180), in `@qeetrix/react/experimental`: the interactive or removable
+  tag the rules send people to (05 §14, 06 §10).
+  - **Selectable:** a checkbox named by its label, with Base UI Checkbox's `checked` /
+    `defaultChecked` / `onCheckedChange`. Chosen, it takes the selected tint, a 2px Ember edge and a
+    check before the label (an `icon` takes the check's place), so the choice never rests on
+    colour.
+  - **Removable:** `onRemove` makes it a static label ending in a small neutral remove button, named
+    "Remove {label}" (`removeLabel` for a label that isn't text). Strings in `chip`, Hindi included.
+  - **ChipGroup:** one value from a set (radios: one tab stop, arrow keys move the choice, mirrored
+    in right to left), or several with `multiple` (checkboxes, `value` the chosen ones), named by
+    `label`. The chips wrap onto more lines, `space.gap.sm` apart.
+  - **Look:** FilterTags' tag, as Android's QeetrixChip: the neutral tint with a 1px rule inside,
+    the controls' 4px corners, `size` `sm` / `md` / `lg` at the controls' heights; the neutral
+    tints on hover and press; the Ember frame 2px outside on keyboard focus. A long label wraps.
+- **Avatar `status`** (QTRX-181): `status={{ label: "Online", tone: "success" }}`, a round dot on the
+  bottom-end corner in Badge's tones, 8, 10, 12 or 14px with the avatar's size. The avatar is named
+  "Priya Sharma, Online". The dot is cut out of the avatar with a 2px gap, so it reads on any
+  surface (a selected or hovered row too) without a surface-coloured ring, and its icon colour
+  keeps 3:1 on every surface. A `decorative` avatar hides it with the rest: say the status in words
+  where it matters. Types `AvatarStatus` and `AvatarStatusTone`.
+
+### Fixed
+
+- **Button: a solid neutral button hovers and presses in graphite** (QTRX-157), as soft does (06 §1:
+  "a solid or soft neutral button looks like soft"). Solid's Ember hover and press outranked the
+  neutral tone.
+- **Button: a ghost danger press is the danger tint** (QTRX-158), never the brand's: a keyboard or
+  touch press without the pointer over it showed an Ember tint on a destructive action. The tokens
+  have no `bg.danger.subtle-pressed`, so the press keeps `bg.danger.subtle`.
+- **Checkbox, Radio and Switch keep an invalid control's danger edge** (QTRX-161), under the pointer
+  and when checked: the hover and checked rules outranked it. A chosen invalid radio's ring is the
+  danger colour.
+- **Switch: the on thumb is white in both schemes** (QTRX-162), `color.icon.on-brand` as the
+  checkbox's tick on the same Ember (05 §9, 06 §3). It was `surface.default`, near-black in dark.
+- **OTPInput: the focused slot of an invalid code shows the Ember frame** (QTRX-163), as a focused
+  invalid Input does, so keyboard focus is never hidden (05 §10, §20). The other slots keep the
+  danger frame.
+- **OTPInput: a read-only code looks read-only** (QTRX-165), as a read-only Input: no fill, no hover
+  tint, the read-only line and a default cursor.
+- **Progress: the indeterminate segment follows the reading direction** (QTRX-166): in right to left
+  it enters on the right and leaves on the left. It started mid-track and ran off the wrong end.
+  Under reduced motion it still fades.
+- **Accordion: a disabled trigger's chevron dims** (QTRX-167) to `icon.disabled`, with its text, as
+  Select's and Menu's icons do.
+- **Card: no body without children** (QTRX-174): a header-only card ends at its header, not 32px of
+  empty padding, and its header's rule no longer doubles the card's edge or the footer's rule. A
+  body whose content renders nothing takes no room either.
+- **Read-only fields keep a 3:1 line** (QTRX-175): Input, Textarea, Select, Combobox, NumberField,
+  OTPInput and CopyField draw it in `border.strong`, the editable field's line (3.36–3.79:1 light,
+  4.40–5.29:1 dark). It was `border.subtle`, 1.00–1.20:1. The missing fill still tells read-only
+  from editable.
+- **Progress and Meter: every tone's fill keeps 3:1 against the track** (QTRX-176), in both schemes.
+  In dark the track is `surface.sunken` (info 3.67, success 3.91, danger 3.32, brand 4.40:1); in
+  light warning's fill is `border.warning` (3.08:1; the bold amber was 1.51:1). No token changes.
+- **Select options and Menu items wrap** (QTRX-177) instead of ending in an ellipsis, the row growing
+  from `size.control.md`; the check, icon, mark, shortcut and submenu chevron stay on the first line.
+  Nothing is cut at 200% text (WCAG 1.4.4).
+- **AvatarItem's name and description wrap** (QTRX-178), a long email breaking where it must, so
+  neither is ever cut.
+
 ## 0.3.0
 
 For the native libraries (QTRX-92, QTRX-93) and qeet-id-website (QTRX-89, QTRX-90). 0.2.3 was never

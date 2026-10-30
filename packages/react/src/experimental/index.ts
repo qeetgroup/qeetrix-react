@@ -11,6 +11,7 @@ export * from "./breadcrumb";
 export * from "./calendar";
 export * from "./chart";
 export * from "./check-list";
+export * from "./chip";
 export * from "./code-block";
 export * from "./code-field";
 export * from "./color";

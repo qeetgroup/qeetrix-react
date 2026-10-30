@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
-import { tokenColor } from "../../tests/support/color";
+import { contrast, tokenColor } from "../../tests/support/color";
 import { screenshotSchemes } from "../../tests/support/screenshots";
 import { Stage } from "../../tests/support/stage";
 import { Stack } from "../stack/stack";
@@ -101,7 +101,47 @@ describe("tones", () => {
     const colours = [...container.querySelectorAll("[data-slot=meter-indicator]")].map(
       (indicator) => getComputedStyle(indicator).backgroundColor,
     );
-    expect(colours).toEqual(tones.map((tone) => tokenColor(`--qx-color-bg-${tone}-bold`)));
+    // In light, warning's fill is border.warning: the bold amber is 1.51:1 on the track (QTRX-176).
+    expect(colours).toEqual(
+      tones.map((tone) =>
+        tokenColor(tone === "warning" ? "--qx-color-border-warning" : `--qx-color-bg-${tone}-bold`),
+      ),
+    );
+  });
+
+  it("keeps every tone's fill at 3:1 against its track, in both schemes (QTRX-176)", async () => {
+    const tones = ["brand", "neutral", "info", "success", "warning", "danger"] as const;
+    const { container } = await render(
+      <Stack gap="md">
+        {tones.map((tone) => (
+          <Meter key={tone} aria-label={tone} value={50} tone={tone} />
+        ))}
+        <Progress aria-label="Uploading" value={40} />
+      </Stack>,
+    );
+    const html = document.documentElement;
+    const measured: Record<string, number> = {};
+    for (const scheme of ["light", "dark"]) {
+      html.dataset.qxColorScheme = scheme;
+      for (const indicator of container.querySelectorAll<HTMLElement>(".qx-progress-indicator")) {
+        const track = indicator.parentElement as HTMLElement;
+        const tone =
+          (indicator.closest("[data-tone]") as HTMLElement | null)?.dataset.tone ?? "brand";
+        measured[`${scheme} ${tone}`] = contrast(
+          getComputedStyle(indicator).backgroundColor,
+          getComputedStyle(track).backgroundColor,
+        );
+      }
+    }
+    delete html.dataset.qxColorScheme;
+    for (const [pair, ratio] of Object.entries(measured)) {
+      expect(ratio, pair).toBeGreaterThanOrEqual(3);
+    }
+    // The dark track is the sunken surface, under the bold fills.
+    html.dataset.qxColorScheme = "dark";
+    const track = container.querySelector("[data-slot=progress-track]") as HTMLElement;
+    expect(getComputedStyle(track).backgroundColor).toBe(tokenColor("--qx-color-surface-sunken"));
+    delete html.dataset.qxColorScheme;
   });
 
   it("are accessible in every tone, and look right in both schemes", async () => {

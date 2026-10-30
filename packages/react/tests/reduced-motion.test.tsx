@@ -33,4 +33,17 @@ describe.runIf(canEmulateMedia)("reduced motion", () => {
     expect(getComputedStyle(slot("progress-indicator")).animationName).toBe("qx-progress-fade");
     expect(getComputedStyle(slot("skeleton")).animationDuration).toBe("0s");
   });
+
+  it("fades indeterminate Progress in right to left too (QTRX-166)", async () => {
+    await render(
+      <div dir="rtl">
+        <Progress aria-label="Importing" value={null} />
+      </div>,
+    );
+    expect(getComputedStyle(slot("progress-indicator")).animationName).toBe(
+      "qx-progress-slide-rtl",
+    );
+    reset = await emulateMedia({ "prefers-reduced-motion": "reduce" });
+    expect(getComputedStyle(slot("progress-indicator")).animationName).toBe("qx-progress-fade");
+  });
 });

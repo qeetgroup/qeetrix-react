@@ -28,7 +28,7 @@ describe("AvatarItem", () => {
     expect(avatar.getBoundingClientRect().height).toBe(32);
   });
 
-  it("ends long text with an ellipsis where the space runs out", async () => {
+  it("wraps long text where the space runs out, so none of it is cut (QTRX-178)", async () => {
     const { container } = await render(
       <div style={{ inlineSize: 160 }}>
         <AvatarItem
@@ -37,9 +37,16 @@ describe("AvatarItem", () => {
         />
       </div>,
     );
+    const item = container.querySelector(".qx-avatar-item") as HTMLElement;
     for (const line of container.querySelectorAll<HTMLElement>(".qx-avatar-item-text > span")) {
-      expect(line.scrollWidth).toBeGreaterThan(line.clientWidth);
-      expect(getComputedStyle(line).textOverflow).toBe("ellipsis");
+      // Every character shows, the email broken where it must be, inside the 160px.
+      expect(line.scrollWidth).toBeLessThanOrEqual(line.clientWidth);
+      expect(getComputedStyle(line).textOverflow).not.toBe("ellipsis");
+      expect(line.getBoundingClientRect().right).toBeLessThanOrEqual(
+        item.getBoundingClientRect().right + 0.5,
+      );
+      // Two lines or more: 16px each.
+      expect(line.getBoundingClientRect().height).toBeGreaterThanOrEqual(31);
     }
   });
 

@@ -156,6 +156,7 @@ export const hi: QeetrixMessages = {
   descriptionList: { empty: "सेट नहीं है" },
   stat: { loading: "लोड हो रहा है" },
   filterTags: { label: "लागू फ़िल्टर", remove: "फ़िल्टर {filter} हटाएँ", clear: "सब हटाएँ" },
+  chip: { remove: "{label} हटाएँ", removePlain: "हटाएँ" },
   fileUpload: {
     dragFile: "फ़ाइल यहाँ खींचकर लाएँ, या {browse}",
     dragFiles: "फ़ाइलें यहाँ खींचकर लाएँ, या {browse}",

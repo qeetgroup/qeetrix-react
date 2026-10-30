@@ -54,6 +54,29 @@ describe("Sidebar", () => {
     await expect.element(page.getByRole("list", { name: "Money" })).toBeVisible();
   });
 
+  it("fills the current item's icon by default, and keeps the outline when asked (QTRX-168)", async () => {
+    await render(
+      <Sidebar label="Qeet Pay">
+        <SidebarGroup>
+          <SidebarItem label="Payments" href="#payments" icon={CreditCardIcon} current />
+          <SidebarItem
+            label="Payouts"
+            href="#payouts"
+            icon={WalletIcon}
+            current
+            filledWhenCurrent={false}
+          />
+        </SidebarGroup>
+      </Sidebar>,
+    );
+    const shown = (name: string) =>
+      [...page.getByRole("link", { name }).element().querySelectorAll("svg")]
+        .filter((svg) => getComputedStyle(svg).display !== "none")
+        .map((svg) => svg.getAttribute("class"));
+    expect(shown("Payments")).toEqual(["qx-sidebar-icon qx-sidebar-icon-filled"]);
+    expect(shown("Payouts")).toEqual(["qx-sidebar-icon qx-sidebar-icon-outline"]);
+  });
+
   it("opens and closes a category; it starts open when it holds the current page", async () => {
     await render(<PayNav reportsCurrent />);
     const reports = page.getByRole("button", { name: "Reports" });

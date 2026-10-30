@@ -91,7 +91,7 @@ note.
 | Area | Components |
 |:--|:--|
 | **Console frame** | `AppShell`, `TopBar`, `Sidebar`, `PageHeader` · `PageHeaderBack`, `PageContent`, `Breadcrumb` |
-| **Forms and input** | `Form`, `ErrorSummary`, `Combobox`, `SearchField`, `NumberField`, `PasswordInput`, `OTPInput`, `FileUpload`, `FilterTags` |
+| **Forms and input** | `Form`, `ErrorSummary`, `Combobox`, `SearchField`, `NumberField`, `PasswordInput`, `OTPInput`, `FileUpload`, `FilterTags`, `Chip` · `ChipGroup` |
 | **Dates** | `Calendar`, `RangeCalendar`, `DatePicker`, `DateRangePicker` |
 | **Data display** | `Stat` · `StatGroup`, `DescriptionList`, `Timeline`, `TreeView`, `AvatarGroup`, `AvatarItem`, `CodeBlock`, `QRCode` |
 | **Feedback** | `Alert`, `EmptyState`, `DataState`, `Steps`, `Pagination` |

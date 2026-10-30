@@ -102,6 +102,42 @@ describe("Tabs", () => {
     expect(getComputedStyle(filled).display).toBe("block");
   });
 
+  it("fills the selected tab's icon by default, and keeps the outline when asked (QTRX-168)", async () => {
+    await render(
+      <Tabs defaultValue="all">
+        <TabsList>
+          <Tab value="all" icon={LayoutGridIcon}>
+            All
+          </Tab>
+          <Tab value="paid" icon={LayoutGridIcon} filledWhenSelected={false}>
+            Paid
+          </Tab>
+        </TabsList>
+      </Tabs>,
+    );
+    const shown = (name: string) =>
+      [...page.getByRole("tab", { name }).element().querySelectorAll("svg")]
+        .filter((svg) => getComputedStyle(svg).display !== "none")
+        .map((svg) => svg.getAttribute("class"));
+    expect(shown("All")).toEqual(["qx-tab-icon qx-tab-icon-filled"]);
+    await page.getByRole("tab", { name: "Paid" }).click();
+    expect(shown("Paid")).toEqual(["qx-tab-icon qx-tab-icon-outline"]);
+    expect(shown("All")).toEqual(["qx-tab-icon qx-tab-icon-outline"]);
+  });
+
+  it("fills the current TabNavLink's icon by default (QTRX-168)", async () => {
+    await render(
+      <TabNav aria-label="Users views">
+        <TabNavLink href="#all" icon={LayoutGridIcon} current>
+          All
+        </TabNavLink>
+      </TabNav>,
+    );
+    const link = page.getByRole("link", { name: "All" }).element();
+    const filled = link.querySelector(".qx-tab-icon-filled") as SVGElement;
+    expect(getComputedStyle(filled).display).toBe("block");
+  });
+
   it("pads 12px at compact density and 16px otherwise", async () => {
     await render(<Invoices />);
     const tab = page.getByRole("tab", { name: "Paid" }).element();

@@ -15,19 +15,23 @@
   transition-duration: var(--qx-motion-duration-fast);
   transition-timing-function: var(--qx-motion-easing-standard);
 
-  &:hover:not([data-disabled], [data-readonly]) {
+  /* Hover never takes an invalid box's danger edge (QTRX-161). */
+  &:hover:not([data-disabled], [data-readonly], [data-invalid]) {
     border-color: var(--qx-color-border-strong-hover);
-  }
-  &[data-invalid] {
-    border-color: var(--qx-color-border-danger);
   }
   &:is([data-checked], [data-indeterminate]) {
     border-color: var(--qx-color-bg-brand-bold);
     background: var(--qx-color-bg-brand-bold);
     &:hover:not([data-disabled], [data-readonly]) {
-      border-color: var(--qx-color-bg-brand-bold-hover);
       background: var(--qx-color-bg-brand-bold-hover);
     }
+    &:hover:not([data-disabled], [data-readonly], [data-invalid]) {
+      border-color: var(--qx-color-bg-brand-bold-hover);
+    }
+  }
+  /* Invalid (in a group with an error): the danger edge, checked or not, after the checked rules. */
+  &[data-invalid] {
+    border-color: var(--qx-color-border-danger);
   }
   &[data-disabled] {
     border-color: var(--qx-color-border-disabled);

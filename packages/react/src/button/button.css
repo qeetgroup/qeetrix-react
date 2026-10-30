@@ -87,9 +87,13 @@
       background: var(--qx-color-bg-danger-bold-pressed);
     }
   }
+  /* Ghost danger presses to its own tint, never the brand's (QTRX-158): a keyboard or touch press
+     without the pointer over it shows the danger tint too. The tokens have no
+     bg.danger.subtle-pressed, so the press keeps bg.danger.subtle (the label 5.19:1 light, 6.23:1
+     dark). */
   &[data-tone="danger"][data-variant="ghost"] {
     color: var(--qx-color-text-danger);
-    &:hover:not([data-disabled]) {
+    &:is(:hover, :active):not([data-disabled]) {
       background: var(--qx-color-bg-danger-subtle);
     }
   }
@@ -104,9 +108,17 @@
       background: var(--qx-color-bg-neutral-subtle-pressed);
     }
   }
+  /* A solid or soft neutral button looks like soft (06 §1), in every state: its own hover and press
+     outrank solid's Ember ones (QTRX-157). */
   &[data-tone="neutral"]:not([data-variant="ghost"]) {
     background: var(--qx-color-bg-neutral-bold);
     color: var(--qx-color-text-inverse);
+    &:hover:not([data-disabled]) {
+      background: var(--qx-color-bg-neutral-bold-hover);
+    }
+    &:active:not([data-disabled]) {
+      background: var(--qx-color-bg-neutral-bold-pressed);
+    }
   }
 
   &[data-disabled]:not([data-loading]) {
