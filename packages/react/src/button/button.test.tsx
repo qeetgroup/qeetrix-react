@@ -1,10 +1,12 @@
 import { ArrowRightIcon } from "@qeetrix/icons/icons/arrow-right";
 import { DownloadIcon } from "@qeetrix/icons/icons/download";
 import { describe, expect, it, vi } from "vitest";
-import { page, userEvent } from "vitest/browser";
+import { page, server, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
+import { tokenColor } from "../../tests/support/color";
 import { screenshotEveryMode } from "../../tests/support/screenshots";
+import { settled } from "../../tests/support/settled";
 import { Stage } from "../../tests/support/stage";
 import { Inline } from "../inline/inline";
 import { Stack } from "../stack/stack";
@@ -152,6 +154,56 @@ describe("Button", () => {
     const button = page.getByRole("button", { name: "Download invoice" }).element() as HTMLElement;
     const { width, height } = button.getBoundingClientRect();
     expect(width).toBe(height);
+  });
+
+  it("a solid neutral button hovers and presses in graphite, as soft does (QTRX-157)", async () => {
+    await render(
+      <Button variant="solid" tone="neutral">
+        Export
+      </Button>,
+    );
+    const button = page.getByRole("button", { name: "Export" }).element() as HTMLElement;
+    await userEvent.hover(button);
+    await settled();
+    expect(getComputedStyle(button).backgroundColor).toBe(
+      tokenColor("--qx-color-bg-neutral-bold-hover"),
+    );
+    // A held Space is a press without the pointer moving (Chromium and Firefox set :active for it).
+    if (server.browser !== "webkit") {
+      button.focus();
+      await userEvent.keyboard("{Space>}");
+      await settled();
+      expect(getComputedStyle(button).backgroundColor).toBe(
+        tokenColor("--qx-color-bg-neutral-bold-pressed"),
+      );
+      await userEvent.keyboard("{/Space}");
+    }
+  });
+
+  it("a ghost danger button presses to a danger tint, never Ember's (QTRX-158)", async () => {
+    await render(
+      <Button variant="ghost" tone="danger">
+        Delete
+      </Button>,
+    );
+    const button = page.getByRole("button", { name: "Delete" }).element() as HTMLElement;
+    const pressed = async () => {
+      button.focus();
+      await userEvent.keyboard("{Space>}");
+      await settled();
+      const style = getComputedStyle(button);
+      const look = { color: style.backgroundColor, image: style.backgroundImage };
+      await userEvent.keyboard("{/Space}");
+      return look;
+    };
+    // A held Space is a press without the pointer (WebKit sets no :active for it).
+    if (server.browser === "webkit") return;
+    // The pointer elsewhere, as a keyboard or touch press: the danger tint, not Ember's.
+    const tint = { color: tokenColor("--qx-color-bg-danger-subtle"), image: "none" };
+    expect(await pressed()).toEqual(tint);
+    // Under the pointer too.
+    await userEvent.hover(button);
+    expect(await pressed()).toEqual(tint);
   });
 
   it("is accessible and looks right in every mode", async () => {

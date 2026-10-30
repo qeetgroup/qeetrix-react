@@ -36,7 +36,10 @@ export interface TabsListProps extends Omit<BaseTabs.List.Props, "className" | "
 export interface TabProps extends Omit<BaseTabs.Tab.Props, "className" | "style" | "children"> {
   /** A leading 16px icon from `@qeetrix/icons`, sharp. */
   icon?: IconSource;
-  /** Show the icon's filled drawing while selected. Only for icons that have one. */
+  /**
+   * Show the icon's filled drawing while selected (06 §8: the selected tab has a filled icon). An
+   * icon with no filled drawing keeps its outline. `false` keeps the outline always. Default `true`.
+   */
   filledWhenSelected?: boolean;
   /** The label. */
   children?: ReactNode;
@@ -90,7 +93,7 @@ export function TabsList({
 /** One tab: a label, and optionally a leading icon that fills when selected and a trailing count. */
 export function Tab({
   icon: Icon,
-  filledWhenSelected,
+  filledWhenSelected = true,
   badge,
   className,
   children,
@@ -139,7 +142,10 @@ export interface TabNavLinkProps extends Omit<ComponentProps<"a">, "children"> {
   current?: boolean;
   /** A leading 16px icon from `@qeetrix/icons`, sharp. */
   icon?: IconSource;
-  /** Show the icon's filled drawing while current. Only for icons that have one. */
+  /**
+   * Show the icon's filled drawing while current, as a selected Tab does. An icon with no filled
+   * drawing keeps its outline. `false` keeps the outline always. Default `true`.
+   */
   filledWhenSelected?: boolean;
   /** The label. */
   children?: ReactNode;
@@ -175,7 +181,7 @@ export function TabNav({ className, children, ...props }: TabNavProps): ReactEle
 export function TabNavLink({
   current,
   icon: Icon,
-  filledWhenSelected,
+  filledWhenSelected = true,
   badge,
   render,
   className,

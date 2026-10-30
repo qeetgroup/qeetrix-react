@@ -13,18 +13,21 @@
   transition-duration: var(--qx-motion-duration-fast);
   transition-timing-function: var(--qx-motion-easing-standard);
 
-  &:hover:not([data-disabled], [data-readonly]) {
+  /* Hover never takes an invalid circle's danger edge (QTRX-161). */
+  &:hover:not([data-disabled], [data-readonly], [data-invalid]) {
     border-color: var(--qx-color-border-strong-hover);
-  }
-  &[data-invalid] {
-    border-color: var(--qx-color-border-danger);
   }
   &[data-checked] {
     border-width: 5px;
     border-color: var(--qx-color-bg-brand-bold);
-    &:hover:not([data-disabled], [data-readonly]) {
+    &:hover:not([data-disabled], [data-readonly], [data-invalid]) {
       border-color: var(--qx-color-bg-brand-bold-hover);
     }
+  }
+  /* Invalid (in a group with an error): the danger edge, which on a chosen radio is its ring. After
+     the checked rules, so a chosen radio shows it too. */
+  &[data-invalid] {
+    border-color: var(--qx-color-border-danger);
   }
   &[data-disabled] {
     border-color: var(--qx-color-border-disabled);

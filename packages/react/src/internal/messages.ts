@@ -153,6 +153,7 @@ export const messages = {
   descriptionList: { empty: "Not set" },
   stat: { loading: "Loading" },
   filterTags: { label: "Applied filters", remove: "Remove filter {filter}", clear: "Clear all" },
+  chip: { remove: "Remove {label}", removePlain: "Remove" },
   fileUpload: {
     dragFile: "Drag a file here, or {browse}",
     dragFiles: "Drag files here, or {browse}",

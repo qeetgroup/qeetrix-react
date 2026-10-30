@@ -35,15 +35,25 @@
   &:hover {
     background: var(--qx-color-bg-neutral-subtle-hover);
   }
-  &:focus {
-    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
-    outline-offset: calc(-1 * var(--qx-focus-ring-width));
-    box-shadow: none;
-  }
   &[data-invalid] {
     outline: var(--qx-focus-ring-width) solid var(--qx-color-border-danger);
     outline-offset: calc(-1 * var(--qx-focus-ring-width));
     box-shadow: none;
+  }
+  /* After invalid, as Input's: the focused slot of an invalid code shows the Ember frame, so focus
+     is never hidden (05 §10, §20; QTRX-163). The other slots keep the danger frame. */
+  &:focus {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+    box-shadow: none;
+    background: var(--qx-color-bg-neutral-subtle);
+  }
+  /* Read-only, as a read-only Input (05 §8, 06 §2; QTRX-165): no fill and no hover tint, the
+     read-only line (QTRX-175), a default cursor. Focus keeps its frame. */
+  &[data-readonly] {
+    background: transparent;
+    box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-strong);
+    cursor: default;
   }
   &:disabled {
     background: var(--qx-color-bg-disabled);

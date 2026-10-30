@@ -15,19 +15,23 @@
   transition-duration: var(--qx-motion-duration-fast);
   transition-timing-function: var(--qx-motion-easing-standard);
 
-  &:hover:not([data-disabled], [data-readonly]) {
+  /* Hover never takes an invalid track's danger edge (QTRX-161). */
+  &:hover:not([data-disabled], [data-readonly], [data-invalid]) {
     border-color: var(--qx-color-border-strong-hover);
-  }
-  &[data-invalid] {
-    border-color: var(--qx-color-border-danger);
   }
   &[data-checked] {
     border-color: var(--qx-color-bg-brand-bold);
     background: var(--qx-color-bg-brand-bold);
     &:hover:not([data-disabled], [data-readonly]) {
-      border-color: var(--qx-color-bg-brand-bold-hover);
       background: var(--qx-color-bg-brand-bold-hover);
     }
+    &:hover:not([data-disabled], [data-readonly], [data-invalid]) {
+      border-color: var(--qx-color-bg-brand-bold-hover);
+    }
+  }
+  /* Invalid (in a field with an error): the danger edge, on or off, after the checked rules. */
+  &[data-invalid] {
+    border-color: var(--qx-color-border-danger);
   }
   &[data-disabled] {
     border-color: var(--qx-color-border-disabled);
@@ -54,9 +58,10 @@
   transition-property: inset-inline-start, background-color;
   transition-duration: var(--qx-motion-duration-normal);
   transition-timing-function: var(--qx-motion-easing-standard);
+  /* On: white in both schemes, as the checkbox's tick on the same Ember (05 §9, 06 §3; QTRX-162). */
   &[data-checked] {
     inset-inline-start: 16px;
-    background: var(--qx-color-surface-default);
+    background: var(--qx-color-icon-on-brand);
   }
   &[data-disabled] {
     background: var(--qx-color-icon-disabled);

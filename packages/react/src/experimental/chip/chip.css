@@ -1,0 +1,114 @@
+/* Chip (QTRX-180; design rules §14): an interactive or removable tag. FilterTags' tag: a neutral
+   tint with a 1px rule inside and the controls' 4px corners (only people and status are round),
+   `space.gap.sm` before the label and `space.gap.xs` between its parts, `size.control.*` tall. The
+   neutral tints' hover and press steps. Chosen (design rules §11, selected): the selected tint, a
+   2px Ember edge and a check before the label, as a chosen tile. Focus is the Ember frame, 2px
+   outside, as on tags (§10). Android's and iOS's QeetrixChip draw the same. */
+.qx-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  min-inline-size: 0;
+}
+
+.qx-chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  max-inline-size: 100%;
+  min-block-size: var(--qx-size-control-md);
+  padding-inline: var(--qx-space-gap-sm);
+  border: 0;
+  border-radius: var(--qx-radius-control);
+  background: var(--qx-color-bg-neutral-subtle);
+  box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-subtle);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-label-md);
+  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  cursor: pointer;
+  user-select: none;
+  transition-property: background-color, box-shadow;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+
+  &[data-size="sm"] {
+    min-block-size: var(--qx-size-control-sm);
+    font-size: var(--qx-typography-label-sm-font-size);
+    line-height: var(--qx-typography-label-sm-line-height);
+  }
+  &[data-size="lg"] {
+    min-block-size: var(--qx-size-control-lg);
+  }
+
+  &:hover:not([data-disabled], [data-removable]) {
+    background: var(--qx-color-bg-neutral-subtle-hover);
+  }
+  &:active:not([data-disabled], [data-removable]) {
+    background: var(--qx-color-bg-neutral-subtle-pressed);
+  }
+  &[data-checked] {
+    background: var(--qx-color-bg-selected);
+    box-shadow: inset 0 0 0 var(--qx-border-width-strong) var(--qx-color-border-brand);
+    &:is(:hover, :active):not([data-disabled]) {
+      background: var(--qx-color-bg-selected-hover);
+    }
+  }
+  &[data-disabled] {
+    background: var(--qx-color-bg-disabled);
+    box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-disabled);
+    color: var(--qx-color-text-disabled);
+    cursor: not-allowed;
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
+  }
+
+  /* Removable: a static label, the remove button (a small neutral icon button) ending the chip, as
+     FilterTags' tag; it's the button that takes the pointer and focus. */
+  &[data-removable] {
+    padding-inline-end: 0;
+    cursor: default;
+  }
+  /* A disabled removable chip is still information (a filter you can't remove): its label isn't a
+     control's, so it dims only to the subtlest text, which keeps 4.5:1 (5.55 light, 6.10 dark), as a
+     disabled field's description does. */
+  &[data-removable][data-disabled] {
+    color: var(--qx-color-text-subtlest);
+  }
+}
+/* The label wraps rather than cut, the chip growing (as menus and options do, QTRX-177). */
+.qx-chip-label {
+  min-inline-size: 0;
+  padding-block: 2px;
+  overflow-wrap: anywhere;
+}
+.qx-chip-icon,
+.qx-chip-check {
+  display: flex;
+  flex: none;
+}
+.qx-chip-remove {
+  flex: none;
+  align-self: center;
+}
+
+/* Forced colours: the tint is dropped, so every chip keeps an edge, and a chosen one the system
+   highlight, beside its check. */
+@media (forced-colors: active) {
+  .qx-chip {
+    border: var(--qx-border-width-default) solid ButtonText;
+  }
+  .qx-chip[data-checked] {
+    forced-color-adjust: none;
+    border-color: Highlight;
+    background: Highlight;
+    color: HighlightText;
+  }
+  .qx-chip[data-disabled] {
+    border-color: GrayText;
+    color: GrayText;
+  }
+}

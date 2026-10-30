@@ -14,6 +14,8 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   Calendar,
+  Chip,
+  ChipGroup,
   CodeBlock,
   Combobox,
   CopyButton,
@@ -184,6 +186,26 @@ describe("experimental components on the server", () => {
     expect(out).toContain("Priya Sharma");
     expect(out).toContain("priya@acme.in");
     expect(out).toContain('aria-hidden="true"');
+  });
+
+  it("Chip renders its checkbox, radios and remove button on the server (QTRX-180)", () => {
+    const out = html(
+      <>
+        <Chip defaultChecked>Unread</Chip>
+        <ChipGroup label="Status" defaultValue="open">
+          <Chip value="all">All</Chip>
+          <Chip value="open">Open</Chip>
+        </ChipGroup>
+        <Chip onRemove={() => {}}>Status: Active</Chip>
+      </>,
+    );
+    expect(out).toContain('role="checkbox"');
+    expect(out).toContain('aria-checked="true"');
+    expect(out).toContain('role="radiogroup"');
+    expect(out).toContain('aria-label="Status"');
+    expect(out.match(/role="radio"/g)).toHaveLength(2);
+    expect(out).toContain('aria-label="Remove Status: Active"');
+    expect(out).toContain('data-slot="chip-check"');
   });
 
   it("FileUpload renders its file input, prompt, hint and rows on the server", () => {

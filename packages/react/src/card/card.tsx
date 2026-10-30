@@ -1,4 +1,4 @@
-import { type ComponentProps, type ReactElement, type ReactNode, useId } from "react";
+import { Children, type ComponentProps, type ReactElement, type ReactNode, useId } from "react";
 import { Heading, type HeadingLevel } from "../heading/heading";
 import { cx } from "../internal/cx";
 import { type RenderProp, renderElement } from "../internal/render";
@@ -75,6 +75,9 @@ export function Card({
   const titleId = useId();
   const titled = title != null && level !== undefined;
   const header = titled || description != null || actions != null;
+  // No body without content (QTRX-174): a header-only card (a title and its actions) ends at the
+  // header, not 32px of empty padding. `null`, `false` and `""` children are no content.
+  const body = Children.toArray(children).some((child) => child !== "");
   return renderElement(titled ? "section" : "div", render, {
     ...(titled ? { "aria-labelledby": titleId } : {}),
     ...props,
@@ -105,9 +108,11 @@ export function Card({
             )}
           </div>
         )}
-        <div className="qx-card-body" data-slot="card-body">
-          {children}
-        </div>
+        {body && (
+          <div className="qx-card-body" data-slot="card-body">
+            {children}
+          </div>
+        )}
         {footer != null && (
           <div className="qx-card-footer" data-slot="card-footer">
             {footer}

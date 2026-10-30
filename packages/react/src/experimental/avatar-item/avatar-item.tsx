@@ -22,7 +22,7 @@ export interface AvatarItemProps extends Omit<ComponentProps<"div">, "children">
  * A person, as lists and menus show them: their avatar, their name and an optional second line,
  * such as an email; an organisation or application takes `shape="square"`. The two lines sit
  * close, the name on the second line's line height, so together they're as tall as a `md` avatar
- * and fit a compact table row. Long text ends with an ellipsis where the space runs out. The avatar
+ * and fit a compact table row. Text too long for the space wraps, so it's never cut. The avatar
  * is hidden from assistive technology, since the name is shown. Like Atlassian's AvatarItem and
  * Fluent's Persona. Server-safe.
  */

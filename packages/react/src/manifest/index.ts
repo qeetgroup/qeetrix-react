@@ -152,6 +152,14 @@ export const manifest: readonly ManifestFamily[] = [
     since: "0.0.2",
   },
   {
+    name: "chip",
+    status: "experimental",
+    entry: "@qeetrix/react/experimental",
+    kind: "component",
+    parts: ["Chip", "ChipGroup"],
+    since: "0.4.0",
+  },
+  {
     name: "code-block",
     status: "experimental",
     entry: "@qeetrix/react/experimental",

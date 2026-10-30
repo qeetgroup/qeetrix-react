@@ -18,6 +18,15 @@
   padding: var(--qx-space-inset-lg);
   border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
 }
+/* With no body (QTRX-174), the header's rule would double the card's edge below it, or the
+   footer's rule above it: the card's border closes a header-only card, and the footer keeps its own
+   rule. A body whose content renders nothing is no body either. */
+.qx-card-header:is(:last-child, :has(+ .qx-card-footer, + .qx-card-body:empty)) {
+  border-block-end: 0;
+}
+.qx-card-body:empty {
+  display: none;
+}
 .qx-card-heading {
   display: flex;
   flex-direction: column;

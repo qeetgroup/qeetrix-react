@@ -45,6 +45,10 @@
   [data-panel-open] > & {
     rotate: 180deg;
   }
+  /* A disabled trigger dims its chevron with its text, as Select and Menu dim theirs (QTRX-167). */
+  [data-disabled] > & {
+    color: var(--qx-color-icon-disabled);
+  }
 }
 /* A Collapsible's trigger: the chevron of the Button or IconButton it renders turns as the panel
    opens, with the accordion's timing (durations collapse under reduced motion). */

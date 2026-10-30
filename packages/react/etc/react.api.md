@@ -76,6 +76,7 @@ export interface AvatarProps extends Omit<Avatar_2.Root.Props, "className" | "st
     shape?: AvatarShape;
     size?: AvatarSize;
     src?: string;
+    status?: AvatarStatus;
     style?: CSSProperties;
 }
 
@@ -84,6 +85,15 @@ export type AvatarShape = "circle" | "square";
 
 // @public (undocumented)
 export type AvatarSize = "sm" | "md" | "lg" | "xl";
+
+// @public
+export interface AvatarStatus {
+    label: string;
+    tone?: AvatarStatusTone;
+}
+
+// @public
+export type AvatarStatusTone = "neutral" | "brand" | "info" | "success" | "warning" | "danger";
 
 // @public
 export function Badge(input: BadgeProps): ReactElement;

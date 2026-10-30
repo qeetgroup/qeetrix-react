@@ -21,6 +21,7 @@ import {
   MenuSubmenuTrigger,
   MenuTrigger,
 } from "../src/menu/menu";
+import { Progress } from "../src/progress/progress";
 import { mirrorInRtl } from "../src/provider/mirror";
 import { QeetrixProvider } from "../src/provider/provider";
 import { Radio, RadioGroup } from "../src/radio/radio";
@@ -154,6 +155,33 @@ describe("right-to-left", () => {
     const popup = () =>
       (document.querySelector("[data-slot=drawer-popup]") as HTMLElement).getBoundingClientRect();
     await expect.poll(() => Math.round(popup().left)).toBe(0);
+  });
+
+  it("Progress: the indeterminate segment enters on the right and leaves on the left (QTRX-166)", async () => {
+    const { container } = await render(
+      <Rtl>
+        <div style={{ inlineSize: 300 }}>
+          <Progress aria-label="Importing" value={null} />
+        </div>
+      </Rtl>,
+    );
+    const track = container.querySelector("[data-slot=progress-track]") as HTMLElement;
+    const indicator = container.querySelector("[data-slot=progress-indicator]") as HTMLElement;
+    const at = (fraction: number) => {
+      for (const animation of indicator.getAnimations()) {
+        animation.pause();
+        animation.currentTime = Number(animation.effect?.getComputedTiming().duration) * fraction;
+      }
+      const [segment, box] = [indicator.getBoundingClientRect(), track.getBoundingClientRect()];
+      return { left: segment.left - box.left, right: segment.right - box.left, width: box.width };
+    };
+    // Just before the start (the right edge), then just past the end (the left edge).
+    const start = at(0);
+    expect(start.left).toBeGreaterThanOrEqual(start.width - 1);
+    const end = at(1 - 1e-6);
+    expect(end.right).toBeLessThanOrEqual(1);
+    // Halfway it's inside the track, moving leftwards.
+    expect(at(0.3).left).toBeGreaterThan(at(0.6).left);
   });
 
   it("Input: the start adornment sits on the right", async () => {

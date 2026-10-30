@@ -9,6 +9,17 @@ export type AvatarSize = "sm" | "md" | "lg" | "xl";
 /** `circle` for a person; `square` for an organisation, an application or a tenant. */
 export type AvatarShape = "circle" | "square";
 
+/** A status dot's colour: Badge's tones. */
+export type AvatarStatusTone = "neutral" | "brand" | "info" | "success" | "warning" | "danger";
+
+/** A status on the avatar, such as a person's presence: what it is in words, and its colour. */
+export interface AvatarStatus {
+  /** The status in words: "Online", "Away", "In a meeting". It's read with the name. */
+  label: string;
+  /** The dot's colour, e.g. `success` for online, `warning` for away. Default `neutral`. */
+  tone?: AvatarStatusTone;
+}
+
 export interface AvatarProps
   extends Omit<BaseAvatar.Root.Props, "className" | "style" | "children"> {
   /**
@@ -25,6 +36,12 @@ export interface AvatarProps
    * application or a tenant, so they never read as people. Default `circle`.
    */
   shape?: AvatarShape;
+  /**
+   * A status dot on the bottom-end corner, such as a person's presence: a `label` ("Online") and a
+   * `tone` (`success`). The avatar is named "Priya Sharma, Online". The dot is colour, so where the
+   * status matters say it in words too; a `decorative` avatar hides it with the rest of the avatar.
+   */
+  status?: AvatarStatus;
   /** The name is shown beside it: hide the avatar from assistive technology. */
   decorative?: boolean;
   /** Classes for layout, such as margins. */
@@ -91,13 +108,14 @@ function initials(name: string): string {
 /**
  * A person, or an organisation, application or tenant: their photo or logo, or their initials. A
  * person is a circle, since people are one of the two soft shapes; anything else is a square. It's
- * named by `name`, unless `decorative`.
+ * named by `name`, with its `status` if it has one, unless `decorative`.
  */
 export function Avatar({
   name,
   src,
   size = "md",
   shape = "circle",
+  status,
   decorative,
   className,
   ...props
@@ -106,12 +124,13 @@ export function Avatar({
     <BaseAvatar.Root
       {...props}
       role={decorative ? undefined : "img"}
-      aria-label={decorative ? undefined : name}
+      aria-label={decorative ? undefined : status ? `${name}, ${status.label}` : name}
       aria-hidden={decorative || undefined}
       className={cx("qx-avatar", className)}
       data-slot="avatar"
       data-size={size}
       data-shape={shape}
+      data-status={status ? "" : undefined}
     >
       {src && (
         <BaseAvatar.Image src={src} alt="" className="qx-avatar-image" data-slot="avatar-image" />
@@ -119,6 +138,14 @@ export function Avatar({
       <BaseAvatar.Fallback className="qx-avatar-fallback" data-slot="avatar-fallback" aria-hidden>
         {initials(name)}
       </BaseAvatar.Fallback>
+      {status && (
+        <span
+          className="qx-avatar-status"
+          data-slot="avatar-status"
+          data-tone={status.tone ?? "neutral"}
+          aria-hidden
+        />
+      )}
     </BaseAvatar.Root>
   );
 }

@@ -2,7 +2,9 @@ import { describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../tests/support/axe";
+import { tokenColor } from "../../tests/support/color";
 import { screenshotSchemes } from "../../tests/support/screenshots";
+import { settled } from "../../tests/support/settled";
 import { Stage } from "../../tests/support/stage";
 import { Stack } from "../stack/stack";
 import { Radio, RadioGroup } from "./radio";
@@ -49,6 +51,23 @@ describe("RadioGroup", () => {
     const radio = page.getByRole("radio", { name: "Pro" }).element();
     expect(getComputedStyle(radio).borderTopWidth).toBe("5px");
     expect(radio.getBoundingClientRect().width).toBe(16);
+  });
+
+  it("keeps an invalid circle's danger edge under the pointer, chosen or not (QTRX-161)", async () => {
+    await render(
+      <RadioGroup label="Plan" error="Choose a plan you can pay for." defaultValue="pro">
+        <Radio value="free" label="Free" />
+        <Radio value="pro" label="Pro" />
+      </RadioGroup>,
+    );
+    const danger = tokenColor("--qx-color-border-danger");
+    for (const name of ["Free", "Pro"]) {
+      const radio = page.getByRole("radio", { name }).element();
+      expect(getComputedStyle(radio).borderTopColor).toBe(danger);
+      await userEvent.hover(radio);
+      await settled();
+      expect(getComputedStyle(radio).borderTopColor).toBe(danger);
+    }
   });
 
   it("is accessible and looks right in both schemes", async () => {

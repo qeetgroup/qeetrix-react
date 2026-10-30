@@ -114,6 +114,39 @@ describe("Select", () => {
       .toHaveAttribute("aria-disabled", "true");
   });
 
+  it("wraps an option too long for the list, the option growing, its check on the first line (QTRX-177)", async () => {
+    const label = "Kaveri Foods Private Limited, Chennai regional office (finance and payroll)";
+    await render(
+      <div style={{ inlineSize: 240 }}>
+        <Field label="Organisation">
+          <Select
+            items={[
+              { value: "acme", label: "Acme" },
+              { value: "kaveri", label },
+            ]}
+            defaultValue="kaveri"
+          />
+        </Field>
+      </div>,
+    );
+    await page.getByRole("combobox", { name: "Organisation" }).click();
+    const short = page.getByRole("option", { name: "Acme" }).element() as HTMLElement;
+    const long = page.getByRole("option", { name: label }).element() as HTMLElement;
+    const text = long.querySelector(".qx-select-option-text") as HTMLElement;
+    expect(text.scrollWidth).toBeLessThanOrEqual(text.clientWidth);
+    expect(getComputedStyle(text).textOverflow).not.toBe("ellipsis");
+    expect(long.getBoundingClientRect().height).toBeGreaterThan(
+      short.getBoundingClientRect().height,
+    );
+    // The check sits on the first line, where a one-line option centres it.
+    const check = long.querySelector(".qx-select-option-check") as HTMLElement;
+    const firstLine = short.getBoundingClientRect().height;
+    expect(check.getBoundingClientRect().top - long.getBoundingClientRect().top).toBeCloseTo(
+      (firstLine - 16) / 2,
+      0,
+    );
+  });
+
   it("lists every chosen label with multiple", async () => {
     await render(
       <Field label="Billing cycle">

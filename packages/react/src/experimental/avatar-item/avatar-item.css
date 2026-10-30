@@ -1,6 +1,7 @@
 /* AvatarItem: the avatar, then the name over a second line. Both lines are one line high on the
    small text's line height (16px), so the pair is 32px: a md avatar's height and a compact row's.
-   Each line ends with an ellipsis where the space runs out. The `font` shorthand resets
+   Where the space runs out a line wraps, breaking a long email anywhere, and the item grows, so the
+   whole name and description stay readable (QTRX-178). The `font` shorthand resets
    font-variation-settings, so each line sets the geometry after its font. */
 .qx-avatar-item {
   display: flex;
@@ -15,9 +16,7 @@
 }
 .qx-avatar-item-name,
 .qx-avatar-item-description {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 .qx-avatar-item-name {
   font: var(--qx-typography-label-md);

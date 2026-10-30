@@ -53,6 +53,11 @@ function Invoices() {
   );
 }
 
+/** A child that renders nothing. */
+function Empty() {
+  return null;
+}
+
 describe("Card", () => {
   it("is a section labelled by its title, at the level the page sets", async () => {
     await render(
@@ -238,6 +243,46 @@ describe("Card", () => {
         tokenColor("--qx-color-text-default"),
       );
     }
+  });
+
+  it("renders no body without children: a header-only card ends at its header (QTRX-174)", async () => {
+    const { container } = await render(
+      <Stack gap="md" style={{ inlineSize: 400 }}>
+        <Card
+          title="Two-factor authentication"
+          level={2}
+          actions={<Button size="sm">Manage</Button>}
+        />
+        <Card title="Danger zone" level={2} footer={<Button size="sm">Delete</Button>}>
+          {false}
+        </Card>
+        <Card title="Rendered nothing" level={2}>
+          <Empty />
+        </Card>
+      </Stack>,
+    );
+    const [onlyHeader, withFooter, emptyBody] = [
+      ...container.querySelectorAll("[data-slot=card]"),
+    ] as HTMLElement[];
+    for (const card of [onlyHeader, withFooter] as HTMLElement[]) {
+      expect(slot(card, "card-body")).toBeNull();
+    }
+    // The card's edge closes the header: no rule doubles it, and no padding follows.
+    const header = slot(onlyHeader as HTMLElement, "card-header");
+    expect(getComputedStyle(header).borderBottomWidth).toBe("0px");
+    expect(rect(onlyHeader as HTMLElement).height).toBe(rect(header).height + 2);
+    // One rule between the header and the footer: the footer's.
+    expect(getComputedStyle(slot(withFooter as HTMLElement, "card-header")).borderBottomWidth).toBe(
+      "0px",
+    );
+    expect(getComputedStyle(slot(withFooter as HTMLElement, "card-footer")).borderTopWidth).toBe(
+      "1px",
+    );
+    // A body whose content renders nothing takes no room either.
+    expect(rect(slot(emptyBody as HTMLElement, "card-body")).height).toBe(0);
+    expect(rect(emptyBody as HTMLElement).height).toBe(
+      rect(slot(emptyBody as HTMLElement, "card-header")).height + 2,
+    );
   });
 
   it("renders no variant or tone attributes for the defaults", async () => {
