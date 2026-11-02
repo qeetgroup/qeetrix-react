@@ -224,7 +224,7 @@
     "prepack": "bun run build"
   },
   "dependencies": {
-    "@qeetrix/icons": "^2.0.0"
+    "@qeetrix/icons": "^2.1.0"
   },
   "peerDependencies": {
     "@base-ui/react": "^1.9.0",
