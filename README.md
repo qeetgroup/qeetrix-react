@@ -160,9 +160,9 @@ qeetrix-react/
 ## Releases
 
 - **Branches:** work lands on `develop`; a pull request from `develop` into `main` releases it.
-- **Versions:** `version.yml` raises the patch on that pull request unless the version was already
-  raised by hand. A minor or major is set by hand in `packages/react/package.json`, with its own
-  section in the [changelog](packages/react/CHANGELOG.md).
+- **Versions:** raise `version` in `packages/react/package.json` on `develop` (the next patch, or a minor or
+  major), with its own section in the [changelog](packages/react/CHANGELOG.md), before opening the pull
+  request. Its Version check (`version.yml`) fails until the version is above `main`'s.
 - **Publishing:** merging into `main` runs `release.yml`, which publishes to npm with provenance,
   tags `vX.Y.Z` and opens a GitHub Release. If a release is bad, `rollback.yml` points npm's
   `latest` tag back at a known-good version (published versions are never removed).

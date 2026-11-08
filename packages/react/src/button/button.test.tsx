@@ -250,7 +250,7 @@ describe("Button", () => {
     }
   });
 
-  it("a ghost danger button presses to a danger tint, never Ember's", async () => {
+  it("a ghost danger button hovers and presses in danger tints, never Ember's", async () => {
     await render(
       <Button variant="ghost" tone="danger">
         Delete
@@ -268,12 +268,15 @@ describe("Button", () => {
     };
     // A held Space is a press without the pointer (WebKit sets no :active for it).
     if (server.browser === "webkit") return;
-    // The pointer elsewhere, as a keyboard or touch press: the danger tint, not Ember's.
-    const tint = { color: tokenColor("--qx-color-bg-danger-subtle"), image: "none" };
-    expect(await pressed()).toEqual(tint);
-    // Under the pointer too.
+    // The pointer elsewhere, as a keyboard or touch press: the danger's pressed tint, not Ember's.
+    const press = { color: tokenColor("--qx-color-bg-danger-subtle-pressed"), image: "none" };
+    expect(await pressed()).toEqual(press);
+    // Under the pointer: the danger tint, then the pressed one.
     await userEvent.hover(button);
-    expect(await pressed()).toEqual(tint);
+    await settled();
+    expect(getComputedStyle(button).backgroundColor).toBe(tokenColor("--qx-color-bg-danger-subtle"));
+    expect(await pressed()).toEqual(press);
+    expect(press.color).not.toBe(tokenColor("--qx-color-bg-danger-subtle"));
   });
 
   it("is accessible and looks right in every mode", async () => {

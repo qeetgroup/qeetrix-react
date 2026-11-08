@@ -108,14 +108,17 @@
       background: var(--qx-color-bg-danger-bold-pressed);
     }
   }
-  /* Ghost danger presses to its own tint, never the brand's: a keyboard or touch press
-     without the pointer over it shows the danger tint too. The tokens have no
-     bg.danger.subtle-pressed, so the press keeps bg.danger.subtle (the label 5.19:1 light, 6.23:1
-     dark). */
+  /* Ghost danger hovers and presses in its own tints, never the brand's, as ghost's brand ones do:
+     bg.danger.subtle under the pointer, bg.danger.subtle-pressed on a press, a keyboard or touch
+     press without the pointer included (text.danger keeps 4.5:1 on both, in light and dark).
+     Tokens before 0.0.14 have no pressed tint: the press keeps bg.danger.subtle there. */
   &[data-tone="danger"][data-variant="ghost"] {
     color: var(--qx-color-text-danger);
-    &:is(:hover, :active):not([data-disabled]) {
+    &:hover:not([data-disabled]) {
       background: var(--qx-color-bg-danger-subtle);
+    }
+    &:active:not([data-disabled]) {
+      background: var(--qx-color-bg-danger-subtle-pressed, var(--qx-color-bg-danger-subtle));
     }
   }
   /* Neutral: utility actions in toolbars and headers. Icons stay neutral (§16). */
