@@ -54,7 +54,7 @@ describe("Sidebar", () => {
     await expect.element(page.getByRole("list", { name: "Money" })).toBeVisible();
   });
 
-  it("fills the current item's icon by default, and keeps the outline when asked (QTRX-168)", async () => {
+  it("fills the current item's icon by default, and keeps the outline when asked", async () => {
     await render(
       <Sidebar label="Qeet Pay">
         <SidebarGroup>

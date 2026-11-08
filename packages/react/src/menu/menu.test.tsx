@@ -184,7 +184,7 @@ describe("Menu", () => {
     expect(heights).toEqual({ compact: 28, default: 32, comfortable: 36 });
   });
 
-  it("wraps a label too long for its 320px, the item growing, its icon and shortcut on the first line (QTRX-177)", async () => {
+  it("wraps a label too long for its 320px, the item growing, its icon and shortcut on the first line", async () => {
     const label = "Move to the archived projects folder of Kaveri Foods Private Limited";
     await render(
       <Menu defaultOpen>

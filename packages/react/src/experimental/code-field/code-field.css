@@ -1,4 +1,4 @@
-/* CodeField (QTRX-59): the Input's filled box and bottom line, in the code type. The text is typed
+/* CodeField: the Input's filled box and bottom line, in the code type. The text is typed
    in a transparent textarea laid exactly over its highlighted copy; both grow with the code and
    scroll together in one box, with line numbers in a gutter at the start. */
 .qx-code-field {

@@ -7,8 +7,10 @@ import { expectAccessible } from "../../tests/support/axe";
 import { tokenColor } from "../../tests/support/color";
 import { screenshotEveryMode } from "../../tests/support/screenshots";
 import { Stage } from "../../tests/support/stage";
+import { PasswordInput } from "../experimental/password-input/password-input";
 import { Field } from "../field/field";
 import { Stack } from "../stack/stack";
+import { TextField } from "../text-field/text-field";
 import { Input, Textarea } from "./input";
 
 const html = document.documentElement;
@@ -69,6 +71,77 @@ describe("Input", () => {
   });
 });
 
+describe("Input size lg", () => {
+  /** A role's computed font size, from a probe that sets the role's `font`. */
+  const fontSize = (role: string) => {
+    const probe = document.createElement("span");
+    probe.style.font = `var(--qx-typography-${role})`;
+    document.body.append(probe);
+    const size = getComputedStyle(probe).fontSize;
+    probe.remove();
+    return size;
+  };
+
+  it("is OTPInput's lg height in every density: 48, 56 and 60px; md stays the shared height", async () => {
+    const { container } = await render(
+      <>
+        <Input aria-label="Phone number" size="lg" />
+        <Input aria-label="Name" />
+      </>,
+    );
+    const [large, medium] = [...container.querySelectorAll<HTMLElement>("[data-slot=input]")];
+    const heights: Record<string, number[]> = {};
+    for (const density of ["compact", "default", "comfortable"]) {
+      html.dataset.qxDensity = density;
+      heights[density] = [large, medium].map((each) => each?.getBoundingClientRect().height ?? 0);
+    }
+    delete html.dataset.qxDensity;
+    expect(heights).toEqual({ compact: [48, 32], default: [56, 40], comfortable: [60, 44] });
+    expect(medium?.dataset.size).toBe("md");
+  });
+
+  it("writes the value and its affix at title.lg with tabular figures, the placeholder at body size", async () => {
+    const { container } = await render(
+      <Input aria-label="Phone number" size="lg" startAdornment="+91" placeholder="98765 43210" />,
+    );
+    const control = container.querySelector("input") as HTMLInputElement;
+    const affix = container.querySelector("[data-slot=input-start]") as HTMLElement;
+    expect(getComputedStyle(control).fontSize).toBe(fontSize("title-lg"));
+    expect(getComputedStyle(control).fontVariantNumeric).toBe("tabular-nums");
+    expect(getComputedStyle(control, "::placeholder").fontSize).toBe(fontSize("body-md"));
+    // The affix reads with the value: the same size, on the same middle line.
+    expect(getComputedStyle(affix).fontSize).toBe(fontSize("title-lg"));
+    const middle = (el: Element) => {
+      const r = el.getBoundingClientRect();
+      return r.top + r.height / 2;
+    };
+    expect(Math.abs(middle(affix) - middle(control))).toBeLessThanOrEqual(1);
+  });
+
+  it("is TextField's and PasswordInput's too, the label and help text on the box's edges", async () => {
+    const { container } = await render(
+      <Stack gap="md" style={{ inlineSize: 320 }}>
+        <TextField
+          label="Phone number"
+          description="We'll text a code to it."
+          size="lg"
+          startAdornment="+91"
+        />
+        <PasswordInput aria-label="Password" size="lg" />
+      </Stack>,
+    );
+    const boxes = [...container.querySelectorAll<HTMLElement>("[data-slot=input]")];
+    expect(boxes.map((each) => each.dataset.size)).toEqual(["lg", "lg"]);
+    expect(boxes.map((each) => each.getBoundingClientRect().height)).toEqual([56, 56]);
+    const field = container.querySelector("[data-slot=text-field]") as HTMLElement;
+    const left = (el: Element | null) => el?.getBoundingClientRect().left;
+    expect(left(field.querySelector("label"))).toBe(left(boxes[0] as HTMLElement));
+    expect(left(page.getByText("We'll text a code to it.").element())).toBe(
+      left(boxes[0] as HTMLElement),
+    );
+  });
+});
+
 describe("Textarea", () => {
   it("starts at its rows and grows with its content up to maxRows", async () => {
     await render(<Textarea aria-label="Notes" rows={2} maxRows={4} />);
@@ -101,6 +174,12 @@ describe("Input and Textarea", () => {
         <Stack gap="md" style={{ inlineSize: 280 }}>
           <Input aria-label="Work email" icon={MailIcon} placeholder="e.g. priya@acme.in" />
           <Input aria-label="Amount" startAdornment="₹" defaultValue="1,24,500" />
+          <Input
+            aria-label="Phone number"
+            size="lg"
+            startAdornment="+91"
+            defaultValue="98765 43210"
+          />
           <Input aria-label="Account ID" readOnly defaultValue="acc_7f3k29" />
           <Input aria-label="Legacy code" disabled defaultValue="LGC-0042" />
           <Textarea aria-label="Notes" defaultValue="Net 30. Bank transfer to HDFC." />

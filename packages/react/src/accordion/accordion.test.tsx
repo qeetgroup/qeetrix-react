@@ -57,7 +57,7 @@ describe("Accordion", () => {
     expect(panel.getBoundingClientRect().height).toBeGreaterThan(20);
   });
 
-  it("dims a disabled trigger's chevron with its text (QTRX-167)", async () => {
+  it("dims a disabled trigger's chevron with its text", async () => {
     await render(<Advanced />);
     const chevron = (name: string) =>
       page.getByRole("button", { name }).element().querySelector("svg") as SVGElement;
@@ -154,7 +154,7 @@ describe("Collapsible", () => {
     await expect.element(page.getByText("Bank: HDFC, IFSC HDFC0000001")).toBeVisible();
   });
 
-  // QTRX-81: open and closed look different, as an AccordionItem's do.
+  // Open and closed look different, as an AccordionItem's do.
   it("turns the chevron of the Button it renders as the panel opens, and back as it closes", async () => {
     await render(
       <Collapsible>

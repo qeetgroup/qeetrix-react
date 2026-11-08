@@ -1,5 +1,5 @@
 /**
- * Icon props take a component or an element (QTRX-90). A Server Component can't pass a function to
+ * Icon props take a component or an element. A Server Component can't pass a function to
  * a client component, so it passes `<PlusIcon />`; React renders that on the server and the client
  * component receives the `<svg>` it drew. Calling an icon as a function gives that same `<svg>`.
  */

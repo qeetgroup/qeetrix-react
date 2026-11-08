@@ -160,7 +160,7 @@ describe("OTPInput", () => {
     expect(third?.nextElementSibling).toBe(separator);
   });
 
-  it("frames the focused slot of an invalid code in Ember, as Input does (QTRX-163)", async () => {
+  it("frames the focused slot of an invalid code in Ember, as Input does", async () => {
     await render(
       <>
         <Field label="Verification code" error="That code didn't work. Enter the new one.">
@@ -182,7 +182,7 @@ describe("OTPInput", () => {
     expect(getComputedStyle(email.parentElement as HTMLElement).outlineColor).toBe(focus);
   });
 
-  it("looks read-only when read-only, as Input does: no fill, no hover tint (QTRX-165)", async () => {
+  it("looks read-only when read-only, as Input does: no fill, no hover tint", async () => {
     await render(
       <>
         <Field label="Verification code">

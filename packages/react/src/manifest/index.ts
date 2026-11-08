@@ -477,6 +477,14 @@ export const manifest: readonly ManifestFamily[] = [
     since: "0.0.4",
   },
   {
+    name: "picture-choice",
+    status: "experimental",
+    entry: "@qeetrix/react/experimental",
+    kind: "component",
+    parts: ["PictureChoice", "PictureChoiceGroup"],
+    since: "0.5.0",
+  },
+  {
     name: "popover",
     status: "stable",
     entry: "@qeetrix/react/popover",

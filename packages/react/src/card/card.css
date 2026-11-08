@@ -18,7 +18,7 @@
   padding: var(--qx-space-inset-lg);
   border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
 }
-/* With no body (QTRX-174), the header's rule would double the card's edge below it, or the
+/* With no body, the header's rule would double the card's edge below it, or the
    footer's rule above it: the card's border closes a header-only card, and the footer keeps its own
    rule. A body whose content renders nothing is no body either. */
 .qx-card-header:is(:last-child, :has(+ .qx-card-footer, + .qx-card-body:empty)) {
@@ -36,7 +36,7 @@
 .qx-card-description {
   margin: 0;
   font: var(--qx-typography-body-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
   color: var(--qx-color-text-subtle);
 }
 .qx-card-actions {
@@ -50,7 +50,7 @@
   min-inline-size: 0;
   padding: var(--qx-space-inset-lg);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   & > :is(.qx-table, .qx-scroll-area, .qx-description-list[data-layout="rows"], .qx-tree) {
     inline-size: calc(100% + 2 * var(--qx-space-inset-lg));
     margin-inline: calc(-1 * var(--qx-space-inset-lg));

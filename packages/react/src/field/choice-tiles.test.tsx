@@ -110,6 +110,54 @@ describe("Choice tiles", () => {
     expect(columns()).toBe(1);
   });
 
+  it("keeps columns={2} for short choices on a 360px phone; tiles with icons keep their 12rem", async () => {
+    await page.viewport(360, 800);
+    const languages = [
+      "English",
+      "हिन्दी",
+      "বাংলা",
+      "தமிழ்",
+      "తెలుగు",
+      "ಕನ್ನಡ",
+      "ગુજરાતી",
+      "ਪੰਜਾਬੀ",
+      "മലയാളം",
+      "मराठी",
+    ];
+    await render(
+      <div style={{ inlineSize: 328 }}>
+        <RadioGroup label="Pick your language" variant="tile" columns={2} defaultValue="English">
+          {languages.map((language) => (
+            <Radio key={language} value={language} label={language} />
+          ))}
+          <Radio value="long" label="A language with a much longer name than fits on one line" />
+        </RadioGroup>
+      </div>,
+    );
+    const tiles = [...document.querySelectorAll<HTMLElement>(".qx-choice")];
+    const lefts = new Set(tiles.map((each) => Math.round(each.getBoundingClientRect().left)));
+    expect(lefts.size).toBe(2);
+    // Two equal columns across the 328px group, 8px apart.
+    const [first, second] = tiles.map((each) => each.getBoundingClientRect());
+    expect(Math.abs((first?.width ?? 0) - (second?.width ?? 0))).toBeLessThanOrEqual(1);
+    expect((first?.width ?? 0) + (second?.width ?? 0) + 8).toBeCloseTo(328, 0);
+    // A long label wraps inside its tile.
+    const long = tile("A language with a much longer name than fits on one line");
+    const text = long.querySelector(".qx-choice-text") as HTMLElement;
+    expect(text.getBoundingClientRect().right).toBeLessThanOrEqual(
+      long.getBoundingClientRect().right,
+    );
+    expect(text.getBoundingClientRect().height).toBeGreaterThan(30);
+    // Tiles with icons and descriptions still drop to one column there.
+    await render(<AppTypes width={328} />);
+    const icons = new Set(
+      [...document.querySelectorAll(".qx-choice:has(.qx-choice-icon)")].map((each) =>
+        Math.round(each.getBoundingClientRect().left),
+      ),
+    );
+    expect(icons.size).toBe(1);
+  });
+
   it("puts the description under the title's last line, however many lines it wraps to", async () => {
     await page.viewport(800, 600);
     await render(

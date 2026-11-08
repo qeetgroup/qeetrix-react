@@ -16,7 +16,7 @@
   box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-strong);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   cursor: text;
   transition-property: background-color;
   transition-duration: var(--qx-motion-duration-fast);
@@ -37,7 +37,7 @@
     background: var(--qx-color-bg-neutral-subtle);
   }
   /* Read-only: no fill, and the editable field's line, which keeps 3:1 on every surface (05 §8,
-     §20; QTRX-175). The missing fill tells it from an editable field. */
+     §20). The missing fill tells it from an editable field. */
   &[data-readonly] {
     background: transparent;
     box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-strong);
@@ -94,7 +94,7 @@
   border-radius: var(--qx-radius-chip);
   background: var(--qx-color-surface-default);
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   outline: 0;
   cursor: default;
   &:focus-visible,
@@ -193,7 +193,7 @@
   gap: var(--qx-space-gap-sm);
   padding: var(--qx-space-inset-sm) var(--qx-space-inset-md);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   color: var(--qx-color-text-subtle);
   &:empty {
     padding: 0;
@@ -207,7 +207,7 @@
   min-block-size: var(--qx-size-control-md);
   padding: 4px var(--qx-space-inset-md);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   cursor: default;
   user-select: none;
   outline: 0;
@@ -256,7 +256,7 @@
 .qx-combobox-group-label {
   padding: 8px var(--qx-space-inset-md) 4px;
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   color: var(--qx-color-text-subtle);
 }
 

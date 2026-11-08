@@ -5,7 +5,7 @@ import { screenshotSchemes } from "../../../tests/support/screenshots";
 import { Stage } from "../../../tests/support/stage";
 import { hi } from "../../locales/hi";
 import { QeetrixProvider } from "../../provider/provider";
-import { Kbd } from "./kbd";
+import { ariaKeyShortcuts, Kbd } from "./kbd";
 
 const apple = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
 // What shows and what's said: the face the stylesheet shows, where a key has one per platform.
@@ -87,6 +87,63 @@ describe("Kbd", () => {
     expect(said(container)).toBe("शिफ्ट एंटर");
   });
 
+  it("shows arrows for the arrow keys and says their names, in English and Hindi", async () => {
+    const { container } = await render(<Kbd keys="ArrowLeft ArrowRight" />);
+    expect(shown(container)).toEqual(["←", "→"]);
+    expect(said(container)).toBe("Left arrow then Right arrow");
+    const hindi = await render(
+      <QeetrixProvider locale="hi-IN" messages={hi}>
+        <Kbd keys="ArrowUp+ArrowDown" />
+      </QeetrixProvider>,
+    );
+    expect(said(hindi.container)).toBe("ऊपर तीर नीचे तीर");
+  });
+
+  it("names Tab, Space, Backspace, Delete, Home, End, PageUp and PageDown, with Apple's faces", async () => {
+    const keys = "Tab Space Backspace Delete Home End PageUp PageDown";
+    const other = await render(<Kbd keys={keys} />);
+    if (!apple) {
+      expect(shown(other.container)).toEqual([
+        "Tab",
+        "Space",
+        "Backspace",
+        "Del",
+        "Home",
+        "End",
+        "PgUp",
+        "PgDn",
+      ]);
+      expect(said(other.container)).toBe(
+        "Tab then Space then Backspace then Delete then Home then End then Page Up then Page Down",
+      );
+    }
+    document.documentElement.setAttribute("data-qx-platform", "apple");
+    try {
+      const mac = await render(<Kbd keys={keys} />);
+      expect(shown(mac.container)).toEqual(["⇥", "Space", "⌫", "⌦", "↖", "↘", "⇞", "⇟"]);
+      // Apple calls Backspace "delete" and Delete "forward delete".
+      expect(said(mac.container)).toBe(
+        "Tab then Space then Delete then Forward Delete then Home then End then Page Up then Page Down",
+      );
+    } finally {
+      document.documentElement.removeAttribute("data-qx-platform");
+    }
+  });
+
+  it("matches KeyboardEvent.key's names in any case, and gives ARIA their spelling", async () => {
+    const { container } = await render(<Kbd keys="arrowleft pageDOWN spacebar del" />);
+    expect(shown(container).slice(0, 2)).toEqual(["←", apple ? "⇟" : "PgDn"]);
+    expect(said(container)).toBe(
+      apple
+        ? "Left arrow then Page Down then Space then Forward Delete"
+        : "Left arrow then Page Down then Space then Delete",
+    );
+    expect(ariaKeyShortcuts("Mod+arrowleft shift+pageup", false)).toBe(
+      "Control+ArrowLeft Shift+PageUp",
+    );
+    expect(ariaKeyShortcuts("Mod+Backspace del", true)).toBe("Meta+Backspace Delete");
+  });
+
   it("is accessible and looks right in both schemes", async () => {
     const { container } = await render(
       <Stage>
@@ -94,6 +151,8 @@ describe("Kbd", () => {
         <Kbd keys="Shift+Enter" />
         <Kbd keys="G I" />
         <Kbd keys="Esc" size="sm" />
+        <Kbd keys="ArrowLeft ArrowRight" />
+        <Kbd keys="Shift+Tab" size="sm" />
       </Stage>,
     );
     await expectAccessible(container);

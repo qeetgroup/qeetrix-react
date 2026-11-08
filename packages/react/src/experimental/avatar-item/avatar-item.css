@@ -1,7 +1,7 @@
 /* AvatarItem: the avatar, then the name over a second line. Both lines are one line high on the
    small text's line height (16px), so the pair is 32px: a md avatar's height and a compact row's.
    Where the space runs out a line wraps, breaking a long email anywhere, and the item grows, so the
-   whole name and description stay readable (QTRX-178). The `font` shorthand resets
+   whole name and description stay readable. The `font` shorthand resets
    font-variation-settings, so each line sets the geometry after its font. */
 .qx-avatar-item {
   display: flex;
@@ -20,7 +20,7 @@
 }
 .qx-avatar-item-name {
   font: var(--qx-typography-label-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
   /* The second line's height, 16px: its size times its line height (a ratio). */
   line-height: calc(
     var(--qx-typography-body-sm-font-size) *
@@ -30,6 +30,6 @@
 }
 .qx-avatar-item-description {
   font: var(--qx-typography-body-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
   color: var(--qx-color-text-subtle);
 }

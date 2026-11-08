@@ -15,7 +15,7 @@
   box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-strong);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   text-align: start;
   cursor: pointer;
   transition-property: background-color;
@@ -37,7 +37,7 @@
     background: var(--qx-color-bg-neutral-subtle);
   }
   /* Read-only: no fill, and the editable field's line, which keeps 3:1 on every surface (05 §8,
-     §20; QTRX-175). The missing fill tells it from an editable field. */
+     §20). The missing fill tells it from an editable field. */
   &[data-readonly] {
     background: transparent;
     box-shadow: inset 0 calc(-1 * var(--qx-border-width-default)) 0 var(--qx-color-border-strong);
@@ -112,7 +112,7 @@
   }
 }
 /* An option is `size.control.md` for one line. A label wider than the list (which stops at the
-   space there is) wraps, and the option grows (QTRX-177): nothing is cut, whatever the text size.
+   space there is) wraps, and the option grows: nothing is cut, whatever the text size.
    The meta and the check stay on the first line. */
 .qx-select-option {
   --qx-select-option-line: calc(
@@ -127,7 +127,7 @@
   padding-block: calc((var(--qx-size-control-md) - var(--qx-select-option-line)) / 2);
   padding-inline: var(--qx-space-inset-md);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   cursor: default;
   user-select: none;
   outline: 0;
@@ -171,7 +171,7 @@
 .qx-select-group-label {
   padding: 8px var(--qx-space-inset-md) 4px;
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   color: var(--qx-color-text-subtle);
 }
 

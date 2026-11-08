@@ -1,19 +1,26 @@
 /* Progress and Meter: Slider's header, a 4px track and an Ember indicator. Both take a tone: Progress
    success or danger for how a task ended, Meter any of Badge's tones. */
 
-/* Every tone's fill keeps 3:1 against the track in both schemes (05 §20, WCAG 1.4.11; QTRX-176).
-   In light the track is border.default, and warning's light amber fill gives way to border.warning
-   (3.08:1). In dark the track is surface.sunken, below the bold fills (info 3.67, success 3.91,
-   danger 3.32, brand 4.40:1). Set per scheme, as the tokens are: the nearest data-qx-color-scheme
-   decides, so a section shown in the other scheme gets it right. */
+/* Every tone's fill keeps 3:1 against the track and against the surfaces beside the bar, in both
+   schemes (05 §20, WCAG 1.4.11). In light the track is border.default, and
+   warning's light amber fill gives way to border.warning (3.08:1). In dark the track is surface.sunken,
+   below the bold fills, and danger takes border.danger (4.37:1 on surface.overlay, where bg.danger.bold
+   was 2.76). A sunken track is darker than every dark surface, so it carries a border.default edge
+   (1.42:1 or more on every surface, as clear as the light track): an empty or low bar's
+   length still shows, and the fill covers the edge where it runs. Set per scheme, as the tokens are:
+   the nearest data-qx-color-scheme decides, so a section shown in the other scheme gets it right. */
 :root,
 [data-qx-color-scheme="light"] {
   --qx-progress-track: var(--qx-color-border-default);
+  --qx-progress-edge: var(--qx-color-border-default);
   --qx-progress-warning: var(--qx-color-border-warning);
+  --qx-progress-danger: var(--qx-color-bg-danger-bold);
 }
 [data-qx-color-scheme="dark"] {
   --qx-progress-track: var(--qx-color-surface-sunken);
+  --qx-progress-edge: var(--qx-color-border-default);
   --qx-progress-warning: var(--qx-color-bg-warning-bold);
+  --qx-progress-danger: var(--qx-color-border-danger);
 }
 .qx-progress {
   display: flex;
@@ -29,12 +36,12 @@
 }
 .qx-progress-label {
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   color: var(--qx-color-text-subtle);
 }
 .qx-progress-value {
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   font-variant-numeric: tabular-nums;
   color: var(--qx-color-text-default);
 }
@@ -43,6 +50,7 @@
   block-size: 4px;
   overflow: hidden;
   background: var(--qx-progress-track);
+  box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-progress-edge);
 }
 /* A target on a Meter's track: a 2px tick in the text colour, overhanging the track 3px each side,
    placed from the start edge so it mirrors in right-to-left layouts. */
@@ -75,7 +83,7 @@
     background: var(--qx-progress-warning);
   }
   [data-tone="danger"] & {
-    background: var(--qx-color-bg-danger-bold);
+    background: var(--qx-progress-danger);
   }
   &[data-indeterminate] {
     inline-size: 30%;
@@ -85,7 +93,7 @@
     animation-iteration-count: infinite;
   }
   /* The slide follows the reading direction: it enters at the inline start and leaves at the end,
-     so in right to left it runs from the right (QTRX-166). A translate is physical, hence its own
+     so in right to left it runs from the right. A translate is physical, hence its own
      keyframes. */
   [dir="rtl"] &[data-indeterminate] {
     animation-name: qx-progress-slide-rtl;

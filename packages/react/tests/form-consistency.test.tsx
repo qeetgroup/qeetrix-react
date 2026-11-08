@@ -127,7 +127,7 @@ describe("form consistency", () => {
     expect(new Set(heights).size).toBe(1);
   });
 
-  it("draws every read-only field with no fill and the editable field's 3:1 line (QTRX-175)", async () => {
+  it("draws every read-only field with no fill and the editable field's 3:1 line", async () => {
     const { container } = await render(
       <Stack gap="md">
         <Field label="Account ID">

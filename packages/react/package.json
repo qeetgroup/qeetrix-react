@@ -1,6 +1,6 @@
 {
   "name": "@qeetrix/react",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Qeetrix React components: accessible, token-driven primitives on Base UI for every Qeet product.",
   "keywords": [
     "qeetrix",
@@ -205,12 +205,13 @@
     },
     "./manifest.json": "./dist/manifest.json",
     "./styles.css": "./dist/styles.css",
+    "./tailwind.css": "./dist/tailwind.css",
     "./css/*": "./dist/css/*",
     "./package.json": "./package.json"
   },
   "style": "./dist/styles.css",
   "scripts": {
-    "build": "tsdown && node scripts/build-css.mjs && node scripts/build-manifest.mjs --json",
+    "build": "tsdown && node scripts/build-css.mjs && node scripts/build-tailwind.mjs && node scripts/build-manifest.mjs --json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -220,7 +221,7 @@
     "check:source": "node scripts/check-source.mjs",
     "check:dist": "node scripts/check-dist.mjs",
     "check:api": "api-extractor run",
-    "check:package": "publint --strict && attw --pack . --profile esm-only --exclude-entrypoints ./styles.css ./css/* ./manifest.json",
+    "check:package": "publint --strict && attw --pack . --profile esm-only --exclude-entrypoints ./styles.css ./tailwind.css ./css/* ./manifest.json",
     "prepack": "bun run build"
   },
   "dependencies": {
@@ -228,7 +229,7 @@
   },
   "peerDependencies": {
     "@base-ui/react": "^1.9.0",
-    "@qeetrix/tokens": ">=0.0.10 <0.1.0",
+    "@qeetrix/tokens": ">=0.0.13 <0.1.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

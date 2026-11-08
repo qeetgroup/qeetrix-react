@@ -39,7 +39,7 @@
   background: transparent;
   color: var(--qx-color-text-subtle);
   font: var(--qx-typography-label-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
   white-space: nowrap;
   cursor: pointer;
   transition-property: color;
@@ -86,7 +86,7 @@
   align-items: baseline;
   block-size: 1lh;
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   font-variant-numeric: tabular-nums;
 }
 .qx-tab-icon-filled,

@@ -192,6 +192,26 @@ describe("removable Chip", () => {
     }
   });
 
+  it("leaves a disabled chip's remove button out of the Tab order", async () => {
+    await render(
+      <>
+        <button type="button">Before</button>
+        <Chip disabled onRemove={() => {}}>
+          Status: Active
+        </Chip>
+        <button type="button">After</button>
+      </>,
+    );
+    await tab();
+    await expect.element(page.getByRole("button", { name: "Before" })).toHaveFocus();
+    await tab();
+    await expect.element(page.getByRole("button", { name: "After" })).toHaveFocus();
+    // Still there for assistive technology, as an unavailable button.
+    await expect
+      .element(page.getByRole("button", { name: "Remove Status: Active" }))
+      .toHaveAttribute("aria-disabled", "true");
+  });
+
   it("disables its remove button with it", async () => {
     const onRemove = vi.fn();
     await render(
@@ -203,6 +223,29 @@ describe("removable Chip", () => {
     await expect.element(remove).toHaveAttribute("aria-disabled", "true");
     await remove.click({ force: true });
     expect(onRemove).not.toHaveBeenCalled();
+  });
+});
+
+describe("Chip as a checkbox, mixed or unchecked", () => {
+  it("shows a minus, not the check, when indeterminate", async () => {
+    const { container } = await render(<Chip indeterminate>All</Chip>);
+    const visible = (selector: string) =>
+      getComputedStyle(container.querySelector(selector) as Element).display !== "none";
+    expect(visible(".qx-chip-check-mixed")).toBe(true);
+    expect(visible(".qx-chip-check-on")).toBe(false);
+  });
+
+  it("submits its unchecked value", async () => {
+    const { container } = await render(
+      <form>
+        <Chip name="digest" value="on" uncheckedValue="off">
+          Weekly digest
+        </Chip>
+      </form>,
+    );
+    expect(new FormData(container.querySelector("form") as HTMLFormElement).get("digest")).toBe(
+      "off",
+    );
   });
 });
 
@@ -225,11 +268,13 @@ describe("ChipGroup", () => {
     await userEvent.keyboard("{ArrowRight}");
     await expect.element(page.getByRole("radio", { name: "Open" })).toBeChecked();
     expect(onValueChange).toHaveBeenLastCalledWith("open", expect.anything());
-    // The chosen one is drawn chosen.
-    await settled();
-    expect(
-      srgb(getComputedStyle(page.getByRole("radio", { name: "Open" }).element()).backgroundColor),
-    ).toEqual(srgb(tokenColor("--qx-color-bg-selected")));
+    // The chosen one is drawn chosen, once its fill's transition ends: polled, as the fill can
+    // start moving a render after the radio reports checked, under a busy browser.
+    await expect
+      .poll(() =>
+        srgb(getComputedStyle(page.getByRole("radio", { name: "Open" }).element()).backgroundColor),
+      )
+      .toEqual(srgb(tokenColor("--qx-color-bg-selected")));
   });
 
   it("one value: the left arrow moves on in right to left", async () => {
@@ -257,6 +302,52 @@ describe("ChipGroup", () => {
     await expect.element(page.getByText("eng,fin")).toBeVisible();
     await page.getByRole("checkbox", { name: "Engineering" }).click();
     await expect.element(page.getByText(/^fin$/)).toBeVisible();
+  });
+
+  it("submits its value with a form under its name, one value or several", async () => {
+    const { container } = await render(
+      <form>
+        <ChipGroup label="Status" name="status" defaultValue="open">
+          {STATUSES.map((status) => (
+            <Chip key={status.value} value={status.value}>
+              {status.label}
+            </Chip>
+          ))}
+        </ChipGroup>
+        <ChipGroup label="Departments" name="dept" multiple defaultValue={["eng", "fin"]}>
+          <Chip value="eng">Engineering</Chip>
+          <Chip value="fin">Finance</Chip>
+          <Chip value="ops">Operations</Chip>
+        </ChipGroup>
+      </form>,
+    );
+    const data = new FormData(container.querySelector("form") as HTMLFormElement);
+    expect(data.getAll("status")).toEqual(["open"]);
+    expect(data.getAll("dept")).toEqual(["eng", "fin"]);
+  });
+
+  it("one value: Home and End choose the first and last enabled chip", async () => {
+    await render(
+      <ChipGroup label="Status" defaultValue="open">
+        {STATUSES.map((status) => (
+          <Chip key={status.value} value={status.value}>
+            {status.label}
+          </Chip>
+        ))}
+        <Chip value="archived" disabled>
+          Archived
+        </Chip>
+      </ChipGroup>,
+    );
+    const last = STATUSES.at(-1) as (typeof STATUSES)[number];
+    const first = STATUSES[0] as (typeof STATUSES)[number];
+    await tab();
+    await userEvent.keyboard("{End}");
+    await expect.element(page.getByRole("radio", { name: last.label })).toBeChecked();
+    await expect.element(page.getByRole("radio", { name: last.label })).toHaveFocus();
+    await userEvent.keyboard("{Home}");
+    await expect.element(page.getByRole("radio", { name: first.label })).toBeChecked();
+    await expect.element(page.getByRole("radio", { name: first.label })).toHaveFocus();
   });
 
   it("sizes every chip, and wraps them onto more lines with a small gap", async () => {

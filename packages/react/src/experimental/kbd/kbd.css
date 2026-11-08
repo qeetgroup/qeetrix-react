@@ -20,7 +20,7 @@
   background: var(--qx-color-surface-raised);
   color: var(--qx-color-text-subtle);
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   white-space: nowrap;
   [data-size="sm"] > & {
     min-inline-size: 18px;
@@ -28,10 +28,10 @@
     background: transparent;
     border-block-end-color: var(--qx-color-border-default);
   }
-  /* Qeet Sans sets capitals and the modifier symbols high in the em box: the glyph moves down to
-     its ink's centre, in either size. */
+  /* A capital's ink, and a modifier symbol's, sits about half a pixel above the em box's centre at
+     label.sm's 12px: the glyph moves down to centre its ink on the cap, in either size. */
   & [aria-hidden] {
-    translate: 0 0.13em;
+    translate: 0 0.035em;
   }
   /* A step of a sequence follows its hidden "then". */
   .qx-visually-hidden + & {

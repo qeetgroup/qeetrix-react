@@ -188,7 +188,7 @@ describe("experimental components on the server", () => {
     expect(out).toContain('aria-hidden="true"');
   });
 
-  it("Chip renders its checkbox, radios and remove button on the server (QTRX-180)", () => {
+  it("Chip renders its checkbox, radios and remove button on the server", () => {
     const out = html(
       <>
         <Chip defaultChecked>Unread</Chip>

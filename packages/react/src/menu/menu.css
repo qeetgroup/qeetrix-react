@@ -40,7 +40,7 @@
 }
 
 /* An item is `size.control.md` for one line. A label that doesn't fit the menu's 320px wraps, and
-   the item grows (QTRX-177): nothing is cut, whatever the text size. The icon, mark, shortcut and
+   the item grows: nothing is cut, whatever the text size. The icon, mark, shortcut and
    submenu chevron stay on the first line. */
 .qx-menu-item {
   --qx-menu-item-line: calc(
@@ -55,7 +55,7 @@
   padding-block: calc((var(--qx-size-control-md) - var(--qx-menu-item-line)) / 2);
   padding-inline: var(--qx-space-inset-md);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   cursor: default;
   user-select: none;
   outline: 0;
@@ -141,7 +141,7 @@
 }
 .qx-menu-item-description {
   font: var(--qx-typography-body-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
   color: var(--qx-color-text-subtle);
   .qx-menu-item[data-disabled] & {
     color: var(--qx-color-text-disabled);
@@ -151,7 +151,7 @@
 .qx-menu-group-label {
   padding: 8px var(--qx-space-inset-md) 4px;
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   color: var(--qx-color-text-subtle);
 }
 .qx-menu-separator {

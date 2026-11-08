@@ -114,7 +114,7 @@ describe("Select", () => {
       .toHaveAttribute("aria-disabled", "true");
   });
 
-  it("wraps an option too long for the list, the option growing, its check on the first line (QTRX-177)", async () => {
+  it("wraps an option too long for the list, the option growing, its check on the first line", async () => {
     const label = "Kaveri Foods Private Limited, Chennai regional office (finance and payroll)";
     await render(
       <div style={{ inlineSize: 240 }}>

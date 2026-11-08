@@ -45,7 +45,7 @@
   border-collapse: collapse;
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
 }
 .qx-table-head {
   position: sticky;
@@ -54,7 +54,7 @@
   background: var(--qx-color-bg-neutral-subtle);
   font: var(--qx-typography-label-sm);
   font-weight: var(--qx-typography-title-sm-font-weight);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   white-space: nowrap;
 }
 .qx-table-cell {
@@ -226,7 +226,7 @@
 .qx-table-count {
   font: var(--qx-typography-label-md);
   font-weight: var(--qx-typography-title-sm-font-weight);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
   white-space: nowrap;
 }
 .qx-table-bulk {

@@ -152,8 +152,8 @@ describe("Stat", () => {
     // The definition reads "Loading"; the note's placeholder is hidden.
     await expect.element(page.getByRole("definition").first()).toHaveTextContent("Loading");
     expect(stat().querySelector("[data-slot=stat-note]")?.getAttribute("aria-hidden")).toBe("true");
-    // The same height, to a sixty-fourth of a pixel: line heights are fractional (24px × 1.3333).
-    expect(stat().getBoundingClientRect().height).toBeCloseTo(loaded, 1);
+    // The same height, exactly: tokens 0.0.13 give every role its line height in pixels.
+    expect(stat().getBoundingClientRect().height).toBe(loaded);
   });
 
   it("says Loading in the provider's language", async () => {

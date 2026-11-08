@@ -157,7 +157,7 @@ describe("right-to-left", () => {
     await expect.poll(() => Math.round(popup().left)).toBe(0);
   });
 
-  it("Progress: the indeterminate segment enters on the right and leaves on the left (QTRX-166)", async () => {
+  it("Progress: the indeterminate segment enters on the right and leaves on the left", async () => {
     const { container } = await render(
       <Rtl>
         <div style={{ inlineSize: 300 }}>

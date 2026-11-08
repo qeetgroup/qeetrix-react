@@ -20,7 +20,7 @@
   background: transparent;
   color: var(--qx-color-text-default);
   font: var(--qx-typography-label-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
   text-align: start;
   white-space: nowrap;
   cursor: pointer;

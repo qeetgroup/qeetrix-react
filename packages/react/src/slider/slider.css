@@ -16,12 +16,12 @@
    isn't a disabled control's <label>, and must still meet contrast. */
 .qx-slider-label {
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   color: var(--qx-color-text-subtle);
 }
 .qx-slider-value {
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   font-variant-numeric: tabular-nums;
   color: var(--qx-color-text-default);
 }

@@ -22,7 +22,7 @@
   box-shadow: var(--qx-shadow-overlay);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   transform: translate(var(--toast-swipe-movement-x, 0px), var(--toast-swipe-movement-y, 0px));
   transition-property: opacity, translate, transform;
   transition-duration: var(--qx-motion-duration-normal);
@@ -84,12 +84,12 @@
 .qx-toast-title {
   margin: 0;
   font: var(--qx-typography-title-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+  font-variation-settings: "GEOM" var(--qx-typography-title-sm-font-geometry);
 }
 .qx-toast-description {
   margin: 0;
   font: var(--qx-typography-body-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
   color: var(--qx-color-text-subtle);
 }
 .qx-toast-action {

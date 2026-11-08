@@ -13,7 +13,7 @@
   transition-duration: var(--qx-motion-duration-fast);
   transition-timing-function: var(--qx-motion-easing-standard);
 
-  /* Hover never takes an invalid circle's danger edge (QTRX-161). */
+  /* Hover never takes an invalid circle's danger edge. */
   &:hover:not([data-disabled], [data-readonly], [data-invalid]) {
     border-color: var(--qx-color-border-strong-hover);
   }

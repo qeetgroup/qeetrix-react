@@ -12,7 +12,7 @@
   gap: var(--qx-space-gap-sm);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
 }
 .qx-calendar-header {
   display: flex;
@@ -74,7 +74,7 @@
   block-size: var(--qx-size-control-sm);
   padding: 0;
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   color: var(--qx-color-text-subtle);
   text-align: center;
 }

@@ -36,7 +36,7 @@
   border-radius: var(--qx-radius-sm);
   color: var(--qx-color-text-subtle);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   text-decoration: none;
   &:hover {
     color: var(--qx-color-text-default);
@@ -90,14 +90,14 @@
 .qx-page-header-count {
   font: var(--qx-typography-title-lg);
   font-weight: var(--qx-typography-body-md-font-weight);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+  font-variation-settings: "GEOM" var(--qx-typography-title-lg-font-geometry);
   font-variant-numeric: tabular-nums;
   color: var(--qx-color-text-subtlest);
 }
 .qx-page-header-description {
   margin: 0;
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   color: var(--qx-color-text-subtle);
 }
 .qx-page-header-actions {

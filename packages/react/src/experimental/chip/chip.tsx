@@ -5,12 +5,14 @@ import { CheckboxGroup as BaseCheckboxGroup } from "@base-ui/react/checkbox-grou
 import { Radio as BaseRadio } from "@base-ui/react/radio";
 import { RadioGroup as BaseRadioGroup } from "@base-ui/react/radio-group";
 import { CheckIcon } from "@qeetrix/icons/icons/check";
+import { MinusIcon } from "@qeetrix/icons/icons/minus";
 import { XIcon } from "@qeetrix/icons/icons/x";
 import {
   type ComponentProps,
   type Context,
   type CSSProperties,
   createContext,
+  type KeyboardEvent,
   type ReactElement,
   type ReactNode,
   use,
@@ -44,7 +46,9 @@ interface ChipLook {
 /**
  * A chip that turns on and off, such as a filter: a checkbox, with Base UI Checkbox's `checked` /
  * `defaultChecked` / `onCheckedChange`. In a ChipGroup it takes a `value`, and in a single-choice
- * group it's a radio.
+ * group it's a radio. As a checkbox it also takes Base UI's `indeterminate` (a minus in place of the
+ * check: an "All" chip over a partial choice), `parent` and `uncheckedValue`; a radio has
+ * no mixed or unchecked state, so in a single-choice group those three don't apply.
  */
 export interface SelectableChipProps
   extends ChipLook,
@@ -77,6 +81,7 @@ export type ChipProps = SelectableChipProps | RemovableChipProps;
 interface ChipGroupState {
   multiple: boolean;
   size: ChipSize | undefined;
+  name: string | undefined;
 }
 
 const ChipGroupContext: Context<ChipGroupState | null> = createContext<ChipGroupState | null>(null);
@@ -107,7 +112,8 @@ function Mark({ icon, check }: { icon: IconSource | undefined; check: ReactEleme
     : check;
 }
 
-const checkMark = <CheckIcon shape="sharp" size={16} aria-hidden />;
+const checkMark = <CheckIcon shape="sharp" size={16} aria-hidden className="qx-chip-check-on" />;
+const mixedMark = <MinusIcon shape="sharp" size={16} aria-hidden className="qx-chip-check-mixed" />;
 
 function SelectableChip({
   children,
@@ -121,10 +127,11 @@ function SelectableChip({
   checked,
   defaultChecked,
   onCheckedChange,
-  indeterminate: _indeterminate,
-  parent: _parent,
-  uncheckedValue: _uncheckedValue,
+  indeterminate,
+  parent,
+  uncheckedValue,
   value,
+  name,
   ...props
 }: SelectableChipProps): ReactElement {
   const group = use(ChipGroupContext);
@@ -158,12 +165,18 @@ function SelectableChip({
       {...(checked === undefined ? {} : { checked })}
       {...(defaultChecked === undefined ? {} : { defaultChecked })}
       {...(onCheckedChange === undefined ? {} : { onCheckedChange })}
+      {...(indeterminate === undefined ? {} : { indeterminate })}
+      {...(parent === undefined ? {} : { parent })}
+      {...(uncheckedValue === undefined ? {} : { uncheckedValue })}
+      // A chip in a multiple group submits under the group's name, as CheckboxGroup's options do.
+      {...((name ?? group?.name) === undefined ? {} : { name: name ?? group?.name })}
     >
       <Mark
         icon={icon}
         check={
           <BaseCheckbox.Indicator className="qx-chip-check" data-slot="chip-check">
             {checkMark}
+            {mixedMark}
           </BaseCheckbox.Indicator>
         }
       />
@@ -210,6 +223,9 @@ function RemovableChip({
         tone="neutral"
         tooltip={false}
         disabled={disabled}
+        // A disabled chip has no reason to read, so Tab skips its remove button; it stays in
+        // the accessibility tree as an unavailable button.
+        {...(disabled ? { tabIndex: -1 } : {})}
         className="qx-chip-remove"
         onClick={() => onRemove()}
       />
@@ -222,6 +238,11 @@ interface ChipGroupOwnProps {
   label: string;
   /** Every chip's size. Default `md`. */
   size?: ChipSize;
+  /**
+   * The field name the chosen value submits under in a form: one entry in a single-choice
+   * group, one per chosen chip with `multiple`, as RadioGroup and CheckboxGroup submit.
+   */
+  name?: string;
   /** The Chips, each with its `value`. */
   children?: ReactNode;
   /** Placement only. */
@@ -233,7 +254,7 @@ interface ChipGroupOwnProps {
 /** One value from a set: the chips are radios, one tab stop, arrow keys moving the choice. */
 export interface SingleChipGroupProps
   extends ChipGroupOwnProps,
-    Omit<BaseRadioGroup.Props<string>, "className" | "style" | "render" | "children"> {
+    Omit<BaseRadioGroup.Props<string>, "className" | "style" | "render" | "children" | "name"> {
   /** Any number of values instead of one. */
   multiple?: false;
 }
@@ -250,15 +271,31 @@ export interface MultipleChipGroupProps
 export type ChipGroupProps = SingleChipGroupProps | MultipleChipGroupProps;
 
 /**
+ * Home and End in a single-choice group: the first and last enabled chip, chosen, as ToggleGroup and
+ * Tabs move. The arrow keys are Base UI's.
+ */
+function moveToEnd(event: KeyboardEvent<HTMLElement>): void {
+  if (event.key !== "Home" && event.key !== "End") return;
+  const chips = [
+    ...event.currentTarget.querySelectorAll<HTMLElement>('[role="radio"]:not([data-disabled])'),
+  ];
+  const target = event.key === "Home" ? chips[0] : chips.at(-1);
+  if (!target) return;
+  event.preventDefault();
+  target.focus();
+  target.click();
+}
+
+/**
  * Chips that choose from a set, wrapping onto more lines where they don't fit: one value (radios),
  * or several with `multiple` (checkboxes), as `value` / `defaultValue` / `onValueChange`. Named by
  * `label`, which isn't shown; put a visible heading beside it where the page needs one.
  */
 export function ChipGroup(props: ChipGroupProps): ReactElement {
   if (props.multiple) {
-    const { multiple: _multiple, label, size, className, ...rest } = props;
+    const { multiple: _multiple, label, size, name, className, ...rest } = props;
     return (
-      <ChipGroupContext value={{ multiple: true, size }}>
+      <ChipGroupContext value={{ multiple: true, size, name }}>
         <BaseCheckboxGroup
           {...rest}
           aria-label={label}
@@ -268,11 +305,16 @@ export function ChipGroup(props: ChipGroupProps): ReactElement {
       </ChipGroupContext>
     );
   }
-  const { multiple: _multiple, label, size, className, ...rest } = props;
+  const { multiple: _multiple, label, size, name, className, onKeyDown, ...rest } = props;
   return (
-    <ChipGroupContext value={{ multiple: false, size }}>
+    <ChipGroupContext value={{ multiple: false, size, name }}>
       <BaseRadioGroup<string>
         {...rest}
+        {...(name === undefined ? {} : { name })}
+        onKeyDown={(event) => {
+          onKeyDown?.(event);
+          if (!event.defaultPrevented) moveToEnd(event);
+        }}
         aria-label={label}
         className={cx("qx-chip-group", className)}
         data-slot="chip-group"

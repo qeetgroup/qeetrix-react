@@ -34,7 +34,7 @@ describe.runIf(canEmulateMedia)("reduced motion", () => {
     expect(getComputedStyle(slot("skeleton")).animationDuration).toBe("0s");
   });
 
-  it("fades indeterminate Progress in right to left too (QTRX-166)", async () => {
+  it("fades indeterminate Progress in right to left too", async () => {
     await render(
       <div dir="rtl">
         <Progress aria-label="Importing" value={null} />

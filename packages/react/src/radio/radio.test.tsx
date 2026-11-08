@@ -53,7 +53,7 @@ describe("RadioGroup", () => {
     expect(radio.getBoundingClientRect().width).toBe(16);
   });
 
-  it("keeps an invalid circle's danger edge under the pointer, chosen or not (QTRX-161)", async () => {
+  it("keeps an invalid circle's danger edge under the pointer, chosen or not", async () => {
     await render(
       <RadioGroup label="Plan" error="Choose a plan you can pay for." defaultValue="pro">
         <Radio value="free" label="Free" />

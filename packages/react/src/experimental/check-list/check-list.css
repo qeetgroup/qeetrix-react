@@ -10,10 +10,16 @@
   padding: 0;
   list-style: none;
 }
+/* The icon and the status sit on the title's first line, as a menu item's icon and shortcut do:
+   a title that wraps, or a detail under it, grows the check downwards. */
 .qx-check-item {
+  --qx-check-item-line: calc(
+    var(--qx-typography-label-md-font-size) *
+    var(--qx-typography-label-md-line-height)
+  );
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
+  align-items: start;
   gap: var(--qx-space-gap-md);
   min-block-size: 3rem;
   padding: var(--qx-space-inset-sm) var(--qx-space-inset-md);
@@ -23,6 +29,11 @@
 }
 .qx-check-item-icon {
   display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 16px;
+  block-size: 16px;
+  margin-block: calc((var(--qx-check-item-line) - 16px) / 2);
   color: var(--qx-color-icon-subtle);
   [data-status="passed"] > & {
     color: var(--qx-color-icon-success);
@@ -38,7 +49,7 @@
 }
 .qx-check-item-title {
   font: var(--qx-typography-label-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
 }
 .qx-check-item-detail {
   overflow-wrap: anywhere;
@@ -48,7 +59,8 @@
 .qx-check-item-status {
   color: var(--qx-color-text-subtle);
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
+  line-height: var(--qx-check-item-line);
   [data-status="passed"] > & {
     color: var(--qx-color-text-success);
   }

@@ -10,7 +10,7 @@
 
 .qx-field-label {
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   color: var(--qx-color-text-subtle);
   &[data-disabled] {
     color: var(--qx-color-text-disabled);
@@ -49,7 +49,7 @@
 .qx-field-description {
   margin: 0;
   font: var(--qx-typography-body-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
   color: var(--qx-color-text-subtle);
   &[data-disabled] {
     color: var(--qx-color-text-subtlest);
@@ -61,7 +61,7 @@
   align-items: flex-start;
   gap: var(--qx-space-gap-xs);
   font: var(--qx-typography-body-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
   color: var(--qx-color-text-danger);
 }
 .qx-field-error-icon {
@@ -84,7 +84,7 @@
   min-block-size: var(--qx-size-target-min);
   padding-block: 2px;
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   color: var(--qx-color-text-default);
   cursor: pointer;
   & > :first-child {
@@ -99,7 +99,7 @@
   margin: 0;
   padding-inline-start: 24px;
   font: var(--qx-typography-body-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
   color: var(--qx-color-text-subtle);
   &[data-disabled] {
     color: var(--qx-color-text-subtlest);
@@ -137,18 +137,25 @@
   color: var(--qx-color-icon-subtle);
 }
 
-/* Tiles: up to N columns of at least 12rem, each option a box: its icon in a 36px square at the
-   start, the title (semibold) and its line, the control at the end. The label stretches over the
-   whole tile, so a click anywhere chooses it; the description stays linked, not part of the name.
-   Chosen: the selected tint and a 2px Ember edge; focused: the focus ring round the tile. */
+/* Tiles: up to N columns, each option a box: its icon in a 36px square at the start, the title
+   (semibold) and its line, the control at the end. The label stretches over the whole tile, so a
+   click anywhere chooses it; the description stays linked, not part of the name. Chosen: the
+   selected tint and a 2px Ember edge; focused: the focus ring round the tile.
+   A tile is at least 12rem wide when any option has an icon or a description, and 8rem when they are
+   short choices on their own — a language, a size — so columns={2} keeps two a row on a 360px phone.
+   Fewer columns where there isn't room. */
 .qx-choice-group[data-variant="tile"] {
+  --qx-choice-tile-min: 8rem;
+  &:has(.qx-choice-icon, .qx-choice-description) {
+    --qx-choice-tile-min: 12rem;
+  }
   & .qx-choice-group-options {
     display: grid;
     grid-template-columns: repeat(
         auto-fill,
         minmax(
           max(
-            12rem,
+            var(--qx-choice-tile-min),
             calc(
               (100% - (var(--qx-choice-columns) - 1) * var(--qx-space-gap-sm)) /
               var(--qx-choice-columns)

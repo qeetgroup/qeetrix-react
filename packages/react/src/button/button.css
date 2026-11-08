@@ -12,7 +12,7 @@
   border: 0;
   border-radius: var(--qx-radius-control);
   font: var(--qx-typography-label-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
@@ -42,8 +42,29 @@
   &[data-size="lg"]:not([data-icon]):not([data-loading]) {
     padding-inline: 16px;
   }
+  /* Full width (design rules §7): the label is centred on the whole button. With an icon or a
+     spinner, three columns: an empty one at the start and the zone's at the end stay equal while
+     there's room, so the label is centred on the button, not on the space beside the zone. Where
+     there isn't, the start gives way first, down to the button's own padding (2px plus the gap),
+     so the button needs no more width than before. Logical, so right to left mirrors it. */
   &[data-full-width] {
     inline-size: 100%;
+    .qx-button-label {
+      flex: 1 1 auto;
+      text-align: center;
+    }
+    &:is([data-icon], [data-loading]) {
+      display: grid;
+      grid-template-columns: minmax(2px, 1fr) minmax(0, max-content) minmax(max-content, 1fr);
+      padding-inline-start: 0;
+      .qx-button-label {
+        grid-column: 2;
+      }
+      .qx-button-zone {
+        grid-column: 3;
+        justify-self: end;
+      }
+    }
   }
 
   /* Emphasis (§7): one solid and one soft per region; everything else ghost. */
@@ -87,7 +108,7 @@
       background: var(--qx-color-bg-danger-bold-pressed);
     }
   }
-  /* Ghost danger presses to its own tint, never the brand's (QTRX-158): a keyboard or touch press
+  /* Ghost danger presses to its own tint, never the brand's: a keyboard or touch press
      without the pointer over it shows the danger tint too. The tokens have no
      bg.danger.subtle-pressed, so the press keeps bg.danger.subtle (the label 5.19:1 light, 6.23:1
      dark). */
@@ -109,7 +130,7 @@
     }
   }
   /* A solid or soft neutral button looks like soft (06 §1), in every state: its own hover and press
-     outrank solid's Ember ones (QTRX-157). */
+     outrank solid's Ember ones. */
   &[data-tone="neutral"]:not([data-variant="ghost"]) {
     background: var(--qx-color-bg-neutral-bold);
     color: var(--qx-color-text-inverse);

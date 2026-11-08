@@ -6,13 +6,24 @@ import type { ComponentProps, CSSProperties, ReactElement, ReactNode } from "rea
 import { cx } from "../internal/cx";
 import { drawIcon, type IconSource } from "../internal/icon";
 
-export interface InputProps extends Omit<BaseInput.Props, "className" | "style" | "render"> {
+/** A field's size: `md`, the one height every form shares, or `lg`, for a step that asks for one value. */
+export type InputSize = "md" | "lg";
+
+export interface InputProps
+  extends Omit<BaseInput.Props, "className" | "style" | "render" | "size"> {
   /** A leading icon from `@qeetrix/icons` (search, mail): sharp, 16px, decorative. */
   icon?: IconSource;
   /** Before the value: a text affix such as ₹. */
   startAdornment?: ReactNode;
   /** After the value: an affix such as % or .qeet.in, or a tool such as a show-password button. */
   endAdornment?: ReactNode;
+  /**
+   * `md` (default): the height every field in a form shares. `lg`: the one value a sign-in or sign-up
+   * step asks for (a phone number, a name), as OTPInput's `lg`: `size.control.lg` + 16px tall, the
+   * value and any affix at `title.lg` with tabular figures, the placeholder at body size. Use it for
+   * that step's one field only.
+   */
+  size?: InputSize;
   /** Placement of the box only (margin, width, grid placement). */
   className?: string;
   /** Placement of the box only, like `className`. */
@@ -27,12 +38,13 @@ export function Input({
   icon: Icon,
   startAdornment,
   endAdornment,
+  size = "md",
   className,
   style,
   ...props
 }: InputProps): ReactElement {
   return (
-    <div className={cx("qx-input", className)} style={style} data-slot="input">
+    <div className={cx("qx-input", className)} style={style} data-slot="input" data-size={size}>
       {Icon && drawIcon(Icon, { size: 16, className: "qx-input-icon", "data-slot": "input-icon" })}
       {startAdornment != null && (
         <span className="qx-input-adornment" data-slot="input-start">

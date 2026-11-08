@@ -102,7 +102,7 @@ describe("Tabs", () => {
     expect(getComputedStyle(filled).display).toBe("block");
   });
 
-  it("fills the selected tab's icon by default, and keeps the outline when asked (QTRX-168)", async () => {
+  it("fills the selected tab's icon by default, and keeps the outline when asked", async () => {
     await render(
       <Tabs defaultValue="all">
         <TabsList>
@@ -125,7 +125,7 @@ describe("Tabs", () => {
     expect(shown("All")).toEqual(["qx-tab-icon qx-tab-icon-outline"]);
   });
 
-  it("fills the current TabNavLink's icon by default (QTRX-168)", async () => {
+  it("fills the current TabNavLink's icon by default", async () => {
     await render(
       <TabNav aria-label="Users views">
         <TabNavLink href="#all" icon={LayoutGridIcon} current>

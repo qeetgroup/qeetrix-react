@@ -1,4 +1,4 @@
-/* MultiEmailField (QTRX-22): the filled box, then a ruled row per address under it: its state's
+/* MultiEmailField: the filled box, then a ruled row per address under it: its state's
    icon, the address, what will happen to it, and a remove button. */
 .qx-multi-email-field {
   display: grid;
@@ -24,7 +24,7 @@
   gap: var(--qx-space-gap-sm);
   padding-block: var(--qx-space-inset-xs);
   font: var(--qx-typography-body-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
   & + & {
     border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
   }

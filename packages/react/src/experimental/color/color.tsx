@@ -135,6 +135,7 @@ export interface ColorFieldProps
     | "startAdornment"
     | "endAdornment"
     | "children"
+    | "size"
   > {
   /** What's typed: a hex colour, or `""` for the default. */
   value?: string;

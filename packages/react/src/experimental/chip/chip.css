@@ -1,4 +1,4 @@
-/* Chip (QTRX-180; design rules §14): an interactive or removable tag. FilterTags' tag: a neutral
+/* Chip (design rules §14): an interactive or removable tag. FilterTags' tag: a neutral
    tint with a 1px rule inside and the controls' 4px corners (only people and status are round),
    `space.gap.sm` before the label and `space.gap.xs` between its parts, `size.control.*` tall. The
    neutral tints' hover and press steps. Chosen (design rules §11, selected): the selected tint, a
@@ -26,7 +26,7 @@
   box-shadow: inset 0 0 0 var(--qx-border-width-default) var(--qx-color-border-subtle);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-label-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
   cursor: pointer;
   user-select: none;
   transition-property: background-color, box-shadow;
@@ -79,7 +79,7 @@
     color: var(--qx-color-text-subtlest);
   }
 }
-/* The label wraps rather than cut, the chip growing (as menus and options do, QTRX-177). */
+/* The label wraps rather than cut, the chip growing (as menus and options do). */
 .qx-chip-label {
   min-inline-size: 0;
   padding-block: 2px;
@@ -89,6 +89,11 @@
 .qx-chip-check {
   display: flex;
   flex: none;
+}
+/* The check, or a minus for a mixed chip (an "All" chip over a partial choice). */
+.qx-chip-check[data-indeterminate] > .qx-chip-check-on,
+.qx-chip-check:not([data-indeterminate]) > .qx-chip-check-mixed {
+  display: none;
 }
 .qx-chip-remove {
   flex: none;

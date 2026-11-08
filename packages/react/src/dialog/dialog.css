@@ -41,7 +41,7 @@
   box-shadow: var(--qx-shadow-modal);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   outline: 0;
   transition-property: opacity, translate;
   transition-duration: var(--qx-motion-duration-slow);
@@ -91,7 +91,7 @@
 .qx-dialog-title {
   margin: 0;
   font: var(--qx-typography-title-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+  font-variation-settings: "GEOM" var(--qx-typography-title-md-font-geometry);
 }
 .qx-dialog-description {
   margin: 0;

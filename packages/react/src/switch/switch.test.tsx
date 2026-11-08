@@ -41,7 +41,7 @@ describe("Switch", () => {
     expect(offset(rtl as HTMLElement)).toBe(3);
   });
 
-  it("keeps an invalid track's danger edge under the pointer, on or off (QTRX-161)", async () => {
+  it("keeps an invalid track's danger edge under the pointer, on or off", async () => {
     await render(
       <Field label="Notifications" error="Turn on at least one.">
         <Switch label="Email" />
@@ -58,7 +58,7 @@ describe("Switch", () => {
     }
   });
 
-  it("draws the on thumb white in both schemes, as the checkbox's tick (QTRX-162)", async () => {
+  it("draws the on thumb white in both schemes, as the checkbox's tick", async () => {
     const { container } = await render(<Switch aria-label="Auto-renew" defaultChecked />);
     const thumb = container.querySelector("[data-slot=switch-thumb]") as HTMLElement;
     const html = document.documentElement;

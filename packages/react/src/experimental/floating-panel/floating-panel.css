@@ -1,4 +1,4 @@
-/* FloatingPanel (QTRX-53): a raised, ruled sheet over the page, with the overlay shadow; its head
+/* FloatingPanel: a raised, ruled sheet over the page, with the overlay shadow; its head
    is the move target, its end corner the resize handle. On a narrow screen it's a bottom sheet. */
 .qx-floating-panel {
   position: fixed;
@@ -16,7 +16,7 @@
   box-shadow: var(--qx-shadow-overlay);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   outline: 0;
 }
 .qx-floating-panel-head {

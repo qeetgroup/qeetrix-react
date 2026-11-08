@@ -14,7 +14,7 @@
   --qx-tree-end: var(--qx-space-inset-sm);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
 }
 .qx-tree-item {
   outline: 0;
@@ -120,7 +120,7 @@
   flex: none;
   color: var(--qx-color-text-subtle);
   font: var(--qx-typography-body-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
   font-variant-numeric: tabular-nums;
 }
 

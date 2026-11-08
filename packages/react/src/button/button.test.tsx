@@ -149,6 +149,76 @@ describe("Button", () => {
     delete html.dataset.qxDensity;
   });
 
+  it("centres a full-width button's label on the whole button, with or without an icon, at every size and in RTL", async () => {
+    const offsets: string[] = [];
+    for (const dir of ["ltr", "rtl"] as const) {
+      for (const size of ["sm", "md", "lg"] as const) {
+        for (const icon of [undefined, ArrowRightIcon]) {
+          const screen = await render(
+            <div dir={dir} style={{ inlineSize: 360 }}>
+              <Button size={size} fullWidth {...(icon ? { icon } : {})}>
+                Continue
+              </Button>
+            </div>,
+          );
+          const button = page.getByRole("button", { name: "Continue" }).element() as HTMLElement;
+          const label = button.querySelector("[data-slot=button-label]") as HTMLElement;
+          // The text's own box, not the label's, which spans the free width.
+          const range = document.createRange();
+          range.selectNodeContents(label);
+          const text = range.getBoundingClientRect();
+          const box = button.getBoundingClientRect();
+          const offset = text.left + text.width / 2 - (box.left + box.width / 2);
+          if (Math.abs(offset) > 1)
+            offsets.push(`${dir} ${size} ${icon ? "icon" : "plain"}: ${offset}`);
+          // The icon keeps its zone at the end.
+          const zone = button.querySelector("[data-slot=button-zone]");
+          if (zone) {
+            const end = zone.getBoundingClientRect();
+            expect(dir === "ltr" ? box.right - end.right : end.left - box.left).toBe(0);
+          }
+          await screen.unmount();
+        }
+      }
+    }
+    expect(offsets).toEqual([]);
+  });
+
+  it("fits a full-width button wherever the plain one fits, the start giving way first where it's tight", async () => {
+    const plain = await render(
+      <div style={{ inlineSize: "max-content" }}>
+        <Button icon={ArrowRightIcon}>Type the key instead</Button>
+      </div>,
+    );
+    const natural = (document.querySelector(".qx-button") as HTMLElement).getBoundingClientRect()
+      .width;
+    await plain.unmount();
+    await render(
+      <>
+        {/* Exactly room for the plain button beside a 48px control: the label still isn't cut. */}
+        <div style={{ display: "flex", gap: 8, inlineSize: natural + 8 + 48 }}>
+          <Button icon={ArrowRightIcon} fullWidth>
+            Type the key instead
+          </Button>
+          <span style={{ flex: "none", inlineSize: 48 }} />
+        </div>
+        <div style={{ inlineSize: 150 }}>
+          <Button icon={ArrowRightIcon} fullWidth>
+            Type the key instead
+          </Button>
+        </div>
+      </>,
+    );
+    const [fits, tight] = [...document.querySelectorAll<HTMLElement>(".qx-button")];
+    const fitsLabel = fits?.querySelector("[data-slot=button-label]") as HTMLElement;
+    expect(fitsLabel.scrollWidth).toBeLessThanOrEqual(fitsLabel.clientWidth);
+    // Too narrow to centre: the label starts at the button's own 14px and ends in an ellipsis.
+    const label = tight?.querySelector("[data-slot=button-label]") as HTMLElement;
+    const box = tight?.getBoundingClientRect() as DOMRect;
+    expect(label.getBoundingClientRect().left - box.left).toBe(14);
+    expect(label.scrollWidth).toBeGreaterThan(label.clientWidth);
+  });
+
   it("IconButton is square and named by its aria-label", async () => {
     await render(<IconButton icon={DownloadIcon} aria-label="Download invoice" />);
     const button = page.getByRole("button", { name: "Download invoice" }).element() as HTMLElement;
@@ -156,7 +226,7 @@ describe("Button", () => {
     expect(width).toBe(height);
   });
 
-  it("a solid neutral button hovers and presses in graphite, as soft does (QTRX-157)", async () => {
+  it("a solid neutral button hovers and presses in graphite, as soft does", async () => {
     await render(
       <Button variant="solid" tone="neutral">
         Export
@@ -180,7 +250,7 @@ describe("Button", () => {
     }
   });
 
-  it("a ghost danger button presses to a danger tint, never Ember's (QTRX-158)", async () => {
+  it("a ghost danger button presses to a danger tint, never Ember's", async () => {
     await render(
       <Button variant="ghost" tone="danger">
         Delete

@@ -12,7 +12,7 @@
   background: var(--qx-color-bg-neutral-subtle-pressed);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   white-space: nowrap;
   vertical-align: middle;
   /* bg.brand.subtle, not -pressed: Ember text on the pressed tint is 4.26:1 in light mode. */

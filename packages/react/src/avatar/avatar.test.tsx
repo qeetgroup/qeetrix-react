@@ -150,7 +150,7 @@ describe("Avatar", () => {
     expect(getComputedStyle(avatars[0] as HTMLElement).borderRadius).not.toBe("0px");
   });
 
-  it("status: a dot on the bottom-end corner, read with the name (QTRX-181)", async () => {
+  it("status: a dot on the bottom-end corner, read with the name", async () => {
     const { container } = await render(
       <>
         {SIZES.map((size) => (
@@ -196,7 +196,7 @@ describe("Avatar", () => {
     );
   });
 
-  it("status: the dot sits on the bottom-left in right to left (QTRX-181)", async () => {
+  it("status: the dot sits on the bottom-left in right to left", async () => {
     const { container } = await render(
       <div dir="rtl">
         <Avatar name="Priya Sharma" status={{ label: "Online", tone: "success" }} />
@@ -207,7 +207,7 @@ describe("Avatar", () => {
     expect(dot.getBoundingClientRect().left).toBe(avatar.getBoundingClientRect().left);
   });
 
-  it("status: a 2px gap cuts the dot out of the avatar, so it reads on any surface (QTRX-181)", async () => {
+  it("status: a 2px gap cuts the dot out of the avatar, so it reads on any surface", async () => {
     document.documentElement.dataset.qxColorScheme = "light";
     const { container } = await render(
       <div

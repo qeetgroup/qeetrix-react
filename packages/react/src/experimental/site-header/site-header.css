@@ -1,4 +1,4 @@
-/* SiteHeader and SiteNav (QTRX-12, design rules §17): a website's bar on the 2px Ember line with a
+/* SiteHeader and SiteNav (design rules §17): a website's bar on the 2px Ember line with a
    hairline below; the wordmark, the sections (the current one with the Ember bar under it), quiet
    utilities and one primary action. A section's panel drops under the bar on the overlay surface.
    Below 840px the sections and utilities move into the menu under the bar. */
@@ -9,7 +9,7 @@
   background: var(--qx-color-surface-default);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
 }
 .qx-site-header-bar {
   display: flex;
@@ -111,7 +111,7 @@
   box-shadow: var(--qx-shadow-overlay);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
 }
 .qx-site-nav-content {
   padding: var(--qx-space-inset-sm);

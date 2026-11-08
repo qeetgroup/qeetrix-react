@@ -96,7 +96,11 @@ export function Toggle({
             "data-slot": "toggle-icon-filled",
           })
         : null}
-      {children}
+      {children === undefined || children === null ? null : (
+        <span className="qx-toggle-label" data-slot="toggle-label">
+          {children}
+        </span>
+      )}
     </BaseToggle>
   );
   if (!iconOnly || tooltip === false) return toggle;
@@ -131,6 +135,20 @@ export interface ToggleGroupProps
   variant?: ToggleGroupVariant;
   /** Height for every toggle in the group. Default `md`. */
   size?: ControlSize;
+  /**
+   * Fill the container's width, every toggle an equal share with its label centred; a label longer
+   * than its share ends in an ellipsis. For a picker on a phone, as the native segmented control
+   *. A vertical group already fills its width and ignores it.
+   *
+   * ```tsx
+   * <ToggleGroup fullWidth size="sm" defaultValue={["contacts"]} aria-label="Who can add you">
+   *   <Toggle value="everyone">Everyone</Toggle>
+   *   <Toggle value="contacts">My contacts</Toggle>
+   *   <Toggle value="nobody">Nobody</Toggle>
+   * </ToggleGroup>
+   * ```
+   */
+  fullWidth?: boolean;
 }
 
 /** A row of toggles: a segmented control for one view among a few, or a set of tools. */
@@ -138,6 +156,7 @@ export function ToggleGroup({
   variant = "segmented",
   size = "md",
   orientation = "horizontal",
+  fullWidth,
   className,
   ...props
 }: ToggleGroupProps): ReactElement {
@@ -150,6 +169,7 @@ export function ToggleGroup({
       data-variant={variant}
       data-size={size}
       data-orientation={orientation}
+      data-full-width={fullWidth ? "" : undefined}
     />
   );
 }
