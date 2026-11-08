@@ -76,7 +76,8 @@ deliberately broken example by `tests/gates.server.test.ts`, which runs on every
 | Screenshots | Compared on Argos (once connected). Light and dark for every component; all three densities too for components whose CSS uses a density token, enforced by `tests/screenshot-coverage.server.test.ts` |
 | Nightly | The browser tests again in Firefox and WebKit |
 
-Releases: `release.yml` re-runs the gate on `main`, then waits for an approver in the
+Releases: `release.yml` builds and checks the package on `main` (every gate already passed in develop's CI on that
+commit), then waits for an approver in the
 `npm-publish` environment, then publishes through npm trusted publishing with provenance.
 `codeql.yml` and `scorecard.yml` run security analysis.
 

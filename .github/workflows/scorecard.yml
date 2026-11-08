@@ -5,8 +5,7 @@ name: Scorecard
 # Charter target: 7.5 or higher.
 
 on:
-  push:
-    branches: [main]
+  # Weekly, and by hand: it scores the repository's settings and main, so a merge needn't run it again.
   schedule:
     - cron: "0 23 * * 1"
   workflow_dispatch:
