@@ -3,11 +3,15 @@ name: CodeQL
 # Static security analysis of the library and its scripts (OpenSSF Scorecard: SAST).
 
 on:
+  # On develop only, as CI: every push to it and every pull request into it, so main isn't analysed again after a
+  # merge. The weekly run analyses main, which keeps the Security tab's alerts for it current.
   push:
-    branches: [main, develop]
+    branches: [develop]
   pull_request:
+    branches: [develop]
   schedule:
     - cron: "0 22 * * 1" # Tuesdays 03:30 IST
+  workflow_dispatch:
 
 permissions:
   contents: read
