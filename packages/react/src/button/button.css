@@ -113,12 +113,16 @@
      press without the pointer included (text.danger keeps 4.5:1 on both, in light and dark).
      Tokens before 0.0.14 have no pressed tint: the press keeps bg.danger.subtle there. */
   &[data-tone="danger"][data-variant="ghost"] {
+    --qx-button-danger-pressed: var(
+      --qx-color-bg-danger-subtle-pressed,
+      var(--qx-color-bg-danger-subtle)
+    );
     color: var(--qx-color-text-danger);
     &:hover:not([data-disabled]) {
       background: var(--qx-color-bg-danger-subtle);
     }
     &:active:not([data-disabled]) {
-      background: var(--qx-color-bg-danger-subtle-pressed, var(--qx-color-bg-danger-subtle));
+      background: var(--qx-button-danger-pressed);
     }
   }
   /* Neutral: utility actions in toolbars and headers. Icons stay neutral (§16). */

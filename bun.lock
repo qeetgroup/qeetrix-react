@@ -9,8 +9,8 @@
         "@base-ui/react": "^1.9.0",
         "@biomejs/biome": "2.6.4",
         "@microsoft/api-extractor": "^7.60.0",
-        "@qeetrix/icons": "^2.1.0",
-        "@qeetrix/tokens": "^0.0.14",
+        "@qeetrix/icons": "^2.1.2",
+        "@qeetrix/tokens": "^0.0.15",
         "@types/node": "^26.6.6",
         "@types/react": "^19.3.0",
         "@types/react-dom": "^19.3.0",
@@ -206,11 +206,11 @@
 
     "@publint/pack": ["@publint/pack@0.1.7", "", { "dependencies": { "tinyexec": "^1.3.0" } }, "sha512-4EDEmvxWtgsCnnVeBvtFIFZtUhPPt1+bA9JrSwU4Sa//6oKtzCSlGGXYJr44OD9aGISymbieJ4mCKHUygUDU+g=="],
 
-    "@qeetrix/icons": ["@qeetrix/icons@2.1.0", "", { "peerDependencies": { "react": "^19.0.0" } }, "sha512-rB3VgR90Xn/8ZvDPaZhhDoSTLcVg1FaVNT3D0SnQ8jJ0lHVAYOOP0Q/jP5tVc7PLmSVw2BU3lqTboKq3w+60LQ=="],
+    "@qeetrix/icons": ["@qeetrix/icons@2.1.2", "", { "peerDependencies": { "react": "^19.0.0" } }, "sha512-xuMoI/5oqi6IEDPdA1XpsrX6725PIbmnHBpl63rtuXapxLCADces9nug7ylUQsvuiN/W5XlFfI1ElWe0w2KSVw=="],
 
     "@qeetrix/react": ["@qeetrix/react@workspace:packages/react"],
 
-    "@qeetrix/tokens": ["@qeetrix/tokens@0.0.14", "", {}, "sha512-PwJ1Y781NjRkR9jlwOI6TqUssYBkybmIN7+zjNVrzZhcM6HwcgWcf16toEgdTSOuFtihqVPton9AQ/o0dlhFGw=="],
+    "@qeetrix/tokens": ["@qeetrix/tokens@0.0.15", "", {}, "sha512-I7XPuxdmqT4d4T+4bQLm+Qm8NchohNcjmEfFImZlxKL3vyXUf2bidwA8H2wgHi+nGwzqqzaoLLhdl0wtGXKMjg=="],
 
     "@quansync/fs": ["@quansync/fs@1.1.0", "", { "dependencies": { "quansync": "^1.0.0" } }, "sha512-qAPG/t3HqML1TlN7sY/pTbEjzFVAKsMjNNMGheyDosro+kT4iw2KCUoHcVdmliwWjorm4elZbgNQyU2eD97eDg=="],
 
@@ -729,6 +729,8 @@
     "@argos-ci/playwright/chalk": ["chalk@6.0.1", "", {}, "sha512-/Ce6KNm3vIbWdMlNna6RVIZ/ICQxnJxCicet5LBKK9ZffBkqzDw0xh9EiKSljdRtiIQ1S1z4YgcscUUGzNCWrA=="],
 
     "@microsoft/api-extractor/typescript": ["typescript@6.0.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw=="],
+
+    "@qeetrix/react/@qeetrix/icons": ["@qeetrix/icons@2.1.0", "", { "peerDependencies": { "react": "^19.0.0" } }, "sha512-rB3VgR90Xn/8ZvDPaZhhDoSTLcVg1FaVNT3D0SnQ8jJ0lHVAYOOP0Q/jP5tVc7PLmSVw2BU3lqTboKq3w+60LQ=="],
 
     "@rushstack/node-core-library/ajv": ["ajv@8.20.0", "", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA=="],
 
