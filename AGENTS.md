@@ -50,6 +50,11 @@ bun run --filter '@qeetrix/react' api   # update etc/react.api.md after an inten
 
 A newer Bun writes a lockfile version that CI's pinned Bun 1.3.14 can't read.
 
+## Branches
+
+Work on a branch from `develop` and open its pull request into `develop`. Only `develop` goes into `main`, through
+a `develop` → `main` pull request the maintainer opens; `main` refuses anything else.
+
 ## What CI enforces
 
 Every push to `develop` and every pull request into it runs `.github/workflows/ci.yml`; `main` requires that run
