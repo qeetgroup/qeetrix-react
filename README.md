@@ -8,7 +8,7 @@ Accessible, token-driven components built on [Base UI](https://base-ui.com), mad
 and products of Qeet Group, in English and Hindi, light and dark, left to right and right to left.
 
 [![npm](https://img.shields.io/npm/v/@qeetrix/react?label=%40qeetrix%2Freact&color=d04800)](https://www.npmjs.com/package/@qeetrix/react)
-[![CI](https://github.com/qeetgroup/qeetrix-react/actions/workflows/ci.yml/badge.svg)](https://github.com/qeetgroup/qeetrix-react/actions/workflows/ci.yml)
+[![CI](https://github.com/qeetgroup/qeetrix-react/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/qeetgroup/qeetrix-react/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/qeetgroup/qeetrix-react/actions/workflows/codeql.yml/badge.svg)](https://github.com/qeetgroup/qeetrix-react/actions/workflows/codeql.yml)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/qeetgroup/qeetrix-react/badge)](https://scorecard.dev/viewer/?uri=github.com/qeetgroup/qeetrix-react)
 [![React 19](https://img.shields.io/badge/React-19-149eca)](https://react.dev)
@@ -113,7 +113,8 @@ Pair `@qeetrix/react` with a `@qeetrix/tokens` version its peer range names: 0.2
 
 ## Quality bar
 
-Every pull request into `main` runs the whole gate. Nothing merges red.
+Every push to `develop` and every pull request into it runs the whole gate, and `main` takes only a `develop` that
+passed it. Nothing merges red.
 
 | Gate | What it checks |
 |:--|:--|
@@ -159,9 +160,9 @@ qeetrix-react/
 ## Releases
 
 - **Branches:** work lands on `develop`; a pull request from `develop` into `main` releases it.
-- **Versions:** `version.yml` raises the patch on that pull request unless the version was already
-  raised by hand. A minor or major is set by hand in `packages/react/package.json`, with its own
-  section in the [changelog](packages/react/CHANGELOG.md).
+- **Versions:** raise `version` in `packages/react/package.json` on `develop` (the next patch, or a minor or
+  major), with its own section in the [changelog](packages/react/CHANGELOG.md), before opening the pull
+  request. Its Version check (`version.yml`) fails until the version is above `main`'s.
 - **Publishing:** merging into `main` runs `release.yml`, which publishes to npm with provenance,
   tags `vX.Y.Z` and opens a GitHub Release. If a release is bad, `rollback.yml` points npm's
   `latest` tag back at a known-good version (published versions are never removed).

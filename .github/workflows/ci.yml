@@ -1,12 +1,16 @@
 name: CI
 
-# Every gate, on every pull request and every push to develop and main (decisions D-07, D-10, D-14).
-# The nightly run adds Firefox and WebKit to the browser tests.
+# Every gate, on develop only: every push to it and every pull request into it (decisions D-07, D-10, D-14). A
+# develop → main pull request is checked by develop's run on the same commit, and main isn't checked again after
+# the merge: main requires Verify on an up-to-date branch, so what's merged is exactly what passed here.
+# Once Argos is connected, its baselines come from builds of main: add a push to main for it then.
+# The nightly run, on develop, adds Firefox and WebKit to the browser tests.
 
 on:
   push:
-    branches: [main, develop]
+    branches: [develop]
   pull_request:
+    branches: [develop]
   schedule:
     - cron: "30 21 * * *" # 03:00 IST
   workflow_dispatch:
@@ -29,7 +33,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0 # the API version check compares with the base branch
+          ref: ${{ github.event_name == 'schedule' && 'develop' || '' }} # the nightly run checks develop too
+          fetch-depth: 0 # the API version check compares with main or the pull request's base
           persist-credentials: false
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
@@ -61,8 +66,11 @@ jobs:
       - name: source, built output, API report and package checks
         run: bun run check
       - name: a removed or changed API needs a raised version
-        if: github.event_name == 'pull_request'
-        run: node scripts/check-api-version.mjs "origin/${{ github.base_ref }}"
+        if: github.event_name != 'schedule'
+        env:
+          # A pull request into develop compares with develop; develop itself with main, what's released.
+          BASE: ${{ github.base_ref || 'main' }}
+        run: node scripts/check-api-version.mjs "origin/$BASE"
 
       # V8 coverage reads Chromium's engine only, so the nightly Firefox and WebKit run tests
       # without it; every pull request still measures coverage in Chromium.

@@ -5,7 +5,7 @@ components built on [Base UI](https://base-ui.com): the parts every Qeet product
 of, in English and Hindi, light and dark, at three densities, left to right and right to left.
 
 [![npm](https://img.shields.io/npm/v/@qeetrix/react?color=d04800)](https://www.npmjs.com/package/@qeetrix/react)
-[![CI](https://github.com/qeetgroup/qeetrix-react/actions/workflows/ci.yml/badge.svg)](https://github.com/qeetgroup/qeetrix-react/actions/workflows/ci.yml)
+[![CI](https://github.com/qeetgroup/qeetrix-react/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/qeetgroup/qeetrix-react/actions/workflows/ci.yml)
 [![React 19](https://img.shields.io/badge/React-19-149eca)](https://react.dev)
 [![ESM only](https://img.shields.io/badge/module-ESM%20only-555)](#entry-points-and-server-components)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](https://github.com/qeetgroup/qeetrix-react/blob/main/LICENSE)

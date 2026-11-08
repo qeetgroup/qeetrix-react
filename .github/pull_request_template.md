@@ -4,7 +4,7 @@
 
 ## Version
 
-<!-- version.yml bumps the patch. While 0.x: a new primitive, prop or output is a patch; removing or
+<!-- Raise the version on develop; the Version check fails until it's above main's. While 0.x: a new primitive, prop or output is a patch; removing or
 renaming an export, prop, variant, slot or CSS class, or changing what one means, is a minor — raise
 it in packages/react/package.json by hand. A changed API report needs a raised version. -->
 

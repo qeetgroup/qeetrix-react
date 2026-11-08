@@ -1,10 +1,19 @@
 # @qeetrix/react
 
-## Unreleased
+## 0.5.1
 
-To be released as 0.5.0, a minor: `@qeetrix/tokens` 0.0.13 or later is now required, a full-width
-Button centres its label, and Input's `size` is the field's size (see Migrating from 0.4). Nothing
-else is removed or renamed.
+### Changed
+
+- **A ghost danger button presses in the danger's pressed tint**: `bg.danger.subtle-pressed`
+  (tokens 0.0.14), so a press no longer looks the same as a hover, as ghost's brand tints already
+  differ. The hover keeps `bg.danger.subtle`; `text.danger` keeps 4.5:1 on both, in light and dark.
+  With tokens before 0.0.14 the press keeps `bg.danger.subtle`, so nothing needs upgrading.
+
+## 0.5.0
+
+A minor: `@qeetrix/tokens` 0.0.13 or later is now required, a full-width Button centres its label,
+and Input's `size` is the field's size (see Migrating from 0.4). Nothing else is removed or
+renamed.
 
 ### New
 
