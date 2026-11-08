@@ -1,11 +1,13 @@
 name: CI
 
-# Every gate, on every pull request and every push to develop and main (decisions D-07, D-10, D-14).
+# Every gate, on every pull request and every push to develop (decisions D-07, D-10, D-14). Not again after a merge
+# into main: main requires Verify and an up-to-date branch, so a merge lands exactly what its pull request tested.
+# Once Argos is connected, its baselines come from builds of main: add main back to `push` then.
 # The nightly run adds Firefox and WebKit to the browser tests.
 
 on:
   push:
-    branches: [main, develop]
+    branches: [develop]
   pull_request:
   schedule:
     - cron: "30 21 * * *" # 03:00 IST
