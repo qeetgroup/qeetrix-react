@@ -268,11 +268,13 @@ describe("ChipGroup", () => {
     await userEvent.keyboard("{ArrowRight}");
     await expect.element(page.getByRole("radio", { name: "Open" })).toBeChecked();
     expect(onValueChange).toHaveBeenLastCalledWith("open", expect.anything());
-    // The chosen one is drawn chosen.
-    await settled();
-    expect(
-      srgb(getComputedStyle(page.getByRole("radio", { name: "Open" }).element()).backgroundColor),
-    ).toEqual(srgb(tokenColor("--qx-color-bg-selected")));
+    // The chosen one is drawn chosen, once its fill's transition ends: polled, as the fill can
+    // start moving a render after the radio reports checked, under a busy browser.
+    await expect
+      .poll(() =>
+        srgb(getComputedStyle(page.getByRole("radio", { name: "Open" }).element()).backgroundColor),
+      )
+      .toEqual(srgb(tokenColor("--qx-color-bg-selected")));
   });
 
   it("one value: the left arrow moves on in right to left", async () => {

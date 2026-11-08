@@ -30,14 +30,22 @@ describe("CopyField", () => {
       </div>,
     );
     const value = () => container.querySelector("[data-slot=copy-field-value]") as HTMLElement;
-    const line = Number.parseFloat(getComputedStyle(value()).lineHeight);
-    expect(value().getBoundingClientRect().height).toBeGreaterThan(line * 1.5);
+    // The lines of text: the value's height less its padding, over its line height.
+    const lines = () => {
+      const style = getComputedStyle(value());
+      const padding =
+        Number.parseFloat(style.paddingBlockStart) + Number.parseFloat(style.paddingBlockEnd);
+      return (
+        (value().getBoundingClientRect().height - padding) / Number.parseFloat(style.lineHeight)
+      );
+    };
+    expect(lines()).toBeGreaterThan(1.5);
     await rerender(
       <div style={{ inlineSize: 320 }}>
         <CopyField label="ACS URL" value={ACS} wrap="none" />
       </div>,
     );
-    expect(value().getBoundingClientRect().height).toBeLessThan(line * 1.5);
+    expect(lines()).toBeCloseTo(1, 1);
   });
 
   it("as a row, puts the label beside the value and Copy at the end", async () => {

@@ -97,12 +97,15 @@ else is removed or renamed.
   isn't crushed. Long labels still wrap inside the tile.
 - **AvatarItem takes `status`** (experimental): the dot on its avatar, and the words read
   with the name, "Priya Sharma, Online", as an Avatar's are; the visible name is unchanged.
-
 - **Progress and Meter in dark**: the sunken track gets a 1px `border.default`
   edge, so an empty or low bar's length shows on every dark surface (1.42:1 or more, as clear as the
   light track), and the danger fill is `border.danger`, which keeps 3:1 against the surfaces beside
   the bar (4.37:1 on `surface.overlay`, where `bg.danger.bold` was 2.76). Every tone's fill still keeps
   3:1 against the track. Light is unchanged.
+- **Kbd's keys are centred on their caps again** (experimental): with tokens 0.0.13's whole-pixel
+  line heights, the glyph's nudge down put a capital or a modifier symbol about a pixel low. The
+  nudge is now the font's own half pixel, so ⌘, ⇧ and K sit within a tenth of a pixel of the cap's
+  centre.
 
 ## 0.4.0
 
