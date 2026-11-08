@@ -12,6 +12,16 @@ export interface KbdProps extends Omit<ComponentProps<"kbd">, "children"> {
   /**
    * The shortcut: `+` joins keys pressed together ("Mod+K"), a space separates keys pressed in turn
    * ("G I"). `Mod` is Command on Apple platforms and Control elsewhere.
+   *
+   * Named keys take `KeyboardEvent.key`'s names, in any case, so the string that wires a shortcut
+   * also shows it. Shown / spoken, with Apple's face after the slash where it differs:
+   * `Mod` ⌘ Command / Ctrl Control · `Ctrl` ⌃ / Ctrl · `Alt` ⌥ Option / Alt · `Shift` ⇧ / Shift ·
+   * `Enter` ↵ · `Escape` Esc · `ArrowLeft` ← · `ArrowRight` → · `ArrowUp` ↑ · `ArrowDown` ↓ (each spoken
+   * "Left arrow" and so on) · `Tab` ⇥ / Tab · `Space` (or `Spacebar`) Space · `Backspace` ⌫ Delete /
+   * Backspace · `Delete` (or `Del`) ⌦ Forward Delete / Del · `Home` ↖ / Home · `End` ↘ / End ·
+   * `PageUp` ⇞ / PgUp · `PageDown` ⇟ / PgDn. Any other single character shows in capitals; any other
+   * name as written. An arrow is the key itself: where "next" follows the reading direction, pass
+   * `ArrowLeft` in right-to-left layouts.
    */
   keys: string;
   /** `md` (default) beside body text; `sm` in dense places such as a search field. */
@@ -47,10 +57,68 @@ function face(key: string, apple: boolean, strings: Strings): { shown: string; s
     case "esc":
     case "escape":
       return { shown: "Esc", said: strings.escape };
+    case "arrowleft":
+      return { shown: "←", said: strings.arrowLeft };
+    case "arrowright":
+      return { shown: "→", said: strings.arrowRight };
+    case "arrowup":
+      return { shown: "↑", said: strings.arrowUp };
+    case "arrowdown":
+      return { shown: "↓", said: strings.arrowDown };
+    case "tab":
+      return { shown: apple ? "⇥" : "Tab", said: strings.tab };
+    case "space":
+    case "spacebar":
+      return { shown: "Space", said: strings.space };
+    // Apple keyboards call Backspace "delete" and Delete "forward delete".
+    case "backspace":
+      return apple
+        ? { shown: "⌫", said: strings.delete }
+        : { shown: "Backspace", said: strings.backspace };
+    case "delete":
+    case "del":
+      return apple
+        ? { shown: "⌦", said: strings.forwardDelete }
+        : { shown: "Del", said: strings.delete };
+    case "home":
+      return { shown: apple ? "↖" : "Home", said: strings.home };
+    case "end":
+      return { shown: apple ? "↘" : "End", said: strings.end };
+    case "pageup":
+      return { shown: apple ? "⇞" : "PgUp", said: strings.pageUp };
+    case "pagedown":
+      return { shown: apple ? "⇟" : "PgDn", said: strings.pageDown };
     default:
       return { shown: key.length === 1 ? key.toUpperCase() : key, said: key };
   }
 }
+
+/** `KeyboardEvent.key`'s spelling of the named keys, by their lower-case form. */
+const keyNames: Record<string, string> = {
+  ctrl: "Control",
+  control: "Control",
+  alt: "Alt",
+  option: "Alt",
+  shift: "Shift",
+  enter: "Enter",
+  return: "Enter",
+  esc: "Escape",
+  escape: "Escape",
+  arrowleft: "ArrowLeft",
+  arrowright: "ArrowRight",
+  arrowup: "ArrowUp",
+  arrowdown: "ArrowDown",
+  tab: "Tab",
+  space: "Space",
+  spacebar: "Space",
+  backspace: "Backspace",
+  delete: "Delete",
+  del: "Delete",
+  home: "Home",
+  end: "End",
+  pageup: "PageUp",
+  pagedown: "PageDown",
+};
 
 /** The ARIA form of a shortcut ("Mod+K" → "Meta+K" on Apple, "Control+K" elsewhere). */
 export function ariaKeyShortcuts(keys: string, apple: boolean): string {
@@ -59,15 +127,12 @@ export function ariaKeyShortcuts(keys: string, apple: boolean): string {
     .map((chord) =>
       chord
         .split("+")
-        .map((key) =>
-          key.toLowerCase() === "mod"
-            ? apple
-              ? "Meta"
-              : "Control"
-            : key.length === 1
-              ? key.toUpperCase()
-              : key,
-        )
+        .map((key) => {
+          const lower = key.toLowerCase();
+          if (lower === "mod") return apple ? "Meta" : "Control";
+          if (key.length === 1) return key.toUpperCase();
+          return keyNames[lower] ?? key;
+        })
         .join("+"),
     )
     .join(" ");

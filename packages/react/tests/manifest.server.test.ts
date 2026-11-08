@@ -32,7 +32,7 @@ describe("@qeetrix/react/manifest", () => {
     );
   });
 
-  it("ships the same data as JSON, for tools that run no JavaScript (QTRX-92)", () => {
+  it("ships the same data as JSON, for tools that run no JavaScript", () => {
     expect(pkg.exports["./manifest.json"]).toBe("./dist/manifest.json");
     expect(pkg.scripts.build).toContain("build-manifest.mjs --json");
     expect(JSON.parse(manifestJson(manifest))).toEqual(manifest);

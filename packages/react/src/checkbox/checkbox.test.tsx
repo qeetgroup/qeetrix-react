@@ -130,7 +130,7 @@ describe("CheckboxGroup", () => {
       .toHaveAttribute("data-invalid", "");
   });
 
-  it("keeps an invalid box's danger edge under the pointer, checked or not (QTRX-161)", async () => {
+  it("keeps an invalid box's danger edge under the pointer, checked or not", async () => {
     await render(
       <CheckboxGroup label="Notify me by" error="Choose at least one." defaultValue={["sms"]}>
         <Checkbox value="email" label="Email" />

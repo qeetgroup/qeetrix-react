@@ -1,4 +1,4 @@
-/* Conversation (QTRX-76): the transcript scrolls; the person's turns sit at the end on the neutral
+/* Conversation: the transcript scrolls; the person's turns sit at the end on the neutral
    tint (not Ember, which means nothing here), the assistant's run across. A turn's actions show
    while it's hovered or focused, and always on touch screens. The composer is the field and its
    Send (Ember) or Stop (graphite) button on one line, its note under them. */
@@ -22,7 +22,7 @@
 .qx-turn-content {
   min-inline-size: 0;
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   overflow-wrap: anywhere;
   [data-speaker="user"] > & {
     max-inline-size: 85%;

@@ -24,7 +24,7 @@
   background: transparent;
   color: var(--qx-color-text-default);
   font: var(--qx-typography-title-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+  font-variation-settings: "GEOM" var(--qx-typography-title-sm-font-geometry);
   text-align: start;
   cursor: pointer;
   &:focus-visible {
@@ -45,7 +45,7 @@
   [data-panel-open] > & {
     rotate: 180deg;
   }
-  /* A disabled trigger dims its chevron with its text, as Select and Menu dim theirs (QTRX-167). */
+  /* A disabled trigger dims its chevron with its text, as Select and Menu dim theirs. */
   [data-disabled] > & {
     color: var(--qx-color-icon-disabled);
   }
@@ -78,5 +78,5 @@
   padding-block-end: var(--qx-space-inset-lg);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
 }

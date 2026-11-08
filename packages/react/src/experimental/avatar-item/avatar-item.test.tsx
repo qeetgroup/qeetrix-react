@@ -17,18 +17,35 @@ describe("AvatarItem", () => {
     expect(container.querySelector(".qx-avatar-fallback")?.textContent).toBe("PS");
   });
 
+  it("shows a status dot and reads it with the name", async () => {
+    const { container } = await render(
+      <AvatarItem
+        name="Priya Sharma"
+        description="priya@acme.in"
+        status={{ label: "Online", tone: "success" }}
+      />,
+    );
+    // The dot is drawn on the avatar…
+    expect(container.querySelector(".qx-avatar-status")).not.toBeNull();
+    // …and its words are read with the name, which stays the only visible line of it.
+    const name = container.querySelector("[data-slot=avatar-item-name]") as HTMLElement;
+    expect(name.textContent).toBe("Priya Sharma, Online");
+    expect(name.querySelector(".qx-visually-hidden")?.textContent).toBe(", Online");
+    expect(container.querySelector("[data-slot=avatar]")?.getAttribute("aria-hidden")).toBe("true");
+  });
+
   it("keeps the two lines close: together as tall as a md avatar", async () => {
     const { container } = await render(
       <AvatarItem name="Priya Sharma" description="priya@acme.in" />,
     );
     const lines = container.querySelector(".qx-avatar-item-text") as HTMLElement;
     const avatar = container.querySelector("[data-slot=avatar]") as HTMLElement;
-    // To the pixel: the line height is a ratio, 16 × 1.3333.
-    expect(lines.getBoundingClientRect().height).toBeCloseTo(32, 0);
+    // Exactly: tokens 0.0.13 give every role its line height in pixels.
+    expect(lines.getBoundingClientRect().height).toBe(32);
     expect(avatar.getBoundingClientRect().height).toBe(32);
   });
 
-  it("wraps long text where the space runs out, so none of it is cut (QTRX-178)", async () => {
+  it("wraps long text where the space runs out, so none of it is cut", async () => {
     const { container } = await render(
       <div style={{ inlineSize: 160 }}>
         <AvatarItem

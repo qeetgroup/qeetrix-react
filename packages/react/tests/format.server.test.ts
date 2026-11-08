@@ -2,8 +2,15 @@
  * The format helpers on the server: relative time rounds before it picks a unit, and dates and
  * date-times read every input the same way in any runtime time zone, always Gregorian.
  */
-import { describe, expect, it } from "vitest";
-import { formatDate, formatDateTime, formatRelativeTime } from "../src/format/format";
+import { afterEach, describe, expect, it } from "vitest";
+import {
+  type DurationStyle,
+  formatDate,
+  formatDateTime,
+  formatDuration,
+  formatRelativeTime,
+  formatTime,
+} from "../src/format/format";
 import * as entry from "../src/index";
 
 const SECOND = 1000;
@@ -138,5 +145,212 @@ describe("the entry point", () => {
   it("exports the date formatters beside the others", () => {
     expect(entry.formatDate).toBe(formatDate);
     expect(entry.formatDateTime).toBe(formatDateTime);
+  });
+});
+
+/**
+ * The cases qeetrix-android checks its QeetrixFormat.duration against (Tools/FormatCases, Node's
+ * Intl.DurationFormat, ICU 78.2, CLDR 48), so the web and the phones write a duration alike:
+ * [locale, seconds, style, text].
+ */
+const DURATION_CASES: [string, number, DurationStyle, string][] = [
+  ["en-IN", 3900, "long", "1 hour, 5 minutes"],
+  ["en-IN", 172803, "long", "2 days, 3 seconds"],
+  ["en-IN", 45, "long", "45 seconds"],
+  ["en-IN", 90061, "long", "1 day, 1 hour, 1 minute, 1 second"],
+  ["en-IN", 3900, "short", "1 hr, 5 mins"],
+  ["en-IN", 172803, "short", "2 days, 3 secs"],
+  ["en-IN", 45, "short", "45 secs"],
+  ["en-IN", 90061, "short", "1 day, 1 hr, 1 min, 1 sec"],
+  ["en-IN", 3900, "narrow", "1h 5m"],
+  ["en-IN", 172803, "narrow", "2d 3s"],
+  ["en-IN", 45, "narrow", "45s"],
+  ["en-IN", 90061, "narrow", "1d 1h 1m 1s"],
+  ["hi-IN", 3900, "long", "1 घंटा और 5 मिनट"],
+  ["hi-IN", 172803, "long", "2 दिन और 3 सेकंड"],
+  ["hi-IN", 45, "long", "45 सेकंड"],
+  ["hi-IN", 90061, "long", "1 दिन, 1 घंटा, 1 मिनट, और 1 सेकंड"],
+  ["hi-IN", 3900, "short", "1 घं॰, 5 मि॰"],
+  ["hi-IN", 172803, "short", "2 दिन, 3 से॰"],
+  ["hi-IN", 45, "short", "45 से॰"],
+  ["hi-IN", 90061, "short", "1 दिन, 1 घं॰, 1 मि॰, 1 से॰"],
+  ["hi-IN", 3900, "narrow", "1 घं 5 मि"],
+  ["hi-IN", 172803, "narrow", "2 दि 3 से"],
+  ["hi-IN", 45, "narrow", "45 से"],
+  ["hi-IN", 90061, "narrow", "1 दि, 1 घं, 1 मि 1 से"],
+  ["en-US", 3900, "long", "1 hour, 5 minutes"],
+  ["en-US", 172803, "long", "2 days, 3 seconds"],
+  ["en-US", 45, "long", "45 seconds"],
+  ["en-US", 90061, "long", "1 day, 1 hour, 1 minute, 1 second"],
+  ["en-US", 3900, "short", "1 hr, 5 min"],
+  ["en-US", 172803, "short", "2 days, 3 sec"],
+  ["en-US", 45, "short", "45 sec"],
+  ["en-US", 90061, "short", "1 day, 1 hr, 1 min, 1 sec"],
+  ["en-US", 3900, "narrow", "1h 5m"],
+  ["en-US", 172803, "narrow", "2d 3s"],
+  ["en-US", 45, "narrow", "45s"],
+  ["en-US", 90061, "narrow", "1d 1h 1m 1s"],
+  ["ar-EG", 3900, "long", "ساعة و٥ دقائق"],
+  ["ar-EG", 172803, "long", "يومان و٣ ثوان"],
+  ["ar-EG", 45, "long", "٤٥ ثانية"],
+  ["ar-EG", 90061, "long", "يوم، وساعة، ودقيقة، وثانية"],
+  ["ar-EG", 3900, "short", "١ س و٥ د"],
+  ["ar-EG", 172803, "short", "يومان و٣ ث"],
+  ["ar-EG", 45, "short", "٤٥ ث"],
+  ["ar-EG", 90061, "short", "يوم، و١ س، و١ د، و١ ث"],
+  ["ar-EG", 3900, "narrow", "١ س و٥ د"],
+  ["ar-EG", 172803, "narrow", "٢ ي و٣ ث"],
+  ["ar-EG", 45, "narrow", "٤٥ ث"],
+  ["ar-EG", 90061, "narrow", "١ ي و١ س و١ د و١ ث"],
+  ["de-DE", 3900, "long", "1 Stunde, 5 Minuten"],
+  ["de-DE", 172803, "long", "2 Tage, 3 Sekunden"],
+  ["de-DE", 45, "long", "45 Sekunden"],
+  ["de-DE", 90061, "long", "1 Tag, 1 Stunde, 1 Minute und 1 Sekunde"],
+  ["de-DE", 3900, "short", "1 Std., 5 Min."],
+  ["de-DE", 172803, "short", "2 Tg., 3 Sek."],
+  ["de-DE", 45, "short", "45 Sek."],
+  ["de-DE", 90061, "short", "1 Tg., 1 Std., 1 Min. und 1 Sek."],
+  ["de-DE", 3900, "narrow", "1h, 5 Min."],
+  ["de-DE", 172803, "narrow", "2 T, 3 Sek."],
+  ["de-DE", 45, "narrow", "45 Sek."],
+  ["de-DE", 90061, "narrow", "1 T, 1h, 1 Min. und 1 Sek."],
+];
+
+describe("formatDuration", () => {
+  const native = (Intl as unknown as { DurationFormat?: unknown }).DurationFormat;
+  afterEach(() => {
+    (Intl as unknown as { DurationFormat?: unknown }).DurationFormat = native;
+  });
+
+  it("writes the shared cases on Intl.DurationFormat", () => {
+    expect(native).toBeDefined();
+    const wrong = DURATION_CASES.filter(
+      ([locale, seconds, style, text]) =>
+        formatDuration(seconds * 1000, locale, { style }) !== text,
+    );
+    expect(wrong).toEqual([]);
+  });
+
+  it("writes the same where a browser has no Intl.DurationFormat", () => {
+    (Intl as unknown as { DurationFormat?: unknown }).DurationFormat = undefined;
+    const wrong = DURATION_CASES.filter(
+      ([locale, seconds, style, text]) =>
+        formatDuration(seconds * 1000 + 999, locale, { style }) !== text,
+    );
+    expect(wrong).toEqual([]);
+  });
+
+  it("drops a part of a second, writes a negative length as its length, and says 0 seconds", () => {
+    expect(formatDuration(3_900_999)).toBe("1 hour, 5 minutes");
+    expect(formatDuration(-45_000)).toBe("45 seconds");
+    expect(formatDuration(400)).toBe("0 seconds");
+    expect(formatDuration(0, "en-IN", { style: "narrow" })).toBe("0s");
+  });
+});
+
+/**
+ * The cases qeetrix-android checks its QeetrixFormat.time against (Tools/FormatCases, Node's
+ * Intl.DateTimeFormat timeStyle, ICU 78.2, CLDR 48), so the web and the phones write a time alike:
+ * [locale, moment, timeStyle, hourCycle, text], each moment shown in Asia/Kolkata.
+ */
+const TIME_CASES: [string, string, "short" | "medium", "h12" | "h23" | null, string][] = [
+  ["en-IN", "2026-10-25T09:00:00Z", "short", null, "2:30 pm"],
+  ["en-IN", "2026-10-25T09:00:00Z", "short", "h23", "14:30"],
+  ["en-IN", "2026-10-25T09:00:00Z", "short", "h12", "2:30 pm"],
+  ["en-IN", "2026-10-25T09:00:00Z", "medium", null, "2:30:00 pm"],
+  ["en-IN", "2026-10-25T09:00:00Z", "medium", "h23", "14:30:00"],
+  ["en-IN", "2026-10-25T09:00:00Z", "medium", "h12", "2:30:00 pm"],
+  ["en-IN", "2026-10-25T05:17:09Z", "short", null, "10:47 am"],
+  ["en-IN", "2026-10-25T05:17:09Z", "short", "h23", "10:47"],
+  ["en-IN", "2026-10-25T05:17:09Z", "short", "h12", "10:47 am"],
+  ["en-IN", "2026-10-25T05:17:09Z", "medium", null, "10:47:09 am"],
+  ["en-IN", "2026-10-25T05:17:09Z", "medium", "h23", "10:47:09"],
+  ["en-IN", "2026-10-25T05:17:09Z", "medium", "h12", "10:47:09 am"],
+  ["hi-IN", "2026-10-25T09:00:00Z", "short", null, "2:30 pm"],
+  ["hi-IN", "2026-10-25T09:00:00Z", "short", "h23", "14:30"],
+  ["hi-IN", "2026-10-25T09:00:00Z", "short", "h12", "2:30 pm"],
+  ["hi-IN", "2026-10-25T09:00:00Z", "medium", null, "2:30:00 pm"],
+  ["hi-IN", "2026-10-25T09:00:00Z", "medium", "h23", "14:30:00"],
+  ["hi-IN", "2026-10-25T09:00:00Z", "medium", "h12", "2:30:00 pm"],
+  ["hi-IN", "2026-10-25T05:17:09Z", "short", null, "10:47 am"],
+  ["hi-IN", "2026-10-25T05:17:09Z", "short", "h23", "10:47"],
+  ["hi-IN", "2026-10-25T05:17:09Z", "short", "h12", "10:47 am"],
+  ["hi-IN", "2026-10-25T05:17:09Z", "medium", null, "10:47:09 am"],
+  ["hi-IN", "2026-10-25T05:17:09Z", "medium", "h23", "10:47:09"],
+  ["hi-IN", "2026-10-25T05:17:09Z", "medium", "h12", "10:47:09 am"],
+  ["en-US", "2026-10-25T09:00:00Z", "short", null, "2:30 PM"],
+  ["en-US", "2026-10-25T09:00:00Z", "short", "h23", "14:30"],
+  ["en-US", "2026-10-25T09:00:00Z", "short", "h12", "2:30 PM"],
+  ["en-US", "2026-10-25T09:00:00Z", "medium", null, "2:30:00 PM"],
+  ["en-US", "2026-10-25T09:00:00Z", "medium", "h23", "14:30:00"],
+  ["en-US", "2026-10-25T09:00:00Z", "medium", "h12", "2:30:00 PM"],
+  ["en-US", "2026-10-25T05:17:09Z", "short", null, "10:47 AM"],
+  ["en-US", "2026-10-25T05:17:09Z", "short", "h23", "10:47"],
+  ["en-US", "2026-10-25T05:17:09Z", "short", "h12", "10:47 AM"],
+  ["en-US", "2026-10-25T05:17:09Z", "medium", null, "10:47:09 AM"],
+  ["en-US", "2026-10-25T05:17:09Z", "medium", "h23", "10:47:09"],
+  ["en-US", "2026-10-25T05:17:09Z", "medium", "h12", "10:47:09 AM"],
+  ["ar-EG", "2026-10-25T09:00:00Z", "short", null, "٢:٣٠ م"],
+  ["ar-EG", "2026-10-25T09:00:00Z", "short", "h23", "١٤:٣٠"],
+  ["ar-EG", "2026-10-25T09:00:00Z", "short", "h12", "٢:٣٠ م"],
+  ["ar-EG", "2026-10-25T09:00:00Z", "medium", null, "٢:٣٠:٠٠ م"],
+  ["ar-EG", "2026-10-25T09:00:00Z", "medium", "h23", "١٤:٣٠:٠٠"],
+  ["ar-EG", "2026-10-25T09:00:00Z", "medium", "h12", "٢:٣٠:٠٠ م"],
+  ["ar-EG", "2026-10-25T05:17:09Z", "short", null, "١٠:٤٧ ص"],
+  ["ar-EG", "2026-10-25T05:17:09Z", "short", "h23", "١٠:٤٧"],
+  ["ar-EG", "2026-10-25T05:17:09Z", "short", "h12", "١٠:٤٧ ص"],
+  ["ar-EG", "2026-10-25T05:17:09Z", "medium", null, "١٠:٤٧:٠٩ ص"],
+  ["ar-EG", "2026-10-25T05:17:09Z", "medium", "h23", "١٠:٤٧:٠٩"],
+  ["ar-EG", "2026-10-25T05:17:09Z", "medium", "h12", "١٠:٤٧:٠٩ ص"],
+  ["de-DE", "2026-10-25T09:00:00Z", "short", null, "14:30"],
+  ["de-DE", "2026-10-25T09:00:00Z", "short", "h23", "14:30"],
+  ["de-DE", "2026-10-25T09:00:00Z", "short", "h12", "02:30 PM"],
+  ["de-DE", "2026-10-25T09:00:00Z", "medium", null, "14:30:00"],
+  ["de-DE", "2026-10-25T09:00:00Z", "medium", "h23", "14:30:00"],
+  ["de-DE", "2026-10-25T09:00:00Z", "medium", "h12", "02:30:00 PM"],
+  ["de-DE", "2026-10-25T05:17:09Z", "short", null, "10:47"],
+  ["de-DE", "2026-10-25T05:17:09Z", "short", "h23", "10:47"],
+  ["de-DE", "2026-10-25T05:17:09Z", "short", "h12", "10:47 AM"],
+  ["de-DE", "2026-10-25T05:17:09Z", "medium", null, "10:47:09"],
+  ["de-DE", "2026-10-25T05:17:09Z", "medium", "h23", "10:47:09"],
+  ["de-DE", "2026-10-25T05:17:09Z", "medium", "h12", "10:47:09 AM"],
+];
+
+describe("formatTime", () => {
+  it("writes the shared cases, on the locale's clock or the hour cycle given", () => {
+    const wrong = TIME_CASES.filter(
+      ([locale, moment, timeStyle, hourCycle, text]) =>
+        formatTime(moment, locale, { timeStyle, ...(hourCycle ? { hourCycle } : {}) }) !== text,
+    );
+    expect(wrong).toEqual([]);
+  });
+
+  it("writes the time formatDateTime writes, in the zone given", () => {
+    const moment = "2026-10-25T05:17:09Z";
+    expect(formatTime(moment)).toBe("10:47 am");
+    expect(formatDateTime(moment)).toBe(`25 Oct 2026, ${formatTime(moment)}`);
+    expect(formatTime(moment, "en-IN", { timeZone: "America/New_York" })).toBe("1:17 am");
+    expect(formatTime(Date.parse(moment), "en-IN", { timeStyle: "medium" })).toBe("10:47:09 am");
+  });
+
+  it("shows a time of day, or a date-time without an offset, as written, in any zone", () => {
+    expect(formatTime("14:30")).toBe("2:30 pm");
+    expect(formatTime("14:30:45", "en-IN", { timeStyle: "medium", hourCycle: "h23" })).toBe(
+      "14:30:45",
+    );
+    expect(formatTime("2026-10-25T14:30", "en-IN", { timeZone: "America/New_York" })).toBe(
+      "2:30 pm",
+    );
+  });
+
+  it("gives nothing for a date with no time, or for a value that isn't a time", () => {
+    expect(formatTime("2026-10-25")).toBe("");
+    expect(formatTime("24:00")).toBe("");
+    expect(formatTime("10:47 am")).toBe("");
+    expect(formatTime(Number.NaN)).toBe("");
+  });
+
+  it("is exported from the entry point", () => {
+    expect(entry.formatTime).toBe(formatTime);
   });
 });

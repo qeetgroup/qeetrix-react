@@ -14,7 +14,7 @@
  *     @qeetrix/ui);
  *   - every component the build renames (`Button$1`) gets its public name back, so React shows
  *     `Button`, not `Button$1`, in DevTools and code snippets;
- *   - dist/manifest.json holds exactly the data dist/manifest/index.js exports (QTRX-92);
+ *   - dist/manifest.json holds exactly the data dist/manifest/index.js exports;
  *   - JavaScript and CSS stay within size-budget.json (gzip).
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";

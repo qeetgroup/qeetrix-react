@@ -19,7 +19,7 @@
   background: var(--qx-color-bg-neutral-subtle-pressed);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   font-variant-numeric: tabular-nums;
   text-box: trim-both cap alphabetic;
   [data-size="sm"] > & {
@@ -30,13 +30,13 @@
     min-inline-size: 40px;
     block-size: 40px;
     font: var(--qx-typography-label-md);
-    font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+    font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
   }
   [data-size="xl"] > & {
     min-inline-size: 48px;
     block-size: 48px;
     font: var(--qx-typography-label-md);
-    font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+    font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
   }
   [data-shape="square"] > & {
     border-radius: var(--qx-radius-control);

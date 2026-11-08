@@ -25,16 +25,16 @@
 .qx-empty-state-title {
   margin: 0;
   font: var(--qx-typography-title-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+  font-variation-settings: "GEOM" var(--qx-typography-title-md-font-geometry);
   [data-size="section"] > & {
     font: var(--qx-typography-title-sm);
-    font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+    font-variation-settings: "GEOM" var(--qx-typography-title-sm-font-geometry);
   }
 }
 .qx-empty-state-description {
   margin: 0;
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   color: var(--qx-color-text-subtle);
 }
 .qx-empty-state-actions {
@@ -47,7 +47,7 @@
 /* Under the actions: a link to the docs, or a second way in. */
 .qx-empty-state-footer {
   font: var(--qx-typography-body-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
   color: var(--qx-color-text-subtle);
 }
 

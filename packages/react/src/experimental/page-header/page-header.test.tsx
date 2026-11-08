@@ -72,7 +72,7 @@ describe("PageHeader", () => {
     expect(container.querySelector("[data-slot=page-header-count]")?.textContent).toBe("1,284");
   });
 
-  // QTRX-82: shown inside another page, it takes that page's outline, and looks the same.
+  // Shown inside another page, it takes that page's outline, and looks the same.
   it("takes a heading level, for a PageHeader shown inside another page", async () => {
     const { container } = await render(
       <div>

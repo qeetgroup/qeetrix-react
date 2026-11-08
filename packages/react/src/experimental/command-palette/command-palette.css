@@ -31,7 +31,7 @@
   box-shadow: var(--qx-shadow-overlay);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   outline: 0;
   transition-property: opacity, translate;
   transition-duration: var(--qx-motion-duration-normal);
@@ -183,7 +183,7 @@
   background: var(--qx-color-surface-default);
   color: var(--qx-color-text-subtle);
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
 }
 .qx-command-footer {
   display: flex;

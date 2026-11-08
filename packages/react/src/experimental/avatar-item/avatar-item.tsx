@@ -1,6 +1,7 @@
 import type { ComponentProps, ReactElement, ReactNode } from "react";
-import { Avatar, type AvatarShape, type AvatarSize } from "../../avatar/avatar";
+import { Avatar, type AvatarShape, type AvatarSize, type AvatarStatus } from "../../avatar/avatar";
 import { cx } from "../../internal/cx";
+import { VisuallyHidden } from "../../visually-hidden/visually-hidden";
 
 export interface AvatarItemProps extends Omit<ComponentProps<"div">, "children"> {
   /** The person's name: the first line, and the avatar's initials. */
@@ -16,6 +17,11 @@ export interface AvatarItemProps extends Omit<ComponentProps<"div">, "children">
    * tenant. Default `circle`.
    */
   shape?: AvatarShape;
+  /**
+   * A status dot on the avatar, such as presence: a `label` ("Online") and a `tone`, as Avatar takes
+   *. The name is read with it, "Priya Sharma, Online", as an Avatar's is.
+   */
+  status?: AvatarStatus;
 }
 
 /**
@@ -32,6 +38,7 @@ export function AvatarItem({
   src,
   size = "md",
   shape = "circle",
+  status,
   className,
   ...props
 }: AvatarItemProps): ReactElement {
@@ -43,10 +50,13 @@ export function AvatarItem({
         shape={shape}
         decorative
         {...(src === undefined ? {} : { src })}
+        {...(status === undefined ? {} : { status })}
       />
       <span className="qx-avatar-item-text" data-slot="avatar-item-text">
         <span className="qx-avatar-item-name" data-slot="avatar-item-name">
           {name}
+          {/* The dot is on the decorative avatar, so its words go with the name. */}
+          {status && <VisuallyHidden>, {status.label}</VisuallyHidden>}
         </span>
         {description != null && (
           <span className="qx-avatar-item-description" data-slot="avatar-item-description">

@@ -1,52 +1,55 @@
 /* Heading: the level sets the element, the size sets the look (06-component-specs.md,
-   increment 1). Display sizes use the Geo letterforms, the rest Base. */
+   increment 1). Each size takes its role's letterforms from the tokens: display sizes the Geo ones
+   (design rules §5, §17), the rest Base. */
 .qx-heading {
   margin: 0;
   font: var(--qx-typography-heading-lg);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+  font-variation-settings: "GEOM" var(--qx-typography-heading-lg-font-geometry);
   color: var(--qx-color-text-default);
-  /* Display sizes headline a welcoming page in the Geo letterforms (design rules §5, §17). */
-  &[data-size^="display"] {
-    font-variation-settings: "GEOM" var(--qx-font-geometry-display);
-  }
   &[data-size="display-lg"] {
     font-size: var(--qx-typography-display-lg-font-size);
     line-height: var(--qx-typography-display-lg-line-height);
+    font-variation-settings: "GEOM" var(--qx-typography-display-lg-font-geometry);
   }
   &[data-size="display-md"] {
     font-size: var(--qx-typography-display-md-font-size);
     line-height: var(--qx-typography-display-md-line-height);
+    font-variation-settings: "GEOM" var(--qx-typography-display-md-font-geometry);
   }
   &[data-size="display-sm"] {
     font-size: var(--qx-typography-display-sm-font-size);
     line-height: var(--qx-typography-display-sm-line-height);
+    font-variation-settings: "GEOM" var(--qx-typography-display-sm-font-geometry);
   }
   &[data-size="heading-lg"] {
     font-size: var(--qx-typography-heading-lg-font-size);
     line-height: var(--qx-typography-heading-lg-line-height);
+    font-variation-settings: "GEOM" var(--qx-typography-heading-lg-font-geometry);
   }
   &[data-size="heading-md"] {
     font-size: var(--qx-typography-heading-md-font-size);
     line-height: var(--qx-typography-heading-md-line-height);
+    font-variation-settings: "GEOM" var(--qx-typography-heading-md-font-geometry);
   }
   &[data-size="heading-sm"] {
     font-size: var(--qx-typography-heading-sm-font-size);
     line-height: var(--qx-typography-heading-sm-line-height);
+    font-variation-settings: "GEOM" var(--qx-typography-heading-sm-font-geometry);
   }
   &[data-size="title-lg"] {
     font-size: var(--qx-typography-title-lg-font-size);
     line-height: var(--qx-typography-title-lg-line-height);
+    font-variation-settings: "GEOM" var(--qx-typography-title-lg-font-geometry);
   }
   &[data-size="title-md"] {
     font-size: var(--qx-typography-title-md-font-size);
     line-height: var(--qx-typography-title-md-line-height);
+    font-variation-settings: "GEOM" var(--qx-typography-title-md-font-geometry);
   }
   &[data-size="title-sm"] {
     font-size: var(--qx-typography-title-sm-font-size);
     line-height: var(--qx-typography-title-sm-line-height);
-  }
-  &[data-size^="display-"] {
-    font-variation-settings: "GEOM" var(--qx-font-geometry-display);
+    font-variation-settings: "GEOM" var(--qx-typography-title-sm-font-geometry);
   }
   &[data-tone="subtle"] {
     color: var(--qx-color-text-subtle);

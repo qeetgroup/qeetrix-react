@@ -391,6 +391,9 @@ export function DrawerTrigger(props: DrawerTriggerProps): ReactElement;
 export type DrawerTriggerProps = Drawer_2.Trigger.Props;
 
 // @public
+export type DurationStyle = "long" | "short" | "narrow";
+
+// @public
 export function Field(input: FieldProps): ReactElement;
 
 // @public
@@ -457,10 +460,28 @@ export interface FormatDateTimeOptions extends FormatDateOptions {
 }
 
 // @public
+export function formatDuration(milliseconds: number, locale?: string, options?: FormatDurationOptions): string;
+
+// @public
+export interface FormatDurationOptions {
+    style?: DurationStyle;
+}
+
+// @public
 export function formatNumber(value: number, locale?: string, options?: Intl.NumberFormatOptions): string;
 
 // @public
 export function formatRelativeTime(date: Date | number, locale?: string, now?: Date | number): string;
+
+// @public
+export function formatTime(value: Date | number | string, locale?: string, options?: FormatTimeOptions): string;
+
+// @public
+export interface FormatTimeOptions {
+    hourCycle?: "h12" | "h23";
+    timeStyle?: "short" | "medium";
+    timeZone?: string;
+}
 
 // @public
 export function Grid(input: GridProps): ReactElement;
@@ -554,13 +575,17 @@ export interface InlineProps extends ComponentProps<"div"> {
 export function Input(input: InputProps): ReactElement;
 
 // @public (undocumented)
-export interface InputProps extends Omit<Input_2.Props, "className" | "style" | "render"> {
+export interface InputProps extends Omit<Input_2.Props, "className" | "style" | "render" | "size"> {
     className?: string;
     endAdornment?: ReactNode;
     icon?: IconSource;
+    size?: InputSize;
     startAdornment?: ReactNode;
     style?: CSSProperties;
 }
+
+// @public
+export type InputSize = "md" | "lg";
 
 // @public
 export type Inset = "none" | "xs" | "sm" | "md" | "lg" | "xl";
@@ -1224,6 +1249,7 @@ export function ToggleGroup(input: ToggleGroupProps): ReactElement;
 export interface ToggleGroupProps extends Omit<ComponentProps<"div">, "defaultValue" | "onChange" | "dir"> {
     defaultValue?: readonly string[];
     disabled?: boolean;
+    fullWidth?: boolean;
     multiple?: boolean;
     onValueChange?: ToggleGroup_2.Props["onValueChange"];
     orientation?: "horizontal" | "vertical";

@@ -23,7 +23,7 @@ import { Calendar } from "../calendar/calendar";
 export interface DatePickerProps
   extends Omit<
     InputProps,
-    "value" | "defaultValue" | "onValueChange" | "type" | "min" | "max" | "messages"
+    "value" | "defaultValue" | "onValueChange" | "type" | "min" | "max" | "messages" | "size"
   > {
   /** The date, "YYYY-MM-DD", or `null` for none; controlled. */
   value?: string | null;

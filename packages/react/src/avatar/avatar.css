@@ -12,7 +12,7 @@
   background: var(--qx-color-bg-neutral-subtle-pressed);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   vertical-align: middle;
   user-select: none;
   &[data-size="sm"] {
@@ -24,13 +24,13 @@
     inline-size: 40px;
     block-size: 40px;
     font: var(--qx-typography-label-md);
-    font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+    font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
   }
   &[data-size="xl"] {
     inline-size: 48px;
     block-size: 48px;
     font: var(--qx-typography-label-md);
-    font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+    font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
   }
   &[data-shape="square"] {
     border-radius: var(--qx-radius-control);
@@ -47,7 +47,7 @@
   object-fit: cover;
 }
 
-/* A status (QTRX-181): a round dot on the bottom-end corner in its tone's icon colour, which keeps
+/* A status: a round dot on the bottom-end corner in its tone's icon colour, which keeps
    3:1 on every surface, a selected or hovered row's too. It's cut out of the avatar with a 2px gap
    rather than ringed in a surface colour, so it reads on any background. Its size steps with the
    avatar's, its centre on a circle's edge. The fill moves to a masked layer, and the photo is

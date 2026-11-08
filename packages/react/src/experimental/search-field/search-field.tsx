@@ -10,7 +10,7 @@ import { mergeRefs } from "../../internal/refs";
 import { useMessages } from "../../provider/provider";
 
 export interface SearchFieldProps
-  extends Omit<InputProps, "type" | "icon" | "value" | "defaultValue" | "onValueChange"> {
+  extends Omit<InputProps, "type" | "icon" | "value" | "defaultValue" | "onValueChange" | "size"> {
   /** The text, controlled. */
   value?: string;
   /** The text when uncontrolled. Default `""`. */

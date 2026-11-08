@@ -15,7 +15,7 @@
   transition-duration: var(--qx-motion-duration-fast);
   transition-timing-function: var(--qx-motion-easing-standard);
 
-  /* Hover never takes an invalid track's danger edge (QTRX-161). */
+  /* Hover never takes an invalid track's danger edge. */
   &:hover:not([data-disabled], [data-readonly], [data-invalid]) {
     border-color: var(--qx-color-border-strong-hover);
   }
@@ -58,7 +58,7 @@
   transition-property: inset-inline-start, background-color;
   transition-duration: var(--qx-motion-duration-normal);
   transition-timing-function: var(--qx-motion-easing-standard);
-  /* On: white in both schemes, as the checkbox's tick on the same Ember (05 §9, 06 §3; QTRX-162). */
+  /* On: white in both schemes, as the checkbox's tick on the same Ember (05 §9, 06 §3). */
   &[data-checked] {
     inset-inline-start: 16px;
     background: var(--qx-color-icon-on-brand);

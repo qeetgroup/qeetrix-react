@@ -58,8 +58,37 @@ Load the tokens, then the component styles, once at the root of your app:
   @import "tailwindcss";
   ```
 
-- **Precompiled:** your Tailwind setup doesn't need to scan this package, and it ships no utility
-  classes.
+- **Precompiled:** your Tailwind setup doesn't need to scan this package; its components use no
+  utility classes.
+- **Utilities named after the tokens:** import `@qeetrix/react/tailwind.css` after Tailwind, and every
+  product writes the same classes:
+
+  ```css
+  @layer theme, base, components, utilities;
+  @import "@qeetrix/tokens/tokens.css";
+  @import "@qeetrix/react/styles.css" layer(components);
+  @import "tailwindcss";
+  @import "@qeetrix/react/tailwind.css";
+  ```
+
+  ```html
+  <section class="bg-surface-raised text-text-subtle border border-border-default rounded-surface p-inset-lg">
+    <h2 class="typography-title-md text-text-default">Usage</h2>
+    <p class="typography-body-md mt-gap-sm">1,240 of 5,000 API calls this month.</p>
+  </section>
+  ```
+
+  | Tokens | Utilities |
+  |:--|:--|
+  | `--qx-color-<role>` | `bg-*`, `text-*`, `border-*`, `fill-*`, `ring-*`… with the role's name: `bg-surface-raised`, `bg-bg-brand-bold`, `text-text-subtle` |
+  | `--qx-font-family-<name>` | `font-sans` (Qeet Sans, also the page's default), `font-heading`, `font-mono`, `font-indic` |
+  | `--qx-radius-<name>` | `rounded-control`, `rounded-surface`, `rounded-chip`, `rounded-full`… |
+  | `--qx-shadow-<name>` | `shadow-raised`, `shadow-overlay`, `shadow-modal`… |
+  | `--qx-space-<group>-<size>` | `p-inset-md`, `gap-gap-sm`, `my-layout-lg`, `space-y-form-gap`… |
+  | `--qx-typography-<role>-<size>` | `typography-body-md`, `typography-heading-lg`, `typography-label-caps`…: the whole role, its font, letter spacing and GEOM axis |
+
+  Each utility reads the token's variable (`@theme inline`), so it follows `data-qx-color-scheme` and
+  `data-qx-density`. It's generated from the tokens this release was built with.
 - **Cascade layers:** Qeetrix styles sit in the `qx.base` and `qx.components` layers, so your own
   layout utilities override them without `!important`.
 - **One component's styles:** `@qeetrix/react/css/stack.css` if you'd rather not load the full

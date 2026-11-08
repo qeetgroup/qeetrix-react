@@ -1,4 +1,4 @@
-/* Toolbar and Workspace (QTRX-64): a ruled toolbar, then panes edge to edge separated by 1px rules
+/* Toolbar and Workspace: a ruled toolbar, then panes edge to edge separated by 1px rules
    and tone (the canvas on the canvas tone, panes on the default surface), no cards. */
 .qx-toolbar {
   display: flex;

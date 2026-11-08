@@ -1,5 +1,5 @@
 /* CopyField: a read-only value and its Copy button. As a field, the label above a box with the
-   read-only field's bottom line (border.strong, 3:1; QTRX-175); as a row, a ruled fact row lining
+   read-only field's bottom line (border.strong, 3:1); as a row, a ruled fact row lining
    up with DescriptionItem. */
 .qx-copy-field {
   display: grid;
@@ -9,7 +9,7 @@
 .qx-copy-field-label {
   color: var(--qx-color-text-subtle);
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
 }
 .qx-copy-field-box {
   display: flex;

@@ -35,6 +35,30 @@ describe("CheckList", () => {
     await expect.element(page.getByText("Checked 2 minutes ago")).toBeVisible();
   });
 
+  it("puts the icon and the status on the title's first line, however long the check", async () => {
+    const { container } = await render(
+      <div style={{ inlineSize: 280 }}>
+        <CheckList>
+          <CheckItem
+            title="The identity provider's signing certificate matches the one uploaded here"
+            detail="The SHA-256 fingerprints differ: re-upload the certificate from your provider"
+            status="failed"
+          />
+        </CheckList>
+      </div>,
+    );
+    const box = (selector: string) =>
+      (container.querySelector(selector) as HTMLElement).getBoundingClientRect();
+    const title = box(".qx-check-item-title");
+    // label.md's line: 14px × 1.428572, 20px.
+    const firstLine = title.top + 10;
+    expect(title.height).toBeGreaterThan(20); // the title wraps
+    const icon = box(".qx-check-item-icon");
+    const status = box(".qx-check-item-status");
+    expect(icon.top + icon.height / 2).toBeCloseTo(firstLine, 0);
+    expect(status.top + status.height / 2).toBeCloseTo(firstLine, 0);
+  });
+
   it("is accessible and looks right in both schemes", async () => {
     const { container } = await render(
       <Stage>

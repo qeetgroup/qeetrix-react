@@ -75,7 +75,7 @@ export function Card({
   const titleId = useId();
   const titled = title != null && level !== undefined;
   const header = titled || description != null || actions != null;
-  // No body without content (QTRX-174): a header-only card (a title and its actions) ends at the
+  // No body without content: a header-only card (a title and its actions) ends at the
   // header, not 32px of empty padding. `null`, `false` and `""` children are no content.
   const body = Children.toArray(children).some((child) => child !== "");
   return renderElement(titled ? "section" : "div", render, {

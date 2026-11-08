@@ -139,14 +139,14 @@
 .qx-stat-label {
   grid-column: 1 / -1;
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   color: var(--qx-color-text-subtle);
 }
 .qx-stat-value {
   grid-column: 1;
   margin: var(--qx-space-gap-xs) 0 0;
   font: var(--qx-typography-heading-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+  font-variation-settings: "GEOM" var(--qx-typography-heading-sm-font-geometry);
   font-variant-numeric: tabular-nums;
 }
 .qx-stat-trend-cell {
@@ -192,7 +192,7 @@
   grid-column: 1 / -1;
   margin: 2px 0 0;
   font: var(--qx-typography-body-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
   color: var(--qx-color-text-subtlest);
   &[data-tone="positive"] {
     color: var(--qx-color-text-success);

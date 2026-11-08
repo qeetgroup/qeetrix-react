@@ -46,7 +46,7 @@ describe("Slider", () => {
   });
 
   it("says a meaningful value with getAriaValueText, such as a log scale's", async () => {
-    // A 0–100 position on a log scale from 100 to 1,000,000 monthly active users (QTRX-89).
+    // A 0–100 position on a log scale from 100 to 1,000,000 monthly active users.
     const users = (position: number) => Math.round(10 ** (2 + position / 25));
     await render(
       <Slider

@@ -11,7 +11,7 @@
   background: var(--qx-color-surface-inverse);
   color: var(--qx-color-text-inverse);
   font: var(--qx-typography-body-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
   transition-property: opacity, translate;
   transition-duration: var(--qx-motion-duration-normal);
   transition-timing-function: var(--qx-motion-easing-enter);

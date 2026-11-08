@@ -11,7 +11,7 @@
   background: var(--qx-color-bg-info-subtle);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   &[data-tone="success"] {
     border-inline-start-color: var(--qx-color-icon-success);
     background: var(--qx-color-bg-success-subtle);
@@ -55,7 +55,7 @@
 .qx-alert-title {
   font: var(--qx-typography-label-md);
   font-weight: var(--qx-typography-title-sm-font-weight);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
 }
 .qx-alert-description {
   color: var(--qx-color-text-subtle);

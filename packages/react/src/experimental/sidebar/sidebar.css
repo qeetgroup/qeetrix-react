@@ -19,7 +19,7 @@
 }
 .qx-sidebar-title {
   font: var(--qx-typography-title-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+  font-variation-settings: "GEOM" var(--qx-typography-title-sm-font-geometry);
   color: var(--qx-color-text-default);
   white-space: nowrap;
   overflow: hidden;
@@ -29,7 +29,7 @@
   margin: 0;
   padding: var(--qx-space-gap-sm) var(--qx-space-inset-lg);
   font: var(--qx-typography-body-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
   color: var(--qx-color-text-subtle);
   &:empty {
     display: none;
@@ -60,7 +60,7 @@
   padding: 0 var(--qx-space-inset-lg) 6px;
   font: var(--qx-typography-label-caps);
   letter-spacing: var(--qx-typography-label-caps-letter-spacing);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-caps-font-geometry);
   color: var(--qx-color-text-subtlest);
   text-transform: uppercase;
   white-space: nowrap;
@@ -98,7 +98,7 @@
   background: transparent;
   color: var(--qx-color-text-subtle);
   font: var(--qx-typography-label-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
   text-align: start;
   text-decoration: none;
   white-space: nowrap;
@@ -171,7 +171,7 @@
   align-items: baseline;
   block-size: 1lh;
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   font-variant-numeric: tabular-nums;
   color: var(--qx-color-text-subtlest);
 }

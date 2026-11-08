@@ -26,7 +26,7 @@
 }
 .qx-state-ruler-label {
   font: var(--qx-typography-label-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
 }
 @container (width < 32rem) {
   .qx-state-ruler {

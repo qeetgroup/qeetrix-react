@@ -31,7 +31,7 @@ export interface EmailEntryState {
 export interface MultiEmailFieldProps
   extends Omit<
     InputProps,
-    "value" | "defaultValue" | "onChange" | "onValueChange" | "type" | "max" | "children"
+    "value" | "defaultValue" | "onChange" | "onValueChange" | "type" | "max" | "children" | "size"
   > {
   /** The addresses, for a controlled field. */
   value?: readonly string[] | undefined;

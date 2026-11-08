@@ -20,7 +20,7 @@
   background: var(--qx-color-surface-raised);
   color: var(--qx-color-text-subtle);
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   white-space: nowrap;
   [data-size="sm"] > & {
     min-inline-size: 18px;

@@ -3,7 +3,7 @@
 .qx-text {
   margin: 0;
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   &[data-size="sm"] {
     font-size: var(--qx-typography-body-sm-font-size);
     line-height: var(--qx-typography-body-sm-line-height);

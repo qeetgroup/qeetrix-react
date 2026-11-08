@@ -37,6 +37,7 @@ export * from "./otp-input";
 export * from "./page-header";
 export * from "./pagination";
 export * from "./password-input";
+export * from "./picture-choice";
 export * from "./provider-button";
 export * from "./qr-code";
 export * from "./range-calendar";

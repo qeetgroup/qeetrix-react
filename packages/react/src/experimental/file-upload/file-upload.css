@@ -20,7 +20,7 @@
   background: var(--qx-color-bg-neutral-subtle);
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   text-align: center;
   cursor: pointer;
   transition-property: background-color, border-color;
@@ -105,21 +105,21 @@
   overflow: hidden;
   color: var(--qx-color-text-default);
   font: var(--qx-typography-label-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 .qx-file-upload-meta {
   color: var(--qx-color-text-subtle);
   font: var(--qx-typography-body-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
 }
 .qx-file-upload-status {
   display: inline-flex;
   align-items: center;
   gap: var(--qx-space-gap-xs);
   font: var(--qx-typography-label-sm);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
   white-space: nowrap;
   [data-status="done"] > & {
     color: var(--qx-color-text-success);

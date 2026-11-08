@@ -31,7 +31,15 @@ export interface DateRangePreset {
 export interface DateRangePickerProps
   extends Omit<
     InputProps,
-    "value" | "defaultValue" | "onValueChange" | "type" | "min" | "max" | "name" | "messages"
+    | "value"
+    | "defaultValue"
+    | "onValueChange"
+    | "type"
+    | "min"
+    | "max"
+    | "name"
+    | "messages"
+    | "size"
   > {
   /** The range, or `null` for none; controlled. */
   value?: DateRange | null;

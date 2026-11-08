@@ -245,7 +245,7 @@ describe("Card", () => {
     }
   });
 
-  it("renders no body without children: a header-only card ends at its header (QTRX-174)", async () => {
+  it("renders no body without children: a header-only card ends at its header", async () => {
     const { container } = await render(
       <Stack gap="md" style={{ inlineSize: 400 }}>
         <Card

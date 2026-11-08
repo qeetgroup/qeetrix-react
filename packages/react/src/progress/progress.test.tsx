@@ -101,7 +101,7 @@ describe("tones", () => {
     const colours = [...container.querySelectorAll("[data-slot=meter-indicator]")].map(
       (indicator) => getComputedStyle(indicator).backgroundColor,
     );
-    // In light, warning's fill is border.warning: the bold amber is 1.51:1 on the track (QTRX-176).
+    // In light, warning's fill is border.warning: the bold amber is 1.51:1 on the track.
     expect(colours).toEqual(
       tones.map((tone) =>
         tokenColor(tone === "warning" ? "--qx-color-border-warning" : `--qx-color-bg-${tone}-bold`),
@@ -109,7 +109,7 @@ describe("tones", () => {
     );
   });
 
-  it("keeps every tone's fill at 3:1 against its track, in both schemes (QTRX-176)", async () => {
+  it("keeps every tone's fill at 3:1 against its track, in both schemes", async () => {
     const tones = ["brand", "neutral", "info", "success", "warning", "danger"] as const;
     const { container } = await render(
       <Stack gap="md">
@@ -141,6 +141,55 @@ describe("tones", () => {
     html.dataset.qxColorScheme = "dark";
     const track = container.querySelector("[data-slot=progress-track]") as HTMLElement;
     expect(getComputedStyle(track).backgroundColor).toBe(tokenColor("--qx-color-surface-sunken"));
+    delete html.dataset.qxColorScheme;
+  });
+
+  it("keeps every tone's fill at 3:1 against every surface beside the bar, in both schemes", async () => {
+    const tones = ["brand", "neutral", "info", "success", "warning", "danger"] as const;
+    const { container } = await render(
+      <Stack gap="md">
+        {tones.map((tone) => (
+          <Meter key={tone} aria-label={tone} value={50} tone={tone} />
+        ))}
+      </Stack>,
+    );
+    const html = document.documentElement;
+    const surfaces = ["canvas", "default", "raised", "overlay"];
+    const low: string[] = [];
+    for (const scheme of ["light", "dark"]) {
+      html.dataset.qxColorScheme = scheme;
+      for (const indicator of container.querySelectorAll<HTMLElement>(".qx-progress-indicator")) {
+        const tone = (indicator.closest("[data-tone]") as HTMLElement).dataset.tone;
+        for (const surface of surfaces) {
+          const ratio = contrast(
+            getComputedStyle(indicator).backgroundColor,
+            tokenColor(`--qx-color-surface-${surface}`),
+          );
+          if (ratio < 3) low.push(`${scheme} ${tone} on ${surface}: ${ratio.toFixed(2)}`);
+        }
+      }
+    }
+    delete html.dataset.qxColorScheme;
+    expect(low).toEqual([]);
+  });
+
+  it("gives the dark sunken track a border.default edge that shows on every surface", async () => {
+    const { container } = await render(<Meter aria-label="Storage" value={0} />);
+    const track = container.querySelector(".qx-progress-track") as HTMLElement;
+    const html = document.documentElement;
+    for (const scheme of ["light", "dark"]) {
+      html.dataset.qxColorScheme = scheme;
+      const edge = tokenColor("--qx-color-border-default");
+      // The edge is the border colour, inset by border.width.default; in light it is the track's own colour.
+      expect(getComputedStyle(track).boxShadow, scheme).toContain(edge);
+      expect(getComputedStyle(track).boxShadow, scheme).toContain("inset");
+      for (const surface of ["canvas", "default", "raised", "overlay"]) {
+        expect(
+          contrast(edge, tokenColor(`--qx-color-surface-${surface}`)),
+          `${scheme} edge on ${surface}`,
+        ).toBeGreaterThan(1.2);
+      }
+    }
     delete html.dataset.qxColorScheme;
   });
 

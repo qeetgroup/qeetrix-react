@@ -17,7 +17,7 @@
   counter-increment: qx-instruction;
   color: var(--qx-color-text-default);
   font: var(--qx-typography-body-md);
-  font-variation-settings: "GEOM" var(--qx-font-geometry-body);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   code {
     font: var(--qx-typography-code-sm);
     overflow-wrap: anywhere;

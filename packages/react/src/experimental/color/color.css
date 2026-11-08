@@ -1,4 +1,4 @@
-/* Colour choice (QTRX-52): square swatches with a 1px inner rule (so white shows on white), the
+/* Colour choice: square swatches with a 1px inner rule (so white shows on white), the
    chosen one ringed in the text colour; a hex field whose swatch is the system picker. */
 .qx-color-swatches {
   display: flex;
