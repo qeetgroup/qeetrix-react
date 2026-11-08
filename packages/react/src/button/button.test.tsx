@@ -274,7 +274,9 @@ describe("Button", () => {
     // Under the pointer: the danger tint, then the pressed one.
     await userEvent.hover(button);
     await settled();
-    expect(getComputedStyle(button).backgroundColor).toBe(tokenColor("--qx-color-bg-danger-subtle"));
+    expect(getComputedStyle(button).backgroundColor).toBe(
+      tokenColor("--qx-color-bg-danger-subtle"),
+    );
     expect(await pressed()).toEqual(press);
     expect(press.color).not.toBe(tokenColor("--qx-color-bg-danger-subtle"));
   });
