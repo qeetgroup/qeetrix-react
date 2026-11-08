@@ -52,7 +52,8 @@ A newer Bun writes a lockfile version that CI's pinned Bun 1.3.14 can't read.
 
 ## What CI enforces
 
-Every pull request and push runs `.github/workflows/ci.yml`. Each gate is itself proven to fail on a
+Every push to `develop` and every pull request into it runs `.github/workflows/ci.yml`; `main` requires that run
+on the commit it merges, so main isn't checked again. Each gate is itself proven to fail on a
 deliberately broken example by `tests/gates.server.test.ts`, which runs on every CI run.
 
 | Gate | Catches |

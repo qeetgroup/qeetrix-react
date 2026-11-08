@@ -8,7 +8,7 @@ Accessible, token-driven components built on [Base UI](https://base-ui.com), mad
 and products of Qeet Group, in English and Hindi, light and dark, left to right and right to left.
 
 [![npm](https://img.shields.io/npm/v/@qeetrix/react?label=%40qeetrix%2Freact&color=d04800)](https://www.npmjs.com/package/@qeetrix/react)
-[![CI](https://github.com/qeetgroup/qeetrix-react/actions/workflows/ci.yml/badge.svg)](https://github.com/qeetgroup/qeetrix-react/actions/workflows/ci.yml)
+[![CI](https://github.com/qeetgroup/qeetrix-react/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/qeetgroup/qeetrix-react/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/qeetgroup/qeetrix-react/actions/workflows/codeql.yml/badge.svg)](https://github.com/qeetgroup/qeetrix-react/actions/workflows/codeql.yml)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/qeetgroup/qeetrix-react/badge)](https://scorecard.dev/viewer/?uri=github.com/qeetgroup/qeetrix-react)
 [![React 19](https://img.shields.io/badge/React-19-149eca)](https://react.dev)
@@ -113,7 +113,8 @@ Pair `@qeetrix/react` with a `@qeetrix/tokens` version its peer range names: 0.2
 
 ## Quality bar
 
-Every pull request into `main` runs the whole gate. Nothing merges red.
+Every push to `develop` and every pull request into it runs the whole gate, and `main` takes only a `develop` that
+passed it. Nothing merges red.
 
 | Gate | What it checks |
 |:--|:--|

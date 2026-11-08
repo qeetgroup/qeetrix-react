@@ -38,6 +38,7 @@ jobs:
         id: bump
         env:
           BASE: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
           NPM_REGISTRY: ${{ vars.QEETRIX_NPM_REGISTRY }}
           PKG: packages/react/package.json
         run: |
@@ -82,7 +83,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$PKG"
           git commit -m "chore: bump version to $next"
-          git push origin "HEAD:${{ github.head_ref }}"
+          git push origin "HEAD:$HEAD_REF"
           echo "bumped=true" >> "$GITHUB_OUTPUT"
 
       # GitHub holds pull_request runs on a commit pushed by this workflow ("action required"), and
@@ -92,4 +93,5 @@ jobs:
         if: steps.bump.outputs.bumped == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run ci.yml --ref "${{ github.head_ref }}" --repo "${{ github.repository }}"
+          HEAD_REF: ${{ github.head_ref }}
+        run: gh workflow run ci.yml --ref "$HEAD_REF" --repo "$GITHUB_REPOSITORY"
