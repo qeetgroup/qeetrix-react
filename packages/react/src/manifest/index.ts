@@ -597,6 +597,14 @@ export const manifest: readonly ManifestFamily[] = [
     since: "0.2.0",
   },
   {
+    name: "site-search",
+    status: "experimental",
+    entry: "@qeetrix/react/experimental",
+    kind: "component",
+    parts: ["SiteSearch"],
+    since: "0.5.2",
+  },
+  {
     name: "skeleton",
     status: "stable",
     entry: "@qeetrix/react/skeleton",
