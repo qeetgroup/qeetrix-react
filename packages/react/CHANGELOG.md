@@ -1,5 +1,24 @@
 # @qeetrix/react
 
+## 0.5.2
+
+### New
+
+- **`SiteSearch`** (experimental): the search across a website (marketing pages, docs), as
+  CommandPalette is a console's. A large Dialog held near the top of the view, so it doesn't jump
+  as results change, with the site's title (`title`, "Search Qeet Group"), a search box a step
+  taller than a form's, and a few `suggestions` to try before anything is typed. The site
+  searches its own index through `onQueryChange` and passes its `results`, best first: each shows
+  its `kind` in brand small caps with an optional `badge`, its `title`, a one-line `description`
+  and an optional `note`, with the query underlined in Ember (the whole query where it appears,
+  otherwise each word). Every result is a link, so a modifier click opens it in a new tab;
+  `onNavigate` takes the plain click for a router. The highlighted result has the options' neutral
+  tint and a 2px Ember edge that grows in. Arrows move, Enter opens, Escape closes and returns
+  focus, ⌘K or Ctrl+K toggles it (`hotkey`). `allResults` links the footer to the site's search
+  page ("See all 32 results"); `loading` shows "Searching…", and the number of results is
+  announced. Strings in `siteSearch`, Hindi included. Built for ui.qeet.in and qeet.in, which
+  had two different searches.
+
 ## 0.5.1
 
 ### Changed

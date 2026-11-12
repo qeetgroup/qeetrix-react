@@ -1,0 +1,226 @@
+/* SiteSearch: a large Dialog (the Ember intent line, the title, the close button) held near the top
+   of the view, so it doesn't jump as results come and go. A large search box, the queries to try
+   before anything is typed, then the results: each its kind in brand small caps, its title and a
+   line, with the query underlined in Ember. The highlighted result has the options' neutral tint
+   and a 2px Ember start edge that grows in. A footer of key hints, and "See all" at its end. */
+.qx-site-search {
+  align-self: start;
+  margin-block-start: 8vh;
+  max-block-size: min(720px, 84vh);
+}
+
+.qx-site-search-field {
+  flex: none;
+  padding-block-end: var(--qx-space-inset-md);
+  padding-inline: var(--qx-space-inset-xl);
+  /* One field, the dialog's whole task: a step taller than a form's, its text at body size. */
+  & > .qx-input {
+    block-size: calc(var(--qx-size-control-lg) + 8px);
+    font: var(--qx-typography-body-lg);
+    font-variation-settings: "GEOM" var(--qx-typography-body-lg-font-geometry);
+  }
+}
+
+.qx-site-search-body {
+  flex: 1;
+  min-block-size: 12rem;
+  overflow-y: auto;
+  padding-block: var(--qx-space-gap-xs) var(--qx-space-inset-md);
+  padding-inline: var(--qx-space-inset-xl);
+}
+
+.qx-site-search-status {
+  color: var(--qx-color-text-subtle);
+  &:not(:empty):not(:has(> .qx-visually-hidden)) {
+    padding-block: var(--qx-space-inset-lg);
+  }
+}
+
+.qx-site-search-start {
+  display: grid;
+  gap: var(--qx-space-gap-sm);
+  padding-block: var(--qx-space-gap-sm) var(--qx-space-inset-md);
+}
+.qx-site-search-start-label {
+  margin: 0;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-label-caps);
+  letter-spacing: var(--qx-typography-label-caps-letter-spacing);
+  text-transform: uppercase;
+}
+.qx-site-search-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--qx-space-gap-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.qx-site-search-suggestion {
+  min-block-size: var(--qx-size-control-md);
+  margin: 0;
+  padding-block: 0;
+  padding-inline: var(--qx-space-inset-md);
+  border: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  border-radius: var(--qx-radius-control);
+  background: var(--qx-color-surface-raised);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
+  cursor: pointer;
+  transition-property: border-color, background-color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &:hover {
+    border-color: var(--qx-color-border-brand);
+  }
+  &:active {
+    background: var(--qx-color-bg-neutral-subtle-pressed);
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
+  }
+}
+
+.qx-site-search-results {
+  display: grid;
+  gap: 2px;
+  &:empty {
+    display: none;
+  }
+}
+.qx-site-search-result {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding-block: var(--qx-space-inset-sm);
+  padding-inline: var(--qx-space-inset-md);
+  border-radius: var(--qx-radius-sm);
+  color: var(--qx-color-text-default);
+  text-decoration: none;
+  cursor: pointer;
+  outline: 0;
+  user-select: none;
+  transition-property: background-color;
+  transition-duration: var(--qx-motion-duration-fast);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block: var(--qx-space-inset-sm);
+    inset-inline-start: 0;
+    inline-size: var(--qx-border-width-strong);
+    background: var(--qx-color-border-brand);
+    scale: 1 0;
+    transition-property: scale;
+    transition-duration: var(--qx-motion-duration-normal);
+    transition-timing-function: var(--qx-motion-easing-emphasized);
+  }
+  &[data-highlighted] {
+    background: var(--qx-color-bg-neutral-subtle-hover);
+    &::before {
+      scale: 1 1;
+    }
+  }
+}
+.qx-site-search-kind {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--qx-space-gap-sm);
+  color: var(--qx-color-text-brand);
+  font: var(--qx-typography-label-caps);
+  letter-spacing: var(--qx-typography-label-caps-letter-spacing);
+  text-transform: uppercase;
+}
+.qx-site-search-title {
+  font: var(--qx-typography-title-sm);
+  font-variation-settings: "GEOM" var(--qx-typography-title-sm-font-geometry);
+}
+.qx-site-search-description {
+  overflow: hidden;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-md);
+  font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.qx-site-search-note {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-label-sm);
+  font-variation-settings: "GEOM" var(--qx-typography-label-sm-font-geometry);
+}
+/* The query, underlined in Ember: the reason a result came up, without a highlighter's fill. */
+.qx-site-search-match {
+  background: none;
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: var(--qx-color-border-brand);
+  text-decoration-thickness: var(--qx-border-width-strong);
+  text-underline-offset: 3px;
+}
+
+.qx-site-search-footer {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--qx-space-gap-xs) var(--qx-space-gap-lg);
+  min-block-size: var(--qx-size-control-lg);
+  padding-block: var(--qx-space-gap-xs);
+  padding-inline: var(--qx-space-inset-xl);
+  border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-subtle);
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
+}
+/* Key hints are for a keyboard: on a narrow screen, a phone's, they're left out. */
+.qx-site-search-hints {
+  display: none;
+  flex-wrap: wrap;
+  gap: var(--qx-space-gap-xs) var(--qx-space-gap-lg);
+  & > span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--qx-space-gap-xs);
+  }
+}
+@media (width >= 600px) {
+  .qx-site-search-hints {
+    display: inline-flex;
+  }
+}
+.qx-site-search-all {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  margin-inline-start: auto;
+  font: var(--qx-typography-label-md);
+  font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
+  & > svg {
+    flex: none;
+    [dir="rtl"] & {
+      scale: -1 1;
+    }
+  }
+}
+
+@media (forced-colors: active) {
+  .qx-site-search-result[data-highlighted] {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+    & .qx-site-search-kind,
+    & .qx-site-search-description,
+    & .qx-site-search-note {
+      color: HighlightText;
+    }
+  }
+  .qx-site-search-suggestion {
+    border-color: ButtonText;
+  }
+}

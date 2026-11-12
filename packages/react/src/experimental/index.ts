@@ -45,6 +45,7 @@ export * from "./relative-time";
 export * from "./search-field";
 export * from "./sidebar";
 export * from "./site-header";
+export * from "./site-search";
 export * from "./stat";
 export * from "./state-ruler";
 export * from "./steps";
