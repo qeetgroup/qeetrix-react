@@ -2,9 +2,9 @@ name: Release
 
 # Publishes @qeetrix/react to npm on merge to main, then tags the commit (decision D-07).
 #
-#   1. Raise the version on develop, then open the develop → main PR; its Version check fails until it's raised.
-#   2. Merge to main. The gate job checks the version is new, then builds and checks the package. It runs no tests:
-#      every gate passed in develop's CI on this commit.
+#   1. Raise the version on develop, then open the develop → main PR; its Release gate fails until it's raised.
+#   2. Merge to main. The gate job checks the version is new, then builds and checks the package as it's
+#      published. It runs no tests: they ran locally before the push, and Verify passed on the pull request.
 #   3. The publish job waits for an approver in the `npm-publish` environment. Once approved it
 #      publishes through npm trusted publishing (OIDC, no long-lived token) with provenance,
 #      pushes the vX.Y.Z tag and opens a GitHub Release.
@@ -74,9 +74,8 @@ jobs:
             echo "release=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # develop's CI already passed every gate on this commit (main takes develop only, on an up-to-date
-      # branch), so they don't run again here. Only the package is built and checked, as it's
-      # published. Nothing below runs when the version is unchanged.
+      # Verify passed on the develop → main pull request, so it doesn't run again here. Only the package
+      # is built and checked, as it's published. Nothing below runs when the version is unchanged.
       - if: steps.version.outputs.release == 'true'
         run: bun install --frozen-lockfile
       - if: steps.version.outputs.release == 'true'
