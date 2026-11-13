@@ -147,6 +147,7 @@ export function highlight(code: string, language: CodeLanguage): Token[][] {
   const rules = language === "text" ? [] : RULES[language];
   const markup = language === "xml" || language === "html";
   const script = language === "javascript" || language === "typescript" || language === "tsx";
+  const native = language === "kotlin" || language === "swift";
   const tokens: Token[] = [];
   let at = 0;
   let previous = "";
@@ -170,6 +171,9 @@ export function highlight(code: string, language: CodeLanguage): Token[][] {
       if (markup) kind = "keyword";
       else if (script) kind = "literal";
     }
+    // A capitalised name in Kotlin or Swift is a type, a composable or a view (QeetrixButton, HStack,
+    // Color): a literal, as a component's name is in JSX, so native code reads in the web's colours.
+    if (kind === "plain" && native && /^[A-Z]\w*$/.test(text)) kind = "literal";
     if (language === "shell") {
       if (kind === "plain" && word && command) kind = "keyword";
       if (kind === "punctuation" || text.includes("\n")) command = true;

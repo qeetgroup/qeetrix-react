@@ -1,5 +1,15 @@
 # @qeetrix/react
 
+## 0.5.3
+
+### Changed
+
+- **CodeBlock (experimental) colours Kotlin's and Swift's type names**: a capitalised name — a
+  type, a composable or a view (`QeetrixButton`, `HStack`, `Color`) — takes the literal colour, as
+  a component's name does in JSX, so native code reads in the same colours as the web's rather
+  than in keywords and plain text. `highlight` and `highlightHtml` follow. A name in backticks
+  stays a name, and Swift's `Self` stays a keyword; the other languages are unchanged.
+
 ## 0.5.2
 
 ### New
