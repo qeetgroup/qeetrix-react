@@ -1,7 +1,7 @@
 /**
  * The gates catch what they claim to catch. Each test builds a deliberately broken example in a
  * temporary directory, runs the real checker against it, and expects it to fail with the right
- * message. This runs on every CI run, so a gate can never quietly stop working (charter, Phase 3).
+ * message. This runs with every local test run, so a gate can never quietly stop working (charter, Phase 3).
  */
 import { execFileSync, spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";

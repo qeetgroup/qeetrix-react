@@ -66,10 +66,11 @@ commands:
   checks: bun run check                      # source, dist, API report, publint + attw
 
 ci:
-  workflows: [ci.yml, version.yml, release.yml, rollback.yml, codeql.yml, scorecard.yml]
-  release: "push main → gate → approval in npm-publish → npm trusted publishing (provenance) → tag + GitHub release"
-  screenshots: "Argos; upload enabled by repo variable QEETRIX_ARGOS_ENABLED"
-  nightly: "browser tests in Chromium, Firefox and WebKit"
+  workflows: [ci.yml, release-gate.yml, release.yml, sync-develop.yml, rollback.yml, codeql.yml]
+  verify: "pull requests into develop or main: typecheck, Biome, compiler lint, bun audit"
+  release_gate: "develop → main pull request: from develop, version raised, API version"
+  release: "push main → build + check → approval in npm-publish → npm trusted publishing (provenance) → tag + GitHub release"
+  local_gate: "build, typecheck, lint, lint:compiler, check, test:coverage before every push (AGENTS.md)"
   gates_self_tested: packages/react/tests/gates.server.test.ts
   actions_pinned_to_sha: true
 

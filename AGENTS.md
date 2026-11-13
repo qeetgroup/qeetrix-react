@@ -12,8 +12,8 @@ successor to `@qeetrix/ui`, which keeps working unchanged until every product ha
 - **Stack:** React 19, Base UI (peer), `@qeetrix/tokens` (peer), TypeScript 7, bun.
 - **Shape:** one bun workspace; the core package lives in `packages/react`. Heavy components get
   their own packages under `packages/` **only after the owner approves each one**.
-- **Status:** `0.0.x`, Phase 4. Increment 1 (the foundation primitives) is in; actions, form
-  controls, overlays, selection and display follow (02-inventory.md).
+- **Status:** 0.5, still `0.x`. The primitives are stable, in the root entry; components and patterns start in
+  `@qeetrix/react/experimental` and become stable once they have shipped in a product (07-components.md).
 
 It is a **library, not an app**: everything it exports is someone's dependency.
 
@@ -55,11 +55,28 @@ A newer Bun writes a lockfile version that CI's pinned Bun 1.3.14 can't read.
 Work on a branch from `develop` and open its pull request into `develop`. Only `develop` goes into `main`, through
 a `develop` → `main` pull request the maintainer opens; `main` refuses anything else.
 
-## What CI enforces
+## CI, and the local gate
 
-Every push to `develop` and every pull request into it runs `.github/workflows/ci.yml`; `main` requires that run
-on the commit it merges, so main isn't checked again. Each gate is itself proven to fail on a
-deliberately broken example by `tests/gates.server.test.ts`, which runs on every CI run.
+CI checks each change once, on its pull request: every pull request into `develop`, and the `develop` → `main`
+pull request that releases. Pushes run nothing.
+
+| Workflow | When | What it does |
+|---|---|---|
+| `ci.yml` · **Verify** | A pull request into `develop` or `main` | Nothing generated is committed; install; typecheck; Biome (format and lint); compiler lint; `bun audit` |
+| `release-gate.yml` · **Release gate** | The `develop` → `main` pull request | It comes from `develop`; the version is above `main`'s; a removed or changed API has a raised minor |
+| `release.yml` | A merge into `main` | Builds and checks the package, waits for an approver in `npm-publish`, publishes with provenance, tags |
+| `sync-develop.yml` | After the merge | Fast-forwards `develop` to `main` |
+| `codeql.yml` | Weekly, and on request | Security analysis |
+| `rollback.yml` | By hand | Points npm's `latest` back at a good version |
+
+### Before you push
+
+The build, the package checks and the tests don't run in CI. Run the whole gate before every push and say so in
+the commit:
+
+```bash
+bun run build && bun run typecheck && bun run lint && bun run lint:compiler && bun run check && bun run test:coverage
+```
 
 | Gate | Catches |
 |---|---|
@@ -70,16 +87,14 @@ deliberately broken example by `tests/gates.server.test.ts`, which runs on every
 | Source check | A client module without `"use client"`; `dangerouslySetInnerHTML`, `Math.random`, `localStorage`; CSS with raw colours, radii, shadows, type, motion or z-index; system colours outside `@media (forced-colors: active)`; physical properties (`margin-left`, `left`, `text-align: right`…); `!important`; classes without the `qx-` prefix |
 | Built-output check | A lost `"use client"`; uppercase or colliding paths; a family without an export; exports to missing files or JS wildcards; names that shadow browser globals; size budgets (`size-budget.json`) |
 | API report | `etc/react.api.md` out of date with the code |
-| API version | A removed or changed API without a raised minor (`scripts/check-api-version.mjs`) |
+| API version | A removed or changed API without a raised minor (`scripts/check-api-version.mjs`; the Release gate runs it too) |
 | Package | publint and Are the Types Wrong? on the packed tarball |
 | Tests | Real-browser interaction, keyboard and axe (WCAG A/AA, contrast on); server rendering; coverage floor (90% lines) |
-| Screenshots | Compared on Argos (once connected). Light and dark for every component; all three densities too for components whose CSS uses a density token, enforced by `tests/screenshot-coverage.server.test.ts` |
-| Nightly | The browser tests again in Firefox and WebKit |
+| Screenshots | Light and dark for every component; all three densities too for components whose CSS uses a density token, enforced by `tests/screenshot-coverage.server.test.ts` |
 
-Releases: `release.yml` builds and checks the package on `main` (every gate already passed in develop's CI on that
-commit), then waits for an approver in the
-`npm-publish` environment, then publishes through npm trusted publishing with provenance.
-`codeql.yml` and `scorecard.yml` run security analysis.
+Each gate is proven to fail on a deliberately broken example by `tests/gates.server.test.ts`, part of the test run.
+A change to keyboard, focus or layout runs the browser tests in Firefox and WebKit too:
+`QX_BROWSERS=chromium,firefox,webkit bun run test`.
 
 ## Layout
 

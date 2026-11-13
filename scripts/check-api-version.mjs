@@ -4,7 +4,7 @@
  *   node scripts/check-api-version.mjs <base-ref>     e.g. origin/main, in a pull request
  *
  * Compares packages/react/etc/react.api.md (the api-extractor report) with the base branch:
- *   - nothing changed, or only additions: any version is fine — version.yml bumps the patch;
+ *   - nothing changed, or only additions: any version is fine (the Release gate asks for a raised patch);
  *   - a line removed or changed: the change can break consumers, so the version must be raised to
  *     at least the next minor (0.x.0 while below 1.0, the next major from 1.0 on).
  * The base having no report yet (the first release) passes.

@@ -26,11 +26,11 @@ const deepImports = [
 
 // Two projects (decision D-10):
 //   browser  every *.test.tsx: real Chromium through Playwright, for rendering, interaction,
-//            keyboard, focus and axe. Firefox and WebKit run nightly.
+//            keyboard, focus and axe. Firefox and WebKit on request.
 //   server   every *.server.test.ts(x): Node, for server rendering and pure logic.
 const config: ViteUserConfig = defineConfig({
-  // Screenshots upload to Argos only from CI, and only once the repository is connected to Argos
-  // (the ARGOS_UPLOAD variable), so local runs and forks never need an Argos account.
+  // Screenshots upload to Argos only when ARGOS_UPLOAD=true (with ARGOS_TOKEN), so local runs and
+  // forks never need an Argos account. CI doesn't run the tests: they run locally before a push.
   plugins: [argosVitestPlugin({ uploadToArgos: process.env.ARGOS_UPLOAD === "true" })],
   optimizeDeps: { include: deepImports },
   test: {
@@ -60,7 +60,7 @@ const config: ViteUserConfig = defineConfig({
             enabled: true,
             headless: true,
             provider: playwright(),
-            // Chromium on every run; the nightly job adds Firefox and WebKit (QX_BROWSERS).
+            // Chromium on every run; QX_BROWSERS=chromium,firefox,webkit adds Firefox and WebKit.
             instances: (process.env.QX_BROWSERS ?? "chromium").split(",").map((browser) => ({
               browser: browser.trim() as "chromium" | "firefox" | "webkit",
             })),

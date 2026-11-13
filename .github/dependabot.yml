@@ -1,4 +1,4 @@
-# Weekly updates, each held back 3 days after release: a compromised version is usually pulled
+# Monthly updates, each held back 3 days after release: a compromised version is usually pulled
 # from npm within that window. PRs target develop, which reaches main (and npm) through the
 # release PR.
 version: 2
@@ -7,8 +7,7 @@ updates:
     directory: /
     target-branch: develop
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
     cooldown:
       default-days: 3
     open-pull-requests-limit: 5
@@ -21,8 +20,7 @@ updates:
     directory: /
     target-branch: develop
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
     cooldown:
       default-days: 3
     groups:
