@@ -33,7 +33,7 @@ export interface ProviderButtonProps
   logoInvert?: ProviderLogoInvert;
   /**
    * The visible label: the provider's name, "Google". In the group's logo-only form it's hidden from
-   * sight and shown in a tooltip on hover and keyboard focus.
+   * sight, and the tooltip on hover and keyboard focus shows the `aria-label`.
    */
   children: ReactNode;
   /**
@@ -67,11 +67,13 @@ export function ProviderButton({
   onClick,
   className,
   children,
+  "aria-label": label,
   ...props
 }: ProviderButtonProps): ReactElement {
   const labelsHidden = use(ProviderButtonLabelsHidden);
   const button = renderElement("button", render, {
     ...props,
+    "aria-label": label,
     // `type` belongs to a button; a link rendered through `render` gets none.
     type: render === undefined ? (type ?? "button") : type,
     "aria-disabled": disabled || undefined,
@@ -104,10 +106,11 @@ export function ProviderButton({
       </>
     ),
   });
-  // The name in a tooltip, in the logo-only form only. It's never linked by aria-describedby: the
-  // aria-label already says it. Always wrapped, so a row switching form keeps its buttons (and focus).
+  // The whole name ("Sign in with Google") in a tooltip, in the logo-only form only. It's never
+  // linked by aria-describedby: it is the name. Always wrapped, so a row switching form keeps its
+  // buttons (and focus).
   return (
-    <TooltipBase content={children} describes={false} disabled={!labelsHidden}>
+    <TooltipBase content={label} describes={false} disabled={!labelsHidden}>
       {button}
     </TooltipBase>
   );
