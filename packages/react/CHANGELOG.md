@@ -1,5 +1,163 @@
 # @qeetrix/react
 
+## 0.5.3
+
+### New
+
+- **ProviderButtonGroup (experimental) has a logo-only form for narrow rows**: `labels="hidden"`
+  draws each provider's logo alone, centred in its cell at 24px (`size.icon.lg`), and the cell keeps
+  the field height, so three providers fit a phone's row without "Micros…". The name is hidden from
+  sight only: each button is still named by its `aria-label` ("Sign in with Google"), and the name
+  shows in a tooltip on hover and keyboard focus, not on touch, without being read a second time.
+  `labels="auto"` switches the whole row to the logo-only form only while a cell is too narrow for
+  its provider's name, following the row's width and the fonts as they load; a server-rendered row
+  shows the names until it hydrates. `logoInvert` works in both forms. The default, `"visible"`, is
+  unchanged. ProviderButtonGroup is a client component now, since it measures; it renders on the
+  server as before.
+- **TopBarScopeName (experimental): a scope step that is a name, not a control**, for a console
+  whose organisation isn't switched from the bar (switching lives in the account menu):
+  `context={<TopBarScopeName mark="AC" label="Acme Pvt Ltd" />}`. It has a TopBarSwitcher's mark,
+  status dot and label, in the same box, without the button or its chevron. Below 840px the compact
+  bar shows its name rather than the word "Scope": on the bar's one switcher when it's the innermost
+  step, or on its own, still text, when every step is a name and there's nothing to switch. In the
+  compact bar's path it reads as text beside the switchers. A step that is neither a switcher nor a
+  name still leaves the compact switcher saying "Scope".
+- **PageHeader (experimental) folds its summary on a phone**, so a list page's table comes before its
+  numbers. Below 600px (an embedded AppShell's box, inside one) the `summary` band hides behind a
+  "Summary" strip in its place, closed by default: a disclosure button (`aria-expanded`, named by
+  the word it shows) edge to edge on the band's canvas tone between its rules, with a chevron that
+  turns as it opens. Open, the band reads as before, under the strip. From 600px the strip is gone
+  and the band always shows. CSS decides, so a server-rendered page folds before it hydrates, and
+  PageHeader stays server-safe (the strip is a client leaf). `summaryOpen`, `defaultSummaryOpen` and
+  `onSummaryOpenChange` let a page keep the state itself, e.g. per page; `messages` gives the
+  header its strings, with the new `pageHeader.summary` ("Summary", Hindi "सारांश").
+- **StatList (experimental): a summary band's "Needs a look" cell**, beside its Stats in a
+  StatGroup: `<StatList label="Needs a look" items={[{ label: "Dormant", count: 14, tone: "warning",
+  href: "/users?status=dormant" }]} />`. A label, then rows of a name and a count, each a link into
+  the list filtered to it (`href`, or a router link through `render`), at least the 24px target
+  tall. A count's `tone` is `negative` (the danger colour) or `warning` (amber), each after its own
+  icon, so it's never colour alone; a zero row stays, in the quiet colour without an icon, and still
+  links. It takes a Stat's cell, so the strip's rules, gutter and wrapping hold. Screen readers hear
+  the label, then a list of links, each its name and count. Counts follow the locale. Server-safe.
+- **AppShell's drawers (experimental) take header actions and a shortcut**, for an assistant panel.
+  `actions` puts up to three IconButtons (`size="sm"`, `tone="neutral"`, as Close is) in the panel's
+  header, between the title and Close and in that Tab order: Qeet AI's New conversation and
+  History. `shortcut: { keys: "Meta+J Control+J", label: "⌘J" }` shows in the TopBar trigger's
+  tooltip ("Qeet AI ⌘J") and on the phone's Tools menu item, and sets `aria-keyshortcuts` on both;
+  the product still handles the keys. The type is `AppShellDrawerShortcut`. A drawer without either
+  looks as it did.
+- **ColumnChart (experimental) takes ticks and a marker**, so a distribution up to a limit (how
+  many people joined each day after their invitation, up to the link's expiry) needs no chart of
+  its own. `ticks={[{ at: 0, label: "0" }, { at: 11, label: "Day 11" }, { at: 14, label: "14 days" }]}`
+  labels a few columns under the axis in small subtle text: the first and the last line up with the
+  chart's edges so they never run past it (mirrored right to left), another is centred on its
+  column, and the chart keeps room for their line. `marker={{ at: 14, label: "Link expires" }}`
+  draws a 1px line in the reference tone from the top to the axis, at a column or at `"end"`, and
+  its label is read after the chart's name. The types are `ColumnChartTick` and
+  `ColumnChartMarker`. A chart without either is as it was; the columns and their 2px floor don't
+  change.
+- **ShareBar (experimental) shows an ordered whole on the sequential ramp**: `tone="sequential"`
+  colours the parts in their order from the ramp's strongest step (last active: today, this week,
+  this month or older), so the order shows in the colour, where the categorical colours say the
+  parts are unrelated kinds. Only the ramp's steps 7, 6 and 5 keep 3:1 against every surface in
+  light and dark, so **an ordered whole has at most three toned parts and a neutral end**: give the
+  "never" or "none" part `tone: "reference"`, and merge any further buckets ("this month or
+  older"); a fourth toned part warns in development. A zero part keeps its step, so colours don't
+  shift, and the legend and the bar's name read the parts in order, as before. `ChartTone` gains
+  `sequential-5`, `sequential-6` and `sequential-7`, so a part, a Sparkline or a ColumnChart series
+  can take a step directly and a band's charts agree. The type is `ShareBarTone`; the default,
+  `categorical`, is unchanged.
+- **PictureChoice (experimental) has a small size for colour swatches and background tones**:
+  `size="sm"` on PictureChoiceGroup draws 36px choices, as Qeet Circle's pickers of tones do, round
+  or square. The tick shrinks with them to a 16px disc on the corner; the 2px Ember ring with its
+  surface gap, the focus frame outside it, the one tab stop and the arrow keys are the same as at
+  every size, and each choice is well over the 24px target. The ring, the tick and the focus frame
+  keep 3:1 against the surface in light and dark. `md` (48px) stays the default and `lg` 64px; Qeetrix
+  for Android takes the same name for its 36dp size.
+- **Treemap and ProportionalCircles (experimental) can say what's counted, in its plural**:
+  `valueText={(value, figure) => t("people", { count: value })}` names each tile, child and circle
+  with its noun, "Engineering, 42 people: Platform 12 people" and "Bengaluru, 1 person", in the
+  locale's own plural rules (it gets the value and its formatted figure). Only the names read by
+  assistive technology change; the drawn counts stay figures. Without it, names are as before. The
+  function's type is `TreemapValueText`.
+
+### Changed
+
+- **MenuRadioItem marks the choice with a check, as ThemeSwitcher does**: a sharp check in Ember
+  (`color.icon.brand`) at the item's end, in place of the 6px dot at its start, so two pickers side
+  by side (a language menu and the theme menu) mark their choice the same way. The check's 16px
+  column is on every item, so the menu keeps its width as the choice moves; a disabled item's check
+  is `color.icon.disabled`, and in forced colours the highlighted item's is `HighlightText`.
+  ThemeSwitcher now uses the same mark rather than its own copy. The item keeps its
+  `menuitemradio` role and `aria-checked`. The `qx-menu-dot` class stays defined for apps that
+  compose it, though MenuRadioItem no longer draws it.
+- **A large field's value is regular weight, and lg is for sign-up and verification steps, not
+  signing in.** Input, TextField and PasswordInput at `size="lg"` write the value and any affix
+  (+91) at `title.lg`'s size, 20px, in regular weight (400) instead of semibold, so a typed phone
+  number or name reads as text, not a heading; tabular figures stay, and the placeholder stays at
+  body size. The height is unchanged: `size.control.lg` + 16px (48, 56 and 60px by density), as
+  OTPInput's `lg`, which keeps its own look. Use lg only for the one value a sign-up or
+  verification step asks for (a phone number, a name, a date of birth). A sign-in email or password
+  field, an identifier-first email step included, is `md`, as tall as the `lg` Button beside it.
+- **CodeBlock (experimental) colours Kotlin's and Swift's type names**: a capitalised name — a
+  type, a composable or a view (`QeetrixButton`, `HStack`, `Color`) — takes the literal colour, as
+  a component's name does in JSX, so native code reads in the same colours as the web's rather
+  than in keywords and plain text. `highlight` and `highlightHtml` follow. A name in backticks
+  stays a name, and Swift's `Self` stays a keyword; the other languages are unchanged.
+
+### Fixed
+
+- **An external Link's arrow stays on its word's line under Tailwind's preflight.** The arrow
+  sets its own `display` (`inline-block`), so preflight's `svg { display: block }` no longer drops
+  it onto a line of its own under the word, as it did in an app's footer of external links. An app
+  no longer needs an override; right to left still mirrors the arrow.
+- **A Table row's link is named by what its primary cell shows, so it passes label in name (WCAG
+  2.5.3).** It was named by `rowLabel` and described by the cell, so a cell showing more than the
+  label (a name and an email) failed axe's `label-content-name-mismatch` rule in products' scans:
+  the visible text wasn't in the name. The link (or the button, with `onRowClick` alone) now takes
+  its name from its content, "Priya Sharma priya@acme.in", which starts with the words on screen, so
+  voice control ("click Priya Sharma") still reaches the row; it has no description now. `rowLabel`
+  still names the row's checkbox, actions button and fold button. The library's own scans run that
+  rule too now.
+- **Button's and IconButton's `render` no longer suggest a router link.** Its description, which
+  editors show on hover, said "e.g. a router link", the pattern 0.3.0 moved to LinkButton: a Button
+  given a link is still announced as a button, and Base UI warns about it. It now says what
+  ui.qeet.in's Button page says: another element through Base UI, and for navigation, LinkButton,
+  which is announced as a link. No behaviour change.
+- **A CopyField inside a DescriptionList is one of its items, so values to copy and plain facts
+  share one list.** It rendered a `div` of `span`s, which isn't valid `dl` content, so a record
+  section that mixed them (a SAML connection's ACS URL and entity ID beside its NameID format)
+  failed axe's `definition-list` and `dlitem` rules, or split into two lists. Inside a
+  DescriptionList it now renders a `div` of `dt` (the label), `dd` (the value, in code type,
+  selected whole by one click, with its description under it) and a `dd` holding Copy at the row's
+  end, as a DescriptionItem's `action` sits, so copy rows and facts line up in one ruled sheet. The
+  Copy button keeps its name ("Copy ACS URL") and its polite "Copied". Outside a list it's
+  unchanged.
+- **A Workspace (experimental) in a box under 840px is one column, as narrow as its box (WCAG
+  1.4.10).** Its panes stacked, but the box kept its 15.5rem and 21rem side tracks, because a
+  container query can't restyle the container itself: a `three` Workspace stayed 584px wide on a
+  320px phone, `main-inspector` 384px, and the panes and their controls ran off the screen. The
+  tracks are now on an inner grid, `qx-workspace-grid` (`data-slot="workspace-grid"`), inside the
+  unchanged `qx-workspace` box, so under 840px every layout (`three`, `list-main`,
+  `main-inspector`, `main`) is one column of full-width panes in reading order, scrolling together.
+  Wide boxes are as they were. The Workspace element keeps its class, slot, `data-layout`, props and
+  `className`; the panes are now the inner grid's children, so select them by their own classes
+  (`qx-workspace-pane`, `qx-workspace-main`) rather than as `.qx-workspace > *`.
+- **ColumnChart (experimental) always shows a part above zero**, so one failure among 500 sign-ins
+  no longer draws at a tenth of a pixel and the column looks clean. Every part above zero is at
+  least 2px tall (the charts' gap and end size), at every height. The room comes from the parts
+  below it, the nearest first, so a column's total stays true on the shared scale; zero parts still
+  draw nothing. Only a column too short to hold its floors at all (two events on a scale of 500)
+  grows to them, so each of its parts still shows.
+- **At 320px a PageHeader's actions and its tabs no longer push the page sideways (WCAG 1.4.10,
+  reflow).** The actions kept their buttons on one line, so a record page with three of them ran
+  past a phone's edge. Where they don't fit beside the title they go under it, as before, and now
+  narrow to its width, their buttons wrapping; on a wide page they stay on the title's line. A
+  TabsList that runs past its width scrolls inside itself, as it did, and now keeps the selected
+  tab in view: as the page opens (the last tab selected), when the selection changes from outside
+  the list, as arrow keys, Home and End move, and when the labels widen as the font arrives. Only
+  the list scrolls, never the page, right to left too. Both hold with words 40% longer (German).
+
 ## 0.5.2
 
 ### New

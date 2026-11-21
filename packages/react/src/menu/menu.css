@@ -110,7 +110,8 @@
   scale: -1 1;
 }
 
-/* Checkbox and radio items keep a 16px start column, so every label lines up. */
+/* A checkbox item keeps a 16px start column for its check, so its labels line up; a radio item's
+   check is at its end (.qx-menu-radio-mark), as a picker's. */
 .qx-menu-mark {
   display: inline-grid;
   flex: none;
@@ -121,11 +122,19 @@
 .qx-menu-mark-indicator {
   display: flex;
 }
+/* The radio items' former mark, no longer drawn by MenuRadioItem; kept for apps that compose it. */
 .qx-menu-dot {
   inline-size: 6px;
   block-size: 6px;
   border-radius: var(--qx-radius-full);
   background: currentcolor;
+}
+/* The chosen radio item's check is the one Ember mark in the menu. */
+.qx-menu-radio-mark {
+  color: var(--qx-color-icon-brand);
+  .qx-menu-item[data-disabled] > & {
+    color: var(--qx-color-icon-disabled);
+  }
 }
 
 /* An item with a description: the description wraps under the label, which starts on the item's
@@ -172,6 +181,9 @@
     forced-color-adjust: none;
     background: Highlight;
     color: HighlightText;
+    > .qx-menu-radio-mark {
+      color: HighlightText;
+    }
   }
   .qx-menu-item[data-highlighted] .qx-menu-item-icon,
   .qx-menu-item[data-highlighted] .qx-menu-submenu-icon,

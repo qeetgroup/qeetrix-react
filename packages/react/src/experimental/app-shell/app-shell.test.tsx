@@ -1,15 +1,18 @@
 import { ActivityIcon } from "@qeetrix/icons/icons/activity";
 import { CircleQuestionMarkIcon } from "@qeetrix/icons/icons/circle-question-mark";
+import { PlusIcon } from "@qeetrix/icons/icons/plus";
 import { describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { QeetIdConsole } from "../../../tests/fixtures/qeet-id-console";
 import { expectAccessible } from "../../../tests/support/axe";
+import { tab } from "../../../tests/support/keyboard";
 import { screenshotEveryMode } from "../../../tests/support/screenshots";
 import { settled } from "../../../tests/support/settled";
+import { IconButton } from "../../button/button";
 import { PageHeader } from "../page-header/page-header";
 import { TopBar, TopBarSearch } from "../top-bar/top-bar";
-import { AppShell } from "./app-shell";
+import { AppShell, type AppShellDrawer } from "./app-shell";
 
 const nav = () => document.querySelector("[data-slot=app-shell-nav]") as HTMLElement;
 
@@ -335,5 +338,143 @@ describe("AppShell", () => {
     const { container } = await render(<QeetIdConsole density="inherit" />);
     await expectAccessible(container);
     await screenshotEveryMode("AppShell", null);
+  });
+});
+
+/** An assistant panel with its header actions and its shortcut, beside a plain Help panel. */
+const ASSISTANT: AppShellDrawer[] = [
+  {
+    id: "assistant",
+    label: "Qeet AI",
+    icon: ActivityIcon,
+    content: "Ask anything",
+    shortcut: { keys: "Meta+J Control+J", label: "⌘J" },
+    actions: (
+      <>
+        <IconButton icon={PlusIcon} aria-label="New conversation" size="sm" tone="neutral" />
+        <IconButton icon={ActivityIcon} aria-label="History" size="sm" tone="neutral" />
+      </>
+    ),
+  },
+  { id: "help", label: "Help", icon: CircleQuestionMarkIcon, content: "Help text" },
+];
+
+describe("AppShell drawers: header actions and a shortcut", () => {
+  const tooltip = () => document.querySelector("[data-slot=tooltip-popup]");
+  /** Tabs until the element has focus, as a keyboard user reaches it. */
+  async function tabTo(element: Element) {
+    for (let step = 0; step < 20 && document.activeElement !== element; step++) await tab();
+    expect(document.activeElement).toBe(element);
+  }
+
+  it("puts a drawer's actions in its header before Close, after the title in the Tab order", async () => {
+    await page.viewport(1440, 900);
+    const { container } = await render(
+      <AppShell
+        topBar={<TopBar product="Qeet ID" />}
+        drawers={ASSISTANT}
+        defaultActiveDrawer="assistant"
+      >
+        page
+      </AppShell>,
+    );
+    const header = container.querySelector("[data-slot=app-shell-panel-header]") as HTMLElement;
+    expect([...header.children].map((part) => part.getAttribute("data-slot"))).toEqual([
+      "app-shell-panel-title",
+      "app-shell-panel-actions",
+      "icon-button",
+    ]);
+    const buttons = [...header.querySelectorAll("button")];
+    expect(buttons.map((button) => button.getAttribute("aria-label"))).toEqual([
+      "New conversation",
+      "History",
+      "Close panel",
+    ]);
+    // In the header's size and tone, Close's: one row at the header's end, the title at its start.
+    const box = (element: Element) => element.getBoundingClientRect();
+    const close = buttons[2] as HTMLButtonElement;
+    for (const button of buttons.slice(0, 2)) {
+      expect(box(button).height).toBe(box(close).height);
+      expect(box(button).top).toBe(box(close).top);
+      expect(button.dataset.tone).toBe("neutral");
+      expect(button.dataset.size).toBe("sm");
+    }
+    expect(box(buttons[1] as Element).right).toBeLessThanOrEqual(box(close).left);
+    expect(box(buttons[0] as Element).left).toBeGreaterThan(
+      box(header.querySelector("h2") as Element).left + 60,
+    );
+    expect(box(close).right).toBeGreaterThan(box(header).right - 16);
+    // The keyboard reaches them in that order.
+    await tabTo(buttons[0] as Element);
+    await tab();
+    expect(document.activeElement).toBe(buttons[1]);
+    await tab();
+    expect(document.activeElement).toBe(close);
+    await expectAccessible(container);
+  });
+
+  it("shows a drawer's shortcut in its trigger's tooltip and sets it as aria-keyshortcuts", async () => {
+    await page.viewport(1440, 900);
+    await render(
+      <AppShell topBar={<TopBar product="Qeet ID" />} drawers={ASSISTANT}>
+        page
+      </AppShell>,
+    );
+    const trigger = page.getByRole("button", { name: "Qeet AI" });
+    await expect.element(trigger).toHaveAttribute("aria-keyshortcuts", "Meta+J Control+J");
+    await tabTo(trigger.element());
+    await expect.poll(() => tooltip()?.textContent).toBe("Qeet AI ⌘J");
+    // A drawer without one is as before: its label in the tooltip, no aria-keyshortcuts.
+    const help = page.getByRole("button", { name: "Help" });
+    expect(help.element().hasAttribute("aria-keyshortcuts")).toBe(false);
+    await tab();
+    await expect.element(help).toHaveFocus();
+    await expect.poll(() => tooltip()?.textContent).toBe("Help");
+  });
+
+  it("shows the shortcut in the phone's Tools menu too", async () => {
+    await page.viewport(390, 700);
+    await render(
+      <AppShell topBar={<TopBar product="Qeet ID" />} drawers={ASSISTANT}>
+        page
+      </AppShell>,
+    );
+    await page.getByRole("button", { name: "Tools" }).click();
+    const item = page.getByRole("menuitemcheckbox", { name: "Qeet AI" });
+    await expect.element(item).toHaveAttribute("aria-keyshortcuts", "Meta+J Control+J");
+    expect(item.element().querySelector("[data-slot=menu-shortcut]")?.textContent).toBe("⌘J");
+    const help = page.getByRole("menuitemcheckbox", { name: "Help" }).element();
+    expect(help.hasAttribute("aria-keyshortcuts")).toBe(false);
+    expect(help.querySelector("[data-slot=menu-shortcut]")).toBeNull();
+  });
+
+  it("leaves a drawer without actions as it was", async () => {
+    await page.viewport(1440, 900);
+    const { container } = await render(
+      <AppShell
+        topBar={<TopBar product="Qeet ID" />}
+        drawers={ASSISTANT}
+        defaultActiveDrawer="help"
+      >
+        page
+      </AppShell>,
+    );
+    expect(container.querySelector("[data-slot=app-shell-panel-actions]")).toBeNull();
+    const header = container.querySelector("[data-slot=app-shell-panel-header]") as HTMLElement;
+    expect(header.querySelectorAll("button")).toHaveLength(1);
+  });
+
+  it("looks right in every mode with header actions", async () => {
+    await page.viewport(1100, 500);
+    await render(
+      <AppShell
+        topBar={<TopBar product="Qeet ID" />}
+        drawers={ASSISTANT}
+        defaultActiveDrawer="assistant"
+      >
+        page
+      </AppShell>,
+    );
+    await screenshotEveryMode("AppShell · panel actions", "[data-slot=app-shell-panel]");
   });
 });

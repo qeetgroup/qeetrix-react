@@ -122,6 +122,22 @@ describe("the sign-in screen, from primitives alone", () => {
     expect(visited).toEqual(expected);
   });
 
+  // Signing in is never a large field (design rules §8): the email is md, as tall as the lg button.
+  it("asks for the email in an md field, one height with the lg button in every density", async () => {
+    const { container } = await render(<SignIn />);
+    const screen = container.querySelector("[data-qx-density]") as HTMLElement;
+    const field = container.querySelector("[data-slot=input]") as HTMLElement;
+    const button = page.getByRole("button", { name: "Continue with passkey" }).element();
+    expect(field.dataset.size).toBe("md");
+    for (const density of ["compact", "default", "comfortable"]) {
+      screen.dataset.qxDensity = density;
+      const height = (element: Element) => element.getBoundingClientRect().height;
+      expect(height(field), density).toBe(height(button));
+    }
+    const value = getComputedStyle(container.querySelector("input") as HTMLInputElement);
+    expect([value.fontSize, value.fontWeight]).toEqual(["14px", "400"]);
+  });
+
   it("is accessible and looks right in both schemes", async () => {
     await page.viewport(560, 720);
     const { container } = await render(<SignIn />);

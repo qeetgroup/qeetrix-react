@@ -649,7 +649,7 @@ export const manifest: readonly ManifestFamily[] = [
     status: "experimental",
     entry: "@qeetrix/react/experimental",
     kind: "component",
-    parts: ["Stat", "StatGroup"],
+    parts: ["Stat", "StatGroup", "StatList"],
     since: "0.0.4",
   },
   {
@@ -753,7 +753,7 @@ export const manifest: readonly ManifestFamily[] = [
     status: "experimental",
     entry: "@qeetrix/react/experimental",
     kind: "component",
-    parts: ["TopBar", "TopBarSearch", "TopBarSwitcher"],
+    parts: ["TopBar", "TopBarScopeName", "TopBarSearch", "TopBarSwitcher"],
     since: "0.0.4",
   },
   {

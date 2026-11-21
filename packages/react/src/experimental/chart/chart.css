@@ -79,12 +79,74 @@
 
 /* ColumnChart: a column a period, its parts stacked from the baseline, 2px apart. */
 .qx-column-chart {
+  position: relative;
   box-sizing: content-box;
   display: flex;
   align-items: flex-end;
   gap: 2px;
   block-size: var(--qx-column-chart-height);
   border-block-end: var(--qx-border-width-default) solid var(--qx-color-dataviz-axis);
+  /* Room under the axis for the ticks' one line. */
+  &[data-ticks] {
+    margin-block-end: calc(
+      var(--qx-typography-body-sm-font-size) *
+      var(--qx-typography-body-sm-line-height) +
+      var(--qx-space-gap-xs)
+    );
+  }
+}
+/* The centre of column --qx-column-chart-at, the 2px gaps between columns counted, across the
+   chart's width: where a tick or the marker goes. */
+.qx-column-chart-marker,
+.qx-column-chart-tick {
+  --qx-column-chart-centre: calc(
+    (100% - (var(--qx-column-chart-count) - 1) * 2px) /
+    var(--qx-column-chart-count) *
+    (var(--qx-column-chart-at) + 0.5) +
+    var(--qx-column-chart-at) *
+    2px
+  );
+}
+/* A limit across the chart: a 1px line in the reference tone, from the top to the axis. */
+.qx-column-chart-marker {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: var(--qx-column-chart-centre);
+  inline-size: var(--qx-border-width-default);
+  background: var(--qx-color-dataviz-reference);
+  pointer-events: none;
+  &[data-at="end"] {
+    inset-inline: auto 0;
+  }
+}
+/* Labels under the axis: the first and last on the chart's edges, another centred on its column. */
+.qx-column-chart-ticks {
+  position: absolute;
+  inset-block-start: calc(100% + var(--qx-border-width-default) + var(--qx-space-gap-xs));
+  inset-inline: 0;
+  color: var(--qx-color-text-subtle);
+  font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.qx-column-chart-tick {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: var(--qx-column-chart-centre);
+  translate: -50% 0;
+  [dir="rtl"] & {
+    translate: 50% 0;
+  }
+  &[data-edge="start"] {
+    inset-inline-start: 0;
+    translate: none;
+  }
+  &[data-edge="end"] {
+    inset-inline: auto 0;
+    translate: none;
+  }
 }
 .qx-column-chart-column {
   display: flex;
@@ -103,8 +165,10 @@ a.qx-column-chart-column {
     outline-offset: 1px;
   }
 }
+/* A part above zero never shrinks under 2px, its floor, when a full column's gaps squeeze it. */
 .qx-column-chart-part {
   flex: 0 1 auto;
+  min-block-size: 2px;
   &:last-child {
     border-start-start-radius: var(--qx-radius-sm);
     border-start-end-radius: var(--qx-radius-sm);
@@ -238,6 +302,7 @@ a.qx-column-chart-column {
 @media (forced-colors: active) {
   .qx-share-bar-part,
   .qx-column-chart-part,
+  .qx-column-chart-marker,
   .qx-bar-list-bar,
   .qx-span-chart-bar,
   .qx-chart-swatch {

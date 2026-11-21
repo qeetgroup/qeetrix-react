@@ -4,6 +4,7 @@ import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 import { expectAccessible } from "../../../tests/support/axe";
 import { tokenColor } from "../../../tests/support/color";
+import { tab } from "../../../tests/support/keyboard";
 import { canEmulateMedia, emulateMedia, systemColor } from "../../../tests/support/media";
 import { screenshotEveryMode } from "../../../tests/support/screenshots";
 import { settled } from "../../../tests/support/settled";
@@ -62,6 +63,33 @@ function Providers({ onGoogle, disabled = false }: { onGoogle?: () => void; disa
       </ProviderButton>
       <ProviderButton logo={<WhiteMark />} logoInvert="light" aria-label="Sign in with Apple">
         Apple
+      </ProviderButton>
+    </ProviderButtonGroup>
+  );
+}
+
+/** Google, Microsoft and GitHub: the row a phone cuts ("Micros…"). */
+function ThreeProviders({
+  labels,
+  width,
+}: {
+  labels?: "visible" | "hidden" | "auto";
+  width: number;
+}) {
+  return (
+    <ProviderButtonGroup
+      aria-label="Sign in with another account"
+      labels={labels}
+      style={{ inlineSize: width }}
+    >
+      <ProviderButton logo={<Ring />} aria-label="Sign in with Google">
+        Google
+      </ProviderButton>
+      <ProviderButton logo={<FourSquares />} aria-label="Sign in with Microsoft">
+        Microsoft
+      </ProviderButton>
+      <ProviderButton logo={<BlackMark />} logoInvert="dark" aria-label="Sign in with GitHub">
+        GitHub
       </ProviderButton>
     </ProviderButtonGroup>
   );
@@ -145,7 +173,7 @@ describe("ProviderButton", () => {
 
   it("takes keyboard focus, with the Ember frame inside its cell", async () => {
     await render(<Providers />);
-    await userEvent.keyboard("{Tab}");
+    await tab();
     const google = page.getByRole("button", { name: "Sign in with Google" });
     await expect.element(google).toHaveFocus();
     const style = getComputedStyle(google.element());
@@ -153,7 +181,7 @@ describe("ProviderButton", () => {
     expect(style.outlineWidth).toBe("2px");
     expect(style.outlineOffset).toBe("-2px");
     expect(style.outlineColor).toBe(tokenColor("--qx-color-border-focus"));
-    await userEvent.keyboard("{Tab}");
+    await tab();
     await expect
       .element(page.getByRole("button", { name: "Sign in with Microsoft" }))
       .toHaveFocus();
@@ -175,7 +203,7 @@ describe("ProviderButton", () => {
     const google = page.getByRole("button", { name: "Sign in with Google" });
     await expect.element(google).toHaveAttribute("aria-disabled", "true");
     await expect.element(google).toHaveAttribute("data-disabled", "");
-    await userEvent.keyboard("{Tab}");
+    await tab();
     await expect.element(google).toHaveFocus();
     await userEvent.keyboard("{Enter}");
     await userEvent.keyboard(" ");
@@ -290,7 +318,7 @@ describe("ProviderButton", () => {
       const cells = [...document.querySelectorAll("[data-slot=provider-button]")];
       expect(getComputedStyle(cells[1] as Element).borderInlineStartStyle).toBe("solid");
       expect(getComputedStyle(cells[0] as Element).color).toBe(systemColor("GrayText"));
-      await userEvent.keyboard("{Tab}");
+      await tab();
       expect(getComputedStyle(cells[0] as Element).outlineStyle).toBe("solid");
     } finally {
       await reset();
@@ -321,5 +349,115 @@ describe("ProviderButton", () => {
     );
     await expectAccessible(container);
     await screenshotEveryMode("ProviderButton");
+  });
+});
+
+describe("The logo-only form", () => {
+  const cells = () =>
+    [...document.querySelectorAll("[data-slot=provider-button]")] as HTMLElement[];
+  const centre = (element: Element) => {
+    const { left, top, width, height } = box(element);
+    return [left + width / 2, top + height / 2] as const;
+  };
+
+  for (const dir of ["ltr", "rtl"] as const) {
+    it(`draws each logo alone at 24px, centred in its cell at the field height (${dir})`, async () => {
+      html.dir = dir;
+      await render(<ThreeProviders labels="hidden" width={360} />);
+      expect(slot("provider-button-group").dataset.labels).toBe("hidden");
+      for (const cell of cells()) {
+        const mark = slot("provider-button-logo", cell).querySelector("svg") as SVGElement;
+        expect([box(mark).width, box(mark).height]).toEqual([24, 24]);
+        const [x, y] = centre(mark);
+        const [cx, cy] = centre(cell);
+        expect(Math.abs(x - cx)).toBeLessThanOrEqual(1);
+        expect(Math.abs(y - cy)).toBeLessThanOrEqual(1);
+        // The cell keeps the field height inside the border.
+        expect(box(cell).height).toBe(38);
+      }
+    });
+  }
+
+  it("keeps each name for assistive technology, hidden from sight only, and reads nothing twice", async () => {
+    await render(<ThreeProviders labels="hidden" width={360} />);
+    const google = page.getByRole("button", { name: "Sign in with Google" });
+    await expect.element(google).toHaveTextContent("Google");
+    const label = slot("provider-button-label", google.element());
+    expect(box(label).width).toBeLessThanOrEqual(1);
+    expect(getComputedStyle(label).clipPath).toBe("inset(50%)");
+    await tab();
+    await expect.element(google).toHaveFocus();
+    await expect.element(page.getByRole("tooltip")).toHaveTextContent("Google");
+    // The tooltip only repeats the aria-label's provider, so it isn't linked as a description.
+    await expect.element(google).not.toHaveAttribute("aria-describedby");
+    await expectAccessible(slot("provider-button-group"));
+  });
+
+  it("shows the name in a tooltip on hover and keyboard focus, but not in the full form", async () => {
+    const { rerender } = await render(<ThreeProviders labels="hidden" width={360} />);
+    const microsoft = page.getByRole("button", { name: "Sign in with Microsoft" });
+    await microsoft.hover();
+    await expect.element(page.getByRole("tooltip")).toHaveTextContent("Microsoft");
+    await rerender(<ThreeProviders width={400} />);
+    await userEvent.unhover(microsoft);
+    await tab();
+    await expect.element(page.getByRole("button", { name: "Sign in with Google" })).toHaveFocus();
+    await settled();
+    expect(document.querySelector("[role=tooltip]")).toBeNull();
+  });
+
+  it("auto: hides the names only while a cell is too narrow for one, the whole row together", async () => {
+    // A 360px phone less its gutters leaves the row 320px: the full form cuts Microsoft's name there
+    // ("Micros…"), and every name fits at 400px.
+    const { rerender } = await render(<ThreeProviders width={320} />);
+    const microsoftLabel = () =>
+      slot(
+        "provider-button-label",
+        page.getByRole("button", { name: "Sign in with Microsoft" }).element(),
+      );
+    expect(microsoftLabel().scrollWidth).toBeGreaterThan(microsoftLabel().clientWidth);
+    await rerender(<ThreeProviders labels="auto" width={320} />);
+    const group = page.getByRole("group", { name: "Sign in with another account" });
+    await expect.element(group).toHaveAttribute("data-labels", "hidden");
+    await rerender(<ThreeProviders labels="auto" width={400} />);
+    await expect.element(group).not.toHaveAttribute("data-labels");
+    for (const cell of cells()) {
+      const label = slot("provider-button-label", cell);
+      expect(label.scrollWidth).toBeLessThanOrEqual(label.clientWidth);
+    }
+    // Resized from outside, as a phone turning: the observer follows the row's width.
+    (group.element() as HTMLElement).style.inlineSize = "320px";
+    await expect.element(group).toHaveAttribute("data-labels", "hidden");
+    (group.element() as HTMLElement).style.inlineSize = "400px";
+    await expect.element(group).not.toHaveAttribute("data-labels");
+  });
+
+  it("keeps inverting a monochrome logo, in light and dark", async () => {
+    await render(<ThreeProviders labels="hidden" width={360} />);
+    const filter = () =>
+      getComputedStyle(
+        page
+          .getByRole("button", { name: "Sign in with GitHub" })
+          .element()
+          .querySelector("[data-invert]") as Element,
+      ).filter;
+    expect(filter()).toBe("none");
+    html.dataset.qxColorScheme = "dark";
+    expect(filter()).toBe("invert(1)");
+  });
+
+  it("looks right beside the full form, in both directions", async () => {
+    await render(
+      <Stage>
+        <div style={{ display: "grid", gap: 16, justifyItems: "start" }}>
+          <ThreeProviders width={400} />
+          <ThreeProviders labels="hidden" width={360} />
+          <div dir="rtl">
+            <ThreeProviders labels="hidden" width={360} />
+          </div>
+        </div>
+      </Stage>,
+    );
+    await screenshotEveryMode("ProviderButton · logo only");
   });
 });

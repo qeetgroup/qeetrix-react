@@ -257,6 +257,38 @@ describe("Menu", () => {
     await expect.element(comfortable).toHaveAttribute("aria-checked", "true");
   });
 
+  for (const dir of ["ltr", "rtl"] as const) {
+    it(`marks the chosen radio item with a sharp Ember check at its end, as ThemeSwitcher does (${dir})`, async () => {
+      html.dir = dir;
+      try {
+        await render(<RowMenu defaultOpen />);
+        const part = (item: Element, name: string) =>
+          item.querySelector(`[data-slot=${name}]`) as Element;
+        const inr = page.getByRole("menuitemradio", { name: "INR" });
+        await expect.element(inr).toHaveAttribute("aria-checked", "true");
+        const chosen = inr.element();
+        const slots = [...chosen.children].map((child) => child.getAttribute("data-slot"));
+        expect(slots).toEqual(["menu-item-label", "menu-item-mark"]);
+        const mark = part(chosen, "menu-item-mark");
+        expect(mark.classList).toContain("qx-menu-radio-mark");
+        expect(chosen.querySelector(".qx-menu-dot")).toBeNull();
+        const check = mark.querySelector("svg") as SVGElement;
+        expect([box(check).width, box(check).height]).toEqual([16, 16]);
+        expect(getComputedStyle(check).color).toBe(tokenColor("--qx-color-icon-brand"));
+        const label = part(chosen, "menu-item-label");
+        if (dir === "ltr") expect(box(check).left).toBeGreaterThan(box(label).right);
+        else expect(box(check).right).toBeLessThan(box(label).left);
+        // The other choice keeps the column, empty, so the menu doesn't change width.
+        const usd = page.getByRole("menuitemradio", { name: "USD" }).element();
+        expect(usd.getAttribute("aria-checked")).toBe("false");
+        expect(part(usd, "menu-item-mark").querySelector("svg")).toBeNull();
+        expect(box(part(usd, "menu-item-mark")).width).toBe(16);
+      } finally {
+        html.removeAttribute("dir");
+      }
+    });
+  }
+
   it("names its positioner and every part of an item", async () => {
     await render(<RowMenu defaultOpen />);
     await expect.element(page.getByRole("menu")).toBeVisible();

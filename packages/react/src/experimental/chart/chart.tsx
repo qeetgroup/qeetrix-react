@@ -1,6 +1,12 @@
 "use client";
 
-import type { ComponentProps, CSSProperties, ReactElement, ReactNode } from "react";
+import {
+  type ComponentProps,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+  useEffect,
+} from "react";
 import { formatNumber } from "../../format/format";
 import { cx } from "../../internal/cx";
 import type { QeetrixMessages } from "../../internal/messages";
@@ -11,7 +17,10 @@ import { VisuallyHidden } from "../../visually-hidden/visually-hidden";
 
 /**
  * A mark's colour, from the data-viz tokens: `data` (the first categorical colour), a status
- * (`positive`, `negative`, `warning`), `reference` for a muted mark, or a categorical slot.
+ * (`positive`, `negative`, `warning`), `reference` for a muted mark, a categorical slot, or a step
+ * of the sequential ramp for an ordered whole. Only the ramp's steps 5, 6 and 7 are here: they keep
+ * 3:1 against every surface in light and dark, and the lighter steps don't. `sequential-7` is the
+ * strongest in both schemes.
  */
 export type ChartTone =
   | "data"
@@ -19,7 +28,11 @@ export type ChartTone =
   | "negative"
   | "warning"
   | "reference"
-  | `categorical-${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}`;
+  | `categorical-${1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}`
+  | `sequential-${5 | 6 | 7}`;
+
+// The ramp's steps an ordered whole takes, strongest first: each keeps 3:1 on every surface.
+const SEQUENTIAL = ["sequential-7", "sequential-6", "sequential-5"] as const;
 
 const toneColor = (tone: ChartTone = "data") =>
   `var(--qx-color-dataviz-${tone === "data" ? "categorical-1" : tone})`;
@@ -99,7 +112,10 @@ export interface ShareBarPart {
   value: number;
   /** Its name, in the legend and in what's read out. */
   label: string;
-  /** Default: the categorical colours in order. */
+  /**
+   * Default: the bar's `tone` decides, the categorical colours in order or the sequential steps.
+   * Give a "never" or "none" part of an ordered whole `reference`, its neutral end.
+   */
   tone?: ChartTone;
   /** The legend item links here, e.g. to the list filtered to this part. */
   href?: string;
@@ -107,9 +123,21 @@ export interface ShareBarPart {
   render?: RenderProp;
 }
 
+/** How a ShareBar colours the parts without a tone of their own. */
+export type ShareBarTone = "categorical" | "sequential";
+
 export interface ShareBarProps extends Omit<ComponentProps<"div">, "children"> {
   /** The parts, in their natural order (most recent first, say), not sorted by size. */
   parts: readonly ShareBarPart[];
+  /**
+   * `categorical`: the categorical colours in order, for kinds with no order. `sequential`: an
+   * ordered whole (last active: today, this week, this month), the ramp from its strongest step
+   * in the parts' order, so the order shows in the colour. The ramp has three steps that keep 3:1
+   * on every surface, so an ordered whole has at most three toned parts and a neutral end: give a
+   * "never" or "none" part `tone: "reference"`, and merge further buckets ("this month or older").
+   * Default `categorical`.
+   */
+  tone?: ShareBarTone;
   /** What the whole is: "Last active". With `legend`, the legend reads the parts. */
   label: string;
   /** A legend under the bar: each part's colour, label and count; parts with an `href` link. */
@@ -121,11 +149,13 @@ export interface ShareBarProps extends Omit<ComponentProps<"div">, "children"> {
 /**
  * Parts of one whole as one bar: each sized by its value, a 2px surface gap between them, 2px
  * corners at its ends. With `legend`, a legend names and counts every part (and can link each); without one, the
- * bar is an image whose name lists them.
+ * bar is an image whose name lists them. With `tone="sequential"` it shows an ordered whole, at
+ * most three toned parts and a neutral end.
  */
 export function ShareBar({
   parts,
   label,
+  tone: barTone = "categorical",
   legend = false,
   locale: localeProp,
   className,
@@ -134,8 +164,22 @@ export function ShareBar({
   const provided = useLocale();
   const locale = localeProp ?? provided;
   const shown = parts.filter((part) => part.value > 0);
+  const sequential = barTone === "sequential";
+  // The parts the bar colours, in order: a zero part keeps its step, so colours don't shift.
+  const ramped = parts.filter((part) => part.tone === undefined);
   const tone = (part: ShareBarPart, index: number): ChartTone =>
-    part.tone ?? (`categorical-${(index % 8) + 1}` as ChartTone);
+    part.tone ??
+    (sequential
+      ? (SEQUENTIAL[Math.min(ramped.indexOf(part), SEQUENTIAL.length - 1)] ?? "sequential-5")
+      : (`categorical-${(index % 8) + 1}` as ChartTone));
+  const tooMany = sequential && ramped.length > SEQUENTIAL.length;
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production" && tooMany) {
+      console.warn(
+        "Qeetrix: a sequential ShareBar has at most three toned parts and a neutral end; merge the rest.",
+      );
+    }
+  }, [tooMany]);
   const said = `${label}: ${parts.map((part) => `${part.label} ${formatNumber(part.value, locale)}`).join(", ")}`;
   return (
     <div {...props} className={cx("qx-share-bar", className)} data-slot="share-bar">
@@ -201,9 +245,37 @@ export interface ColumnChartColumn {
   href?: string;
 }
 
+/** A labelled place under a ColumnChart's columns: the column it's under, and what it says. */
+export interface ColumnChartTick {
+  /** The column's index, from 0. */
+  at: number;
+  /** "0", "Day 9", "14 days". */
+  label: string;
+}
+
+/** A reference line across a ColumnChart: at a column, or at its end, named in the chart's name. */
+export interface ColumnChartMarker {
+  /** The column's index, from 0, or `end` for the chart's end edge. */
+  at: number | "end";
+  /** What it marks, read with the chart's name: "Link expires". */
+  label: string;
+}
+
 export interface ColumnChartProps extends Omit<ComponentProps<"div">, "children"> {
   /** The columns, oldest first: a day each, say. */
   columns: readonly ColumnChartColumn[];
+  /**
+   * A few labels under the columns, in small subtle text: a start, an end and one more (the
+   * latest day, say). The first column's and the last's line up with the chart's edges, so they
+   * never run past it; another is centred under its column. Decorative: say what matters in the
+   * label or the columns' names.
+   */
+  ticks?: readonly ColumnChartTick[];
+  /**
+   * A 1px line in the reference tone from the top to the axis, at a column or the end: a limit,
+   * such as an invitation link's expiry. Its label is read after the chart's name.
+   */
+  marker?: ColumnChartMarker;
   /** The parts each column stacks, bottom first: Succeeded, then Failed on top. */
   series: readonly ColumnChartSeries[];
   /** What the chart shows: "Sign-ins a day". Its name adds the busiest period. */
@@ -218,14 +290,45 @@ export interface ColumnChartProps extends Omit<ComponentProps<"div">, "children"
   messages?: Partial<Strings>;
 }
 
+// The least a part above zero is drawn, in pixels: the charts' gap and end size.
+const FLOOR = 2;
+
+// A column's parts in pixels, on the shared scale, with every part above zero at least FLOOR
+// tall: one failure among hundreds still shows. What a small part gains comes from the parts below
+// it, the nearest first (then from those above), so the column's total stays true. Only a column
+// too short to hold its floors at all grows to them.
+function columnParts(values: readonly number[], top: number, height: number): number[] {
+  const parts = values.map((value) => (value > 0 ? (value / top) * height : 0));
+  const order = values.map((_, index) => index);
+  for (const [index, value] of values.entries()) {
+    const part = parts[index] as number;
+    if (value <= 0 || part >= FLOOR) continue;
+    let owed = FLOOR - part;
+    parts[index] = FLOOR;
+    const donors = [...order.slice(0, index).reverse(), ...order.slice(index + 1)];
+    for (const donor of donors) {
+      const room = (parts[donor] as number) - FLOOR;
+      if (owed <= 0) break;
+      if (room <= 0) continue;
+      const taken = Math.min(room, owed);
+      parts[donor] = (parts[donor] as number) - taken;
+      owed -= taken;
+    }
+  }
+  return parts;
+}
+
 /**
  * A column a period, parts stacked (failures on top in the negative colour, say), on one scale with
- * a 2px gap between columns. It's an image named for what it shows and its busiest period; with
+ * a 2px gap between columns. A part above zero is at least 2px tall, so one failure among
+ * hundreds still shows. It's an image named for what it shows and its busiest period; with
  * `href`s, each column is also a link named for its period and values.
  */
 export function ColumnChart({
   columns,
   series,
+  ticks,
+  marker,
   label,
   max,
   height = 48,
@@ -242,20 +345,32 @@ export function ColumnChart({
   const top = Math.max(max ?? Math.max(0, ...totals), 1);
   const busiest = totals.indexOf(Math.max(...totals, 0));
   const peak = columns[busiest];
-  const name =
+  const shown =
     peak && (totals[busiest] ?? 0) > 0
       ? `${label}. ${fill(strings.busiest, { label: peak.label, value: formatNumber(totals[busiest] ?? 0, locale) })}`
       : `${label}. ${strings.none}`;
+  const name = marker ? `${shown}. ${marker.label}` : shown;
+  const last = columns.length - 1;
+  // A place on the chart, by column: its centre, the gaps between columns counted.
+  const place = (at: number) => ({ "--qx-column-chart-at": at }) as CSSProperties;
   const linked = columns.some((column) => column.href);
   return (
     <div
       {...props}
       className={cx("qx-column-chart", className)}
-      style={{ "--qx-column-chart-height": `${height}px`, ...style } as CSSProperties}
+      style={
+        {
+          "--qx-column-chart-height": `${height}px`,
+          "--qx-column-chart-count": Math.max(columns.length, 1),
+          ...style,
+        } as CSSProperties
+      }
       data-slot="column-chart"
+      data-ticks={ticks && ticks.length > 0 ? "" : undefined}
       {...(linked ? { role: "group", "aria-label": name } : { role: "img", "aria-label": name })}
     >
       {columns.map((column, index) => {
+        const sizes = columnParts(column.values, top, height);
         const parts = column.values.map((value, part) =>
           value > 0 ? (
             <span
@@ -263,7 +378,7 @@ export function ColumnChart({
               key={part}
               className="qx-column-chart-part"
               style={{
-                blockSize: `${(value / top) * 100}%`,
+                blockSize: `${((sizes[part] ?? 0) / height) * 100}%`,
                 background: toneColor(series[part]?.tone ?? (part === 0 ? "data" : "negative")),
               }}
             />
@@ -287,6 +402,29 @@ export function ColumnChart({
           </span>
         );
       })}
+      {marker && (
+        <span
+          className="qx-column-chart-marker"
+          data-slot="column-chart-marker"
+          data-at={marker.at === "end" ? "end" : undefined}
+          style={marker.at === "end" ? undefined : place(marker.at)}
+          aria-hidden
+        />
+      )}
+      {ticks && ticks.length > 0 && (
+        <span className="qx-column-chart-ticks" data-slot="column-chart-ticks" aria-hidden>
+          {ticks.map((tick) => (
+            <span
+              key={tick.at}
+              className="qx-column-chart-tick"
+              data-edge={tick.at <= 0 ? "start" : tick.at >= last ? "end" : undefined}
+              style={place(tick.at)}
+            >
+              {tick.label}
+            </span>
+          ))}
+        </span>
+      )}
     </div>
   );
 }

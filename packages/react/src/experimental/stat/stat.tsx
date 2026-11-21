@@ -1,6 +1,9 @@
+import { CircleAlertIcon } from "@qeetrix/icons/icons/circle-alert";
+import { TriangleAlertIcon } from "@qeetrix/icons/icons/triangle-alert";
 import type { ComponentProps, ReactElement, ReactNode } from "react";
 import { cx } from "../../internal/cx";
 import type { QeetrixMessages } from "../../internal/messages";
+import { type RenderProp, renderElement } from "../../internal/render";
 import { Skeleton } from "../../skeleton/skeleton";
 import { StatLoading, StatNumber } from "./stat-client";
 
@@ -167,6 +170,95 @@ export function Stat({
           {action}
         </dd>
       )}
+    </div>
+  );
+}
+
+/** How a StatList row's count reads: `negative` (the danger colour) or `warning` need a look. */
+export type StatListTone = "neutral" | "negative" | "warning";
+
+export interface StatListItem {
+  /** What's counted: "Admins without two-step". */
+  label: ReactNode;
+  /** How many. It's formatted for `locale`. */
+  count: number;
+  /** The list filtered to these: the row is a link to it. */
+  href?: string;
+  /** A router link instead of `<a>`, e.g. `render={<Link to="/users" search={{ mfa: "off" }} />}`. */
+  render?: RenderProp;
+  /**
+   * `negative` for a count that's serious, `warning` for one to watch: the count takes the colour
+   * and an icon, so it's never colour alone. A zero shows quietly, whatever its tone. Default
+   * `neutral`.
+   */
+  tone?: StatListTone;
+}
+
+export interface StatListProps extends Omit<ComponentProps<"div">, "children"> {
+  /** What the cell lists: "Needs a look". */
+  label: ReactNode;
+  /** The rows, a name and a count each, in the order they matter. */
+  items: readonly StatListItem[];
+  /** Default: QeetrixProvider's locale. It formats the counts. */
+  locale?: string;
+}
+
+const LIST_ICONS = { negative: CircleAlertIcon, warning: TriangleAlertIcon } as const;
+
+/**
+ * A summary band's short list of what wants attention, beside its Stats in a StatGroup: a label,
+ * then rows of a name and a count, each a link into the list filtered to it ("Dormant 14"). It
+ * takes a Stat's cell, so the strip's rules, gutter and wrapping hold. A serious count is in the
+ * danger colour with an icon; a zero row stays, quietly, and still links. Read as the label, then a
+ * list of links, each its name and count. Server-safe.
+ */
+export function StatList({
+  label,
+  items,
+  locale,
+  className,
+  ...props
+}: StatListProps): ReactElement {
+  return (
+    <div {...props} className={cx("qx-stat qx-stat-list", className)} data-slot="stat-list">
+      <dt className="qx-stat-label" data-slot="stat-label">
+        {label}
+      </dt>
+      <dd className="qx-stat-list-items" data-slot="stat-list-items">
+        <ul className="qx-stat-list-rows">
+          {items.map((item, index) => {
+            const tone = item.count === 0 ? "neutral" : (item.tone ?? "neutral");
+            const Icon = tone === "neutral" ? undefined : LIST_ICONS[tone];
+            return (
+              <li
+                // biome-ignore lint/suspicious/noArrayIndexKey: the rows are a fixed, ordered list
+                key={index}
+                className="qx-stat-list-row"
+                data-slot="stat-list-row"
+                data-tone={tone}
+                data-zero={item.count === 0 ? "" : undefined}
+              >
+                {renderElement(item.href !== undefined || item.render ? "a" : "span", item.render, {
+                  className: "qx-stat-list-link",
+                  "data-slot": "stat-list-link",
+                  ...(item.href !== undefined ? { href: item.href } : {}),
+                  children: (
+                    <>
+                      <span className="qx-stat-list-name">{item.label}</span>{" "}
+                      <span className="qx-stat-list-count" data-slot="stat-list-count">
+                        {Icon && (
+                          <Icon shape="sharp" size={14} aria-hidden className="qx-stat-list-icon" />
+                        )}
+                        <StatNumber value={item.count} locale={locale} />
+                      </span>
+                    </>
+                  ),
+                })}
+              </li>
+            );
+          })}
+        </ul>
+      </dd>
     </div>
   );
 }

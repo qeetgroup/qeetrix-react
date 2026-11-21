@@ -6,7 +6,7 @@ import { expectAccessible } from "../../../tests/support/axe";
 import { tokenColor } from "../../../tests/support/color";
 import { screenshotEveryMode } from "../../../tests/support/screenshots";
 import { Menu, MenuContent, MenuItem, MenuTrigger } from "../../menu/menu";
-import { TopBar, TopBarSearch, TopBarSwitcher } from "./top-bar";
+import { TopBar, TopBarScopeName, TopBarSearch, TopBarSwitcher } from "./top-bar";
 
 function Bar({ onSearch }: { onSearch?: () => void }) {
   return (
@@ -36,6 +36,34 @@ function Bar({ onSearch }: { onSearch?: () => void }) {
     />
   );
 }
+
+/** A console whose scope is its organisation's name, not a control: switching is elsewhere. */
+function NamedBar({ env }: { env?: "switcher" | "name" }) {
+  return (
+    <TopBar
+      product="Qeet ID"
+      href="#home"
+      context={
+        <>
+          <TopBarScopeName mark="AC" label="Acme Pvt Ltd" />
+          {env === "switcher" && (
+            <Menu>
+              <MenuTrigger render={<TopBarSwitcher status="success" label="Production" />} />
+              <MenuContent>
+                <MenuItem>Production</MenuItem>
+                <MenuItem>Development</MenuItem>
+              </MenuContent>
+            </Menu>
+          )}
+          {env === "name" && <TopBarScopeName status="warning" label="Development" />}
+        </>
+      }
+    />
+  );
+}
+
+const bar = () => document.querySelector("[data-slot=top-bar]") as HTMLElement;
+const box = (element: Element) => element.getBoundingClientRect();
 
 /** A token's value as the dark scheme resolves it. */
 function darkToken(token: `--qx-${string}`): string {
@@ -129,6 +157,31 @@ describe("TopBar", () => {
     await expectAccessible(container);
     await screenshotEveryMode("TopBar", "[data-slot=top-bar]");
   });
+
+  it("shows a TopBarScopeName as a name, not a button, in a switcher's box", async () => {
+    const { container } = await render(<NamedBar env="switcher" />);
+    const name = container.querySelector("[data-slot=top-bar-scope-name]") as HTMLElement;
+    expect(name.tagName).toBe("SPAN");
+    expect(page.getByRole("button", { name: /Acme/ }).query()).toBeNull();
+    expect(name.querySelector("svg")).toBeNull();
+    await expect.element(page.getByText("Acme Pvt Ltd")).toBeVisible();
+    const mark = name.querySelector(".qx-top-bar-mark") as HTMLElement;
+    expect(mark.getAttribute("aria-hidden")).toBe("true");
+    expect([box(mark).width, box(mark).height]).toEqual([20, 20]);
+    // The same box as the switcher after it, so the path's labels sit on one line.
+    const switcher = page.getByRole("button", { name: "Production" }).element();
+    expect(box(name).height).toBe(box(switcher).height);
+    expect(getComputedStyle(name).paddingInlineStart).toBe(
+      getComputedStyle(switcher).paddingInlineStart,
+    );
+    const label = (element: Element) =>
+      element.querySelector(".qx-top-bar-switcher-label") as HTMLElement;
+    expect(getComputedStyle(label(name)).font).toBe(getComputedStyle(label(switcher)).font);
+    // Within half a pixel: WebKit rounds a button's content differently from a span's.
+    expect(Math.abs(box(label(name)).top - box(label(switcher)).top)).toBeLessThanOrEqual(0.5);
+    expect(container.querySelectorAll(".qx-top-bar-slash")).toHaveLength(2);
+    await expectAccessible(container);
+  });
 });
 
 describe("TopBar, compact (below 840px)", () => {
@@ -183,6 +236,86 @@ describe("TopBar, compact (below 840px)", () => {
     await expect.element(page.getByRole("menuitem")).not.toBeInTheDocument();
   });
 
+  it("shows a scope that is only a name on its own, with its mark, at 375px", async () => {
+    await page.viewport(375, 400);
+    const { container } = await render(<NamedBar />);
+    // Nothing to switch, so no button: the name itself, as at desktop width.
+    expect(container.querySelector("[data-slot=top-bar-scope]")).toBeNull();
+    expect(page.getByRole("button").query()).toBeNull();
+    expect(bar().textContent).not.toContain("Scope");
+    const name = container.querySelector("[data-slot=top-bar-scope-name]") as HTMLElement;
+    const label = name.querySelector(".qx-top-bar-switcher-label") as HTMLElement;
+    await expect.element(page.getByText("Acme Pvt Ltd")).toBeVisible();
+    expect(label.scrollWidth).toBeLessThanOrEqual(label.clientWidth + 1);
+    expect(box(name).right).toBeLessThanOrEqual(box(bar()).right);
+    expect(name.querySelector(".qx-top-bar-mark")?.textContent).toBe("AC");
+    expect(container.querySelectorAll(".qx-top-bar-slash")).toHaveLength(1);
+    await expectAccessible(container);
+  });
+
+  it("shows only the innermost name when every step is one", async () => {
+    await page.viewport(375, 400);
+    const { container } = await render(<NamedBar env="name" />);
+    expect(page.getByRole("button").query()).toBeNull();
+    const names = container.querySelectorAll("[data-slot=top-bar-scope-name]");
+    expect([...names].map((name) => name.textContent)).toEqual(["Development"]);
+    expect(names[0]?.querySelector(".qx-top-bar-status")?.getAttribute("data-status")).toBe(
+      "warning",
+    );
+  });
+
+  it("shows a name on the one switcher when it's the innermost step", async () => {
+    await page.viewport(375, 400);
+    await render(
+      <TopBar
+        product="Qeet ID"
+        context={
+          <>
+            <Menu>
+              <MenuTrigger render={<TopBarSwitcher mark="AC" label="Acme Pvt Ltd" />} />
+              <MenuContent>
+                <MenuItem>Acme Labs</MenuItem>
+              </MenuContent>
+            </Menu>
+            <TopBarScopeName status="warning" label="Development" />
+          </>
+        }
+      />,
+    );
+    const scope = page.getByRole("button", { name: "Scope Development" });
+    await expect.element(scope).toBeVisible();
+    expect(scope.element().querySelector(".qx-top-bar-status")?.getAttribute("data-status")).toBe(
+      "warning",
+    );
+    await scope.click();
+    const path = page.getByRole("dialog", { name: "Scope" });
+    await expect.element(path.getByRole("button", { name: "Acme Pvt Ltd" })).toBeVisible();
+    await expect.element(path.getByText("Development")).toBeVisible();
+  });
+
+  it("opens a path that holds a name and a switcher, the name as text", async () => {
+    await page.viewport(375, 400);
+    await render(<NamedBar env="switcher" />);
+    const scope = page.getByRole("button", { name: "Scope Production" });
+    await expect.element(scope).toBeVisible();
+    await scope.click();
+    const path = page.getByRole("dialog", { name: "Scope" });
+    const name = path.getByText("Acme Pvt Ltd");
+    await expect.element(name).toBeVisible();
+    expect(name.element().closest("button")).toBeNull();
+    // In the popup the name fills its row, as each switcher does.
+    const row = name.element().closest("[data-slot=top-bar-scope-name]") as HTMLElement;
+    const switcher = path.getByRole("button", { name: "Production" }).element();
+    expect(box(row).width).toBe(box(switcher).width);
+    expect(box(row).left).toBe(box(switcher).left);
+  });
+
+  it("says Scope on its switcher while no step reports what it shows", async () => {
+    await page.viewport(375, 400);
+    await render(<TopBar product="Qeet ID" context={<span>Acme Pvt Ltd</span>} />);
+    await expect.element(page.getByRole("button", { name: "Scope" })).toBeVisible();
+  });
+
   it("keeps the product's name for its link on a phone, showing the logo alone", async () => {
     await page.viewport(390, 400);
     await render(<QeetIdFrame>page</QeetIdFrame>);
@@ -214,5 +347,11 @@ describe("TopBar, compact (below 840px)", () => {
     const { container } = await render(<Bar />);
     await expectAccessible(container);
     await screenshotEveryMode("TopBar · compact", "[data-slot=top-bar]");
+  });
+
+  it("looks right in every mode with a scope that is a name", async () => {
+    await page.viewport(390, 200);
+    await render(<NamedBar />);
+    await screenshotEveryMode("TopBar · compact · scope name", "[data-slot=top-bar]");
   });
 });

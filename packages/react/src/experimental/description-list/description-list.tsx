@@ -1,6 +1,13 @@
 "use client";
 
-import type { ComponentProps, CSSProperties, ReactElement, ReactNode } from "react";
+import {
+  type ComponentProps,
+  type Context,
+  type CSSProperties,
+  createContext,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 import { cx } from "../../internal/cx";
 import type { QeetrixMessages } from "../../internal/messages";
 import { useMessages } from "../../provider/provider";
@@ -36,6 +43,12 @@ export interface DescriptionItemProps extends Omit<ComponentProps<"div">, "child
 }
 
 /**
+ * True inside a DescriptionList, so a part that can be one of its items (CopyField) renders as one:
+ * a `div` of `dt` and `dd`, the only content a `dl` may hold. Not part of the package's API.
+ */
+export const InDescriptionList: Context<boolean> = createContext(false);
+
+/**
  * Facts about one record, as term and value pairs: a user's email and ID, a payment's amount and
  * status. Semantic `dl`, `dt` and `dd`, so each pair is read together. Every product's detail pages
  * use it, so every detail page lines up the same way. In a Card, `rows` run edge to edge.
@@ -45,6 +58,7 @@ export function DescriptionList({
   columns = 2,
   className,
   style,
+  children,
   ...props
 }: DescriptionListProps): ReactElement {
   return (
@@ -54,7 +68,9 @@ export function DescriptionList({
       style={{ "--qx-description-columns": columns, ...style } as CSSProperties}
       data-slot="description-list"
       data-layout={layout}
-    />
+    >
+      <InDescriptionList value>{children}</InDescriptionList>
+    </dl>
   );
 }
 

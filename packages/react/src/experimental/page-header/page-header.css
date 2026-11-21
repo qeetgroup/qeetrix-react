@@ -100,12 +100,15 @@
   font-variation-settings: "GEOM" var(--qx-typography-body-md-font-geometry);
   color: var(--qx-color-text-subtle);
 }
+/* The actions keep their line beside the title while they fit. Where they don't (a phone), they go
+   under it and may narrow to its width, their buttons wrapping, so nothing runs past the page. */
 .qx-page-header-actions {
   display: flex;
-  flex: none;
+  flex: 0 1 auto;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--qx-space-gap-sm);
+  min-inline-size: 0;
 }
 /* The key numbers: bled to the page edges, on the canvas tone between two rules; the first and last
    cells line up with the gutter. */
@@ -114,6 +117,71 @@
   margin: 20px calc(-1 * var(--qx-page-gutter)) 0;
   border-block: var(--qx-border-width-default) solid var(--qx-color-border-default);
   background: var(--qx-color-surface-canvas);
+}
+/* On a phone the key numbers fold behind a strip in the band's place: "Summary" and a chevron, on
+   the canvas tone between the band's rules, so the page's content comes first. Open, the band
+   follows the strip, sharing its rule. From 600px the strip is gone and the band always shows. */
+.qx-page-header-summary-toggle {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--qx-space-gap-sm);
+  min-block-size: var(--qx-size-control-lg);
+  margin: 20px calc(-1 * var(--qx-page-gutter)) 0;
+  padding: 0 var(--qx-page-gutter);
+  border: 0;
+  border-block: var(--qx-border-width-default) solid var(--qx-color-border-default);
+  background: var(--qx-color-surface-canvas);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-label-md);
+  font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
+  text-align: start;
+  cursor: pointer;
+  &:hover {
+    background: var(--qx-color-overlay-hover);
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: calc(-1 * var(--qx-focus-ring-width));
+  }
+}
+.qx-page-header-summary-chevron {
+  flex: none;
+  color: var(--qx-color-icon-subtle);
+  transition-property: rotate;
+  transition-duration: var(--qx-motion-duration-normal);
+  transition-timing-function: var(--qx-motion-easing-standard);
+  [aria-expanded="true"] > & {
+    rotate: 180deg;
+  }
+}
+@media (width < 600px) {
+  .qx-page-header:not(.qx-app-shell[data-embedded] *) {
+    > .qx-page-header-summary-toggle {
+      display: flex;
+    }
+    > .qx-page-header-summary {
+      margin-block-start: 0;
+      border-block-start: 0;
+      &:not([data-open]) {
+        display: none;
+      }
+    }
+  }
+}
+@container qx-app-shell (width < 600px) {
+  .qx-app-shell[data-embedded] .qx-page-header {
+    > .qx-page-header-summary-toggle {
+      display: flex;
+    }
+    > .qx-page-header-summary {
+      margin-block-start: 0;
+      border-block-start: 0;
+      &:not([data-open]) {
+        display: none;
+      }
+    }
+  }
 }
 /* The tabs bleed to the edges, so their rule runs edge to edge like the summary's; the list's
    padding puts the first label on the gutter, whatever the density does to a tab's padding. */
@@ -166,7 +234,8 @@
 
 @media (forced-colors: active) {
   .qx-page-header,
-  .qx-page-header-summary {
+  .qx-page-header-summary,
+  .qx-page-header-summary-toggle {
     border-color: CanvasText;
   }
 }

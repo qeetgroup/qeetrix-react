@@ -29,21 +29,31 @@
   background: var(--qx-color-border-subtle);
 }
 
+/* The box: the width its container query reads, and the scroller when the panes stack. A
+   container query can't restyle the container itself, so the panes' tracks are on the grid
+   inside it, which the query can. */
 .qx-workspace {
   container: qx-workspace / inline-size;
-  display: grid;
-  grid-template-columns: 15.5rem minmax(0, 1fr) 21rem;
+  display: flex;
+  flex-direction: column;
   block-size: 100%;
   min-block-size: 0;
   /* Stacked on a narrow box, the panes scroll together. */
   overflow: auto;
-  &[data-layout="main-inspector"] {
+}
+/* The panes' grid: as tall as the box on a wide one, so each pane scrolls on its own. */
+.qx-workspace-grid {
+  display: grid;
+  flex: 1 1 0;
+  grid-template-columns: 15.5rem minmax(0, 1fr) 21rem;
+  min-block-size: 0;
+  [data-layout="main-inspector"] > & {
     grid-template-columns: minmax(0, 1fr) 24rem;
   }
-  &[data-layout="list-main"] {
+  [data-layout="list-main"] > & {
     grid-template-columns: 15.5rem minmax(0, 1fr);
   }
-  &[data-layout="main"] {
+  [data-layout="main"] > & {
     grid-template-columns: minmax(0, 1fr);
   }
 }
@@ -156,13 +166,18 @@
   padding: var(--qx-space-inset-lg);
 }
 
-/* A narrow box: the panes stack, in reading order, each its own height. */
+/* A narrow box: the panes stack in one full-width column, in reading order, each its own height,
+   and the grid grows with them so the box scrolls them together. Every layout alike. */
 @container qx-workspace (width < 840px) {
-  .qx-workspace > * {
+  .qx-workspace[data-layout] > .qx-workspace-grid {
+    flex: none;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .qx-workspace-grid > * {
     grid-column: 1 / -1;
     border-inline: 0;
   }
-  .qx-workspace > .qx-workspace-pane {
+  .qx-workspace-grid > .qx-workspace-pane {
     border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
   }
 }

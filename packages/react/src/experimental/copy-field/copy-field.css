@@ -57,3 +57,16 @@
     grid-column: 2;
   }
 }
+
+/* In a DescriptionList: one of its items, so the list lays it out as it does its facts (the term
+   column, the value, Copy at the row's end as an action) and rules it off with them. The value
+   keeps its code type and click-to-select, without the field's padding, so a copy row is a fact
+   row's height. */
+.qx-copy-field-item > .qx-description-value > .qx-copy-field-value {
+  padding-block: 0;
+}
+.qx-copy-field-item[data-wrap="none"] > .qx-description-value > .qx-copy-field-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

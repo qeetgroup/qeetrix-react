@@ -1,7 +1,6 @@
 "use client";
 
 import { Menu as BaseMenu } from "@base-ui/react/menu";
-import { CheckIcon } from "@qeetrix/icons/icons/check";
 import { MonitorIcon } from "@qeetrix/icons/icons/monitor";
 import { MoonIcon } from "@qeetrix/icons/icons/moon";
 import { SunIcon } from "@qeetrix/icons/icons/sun";
@@ -10,7 +9,7 @@ import { IconButton } from "../../button/button";
 import type { ControlSize, QeetrixIcon } from "../../internal/control";
 import { cx } from "../../internal/cx";
 import type { QeetrixMessages } from "../../internal/messages";
-import { Menu, MenuContent, MenuTrigger } from "../../menu/menu";
+import { Menu, MenuContent, MenuRadioMark, MenuTrigger } from "../../menu/menu";
 import {
   type ColorScheme,
   useColorScheme,
@@ -176,12 +175,7 @@ function ThemeMenu({
               <span className="qx-menu-item-label" data-slot="menu-item-label">
                 {strings[scheme]}
               </span>
-              {/* The check's column is always there, so the menu keeps its width. */}
-              <span className="qx-menu-mark" data-slot="menu-item-mark">
-                <BaseMenu.RadioItemIndicator className="qx-menu-mark-indicator">
-                  <CheckIcon shape="sharp" size={16} aria-hidden />
-                </BaseMenu.RadioItemIndicator>
-              </span>
+              <MenuRadioMark />
             </BaseMenu.RadioItem>
           ))}
         </BaseMenu.RadioGroup>

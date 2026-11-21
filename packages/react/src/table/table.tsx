@@ -344,20 +344,14 @@ export function Table<Row>({
   const opens = rowHref !== undefined || renderRowLink !== undefined || onRowClick !== undefined;
   const primary =
     opens || rowDepth ? (columns.find((column) => column.primary) ?? columns[0])?.id : undefined;
-  // Named by the row's label, as its checkbox and actions button are, with the rest of the cell as
-  // its description: "Priya Sharma, link", not everything the primary cell shows.
-  const rowLink = (row: Row, content: ReactNode, index: number): ReactElement => {
-    const described = `${baseId}-row-${index}`;
+  // Named by what the primary cell shows ("Priya Sharma priya@acme.in"), so the name holds the
+  // visible text (WCAG 2.5.3, label in name) and voice control reaches the row by the words on
+  // screen. The row's checkbox and actions button take rowLabel, since they show no text.
+  const rowLink = (row: Row, content: ReactNode): ReactElement => {
     const link = {
       className: "qx-table-row-link",
       "data-slot": "table-row-link",
-      "aria-label": rowLabel(row),
-      "aria-describedby": described,
-      children: (
-        <span id={described} className="qx-table-row-link-content">
-          {content}
-        </span>
-      ),
+      children: <span className="qx-table-row-link-content">{content}</span>,
       ...(onRowClick ? { onClick: () => onRowClick(row) } : {}),
     };
     return rowHref || renderRowLink
@@ -401,7 +395,7 @@ export function Table<Row>({
               {fill(strings.continued, { path })}
             </span>
           )}
-          {opens ? rowLink(row, column.cell(row), index) : column.cell(row)}
+          {opens ? rowLink(row, column.cell(row)) : column.cell(row)}
         </span>
       </span>
     );
@@ -525,7 +519,7 @@ export function Table<Row>({
                 ? column.cell(row)
                 : rowDepth
                   ? treeCell(row, index, id, name)
-                  : rowLink(row, column.cell(row), index)}
+                  : rowLink(row, column.cell(row))}
             </TableCell>
           ))}
           {rowActions && (

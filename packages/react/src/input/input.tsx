@@ -6,7 +6,10 @@ import type { ComponentProps, CSSProperties, ReactElement, ReactNode } from "rea
 import { cx } from "../internal/cx";
 import { drawIcon, type IconSource } from "../internal/icon";
 
-/** A field's size: `md`, the one height every form shares, or `lg`, for a step that asks for one value. */
+/**
+ * A field's size: `md`, the one height every form shares, or `lg`, for a sign-up or verification
+ * step that asks for one value.
+ */
 export type InputSize = "md" | "lg";
 
 export interface InputProps
@@ -18,10 +21,12 @@ export interface InputProps
   /** After the value: an affix such as % or .qeet.in, or a tool such as a show-password button. */
   endAdornment?: ReactNode;
   /**
-   * `md` (default): the height every field in a form shares. `lg`: the one value a sign-in or sign-up
-   * step asks for (a phone number, a name), as OTPInput's `lg`: `size.control.lg` + 16px tall, the
-   * value and any affix at `title.lg` with tabular figures, the placeholder at body size. Use it for
-   * that step's one field only.
+   * `md` (default): the height every field in a form shares. `lg`: the one value a sign-up or
+   * verification step asks for (a phone number, a name, a date of birth), as OTPInput's `lg`:
+   * `size.control.lg` + 16px tall, the value and any affix at `title.lg`'s size in regular weight
+   * with tabular figures, the placeholder at body size. Use it for that step's one field only, never
+   * to sign in: a sign-in email or password field (an identifier-first email step too) is `md`,
+   * beside an `lg` Button.
    */
   size?: InputSize;
   /** Placement of the box only (margin, width, grid placement). */

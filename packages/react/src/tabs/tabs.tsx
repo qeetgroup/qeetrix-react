@@ -1,11 +1,18 @@
 "use client";
 
 import { Tabs as BaseTabs } from "@base-ui/react/tabs";
-import type { ComponentProps, CSSProperties, ReactElement, ReactNode } from "react";
+import {
+  type ComponentProps,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+  useMemo,
+} from "react";
 import { Badge } from "../badge/badge";
 import { formatNumber } from "../format/format";
 import { cx } from "../internal/cx";
 import { drawIcon, type IconSource } from "../internal/icon";
+import { mergeRefs } from "../internal/refs";
 import { type RenderProp, renderElement } from "../internal/render";
 import { useLocale } from "../provider/provider";
 
@@ -66,19 +73,72 @@ export function Tabs({ className, ...props }: TabsProps): ReactElement {
 }
 
 /**
+ * Scrolls a list that runs past its width so its selected tab shows, by the least that does it, in
+ * the list alone: the page itself never moves. Rects are measured on screen, so the same sum holds
+ * right to left.
+ */
+function showSelected(list: HTMLElement): void {
+  if (list.scrollWidth <= list.clientWidth) return;
+  const tab = list.querySelector<HTMLElement>(":scope > [data-active]");
+  if (!tab) return;
+  const edge = list.getBoundingClientRect();
+  const box = tab.getBoundingClientRect();
+  // Whole pixels, rounded outward: WebKit truncates a fractional scroll, which leaves a sliver cut.
+  if (box.left < edge.left) list.scrollLeft += Math.floor(box.left - edge.left);
+  else if (box.right > edge.right) list.scrollLeft += Math.ceil(box.right - edge.right);
+}
+
+/**
+ * Keeps a horizontal list's selected tab in view: when it mounts, whenever the selection moves, and
+ * when the list or its tabs change size (the font arriving widens every label; a phone turns).
+ */
+function keepSelectedInView(list: HTMLElement | null): (() => void) | undefined {
+  if (!list || list.dataset.orientation === "vertical") return undefined;
+  const show = () => showSelected(list);
+  const sizes = new ResizeObserver(show);
+  const watch = () => {
+    sizes.disconnect();
+    sizes.observe(list);
+    for (const tab of list.children) sizes.observe(tab);
+  };
+  watch();
+  show();
+  const changes = new MutationObserver((records) => {
+    if (records.some((record) => record.type === "childList")) watch();
+    show();
+  });
+  changes.observe(list, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["data-active"],
+  });
+  return () => {
+    changes.disconnect();
+    sizes.disconnect();
+  };
+}
+
+/**
  * The tabs, one tab stop: arrow keys move between them, Home and End jump. It draws the Ember bar
- * under the selected tab, and the bar slides when the selection changes.
+ * under the selected tab, and the bar slides when the selection changes. Where the tabs don't fit
+ * (a phone), the list scrolls sideways inside itself, the selected tab kept in view, and the page
+ * doesn't.
  */
 export function TabsList({
   activateOnFocus = true,
   variant = "line",
   className,
   children,
+  ref,
   ...props
 }: TabsListProps): ReactElement {
+  // Once per list (and per ref given), so another render never pulls the list back to the tab.
+  const listRef = useMemo(() => mergeRefs(ref, keepSelectedInView), [ref]);
   return (
     <BaseTabs.List
       {...props}
+      ref={listRef}
       activateOnFocus={activateOnFocus}
       className={cx("qx-tabs-list", className)}
       data-slot="tabs-list"

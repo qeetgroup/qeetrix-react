@@ -28,7 +28,7 @@ export const messages = {
   },
   sidebar: { filter: "Filter navigation", noMatches: "No pages match" },
   breadcrumb: { label: "Breadcrumb" },
-  pageHeader: { back: "Back", backTo: "Back to {page}" },
+  pageHeader: { back: "Back", backTo: "Back to {page}", summary: "Summary" },
   topBar: { scope: "Scope" },
   dataState: {
     errorTitle: "Couldn't load this",

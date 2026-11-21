@@ -148,11 +148,20 @@
   border-block-end: var(--qx-border-width-default) solid var(--qx-color-border-default);
   background: var(--qx-color-surface-canvas);
 }
+/* The title takes the room, so the header's actions and Close sit together at its end. */
 .qx-app-shell-panel-title {
+  flex: 1;
+  min-inline-size: 0;
   margin: 0;
   font: var(--qx-typography-label-md);
   font-weight: var(--qx-typography-title-sm-font-weight);
   font-variation-settings: "GEOM" var(--qx-font-geometry-heading);
+}
+.qx-app-shell-panel-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
 }
 .qx-app-shell-panel-body {
   flex: 1;

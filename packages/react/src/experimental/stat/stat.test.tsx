@@ -9,7 +9,7 @@ import { hi } from "../../locales/hi";
 import { QeetrixProvider } from "../../provider/provider";
 import { ShareBar } from "../chart/chart";
 import { PageHeader } from "../page-header/page-header";
-import { Stat, StatGroup } from "./stat";
+import { Stat, StatGroup, StatList, type StatListItem } from "./stat";
 
 function Strip() {
   return (
@@ -328,5 +328,150 @@ describe("Stat", () => {
     const { container } = await render(<Strip />);
     await expectAccessible(container);
     await screenshotSchemes("Stat", "[data-slot=stat-group]");
+  });
+});
+
+/** A router's link: an `<a>` it renders itself from `to`. */
+function RouterLink({ to, ...props }: { to: string } & React.ComponentProps<"a">) {
+  return <a {...props} href={to} data-router="" />;
+}
+
+const LOOKS: StatListItem[] = [
+  { label: "Admins without two-step", count: 2, tone: "negative", href: "#users?admins=no-mfa" },
+  { label: "Dormant", count: 14, tone: "warning", href: "#users?status=dormant" },
+  { label: "Never signed in", count: 0, tone: "negative", href: "#users?signed-in=never" },
+];
+
+function Band({ items = LOOKS }: { items?: StatListItem[] }) {
+  return (
+    <StatGroup aria-label="Users at a glance">
+      <Stat label="Total users" value={1284} note="+38 this week" tone="positive" />
+      <Stat label="Passkey adoption" value="72%" note="+6 pts this month" tone="positive" />
+      <Stat label="Pending invitations" value={64} note="9 expire this week" tone="warning" />
+      <StatList label="Needs a look" items={items} />
+    </StatGroup>
+  );
+}
+
+describe("StatList", () => {
+  const list = () => document.querySelector("[data-slot=stat-list]") as HTMLElement;
+  const row = (index: number) =>
+    list().querySelectorAll<HTMLElement>("[data-slot=stat-list-row]")[index] as HTMLElement;
+
+  it("is a cell of the band: its label a term, then a list of links, each its name and count", async () => {
+    const { container } = await render(<Band />);
+    const group = container.querySelector("dl") as HTMLElement;
+    expect(list().parentElement).toBe(group);
+    expect([...group.querySelectorAll("dt")].map((term) => term.textContent)).toContain(
+      "Needs a look",
+    );
+    const items = page.getByRole("listitem").elements();
+    expect(items).toHaveLength(3);
+    expect(list().querySelector("dd > ul")).not.toBeNull();
+    const links = page.getByRole("link").elements();
+    expect(links.map((link) => link.textContent)).toEqual([
+      "Admins without two-step 2",
+      "Dormant 14",
+      "Never signed in 0",
+    ]);
+    await expect
+      .element(page.getByRole("link", { name: "Dormant 14" }))
+      .toHaveAttribute("href", "#users?status=dormant");
+  });
+
+  it("takes a Stat's place in the strip: the same rules, gutter and wrapping", async () => {
+    const gutter = 32;
+    const { container } = await render(
+      <div style={{ "--qx-stat-group-inset": `${gutter}px` } as React.CSSProperties}>
+        <Band />
+      </div>,
+    );
+    const group = container.querySelector("[data-slot=stat-group]") as HTMLElement;
+    const stat = container.querySelector("[data-slot=stat]") as HTMLElement;
+    const label = () =>
+      (list().querySelector("[data-slot=stat-label]") as HTMLElement).getBoundingClientRect();
+    // One row of four: the list is the last cell, ruled off from the Stat before it, its end on the
+    // gutter; its cell is as wide as a Stat's.
+    group.style.inlineSize = "1000px";
+    let edge = group.getBoundingClientRect();
+    expect(getComputedStyle(list()).borderInlineStartWidth).toBe("1px");
+    expect(edge.right - label().right).toBeCloseTo(gutter, 1);
+    expect(list().getBoundingClientRect().width).toBeCloseTo(stat.getBoundingClientRect().width, 1);
+    expect(getComputedStyle(list()).paddingBlockStart).toBe(
+      getComputedStyle(stat).paddingBlockStart,
+    );
+    // One column: it starts its own row on the gutter, under a rule across the strip.
+    group.style.inlineSize = "360px";
+    edge = group.getBoundingClientRect();
+    expect(label().left - edge.left).toBeCloseTo(gutter, 1);
+    expect(getComputedStyle(list()).borderInlineStartWidth).toBe("0px");
+    expect(getComputedStyle(list(), "::before").content).not.toBe("none");
+    // The rows fill the cell: a name at its start, the count at its end.
+    const link = row(1).querySelector("a") as HTMLElement;
+    const count = row(1).querySelector("[data-slot=stat-list-count]") as HTMLElement;
+    expect(link.getBoundingClientRect().left).toBeCloseTo(label().left, 1);
+    expect(count.getBoundingClientRect().right).toBeCloseTo(edge.right - gutter, 1);
+  });
+
+  it("marks a serious count in the danger colour after an icon, a warning one in amber; a zero is quiet and still links", async () => {
+    await render(<Band />);
+    const count = (index: number) =>
+      row(index).querySelector("[data-slot=stat-list-count]") as HTMLElement;
+    expect(getComputedStyle(count(0)).color).toBe(tokenColor("--qx-color-text-danger"));
+    expect(count(0).querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
+    expect(getComputedStyle(count(1)).color).toBe(tokenColor("--qx-color-text-warning"));
+    expect(count(1).querySelector("svg")).not.toBeNull();
+    // Two tones, two shapes: the icon says it as well as the colour.
+    expect(count(0).querySelector("svg")?.innerHTML).not.toBe(
+      count(1).querySelector("svg")?.innerHTML,
+    );
+    // Zero, though its tone is negative: no icon, the quiet colour, still a link.
+    expect(row(2).dataset.tone).toBe("neutral");
+    expect(count(2).querySelector("svg")).toBeNull();
+    const zero = row(2).querySelector("a") as HTMLElement;
+    expect(getComputedStyle(zero).color).toBe(tokenColor("--qx-color-text-subtlest"));
+    expect(zero.getAttribute("href")).toBe("#users?signed-in=never");
+    // A neutral row's count is the text colour.
+    expect(getComputedStyle(row(1).querySelector("a") as HTMLElement).color).toBe(
+      tokenColor("--qx-color-text-default"),
+    );
+  });
+
+  it("links through a router's link, and formats counts for the locale", async () => {
+    await render(
+      <QeetrixProvider locale="en-IN">
+        <StatGroup>
+          <StatList
+            label="Needs a look"
+            items={[
+              {
+                label: "Failed sign-ins",
+                count: 123456,
+                tone: "negative",
+                render: <RouterLink to="/audit?outcome=failed" />,
+              },
+            ]}
+          />
+        </StatGroup>
+      </QeetrixProvider>,
+    );
+    const link = page.getByRole("link", { name: "Failed sign-ins 1,23,456" });
+    await expect.element(link).toHaveAttribute("href", "/audit?outcome=failed");
+    expect(link.element().hasAttribute("data-router")).toBe(true);
+    expect(link.element().classList).toContain("qx-stat-list-link");
+  });
+
+  it("gives every row a 24px target, and is accessible and looks right in both schemes", async () => {
+    await page.viewport(1100, 400);
+    const { container } = await render(
+      <Stage>
+        <Band />
+      </Stage>,
+    );
+    for (const link of list().querySelectorAll("a")) {
+      expect(link.getBoundingClientRect().height).toBeGreaterThanOrEqual(24);
+    }
+    await expectAccessible(container);
+    await screenshotSchemes("Stat · list");
   });
 });

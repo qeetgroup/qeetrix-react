@@ -205,6 +205,65 @@
   }
 }
 
+/* StatList: a summary band's short list of what wants attention, in a Stat's cell. Each row is a
+   name and its count, a link into the filtered list, at least the 24px target tall. A serious count
+   is in the danger colour after an icon, so it's never colour alone; a zero row is quiet. */
+.qx-stat-list-items {
+  grid-column: 1 / -1;
+  min-inline-size: 0;
+  margin: var(--qx-space-gap-xs) 0 0;
+}
+.qx-stat-list-rows {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.qx-stat-list-name {
+  min-inline-size: 0;
+}
+.qx-stat-list-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--qx-space-gap-md);
+  min-block-size: var(--qx-size-target-min);
+  border-radius: var(--qx-radius-sm);
+  color: var(--qx-color-text-default);
+  font: var(--qx-typography-body-sm);
+  font-variation-settings: "GEOM" var(--qx-typography-body-sm-font-geometry);
+  text-decoration: none;
+  &:is(a):hover .qx-stat-list-name {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  &:focus-visible {
+    outline: var(--qx-focus-ring-width) solid var(--qx-color-border-focus);
+    outline-offset: var(--qx-focus-ring-offset);
+  }
+}
+.qx-stat-list-count {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--qx-space-gap-xs);
+  font: var(--qx-typography-label-md);
+  font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
+  font-variant-numeric: tabular-nums;
+  [data-tone="negative"] > * > & {
+    color: var(--qx-color-text-danger);
+  }
+  [data-tone="warning"] > * > & {
+    color: var(--qx-color-text-warning);
+  }
+}
+.qx-stat-list-icon {
+  flex: none;
+}
+.qx-stat-list-row[data-zero] > .qx-stat-list-link {
+  color: var(--qx-color-text-subtlest);
+}
+
 @media (forced-colors: active) {
   .qx-stat + .qx-stat {
     border-inline-start-color: CanvasText;

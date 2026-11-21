@@ -40,6 +40,9 @@ button.qx-link {
     white-space: nowrap;
   }
   .qx-link-icon {
+    /* Its own display, so a reset that makes every svg a block (Tailwind's preflight) can't drop
+       the arrow onto a line of its own. */
+    display: inline-block;
     margin-inline-start: 2px;
     vertical-align: middle;
     /* "Opens elsewhere" leaves toward the reading end: up and to the left in right-to-left. */

@@ -7,7 +7,8 @@ import { CheckIcon } from "@qeetrix/icons/icons/check";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
 import { cx } from "../../internal/cx";
 
-export type PictureChoiceSize = "md" | "lg";
+/** `sm` 36px, for colour swatches and background tones; `md` 48px; `lg` 64px. */
+export type PictureChoiceSize = "sm" | "md" | "lg";
 export type PictureChoiceShape = "round" | "square";
 
 export interface PictureChoiceGroupProps {
@@ -27,7 +28,10 @@ export interface PictureChoiceGroupProps {
   columns?: number;
   /** `round` for people (avatars), `square` for anything else: backgrounds, stickers. Default `round`. */
   shape?: PictureChoiceShape;
-  /** `md` 48px (default) or `lg` 64px. */
+  /**
+   * `sm` 36px, for colour swatches and background tones; `md` 48px (default); `lg` 64px. At `sm`
+   * the tick shrinks to fit; the ring, the focus frame and the keys are the same at every size.
+   */
   size?: PictureChoiceSize;
   /** Submits the chosen value with a form under this name. */
   name?: string;

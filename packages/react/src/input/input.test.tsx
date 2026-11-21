@@ -72,15 +72,16 @@ describe("Input", () => {
 });
 
 describe("Input size lg", () => {
-  /** A role's computed font size, from a probe that sets the role's `font`. */
-  const fontSize = (role: string) => {
+  /** A role's computed font, from a probe that sets the role's `font`. */
+  const roleFont = (role: string) => {
     const probe = document.createElement("span");
     probe.style.font = `var(--qx-typography-${role})`;
     document.body.append(probe);
-    const size = getComputedStyle(probe).fontSize;
+    const { fontSize, fontWeight } = getComputedStyle(probe);
     probe.remove();
-    return size;
+    return { fontSize, fontWeight };
   };
+  const fontSize = (role: string) => roleFont(role).fontSize;
 
   it("is OTPInput's lg height in every density: 48, 56 and 60px; md stays the shared height", async () => {
     const { container } = await render(
@@ -100,22 +101,33 @@ describe("Input size lg", () => {
     expect(medium?.dataset.size).toBe("md");
   });
 
-  it("writes the value and its affix at title.lg with tabular figures, the placeholder at body size", async () => {
+  it("writes the value and its affix at title.lg's size in regular weight with tabular figures, the placeholder at body size, in every density", async () => {
     const { container } = await render(
       <Input aria-label="Phone number" size="lg" startAdornment="+91" placeholder="98765 43210" />,
     );
     const control = container.querySelector("input") as HTMLInputElement;
     const affix = container.querySelector("[data-slot=input-start]") as HTMLElement;
-    expect(getComputedStyle(control).fontSize).toBe(fontSize("title-lg"));
-    expect(getComputedStyle(control).fontVariantNumeric).toBe("tabular-nums");
-    expect(getComputedStyle(control, "::placeholder").fontSize).toBe(fontSize("body-md"));
-    // The affix reads with the value: the same size, on the same middle line.
-    expect(getComputedStyle(affix).fontSize).toBe(fontSize("title-lg"));
     const middle = (el: Element) => {
       const r = el.getBoundingClientRect();
       return r.top + r.height / 2;
     };
-    expect(Math.abs(middle(affix) - middle(control))).toBeLessThanOrEqual(1);
+    // title.lg's size (20px) but not its semibold: the typed value reads as text, not a heading.
+    expect(roleFont("title-lg")).toEqual({ fontSize: "20px", fontWeight: "600" });
+    expect(roleFont("body-md").fontWeight).toBe("400");
+    for (const density of ["compact", "default", "comfortable"]) {
+      html.dataset.qxDensity = density;
+      for (const part of [control, affix]) {
+        const style = getComputedStyle(part);
+        expect([style.fontSize, style.fontWeight], density).toEqual(["20px", "400"]);
+      }
+      expect(getComputedStyle(control).fontVariantNumeric, density).toBe("tabular-nums");
+      const placeholder = getComputedStyle(control, "::placeholder");
+      expect(placeholder.fontSize, density).toBe(fontSize("body-md"));
+      expect(placeholder.fontWeight, density).toBe("400");
+      // The affix reads with the value: the same size, on the same middle line.
+      expect(Math.abs(middle(affix) - middle(control)), density).toBeLessThanOrEqual(1);
+    }
+    delete html.dataset.qxDensity;
   });
 
   it("is TextField's and PasswordInput's too, the label and help text on the box's edges", async () => {

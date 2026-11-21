@@ -183,6 +183,29 @@ describe("Kotlin and Swift", () => {
     expect(lines.at(-1)?.map((token) => token.kind)).toEqual(["string"]);
   });
 
+  it("a capitalised name is a literal, as a JSX component's is: types, composables and views", () => {
+    const kotlin =
+      'QeetrixButton("Export", variant = QeetrixButtonVariant.Soft, icon = QeetrixIconName.Share2)\nfun `Opens the Sheet`() {}';
+    expect(kinds(kotlin, "kotlin", "QeetrixButton")).toEqual(["literal"]);
+    expect(kinds(kotlin, "kotlin", "QeetrixButtonVariant")).toEqual(["literal"]);
+    expect(kinds(kotlin, "kotlin", "Share2")).toEqual(["literal"]);
+    expect(kinds(kotlin, "kotlin", "variant")).toEqual(["plain"]);
+    expect(kinds(kotlin, "kotlin", "`Opens the Sheet`")).toEqual(["plain"]);
+    const swift =
+      "struct Row: View {\n  var body: some View { HStack(spacing: QeetrixSpace.gapSm) {} }\n  func copy() -> Self { self }\n}";
+    expect(kinds(swift, "swift", "View")).toEqual(["literal", "literal"]);
+    expect(kinds(swift, "swift", "HStack")).toEqual(["literal"]);
+    expect(kinds(swift, "swift", "QeetrixSpace")).toEqual(["literal"]);
+    expect(kinds(swift, "swift", "gapSm")).toEqual(["plain"]);
+    expect(kinds(swift, "swift", "Self")).toEqual(["keyword"]);
+    // Not in the other languages: a capitalised name there stays as it was.
+    expect(
+      highlight("const View = 1", "typescript")
+        .flat()
+        .find((t: Token) => t.text === "View")?.kind,
+    ).toBe("plain");
+  });
+
   it("stays fast on text that never closes", () => {
     const start = performance.now();
     highlight(`"""${'a"'.repeat(20_000)}`, "kotlin");

@@ -3,4 +3,8 @@ export {
   type ProviderButtonProps,
   type ProviderLogoInvert,
 } from "./provider-button";
-export { ProviderButtonGroup, type ProviderButtonGroupProps } from "./provider-button-group";
+export {
+  ProviderButtonGroup,
+  type ProviderButtonGroupProps,
+  type ProviderButtonLabels,
+} from "./provider-button-group";
