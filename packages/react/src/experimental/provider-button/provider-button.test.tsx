@@ -1,4 +1,4 @@
-import { createRef } from "react";
+import { createRef, type ReactElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
@@ -288,9 +288,13 @@ describe("ProviderButton", () => {
     expect(filter("Sign in with GitHub")).toBe("none");
   });
 
-  it("keeps a long label in its cell, cut short with an ellipsis", async () => {
+  it("visible: keeps a long label in its cell, cut short with an ellipsis", async () => {
     await render(
-      <ProviderButtonGroup aria-label="Sign in with another account" style={{ inlineSize: 240 }}>
+      <ProviderButtonGroup
+        aria-label="Sign in with another account"
+        labels="visible"
+        style={{ inlineSize: 240 }}
+      >
         <ProviderButton logo={<Ring />} aria-label="Sign in with Google">
           Google
         </ProviderButton>
@@ -387,8 +391,8 @@ describe("The logo-only form", () => {
     expect(getComputedStyle(label).clipPath).toBe("inset(50%)");
     await tab();
     await expect.element(google).toHaveFocus();
-    await expect.element(page.getByRole("tooltip")).toHaveTextContent("Google");
-    // The tooltip only repeats the aria-label's provider, so it isn't linked as a description.
+    await expect.element(page.getByRole("tooltip")).toHaveTextContent("Sign in with Google");
+    // The tooltip shows the whole name, which the button already has, so it isn't linked as a description.
     await expect.element(google).not.toHaveAttribute("aria-describedby");
     await expectAccessible(slot("provider-button-group"));
   });
@@ -397,8 +401,8 @@ describe("The logo-only form", () => {
     const { rerender } = await render(<ThreeProviders labels="hidden" width={360} />);
     const microsoft = page.getByRole("button", { name: "Sign in with Microsoft" });
     await microsoft.hover();
-    await expect.element(page.getByRole("tooltip")).toHaveTextContent("Microsoft");
-    await rerender(<ThreeProviders width={400} />);
+    await expect.element(page.getByRole("tooltip")).toHaveTextContent("Sign in with Microsoft");
+    await rerender(<ThreeProviders labels="visible" width={400} />);
     await userEvent.unhover(microsoft);
     await tab();
     await expect.element(page.getByRole("button", { name: "Sign in with Google" })).toHaveFocus();
@@ -409,7 +413,7 @@ describe("The logo-only form", () => {
   it("auto: hides the names only while a cell is too narrow for one, the whole row together", async () => {
     // A 360px phone less its gutters leaves the row 320px: the full form cuts Microsoft's name there
     // ("Micros…"), and every name fits at 400px.
-    const { rerender } = await render(<ThreeProviders width={320} />);
+    const { rerender } = await render(<ThreeProviders labels="visible" width={320} />);
     const microsoftLabel = () =>
       slot(
         "provider-button-label",
@@ -450,7 +454,7 @@ describe("The logo-only form", () => {
     await render(
       <Stage>
         <div style={{ display: "grid", gap: 16, justifyItems: "start" }}>
-          <ThreeProviders width={400} />
+          <ThreeProviders labels="visible" width={400} />
           <ThreeProviders labels="hidden" width={360} />
           <div dir="rtl">
             <ThreeProviders labels="hidden" width={360} />
@@ -459,5 +463,161 @@ describe("The logo-only form", () => {
       </Stage>,
     );
     await screenshotEveryMode("ProviderButton · logo only");
+  });
+});
+
+const PROVIDERS = [
+  "Google",
+  "Microsoft",
+  "Apple",
+  "GitHub",
+  "GitLab",
+  "Facebook",
+  "LinkedIn",
+  "Slack",
+] as const;
+const MARKS = [Ring, FourSquares, WhiteMark, BlackMark];
+
+/** The first `count` providers, in a column `width` wide, with the group's default labels. */
+function Providers1to8({ count, width }: { count: number; width: number }) {
+  return (
+    <ProviderButtonGroup aria-label="Sign in with another account" style={{ inlineSize: width }}>
+      {PROVIDERS.slice(0, count).map((name, index) => {
+        const Mark = MARKS[index % MARKS.length] as () => ReactElement;
+        return (
+          <ProviderButton key={name} logo={<Mark />} aria-label={`Sign in with ${name}`}>
+            {name}
+          </ProviderButton>
+        );
+      })}
+    </ProviderButtonGroup>
+  );
+}
+
+describe("Any number of providers", () => {
+  const cells = () =>
+    [...document.querySelectorAll("[data-slot=provider-button]")] as HTMLElement[];
+
+  it("by default, shows the names up to three providers in a 400px column, and the logos alone from four", async () => {
+    const { rerender } = await render(<Providers1to8 count={3} width={400} />);
+    const group = page.getByRole("group", { name: "Sign in with another account" });
+    await expect.element(group).not.toHaveAttribute("data-labels");
+    await rerender(<Providers1to8 count={4} width={400} />);
+    await expect.element(group).toHaveAttribute("data-labels", "hidden");
+    // In the logo-only form the tooltip is the button's whole name.
+    await tab();
+    await expect.element(page.getByRole("tooltip")).toHaveTextContent("Sign in with Google");
+  });
+
+  for (const width of [320, 400]) {
+    it(`cuts no name short and keeps every cell 44px wide, from 1 to 8 providers, at ${width}px`, async () => {
+      for (let count = 1; count <= 8; count++) {
+        const { unmount } = await render(<Providers1to8 count={count} width={width} />);
+        const group = slot("provider-button-group");
+        const where = `${count} at ${width}px`;
+        const fits = (cell: HTMLElement) => {
+          const label = slot("provider-button-label", cell);
+          return label.scrollWidth <= label.clientWidth;
+        };
+        // The row measures itself and settles on a form: the logos alone, or names that all fit.
+        const settledForm = () => group.dataset.labels === "hidden" || cells().every(fits);
+        await expect.poll(settledForm, { message: where }).toBe(true);
+        // And it stays there: measuring the logo-only form must not switch it back.
+        const form = group.dataset.labels;
+        await settled();
+        await settled();
+        expect(group.dataset.labels, where).toBe(form);
+        expect(group.scrollWidth, where).toBeLessThanOrEqual(width);
+        const shown = group.dataset.labels !== "hidden";
+        for (const cell of cells()) {
+          expect(box(cell).width, where).toBeGreaterThanOrEqual(44);
+          expect(box(cell).right, where).toBeLessThanOrEqual(box(group).right + 0.5);
+          const label = slot("provider-button-label", cell);
+          if (shown) expect(label.scrollWidth, where).toBeLessThanOrEqual(label.clientWidth);
+        }
+        await unmount();
+      }
+    });
+  }
+
+  for (const dir of ["ltr", "rtl"] as const) {
+    it(`past six, wraps into balanced rows with the border, corners and rules (${dir})`, async () => {
+      html.dir = dir;
+      const { rerender } = await render(<Providers1to8 count={6} width={320} />);
+      const group = slot("provider-button-group");
+      expect(group.dataset.columns).toBeUndefined();
+      expect(new Set(cells().map((cell) => Math.round(box(cell).top))).size).toBe(1);
+      await rerender(<Providers1to8 count={7} width={320} />);
+      expect(group.dataset.columns).toBe("4");
+      const all = cells();
+      const [first, second] = [all.slice(0, 4), all.slice(4)];
+      // Two rows: four on the first, three sharing the whole width of the second.
+      for (const cell of first) expect(box(cell).top).toBe(box(all[0] as Element).top);
+      for (const cell of second) expect(box(cell).top).toBe(box(first[0] as Element).bottom);
+      const rowWidth = (row: HTMLElement[]) => row.reduce((sum, cell) => sum + box(cell).width, 0);
+      expect(Math.abs(rowWidth(first) - (320 - 2))).toBeLessThan(1);
+      expect(Math.abs(rowWidth(second) - (320 - 2))).toBeLessThan(1);
+      // A rule between cells, but not at a row's start; and a rule above the second row only.
+      const style = (cell: Element) => getComputedStyle(cell);
+      expect(all.map((cell) => style(cell).borderInlineStartWidth)).toEqual([
+        "0px",
+        "1px",
+        "1px",
+        "1px",
+        "0px",
+        "1px",
+        "1px",
+      ]);
+      expect(all.map((cell) => style(cell).borderTopWidth)).toEqual([
+        "0px",
+        "0px",
+        "0px",
+        "0px",
+        "1px",
+        "1px",
+        "1px",
+      ]);
+      // Each row's content is the field height's (40 at the default density, less the 1px edges).
+      expect(box(first[0] as Element).height).toBe(38);
+      expect(box(second[0] as Element).height).toBe(39);
+      expect(box(group).height).toBe(38 + 39 + 2);
+      // The group keeps its border and corners round both rows.
+      expect(style(group).borderTopWidth).toBe("1px");
+      expect(style(group).borderBottomLeftRadius).toBe("4px");
+      // The first cell leads in the reading direction.
+      const [a, b] = all as [HTMLElement, HTMLElement];
+      if (dir === "ltr") expect(box(a).left).toBeLessThan(box(b).left);
+      else expect(box(a).left).toBeGreaterThan(box(b).left);
+      await rerender(<Providers1to8 count={8} width={320} />);
+      expect(group.dataset.columns).toBe("4");
+      expect(cells().filter((cell) => box(cell).top > box(all[0] as Element).top)).toHaveLength(4);
+    });
+  }
+
+  it("is accessible in the logo-only rows, in light and dark", async () => {
+    await render(<Providers1to8 count={8} width={320} />);
+    const group = slot("provider-button-group");
+    await expect.element(page.getByRole("group")).toHaveAttribute("data-labels", "hidden");
+    await expect
+      .element(page.getByRole("button", { name: "Sign in with LinkedIn" }))
+      .toHaveTextContent("LinkedIn");
+    await expectAccessible(group);
+    html.dataset.qxColorScheme = "dark";
+    await expectAccessible(group);
+  });
+
+  it("looks right in rows of logos", async () => {
+    await render(
+      <Stage>
+        <div style={{ display: "grid", gap: 16, justifyItems: "start" }}>
+          <Providers1to8 count={4} width={400} />
+          <Providers1to8 count={7} width={320} />
+          <div dir="rtl">
+            <Providers1to8 count={8} width={320} />
+          </div>
+        </div>
+      </Stage>,
+    );
+    await screenshotEveryMode("ProviderButton · rows");
   });
 });

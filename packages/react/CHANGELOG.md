@@ -1,5 +1,32 @@
 # @qeetrix/react
 
+## 0.5.4
+
+### New
+
+- **ProviderButtonGroup (experimental) wraps more than six providers into balanced rows**: seven
+  share two rows as four and three, eight as four and four, the last row's cells filling its width.
+  Each cell stays at least 44px wide in a 320px column. The group keeps its border and 4px
+  corners round every row, with 1px rules between cells and between rows, and each row's content
+  is the field height. Up to six providers share one row, as before.
+
+### Changed
+
+- **ProviderButtonGroup's `labels` defaults to `"auto"`**, so no provider's name is cut short: the
+  names show while every one fits its cell, and the logos show alone once one doesn't. In a 400px
+  sign-in column that means names for up to three providers and logos alone from four, and a
+  phone's narrower row switches sooner. `labels="visible"` keeps the names always, cut short with
+  an ellipsis where a cell is too narrow, as 0.5.3's default did.
+- **The logo-only form's tooltip shows the button's whole name** ("Sign in with GitHub"), not only
+  the provider's. It is still never linked as a description, since it is the button's name.
+
+### Fixed
+
+- **`labels="auto"` settles on one form.** It measured the logo-only form with that form's own
+  narrower padding, so a row could switch back to names that didn't fit, and the tooltips of a
+  row that had switched to logos never opened. It now always measures the room the full form
+  gives a name.
+
 ## 0.5.3
 
 ### New

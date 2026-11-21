@@ -84,6 +84,48 @@
   }
 }
 
+/* More than six providers: balanced rows of four to six (data-columns), the last row's cells
+   sharing its whole width. A rule starts each cell but a row's first, and tops each row but the
+   first; those cells are a rule taller, so every row's content is the field height's. */
+.qx-provider-button-group[data-columns] {
+  display: flex;
+  flex-wrap: wrap;
+  > .qx-provider-button {
+    /* 1px under an exact share, so a row always holds its columns; growing fills the rest. */
+    flex: 1 1 calc((100% - 1px) / var(--qx-provider-button-columns));
+  }
+}
+.qx-provider-button-group[data-columns="4"] {
+  --qx-provider-button-columns: 4;
+  > .qx-provider-button:nth-child(4n + 1) {
+    border-inline-start: 0;
+  }
+  > .qx-provider-button:nth-child(n + 5) {
+    border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+    block-size: calc(var(--qx-size-control-lg) - var(--qx-border-width-default));
+  }
+}
+.qx-provider-button-group[data-columns="5"] {
+  --qx-provider-button-columns: 5;
+  > .qx-provider-button:nth-child(5n + 1) {
+    border-inline-start: 0;
+  }
+  > .qx-provider-button:nth-child(n + 6) {
+    border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+    block-size: calc(var(--qx-size-control-lg) - var(--qx-border-width-default));
+  }
+}
+.qx-provider-button-group[data-columns="6"] {
+  --qx-provider-button-columns: 6;
+  > .qx-provider-button:nth-child(6n + 1) {
+    border-inline-start: 0;
+  }
+  > .qx-provider-button:nth-child(n + 7) {
+    border-block-start: var(--qx-border-width-default) solid var(--qx-color-border-default);
+    block-size: calc(var(--qx-size-control-lg) - var(--qx-border-width-default));
+  }
+}
+
 /* The logo-only form (labels="hidden", or "auto" in a narrow row): the logo alone, centred in its
    cell at size.icon.lg. The name is hidden from sight only, out of the flow so it leaves no gap. */
 .qx-provider-button-group[data-labels="hidden"] {

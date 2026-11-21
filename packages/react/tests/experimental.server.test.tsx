@@ -435,6 +435,17 @@ describe("experimental components on the server", () => {
     expect(providers("hidden")).toMatch(/^<fieldset [^>]*data-labels="hidden"/);
     expect(providers("hidden")).toContain(">Google</span>");
     expect(providers("auto")).not.toContain("data-labels");
+    // Rows are in the markup: seven providers render as rows of four.
+    const seven = html(
+      <ProviderButtonGroup aria-label="Sign in with another account">
+        {["A", "B", "C", "D", "E", "F", "G"].map((name) => (
+          <ProviderButton key={name} aria-label={`Sign in with ${name}`}>
+            {name}
+          </ProviderButton>
+        ))}
+      </ProviderButtonGroup>,
+    );
+    expect(seven).toMatch(/^<fieldset [^>]*data-columns="4"/);
   });
 
   it("switches at the tokens' expanded window class", () => {
