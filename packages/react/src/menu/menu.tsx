@@ -323,7 +323,26 @@ export function MenuCheckboxItem({
   );
 }
 
-/** One choice of a MenuRadioGroup; a 6px dot marks it. */
+/**
+ * The chosen radio item's mark: a sharp check in Ember (`color.icon.brand`) at the item's end. Its
+ * 16px column is there on every item, so the menu keeps its width as the choice moves. Shared by
+ * MenuRadioItem and ThemeSwitcher, so every picker marks its choice the same way. Not part of the
+ * package's API.
+ */
+export function MenuRadioMark(): ReactElement {
+  return (
+    <span className="qx-menu-mark qx-menu-radio-mark" data-slot="menu-item-mark">
+      <BaseMenu.RadioItemIndicator className="qx-menu-mark-indicator">
+        <CheckIcon shape="sharp" size={16} aria-hidden />
+      </BaseMenu.RadioItemIndicator>
+    </span>
+  );
+}
+
+/**
+ * One choice of a MenuRadioGroup: a picker's option (a language, a currency, a theme). The current
+ * one is marked with a sharp Ember check at the item's end, as ThemeSwitcher's is.
+ */
 export function MenuRadioItem({
   shortcut,
   description,
@@ -342,11 +361,9 @@ export function MenuRadioItem({
       data-slot="menu-radio-item"
       data-description={description != null ? "" : undefined}
     >
-      <span className="qx-menu-mark" data-slot="menu-item-mark">
-        <BaseMenu.RadioItemIndicator className="qx-menu-mark-indicator qx-menu-dot" />
-      </span>
       {item.text}
       <Shortcut>{shortcut}</Shortcut>
+      <MenuRadioMark />
     </BaseMenu.RadioItem>
   );
 }

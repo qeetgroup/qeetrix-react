@@ -1,8 +1,16 @@
 "use client";
 
-import type { ComponentProps, MouseEvent, ReactElement, ReactNode } from "react";
+import {
+  type ComponentProps,
+  type MouseEvent,
+  type ReactElement,
+  type ReactNode,
+  use,
+} from "react";
 import { cx } from "../../internal/cx";
 import { type RenderProp, renderElement } from "../../internal/render";
+import { TooltipBase } from "../../tooltip/tooltip";
+import { ProviderButtonLabelsHidden } from "./provider-button-context";
 
 /** The colour scheme a monochrome logo is inverted in. */
 export type ProviderLogoInvert = "light" | "dark";
@@ -23,7 +31,10 @@ export interface ProviderButtonProps
    * part alone.
    */
   logoInvert?: ProviderLogoInvert;
-  /** The visible label: the provider's name, "Google". */
+  /**
+   * The visible label: the provider's name, "Google". In the group's logo-only form it's hidden from
+   * sight and shown in a tooltip on hover and keyboard focus.
+   */
   children: ReactNode;
   /**
    * Required: the whole action, "Sign in with Google". The visible label is only the provider's
@@ -44,7 +55,8 @@ export interface ProviderButtonProps
 
 /**
  * One sign-in provider in a ProviderButtonGroup: its logo, then its name, filling an equal cell of
- * the group's ruled row. Named by its `aria-label`, the whole phrase ("Sign in with Google").
+ * the group's ruled row. Named by its `aria-label`, the whole phrase ("Sign in with Google"). In the
+ * group's logo-only form (`labels`) it draws the logo alone, centred and a step larger.
  */
 export function ProviderButton({
   logo,
@@ -57,7 +69,8 @@ export function ProviderButton({
   children,
   ...props
 }: ProviderButtonProps): ReactElement {
-  return renderElement("button", render, {
+  const labelsHidden = use(ProviderButtonLabelsHidden);
+  const button = renderElement("button", render, {
     ...props,
     // `type` belongs to a button; a link rendered through `render` gets none.
     type: render === undefined ? (type ?? "button") : type,
@@ -91,4 +104,11 @@ export function ProviderButton({
       </>
     ),
   });
+  // The name in a tooltip, in the logo-only form only. It's never linked by aria-describedby: the
+  // aria-label already says it. Always wrapped, so a row switching form keeps its buttons (and focus).
+  return (
+    <TooltipBase content={children} describes={false} disabled={!labelsHidden}>
+      {button}
+    </TooltipBase>
+  );
 }

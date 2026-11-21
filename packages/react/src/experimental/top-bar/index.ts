@@ -1,6 +1,8 @@
 export {
   TopBar,
   type TopBarProps,
+  TopBarScopeName,
+  type TopBarScopeNameProps,
   TopBarSearch,
   type TopBarSearchProps,
   type TopBarStatus,

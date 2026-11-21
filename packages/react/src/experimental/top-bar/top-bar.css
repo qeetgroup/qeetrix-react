@@ -75,20 +75,25 @@
   }
 }
 
-.qx-top-bar-switcher {
+/* A step of the scope: a switcher (a button opening its menu) or a name, which is text only. They
+   share the box, so a name lines up with the switchers beside it and in the compact bar's popup. */
+.qx-top-bar-switcher,
+.qx-top-bar-scope-name {
   display: flex;
   align-items: center;
   gap: var(--qx-space-gap-sm);
   min-inline-size: 0;
   block-size: var(--qx-size-control-md);
   padding-inline: var(--qx-space-inset-sm);
-  border: 0;
-  border-radius: var(--qx-radius-control);
-  background: transparent;
   color: var(--qx-color-text-default);
   font: var(--qx-typography-label-md);
   font-variation-settings: "GEOM" var(--qx-typography-label-md-font-geometry);
   white-space: nowrap;
+}
+.qx-top-bar-switcher {
+  border: 0;
+  border-radius: var(--qx-radius-control);
+  background: transparent;
   cursor: pointer;
   transition-property: background-color;
   transition-duration: var(--qx-motion-duration-fast);
@@ -263,7 +268,7 @@
 }
 
 /* Compact (below 840px, from the same query, or an embedded shell's box): the scope path is one
-   switcher. The start clips rather than ever painting over the tools; the switcher's label truncates
+   switcher, or the innermost name when every step is a name. The start clips rather than ever painting over the tools; the switcher's label truncates
    first. On a phone (below 600px) the logo stands for the product, the tools are one menu, and the
    account loses its rule. */
 .qx-top-bar[data-compact] .qx-top-bar-start {
@@ -311,7 +316,7 @@
     }
   }
 }
-/* The compact bar's whole scope path: each step's own switcher, one under another. */
+/* The compact bar's whole scope path: each step's own switcher or name, one under another. */
 .qx-top-bar-scope-positioner {
   z-index: var(--qx-z-popover);
 }
@@ -340,7 +345,8 @@
     transition-duration: var(--qx-motion-duration-fast);
     transition-timing-function: var(--qx-motion-easing-exit);
   }
-  .qx-top-bar-switcher {
+  .qx-top-bar-switcher,
+  .qx-top-bar-scope-name {
     inline-size: 100%;
   }
   .qx-top-bar-switcher-label {

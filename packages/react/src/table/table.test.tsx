@@ -638,7 +638,7 @@ describe("Table", () => {
     expect(edge.height).toBeGreaterThan(48);
   });
 
-  it("names a row's link by its rowLabel, and describes it by the rest of the cell", async () => {
+  it("names a row's link by what its primary cell shows", async () => {
     await render(
       <Invoices
         rowHref={(row) => `#/invoices/${row.id}`}
@@ -657,9 +657,55 @@ describe("Table", () => {
         ]}
       />,
     );
-    const link = page.getByRole("link", { name: "INV-0043" });
-    await expect.element(link).toHaveAccessibleName("INV-0043");
-    await expect.element(link).toHaveAccessibleDescription("INV-0043 · Bharat Foods");
+    const link = page.getByRole("link", { name: "INV-0043 · Bharat Foods" });
+    await expect.element(link).toHaveAccessibleName("INV-0043 · Bharat Foods");
+    expect(link.element().hasAttribute("aria-label")).toBe(false);
+    expect(link.element().hasAttribute("aria-describedby")).toBe(false);
+  });
+
+  it("names a link to a person by the name and email it shows (label in name), the row's controls by rowLabel", async () => {
+    const people = [
+      { id: "u1", name: "Priya Sharma", email: "priya@acme.in", role: "Admin" },
+      { id: "u2", name: "Arjun Mehta", email: "arjun@acme.in", role: "Member" },
+    ];
+    const { container } = await render(
+      <Table
+        label="Users"
+        rows={people}
+        rowId={(row) => row.id}
+        rowLabel={(row) => row.name}
+        selectable
+        rowActions={() => <MenuItem>Suspend</MenuItem>}
+        rowHref={(row) => `#/users/${row.id}`}
+        columns={[
+          {
+            id: "name",
+            header: "Name",
+            cell: (row) => <AvatarItem name={row.name} description={row.email} />,
+          },
+          { id: "role", header: "Role", cell: (row) => row.role },
+        ]}
+      />,
+    );
+    const link = page.getByRole("link", { name: /^Priya Sharma/ });
+    // The visible words, in order (the avatar is hidden), so "click Priya Sharma" reaches it by voice.
+    await expect.element(link).toHaveAccessibleName(/^Priya Sharma\s*priya@acme\.in$/);
+    await expect.element(link).toHaveAttribute("href", "#/users/u1");
+    await expect.element(checkbox("Select Priya Sharma")).toBeVisible();
+    await expect
+      .element(page.getByRole("button", { name: "Actions for Priya Sharma" }))
+      .toBeVisible();
+    // The scan runs axe's label-content-name-mismatch rule too (WCAG 2.5.3).
+    await expectAccessible(container);
+  });
+
+  it("fails the scan for a link named apart from its visible text, as the row link once was", async () => {
+    const { container } = await render(
+      <a href="#/users/u1" aria-label="Priya Sharma">
+        Priya Sharma priya@acme.in
+      </a>,
+    );
+    await expect(expectAccessible(container)).rejects.toThrow(/label-content-name-mismatch/);
   });
 
   it("puts a router's link in the primary column, and passes modifier keys to it", async () => {

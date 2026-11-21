@@ -73,17 +73,28 @@ export interface WorkspaceProps extends Omit<ComponentProps<"div">, "children"> 
 
 /**
  * A tool's working surface, under the page header and a Toolbar: ruled panes edge to edge, each
- * scrolling on its own. It fills its box (give it a height: the window under the bar, say); on
- * a narrow box the panes stack.
+ * scrolling on its own. It fills its box (give it a height: the window under the bar, say); in a
+ * box under 840px the panes stack, one full-width column in reading order, and scroll together.
+ * The panes sit in an inner grid (`qx-workspace-grid`), which the box's width restyles: select
+ * them by their own classes, not as the Workspace's direct children.
  */
-export function Workspace({ layout = "three", className, ...props }: WorkspaceProps): ReactElement {
+export function Workspace({
+  layout = "three",
+  className,
+  children,
+  ...props
+}: WorkspaceProps): ReactElement {
   return (
     <div
       {...props}
       className={cx("qx-workspace", className)}
       data-slot="workspace"
       data-layout={layout}
-    />
+    >
+      <div className="qx-workspace-grid" data-slot="workspace-grid">
+        {children}
+      </div>
+    </div>
   );
 }
 

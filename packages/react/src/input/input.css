@@ -82,13 +82,15 @@
   color: var(--qx-color-text-subtle);
 }
 
-/* Large (design rules §8, the one exception to the shared height): the one value a sign-in or
-   sign-up step asks for, as OTPInput's lg: size.control.lg + 16px, the value and any affix at
-   title.lg with body letterforms and tabular figures, the placeholder at body size. The `font`
-   shorthand resets the geometry axis and the figures, so both are set again after it. */
+/* Large (design rules §8, the one exception to the shared height): the one value a sign-up or
+   verification step asks for, as OTPInput's lg: size.control.lg + 16px, the value and any affix at
+   title.lg's size in regular weight, with body letterforms and tabular figures, the placeholder at
+   body size. Never a sign-in email or password field: those are md. The `font` shorthand resets the
+   weight, the geometry axis and the figures, so they're set again after it. */
 .qx-input[data-size="lg"] {
   block-size: calc(var(--qx-size-control-lg) + 16px);
   font: var(--qx-typography-title-lg);
+  font-weight: var(--qx-typography-body-md-font-weight);
   font-variation-settings: "GEOM" var(--qx-font-geometry-body);
   font-variant-numeric: tabular-nums;
   & > .qx-input-control::placeholder {

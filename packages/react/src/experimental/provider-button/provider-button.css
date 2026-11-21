@@ -84,6 +84,27 @@
   }
 }
 
+/* The logo-only form (labels="hidden", or "auto" in a narrow row): the logo alone, centred in its
+   cell at size.icon.lg. The name is hidden from sight only, out of the flow so it leaves no gap. */
+.qx-provider-button-group[data-labels="hidden"] {
+  > .qx-provider-button {
+    position: relative;
+    padding-inline: 0;
+  }
+  .qx-provider-button-logo :is(svg, img) {
+    inline-size: var(--qx-size-icon-lg);
+    block-size: var(--qx-size-icon-lg);
+  }
+  .qx-provider-button-label {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
 /* Monochrome logos, drawn in white (Apple) or black (GitHub), are inverted in the scheme where
    they'd vanish. The filter is inherited from the nearest data-qx-color-scheme, as the tokens are,
    so a section shown in the other scheme gets it right. */

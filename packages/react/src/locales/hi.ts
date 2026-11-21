@@ -31,7 +31,7 @@ export const hi: QeetrixMessages = {
   },
   sidebar: { filter: "नेविगेशन में खोजें", noMatches: "कोई पेज नहीं मिला" },
   breadcrumb: { label: "पेज का पथ" },
-  pageHeader: { back: "वापस", backTo: "{page} पर वापस जाएँ" },
+  pageHeader: { back: "वापस", backTo: "{page} पर वापस जाएँ", summary: "सारांश" },
   topBar: { scope: "दायरा" },
   dataState: {
     errorTitle: "यह लोड नहीं हो सका",

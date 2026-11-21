@@ -42,6 +42,7 @@ import {
   SidebarItem,
   Stat,
   StatGroup,
+  StatList,
   Steps,
   ThemeSwitcher,
   Timeline,
@@ -103,6 +104,19 @@ describe("experimental components on the server", () => {
     );
     expect(header).toContain('aria-label="Back to Users"');
     expect(header).toContain(">1,28,400</span>");
+    // The summary is in the markup, folded on a phone by CSS before it hydrates: the strip is a
+    // closed disclosure, and the band isn't marked open.
+    const summary = html(
+      <PageHeader title="Users" summary={<Stat label="Total users" value={1284} />} />,
+    );
+    expect(summary).toMatch(
+      /<button type="button" class="qx-page-header-summary-toggle"[^>]*aria-expanded="false"/,
+    );
+    expect(summary).toContain(">Summary</span>");
+    expect(summary).toMatch(
+      /<div id="[^"]+" class="qx-page-header-summary" data-slot="page-header-summary">/,
+    );
+    expect(summary).toContain(">1,284</dd>");
     expect(
       html(
         <StatProvider locale="en-US">
@@ -110,6 +124,23 @@ describe("experimental components on the server", () => {
         </StatProvider>,
       ),
     ).toContain(">128,400</span>");
+  });
+
+  it("StatList renders its rows on the server: a term, then a list of links", () => {
+    const band = html(
+      <StatGroup>
+        <StatList
+          label="Needs a look"
+          items={[{ label: "Dormant", count: 1400, tone: "warning", href: "/users?dormant" }]}
+        />
+      </StatGroup>,
+    );
+    expect(band).toMatch(/<dt class="qx-stat-label"[^>]*>Needs a look<\/dt>/);
+    expect(band).toContain(
+      '<a class="qx-stat-list-link" data-slot="stat-list-link" href="/users?dormant">',
+    );
+    expect(band).toContain(">1,400</span>");
+    expect(band).toContain('data-tone="warning"');
   });
 
   it("Stat follows QeetrixProvider's locale on the server, and renders its loading state", () => {
@@ -362,8 +393,7 @@ describe("experimental components on the server", () => {
     );
   });
 
-  it("ProviderButtonGroup carries no client code; ProviderButton renders a button or a link", () => {
-    expect(source("provider-button/provider-button-group.tsx")).not.toMatch(/^["']use client["']/);
+  it("ProviderButtonGroup renders its row on the server; ProviderButton renders a button or a link", () => {
     const row = html(
       <ProviderButtonGroup aria-label="Sign in with another account">
         <ProviderButton aria-label="Sign in with Google" logo={<svg />}>
@@ -391,6 +421,20 @@ describe("experimental components on the server", () => {
     expect(link).toContain('aria-disabled="true"');
     expect(row).not.toMatch(/<a [^>]*type=/);
     expect(row).toContain('data-invert="light"');
+    expect(row).not.toContain("data-labels");
+    // The logo-only form is in the markup; "auto" can only measure in the browser, so a
+    // server-rendered row shows the names until it hydrates.
+    const providers = (labels: "hidden" | "auto") =>
+      html(
+        <ProviderButtonGroup aria-label="Sign in with another account" labels={labels}>
+          <ProviderButton aria-label="Sign in with Google" logo={<svg />}>
+            Google
+          </ProviderButton>
+        </ProviderButtonGroup>,
+      );
+    expect(providers("hidden")).toMatch(/^<fieldset [^>]*data-labels="hidden"/);
+    expect(providers("hidden")).toContain(">Google</span>");
+    expect(providers("auto")).not.toContain("data-labels");
   });
 
   it("switches at the tokens' expanded window class", () => {

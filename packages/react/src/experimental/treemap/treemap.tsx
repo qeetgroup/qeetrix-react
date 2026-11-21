@@ -92,9 +92,21 @@ export interface TreemapNode {
   children?: readonly Omit<TreemapNode, "children" | "href" | "render">[];
 }
 
+/**
+ * A value in words for a name, given the value and its formatted figure: what's counted, in the
+ * right plural for the locale. `(value, figure) => t("people", { count: value })` says "1 person",
+ * "42 people". Only the names read by assistive technology use it; the counts drawn stay figures.
+ */
+export type TreemapValueText = (value: number, figure: string) => string;
+
 export interface TreemapProps extends Omit<ComponentProps<"ul">, "children"> {
   /** The nodes, largest first. */
   nodes: readonly TreemapNode[];
+  /**
+   * Says each value in words in the tiles' names, with its noun and plural: "Engineering, 42
+   * people: Platform 12 people, …". The drawn counts stay figures. Default: the figure alone.
+   */
+  valueText?: TreemapValueText;
   /** Names the map: "Departments by people". */
   "aria-label": string;
   /** Width over height. Default `3`. */
@@ -116,6 +128,7 @@ const W = 1000;
  */
 export function Treemap({
   nodes,
+  valueText,
   aspectRatio = 3,
   locale: localeProp,
   messages,
@@ -127,6 +140,7 @@ export function Treemap({
   const provided = useLocale();
   const locale = localeProp ?? provided;
   const n = (value: number) => formatNumber(value, locale);
+  const said = (value: number) => (valueText ? valueText(value, n(value)) : n(value));
   const H = W / aspectRatio;
   const rects = squarify(
     nodes.map((node) => node.value),
@@ -144,8 +158,8 @@ export function Treemap({
         const kids = node.children ?? [];
         const name = fill(kids.length ? strings.tileWithChildren : strings.tile, {
           label: node.label,
-          value: n(node.value),
-          children: kids.map((kid) => `${kid.label} ${n(kid.value)}`).join(", "),
+          value: said(node.value),
+          children: kids.map((kid) => `${kid.label} ${said(kid.value)}`).join(", "),
         });
         const head = (
           <>
@@ -237,6 +251,11 @@ export interface ProportionalCirclesProps extends Omit<ComponentProps<"div">, "c
   maxRadius?: number;
   /** The smallest radius, so a small value stays visible. Default `5`. */
   minRadius?: number;
+  /**
+   * Says each value in words in the circles' names, with its noun and plural: "Bengaluru, 2
+   * people". The drawn counts stay figures. Default: the figure alone.
+   */
+  valueText?: TreemapValueText;
   /** Default: QeetrixProvider's locale. */
   locale?: string;
   /** These circles' strings, over QeetrixProvider's and the English defaults. */
@@ -252,6 +271,7 @@ export function ProportionalCircles({
   groups,
   maxRadius = 40,
   minRadius = 5,
+  valueText,
   locale: localeProp,
   messages,
   className,
@@ -293,7 +313,10 @@ export function ProportionalCircles({
                     {inside ? item.label : `${item.label} · ${n(item.value)}`}
                   </small>
                   <VisuallyHidden>
-                    {fill(strings.item, { label: item.label, value: n(item.value) })}
+                    {fill(strings.item, {
+                      label: item.label,
+                      value: valueText ? valueText(item.value, n(item.value)) : n(item.value),
+                    })}
                   </VisuallyHidden>
                 </li>
               );

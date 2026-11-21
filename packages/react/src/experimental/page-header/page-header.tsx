@@ -1,7 +1,9 @@
 import type { ComponentProps, ReactElement, ReactNode } from "react";
 import { Heading, type HeadingLevel } from "../../heading/heading";
 import { cx } from "../../internal/cx";
+import type { QeetrixMessages } from "../../internal/messages";
 import { ProvidedNumber } from "../../internal/provided";
+import { SummaryFold } from "./page-header-summary";
 
 export interface PageHeaderProps extends Omit<ComponentProps<"div">, "title"> {
   /**
@@ -38,14 +40,26 @@ export interface PageHeaderProps extends Omit<ComponentProps<"div">, "title"> {
   /**
    * Key numbers for the page: a StatGroup, ruled edge to edge under the title, its first and last
    * cells on the page gutter. A Stat's `chart` and `action` carry a small chart and a link into the
-   * list, for a richer summary band.
+   * list, for a richer summary band. On a phone (below 600px) it folds behind a "Summary"
+   * disclosure, closed by default, so the page's content comes first.
    */
   summary?: ReactNode;
+  /**
+   * Whether the folded summary is open on a phone, controlled: keep it per page to remember it.
+   * From 600px the summary always shows.
+   */
+  summaryOpen?: boolean;
+  /** Whether the folded summary starts open on a phone, uncontrolled. Default `false`. */
+  defaultSummaryOpen?: boolean;
+  /** Called when the folded summary opens or closes. */
+  onSummaryOpenChange?: (open: boolean) => void;
   /**
    * A TabsList, attached to the header's foot: the first label on the page gutter, its rule edge to
    * edge.
    */
   tabs?: ReactNode;
+  /** The header's strings, over QeetrixProvider's and the English defaults. */
+  messages?: Partial<QeetrixMessages["pageHeader"]>;
 }
 
 export type PageContentWidth = "full" | "narrow";
@@ -58,7 +72,8 @@ export interface PageContentProps extends ComponentProps<"div"> {
 /**
  * The head of a console page (C1 · Ruled): a back link or breadcrumb, title with its count and
  * status, actions, an optional strip of key numbers, and tabs, on a ruled band above the work
- * surface. Server-safe: the count's locale comes from QeetrixProvider through a client leaf.
+ * surface. On a phone the strip of key numbers folds behind a "Summary" disclosure. Server-safe:
+ * the count's locale and the summary's disclosure come from client leaves.
  */
 export function PageHeader({
   back,
@@ -71,7 +86,11 @@ export function PageHeader({
   description,
   actions,
   summary,
+  summaryOpen,
+  defaultSummaryOpen = false,
+  onSummaryOpenChange,
   tabs,
+  messages,
   className,
   ...props
 }: PageHeaderProps): ReactElement {
@@ -122,9 +141,14 @@ export function PageHeader({
         )}
       </div>
       {summary != null && (
-        <div className="qx-page-header-summary" data-slot="page-header-summary">
+        <SummaryFold
+          open={summaryOpen}
+          defaultOpen={defaultSummaryOpen}
+          onOpenChange={onSummaryOpenChange}
+          messages={messages}
+        >
           {summary}
-        </div>
+        </SummaryFold>
       )}
       {tabs != null && <div className="qx-page-header-tabs">{tabs}</div>}
     </div>

@@ -26,7 +26,10 @@ interface ButtonBaseProps extends Omit<ComponentProps<"button">, "children"> {
    * Busy: a spinner replaces the icon, clicks are ignored and `aria-busy` is set. Default `false`.
    */
   loading?: boolean;
-  /** Render a different element through Base UI, e.g. a router link. */
+  /**
+   * Another element through Base UI. For navigation, LinkButton: it's announced as a link. A
+   * Button given a link here is still announced as a button.
+   */
   render?: BaseButton.Props["render"];
 }
 

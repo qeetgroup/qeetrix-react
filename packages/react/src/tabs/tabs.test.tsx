@@ -289,6 +289,91 @@ describe("Tabs", () => {
 });
 
 /** A Users page's sub-pages, as a TabNav of links. */
+const PERSON = ["Overview", "Access", "Security", "Sessions", "Activity"];
+
+/** A person's five views in a list narrower than its tabs, as on a phone. */
+function PersonViews({
+  value = "Activity",
+  controlled = true,
+}: {
+  value?: string;
+  controlled?: boolean;
+}) {
+  return (
+    <div style={{ inlineSize: 240 }}>
+      <Tabs {...(controlled ? { value } : { defaultValue: value })}>
+        <TabsList>
+          {PERSON.map((view) => (
+            <Tab key={view} value={view}>
+              {view}
+            </Tab>
+          ))}
+        </TabsList>
+      </Tabs>
+    </div>
+  );
+}
+
+describe("TabsList, narrower than its tabs", () => {
+  const list = () => document.querySelector("[data-slot=tabs-list]") as HTMLElement;
+  const tab = (name: string) => page.getByRole("tab", { name }).element() as HTMLElement;
+  /** Whether the tab shows whole inside the list's box. */
+  const shown = (name: string) => {
+    const edge = list().getBoundingClientRect();
+    const box = tab(name).getBoundingClientRect();
+    return box.left >= edge.left - 0.5 && box.right <= edge.right + 0.5;
+  };
+
+  for (const dir of ["ltr", "rtl"] as const) {
+    it(`scrolls inside itself, keeping the selected tab in view, and never the page (${dir})`, async () => {
+      html.dir = dir;
+      try {
+        const { rerender } = await render(<PersonViews />);
+        expect(list().scrollWidth).toBeGreaterThan(list().clientWidth);
+        // The last view, selected as the page opens, is scrolled to.
+        await expect.poll(() => shown("Activity")).toBe(true);
+        expect(shown("Overview")).toBe(false);
+        // Chosen from outside the list (a link, the address), the first view comes back into view.
+        await rerender(<PersonViews value="Overview" />);
+        await expect.poll(() => shown("Overview")).toBe(true);
+        await rerender(<PersonViews value="Sessions" />);
+        await expect.poll(() => shown("Sessions")).toBe(true);
+        expect(window.scrollX).toBe(0);
+        expect(html.scrollWidth).toBeLessThanOrEqual(html.clientWidth);
+      } finally {
+        html.removeAttribute("dir");
+      }
+    });
+  }
+
+  it("moves by the arrow keys and Home and End, each tab shown as it's reached", async () => {
+    await render(<PersonViews controlled={false} />);
+    tab("Activity").focus();
+    await userEvent.keyboard("{Home}");
+    await expect.element(page.getByRole("tab", { name: "Overview" })).toHaveFocus();
+    await expect.poll(() => shown("Overview")).toBe(true);
+    await userEvent.keyboard("{ArrowRight}");
+    await expect
+      .element(page.getByRole("tab", { name: "Access" }))
+      .toHaveAttribute("aria-selected", "true");
+    await userEvent.keyboard("{End}");
+    await expect.element(page.getByRole("tab", { name: "Activity" })).toHaveFocus();
+    await expect.poll(() => shown("Activity")).toBe(true);
+  });
+
+  it("leaves a list that fits alone", async () => {
+    await render(
+      <Tabs defaultValue="b">
+        <TabsList>
+          <Tab value="a">A</Tab>
+          <Tab value="b">B</Tab>
+        </TabsList>
+      </Tabs>,
+    );
+    expect(list().scrollLeft).toBe(0);
+  });
+});
+
 function UsersViews({ current = "/users/invitations" }: { current?: string }) {
   return (
     <TabNav aria-label="Users views">

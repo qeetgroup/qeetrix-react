@@ -77,7 +77,17 @@ const spoken = (text: unknown): string | null =>
  * its text only repeats the trigger's name, as on an IconButton that shows its `aria-label`, it
  * isn't linked, so the name isn't read twice.
  */
-export function Tooltip({
+export function Tooltip({ content, ...props }: TooltipProps): ReactElement {
+  return <TooltipBase {...props} content={content} describes />;
+}
+
+/**
+ * Tooltip for the library's own triggers. With `describes` off it's never linked by
+ * `aria-describedby`: for a trigger whose name already says what it shows in other words, as
+ * ProviderButton's "Google" is in "Sign in with Google". Not part of the package's API.
+ */
+export function TooltipBase({
+  describes,
   content,
   children,
   side = "top",
@@ -89,7 +99,7 @@ export function Tooltip({
   defaultOpen = false,
   onOpenChange,
   ...props
-}: TooltipProps): ReactElement {
+}: TooltipProps & { describes: boolean }): ReactElement {
   const portalContainer = usePortalContainer();
   const providerDelay = use(ProviderDelay);
   const popupId = useId();
@@ -115,7 +125,7 @@ export function Tooltip({
   };
 
   const describedBy =
-    open && !repeats
+    open && describes && !repeats
       ? [spoken(own["aria-describedby"]), popupId].filter(Boolean).join(" ")
       : undefined;
 

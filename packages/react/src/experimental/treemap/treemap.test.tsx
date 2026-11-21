@@ -5,7 +5,20 @@ import { expectAccessible } from "../../../tests/support/axe";
 import { tokenColor } from "../../../tests/support/color";
 import { screenshotSchemes } from "../../../tests/support/screenshots";
 import { Stage } from "../../../tests/support/stage";
-import { ProportionalCircles, squarify, Treemap, type TreemapNode } from "./treemap";
+import {
+  ProportionalCircles,
+  squarify,
+  Treemap,
+  type TreemapNode,
+  type TreemapValueText,
+} from "./treemap";
+
+/** "1 person", "42 people": a product's plural, as i18next's `t("people", { count })` would say. */
+const people: TreemapValueText = (value, figure) =>
+  `${figure} ${new Intl.PluralRules("en-IN").select(value) === "one" ? "person" : "people"}`;
+/** Hindi's: "1 व्यक्ति", "42 लोग". */
+const log: TreemapValueText = (value, figure) =>
+  `${figure} ${new Intl.PluralRules("hi-IN").select(value) === "one" ? "व्यक्ति" : "लोग"}`;
 
 const DEPARTMENTS: TreemapNode[] = [
   {
@@ -56,6 +69,56 @@ describe("Treemap", () => {
     );
   });
 
+  it("says each value with its noun in the right plural, through valueText; the drawn counts stay figures", async () => {
+    const nodes: TreemapNode[] = [
+      {
+        ...(DEPARTMENTS[0] as TreemapNode),
+        value: 42,
+        children: [
+          { id: "id", label: "Identity", value: 41 },
+          { id: "pay", label: "Payments", value: 1 },
+        ],
+      },
+      { id: "sales", label: "Sales", value: 1, href: "#sales" },
+    ];
+    const { container, rerender } = await render(
+      <div style={{ inlineSize: 600 }}>
+        <Treemap nodes={nodes} aria-label="Departments by people" valueText={people} />
+      </div>,
+    );
+    await expect
+      .element(page.getByRole("link", { name: /^Engineering/ }))
+      .toHaveAccessibleName("Engineering, 42 people: Identity 41 people, Payments 1 person");
+    await expect
+      .element(page.getByRole("link", { name: /^Sales/ }))
+      .toHaveAccessibleName("Sales, 1 person");
+    const drawn = () =>
+      [...container.querySelectorAll(".qx-treemap-head span, .qx-treemap-value")].map(
+        (count) => count.textContent,
+      );
+    expect(drawn()).toContain("42");
+    expect(drawn().every((count) => /^[\d,]+$/.test(count ?? ""))).toBe(true);
+    // In Hindi, with the locale's own figures and plural.
+    await rerender(
+      <div style={{ inlineSize: 600 }}>
+        <Treemap nodes={nodes} aria-label="विभाग" valueText={log} locale="hi-IN" />
+      </div>,
+    );
+    await expect
+      .element(page.getByRole("link", { name: /^Sales/ }))
+      .toHaveAccessibleName("Sales, 1 व्यक्ति");
+    // Without it, the names are as before.
+    await rerender(
+      <div style={{ inlineSize: 600 }}>
+        <Treemap nodes={nodes} aria-label="Departments by people" />
+      </div>,
+    );
+    await expect
+      .element(page.getByRole("link", { name: /^Engineering/ }))
+      .toHaveAccessibleName("Engineering, 42: Identity 41, Payments 1");
+    await expectAccessible(container);
+  });
+
   it("makes the whole tile the link's target, its name starting with what's seen", async () => {
     const { container } = await render(
       <div style={{ inlineSize: 600 }}>
@@ -104,6 +167,32 @@ describe("ProportionalCircles", () => {
     await expect.element(page.getByText("Goa · 1")).toBeVisible();
     const other = container.querySelectorAll(".qx-circles-dot")[3] as SVGElement;
     expect(getComputedStyle(other).fill).toBe(tokenColor("--qx-color-dataviz-reference"));
+  });
+
+  it("says each circle's value with its noun in the right plural, the drawn counts unchanged", async () => {
+    const groups = [
+      {
+        id: "in",
+        label: "India",
+        items: [
+          { id: "blr", label: "Bengaluru", value: 42 },
+          { id: "goa", label: "Goa", value: 1 },
+        ],
+      },
+    ];
+    const { container, rerender } = await render(
+      <ProportionalCircles groups={groups} valueText={people} />,
+    );
+    await expect.element(page.getByText("Bengaluru, 42 people")).toBeInTheDocument();
+    await expect.element(page.getByText("Goa, 1 person")).toBeInTheDocument();
+    // What's drawn is as before: the count in the big circle, the figure beside the small one's name.
+    expect(container.querySelector("text")?.textContent).toBe("42");
+    await expect.element(page.getByText("Goa · 1")).toBeVisible();
+    await rerender(<ProportionalCircles groups={groups} valueText={log} />);
+    await expect.element(page.getByText("Goa, 1 व्यक्ति")).toBeInTheDocument();
+    await expect.element(page.getByText("Bengaluru, 42 लोग")).toBeInTheDocument();
+    await rerender(<ProportionalCircles groups={groups} />);
+    await expect.element(page.getByText("Goa, 1", { exact: true })).toBeInTheDocument();
   });
 
   it("is accessible and looks right in both schemes", async () => {

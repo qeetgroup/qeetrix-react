@@ -7,6 +7,9 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--qx-space-gap-md);
+  &[data-size="sm"] {
+    --qx-picture-choice-size: 36px;
+  }
   &[data-size="lg"] {
     --qx-picture-choice-size: 64px;
   }
@@ -72,6 +75,20 @@
   background: var(--qx-color-bg-brand-bold);
   color: var(--qx-color-text-on-brand);
   box-shadow: 0 0 0 var(--qx-border-width-strong) var(--qx-color-surface-default);
+}
+
+/* Small (36px swatches): the tick shrinks with the choice to a 16px disc, so it marks the corner
+   without covering the swatch. The ring keeps its 2px and its surface gap, and the focus frame its
+   place, as at every size. */
+.qx-picture-choices[data-size="sm"] .qx-picture-choice-tick {
+  inset-block-start: -3px;
+  inset-inline-end: -3px;
+  inline-size: 16px;
+  block-size: 16px;
+  > svg {
+    inline-size: 10px;
+    block-size: 10px;
+  }
 }
 
 /* Forced colours: the swatch keeps its colour; the ring and the tick take the system highlight. */

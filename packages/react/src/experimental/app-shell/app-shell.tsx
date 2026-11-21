@@ -61,6 +61,26 @@ export interface AppShellDrawer {
   resizable?: boolean;
   /** Called with the new width after a resize, e.g. to remember it. */
   onWidthChange?: (width: number) => void;
+  /**
+   * Up to three actions in the panel's header, before Close: IconButtons with `size="sm"` and
+   * `tone="neutral"`, as Close is (an assistant's New conversation and History). They follow the
+   * title in the Tab order.
+   */
+  actions?: ReactNode;
+  /**
+   * The keys that open the panel, shown in its trigger's tooltip ("Qeet AI ⌘J") and set as the
+   * trigger's `aria-keyshortcuts`: `{ keys: "Meta+J Control+J", label: "⌘J" }`. The product still
+   * handles the keys itself.
+   */
+  shortcut?: AppShellDrawerShortcut;
+}
+
+/** A panel's keyboard shortcut: `keys` in `aria-keyshortcuts` form, `label` as people read it. */
+export interface AppShellDrawerShortcut {
+  /** The keys, as `aria-keyshortcuts` writes them: `"Meta+J Control+J"`. */
+  keys: string;
+  /** How they're shown: `"⌘J"`, or `"Ctrl+J"` off a Mac. */
+  label: string;
 }
 
 export interface AppShellProps extends Omit<ComponentProps<"div">, "children"> {
@@ -380,6 +400,11 @@ export function AppShell({
               >
                 {panel.label}
               </h2>
+              {panel.actions != null && (
+                <div className="qx-app-shell-panel-actions" data-slot="app-shell-panel-actions">
+                  {panel.actions}
+                </div>
+              )}
               <IconButton
                 icon={XIcon}
                 aria-label={strings.closePanel}

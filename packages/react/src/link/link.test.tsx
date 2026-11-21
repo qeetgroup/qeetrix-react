@@ -64,6 +64,46 @@ describe("Link", () => {
     }
   });
 
+  for (const dir of ["ltr", "rtl"] as const) {
+    it(`keeps the arrow on its word's line under Tailwind's preflight (${dir})`, async () => {
+      // Preflight's rule for media, in the base layer an app ranks under Qeetrix's components
+      // (README: @layer theme, base, components, utilities). It makes an svg a block.
+      const preflight = document.createElement("style");
+      preflight.textContent =
+        "@layer base { img, svg, video, canvas, audio, iframe, embed, object { display: block; vertical-align: middle; } }";
+      document.head.append(preflight);
+      try {
+        const { container } = await render(
+          <p dir={dir} style={{ inlineSize: 400, margin: 0 }}>
+            <Link href="https://qeet.in/terms" external tone="subtle">
+              Terms
+            </Link>{" "}
+            <Link href="https://qeet.in/privacy" external tone="subtle">
+              Privacy
+            </Link>
+          </p>,
+        );
+        const paragraph = container.querySelector("p") as HTMLElement;
+        const icons = [...container.querySelectorAll("[data-slot=link-icon]")] as SVGElement[];
+        expect(icons).toHaveLength(2);
+        // One line: both words and both arrows.
+        expect(paragraph.getBoundingClientRect().height).toBeLessThan(32);
+        for (const icon of icons) {
+          expect(getComputedStyle(icon).display).toBe("inline-block");
+          const link = icon.closest("a") as HTMLElement;
+          const word = link.getClientRects()[0] as DOMRect;
+          const arrow = icon.getBoundingClientRect();
+          expect(arrow.top).toBeGreaterThanOrEqual(word.top - 1);
+          expect(arrow.bottom).toBeLessThanOrEqual(word.bottom + 1);
+          // Right to left still mirrors the arrow.
+          expect(getComputedStyle(icon).scale).toBe(dir === "rtl" ? "-1 1" : "none");
+        }
+      } finally {
+        preflight.remove();
+      }
+    });
+  }
+
   it("ties the arrow to the last word through trailing space, tabs and long unbroken text", async () => {
     const tail = async (text: string) => {
       const { container, unmount } = await render(

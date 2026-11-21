@@ -49,7 +49,8 @@ export interface TopBarProps extends Omit<ComponentProps<"header">, "children"> 
   render?: RenderProp;
   /**
    * The scope, outermost first: organisation, then project or environment. Usually
-   * TopBarSwitchers; a slash is drawn before each.
+   * TopBarSwitchers, or a TopBarScopeName for a step that is a name, not a control; a slash is
+   * drawn before each.
    */
   context?: ReactNode;
   /** The global search, centred: a TopBarSearch. Hidden below 840px. */
@@ -75,6 +76,15 @@ export interface TopBarSwitcherProps extends Omit<BaseButton.Props, "children" |
   className?: string;
 }
 
+export interface TopBarScopeNameProps extends Omit<ComponentProps<"span">, "children"> {
+  /** The current organisation, project or environment. */
+  label: ReactNode;
+  /** A small square before the label: the organisation's initials or logo. */
+  mark?: ReactNode;
+  /** A dot before the label, for an environment. Never colour alone: the label names it. */
+  status?: TopBarStatus;
+}
+
 export interface TopBarSearchProps extends Omit<BaseButton.Props, "children" | "className"> {
   /** The prompt, which is also the button's name: "Search or jump to…". */
   placeholder: string;
@@ -92,7 +102,7 @@ function items(nodes: ReactNode): ReactNode[] {
   );
 }
 
-/** What a TopBarSwitcher shows, reported to the compact bar so its one switcher can show it too. */
+/** What a step shows, reported to the compact bar so its one switcher can show it too. */
 interface ScopeStep {
   label: ReactNode;
   mark: ReactNode;
@@ -117,13 +127,41 @@ const same = (a: ScopeStep | undefined, b: ScopeStep | null) =>
     ? a === undefined && b === null
     : a.label === b.label && a.mark === b.mark && a.status === b.status;
 
+/** What a step shows, on the step itself and on the compact bar's one switcher: mark, status, label. */
+function ScopeFace({ label, mark, status }: ScopeStep): ReactElement {
+  return (
+    <>
+      {mark != null && (
+        <span className="qx-top-bar-mark" aria-hidden>
+          <span className="qx-top-bar-mark-content">{mark}</span>
+        </span>
+      )}
+      {status && <span className="qx-top-bar-status" data-status={status} aria-hidden />}
+      <span className="qx-top-bar-switcher-label">{label}</span>
+    </>
+  );
+}
+
+/** Reports what a step shows to the compact bar's one switcher, while the step is in its path. */
+function useReportStep(step: ScopeStep): void {
+  const slot = use(ScopeContext);
+  const { label, mark, status } = step;
+  useEffect(() => {
+    if (!slot) return;
+    slot.report(slot.index, { label, mark, status });
+    return () => slot.report(slot.index, null);
+  }, [slot, label, mark, status]);
+}
+
 /**
  * The scope bar of a Qeet console: launcher, product, the scope path, search, tools and account
  * across the full width. It's black in light and dark alike (it renders the dark scheme on itself),
  * topped by a 2px Ember line.
  *
  * Below 840px it's compact, so nothing overlaps: the scope path collapses into one switcher
- * (showing the innermost step) that opens the whole path, and the search hides. Below 600px the
+ * (showing the innermost step) that opens the whole path, and the search hides. A path of
+ * TopBarScopeNames alone has nothing to switch, so the compact bar shows its innermost name, not a
+ * button. Below 600px the
  * product's name also gives way to its logo, and two or more panel triggers collapse into one
  * Tools menu.
  */
@@ -149,7 +187,7 @@ export function TopBar({
   const compact = shell.embedded ? shell.narrow : windowCompact;
   const phone = shell.embedded ? shell.phone : windowPhone;
   const path = items(context);
-  // In the compact bar, each TopBarSwitcher reports what it shows; the innermost is on the bar.
+  // In the compact bar, each switcher or name reports what it shows; the innermost is on the bar.
   const [steps, setSteps] = useState<readonly (ScopeStep | undefined)[]>([]);
   const report = useCallback((index: number, step: ScopeStep | null) => {
     setSteps((current) => {
@@ -160,6 +198,8 @@ export function TopBar({
     });
   }, []);
   const innermost = steps[path.length - 1];
+  // A path of names alone has nothing to switch: the compact bar shows the innermost name itself.
+  const names = path.length > 0 && path.every(isScopeName);
   const collapseTools = phone && shell.drawers.length > 1;
   return (
     <header
@@ -207,7 +247,13 @@ export function TopBar({
               {item}
             </Fragment>
           ))}
-        {compact && path.length > 0 && (
+        {compact && names && (
+          <>
+            <span className="qx-top-bar-slash" aria-hidden />
+            {path[path.length - 1]}
+          </>
+        )}
+        {compact && !names && path.length > 0 && (
           <>
             <span className="qx-top-bar-slash" aria-hidden />
             <BasePopover.Root>
@@ -215,18 +261,14 @@ export function TopBar({
                 className="qx-top-bar-switcher qx-top-bar-scope"
                 data-slot="top-bar-scope"
               >
-                {innermost && <VisuallyHidden>{strings.scope}</VisuallyHidden>}
-                {innermost?.mark != null && (
-                  <span className="qx-top-bar-mark" aria-hidden>
-                    <span className="qx-top-bar-mark-content">{innermost.mark}</span>
-                  </span>
+                {innermost ? (
+                  <>
+                    <VisuallyHidden>{strings.scope}</VisuallyHidden>
+                    <ScopeFace {...innermost} />
+                  </>
+                ) : (
+                  <span className="qx-top-bar-switcher-label">{strings.scope}</span>
                 )}
-                {innermost?.status && (
-                  <span className="qx-top-bar-status" data-status={innermost.status} aria-hidden />
-                )}
-                <span className="qx-top-bar-switcher-label">
-                  {innermost ? innermost.label : strings.scope}
-                </span>
                 <ChevronsUpDownIcon
                   shape="round"
                   size={14}
@@ -289,6 +331,8 @@ export function TopBar({
                     key={drawer.id}
                     checked={shell.activeDrawer === drawer.id}
                     onCheckedChange={() => shell.toggleDrawer(drawer.id)}
+                    shortcut={drawer.shortcut?.label}
+                    aria-keyshortcuts={drawer.shortcut?.keys}
                   >
                     {drawer.label}
                   </MenuCheckboxItem>
@@ -310,6 +354,8 @@ export function TopBar({
                   icon={drawer.icon}
                   aria-label={drawer.label}
                   aria-pressed={shell.activeDrawer === drawer.id}
+                  aria-keyshortcuts={drawer.shortcut?.keys}
+                  tooltip={drawer.shortcut ? `${drawer.label} ${drawer.shortcut.label}` : undefined}
                   tone="neutral"
                   onClick={() => shell.toggleDrawer(drawer.id)}
                 />
@@ -341,28 +387,47 @@ export function TopBarSwitcher({
   className,
   ...props
 }: TopBarSwitcherProps): ReactElement {
-  const slot = use(ScopeContext);
-  useEffect(() => {
-    if (!slot) return;
-    slot.report(slot.index, { label, mark, status });
-    return () => slot.report(slot.index, null);
-  }, [slot, label, mark, status]);
+  useReportStep({ label, mark, status });
   return (
     <BaseButton
       {...props}
       className={cx("qx-top-bar-switcher", className)}
       data-slot="top-bar-switcher"
     >
-      {mark != null && (
-        <span className="qx-top-bar-mark" aria-hidden>
-          <span className="qx-top-bar-mark-content">{mark}</span>
-        </span>
-      )}
-      {status && <span className="qx-top-bar-status" data-status={status} aria-hidden />}
-      <span className="qx-top-bar-switcher-label">{label}</span>
+      <ScopeFace label={label} mark={mark} status={status} />
       <ChevronsUpDownIcon shape="round" size={14} aria-hidden className="qx-top-bar-caret" />
     </BaseButton>
   );
+}
+
+/**
+ * A step of the TopBar's scope path that is a name, not a control: the organisation someone is in
+ * when switching it lives elsewhere, such as the account menu. It shows the same mark, status and
+ * label as a TopBarSwitcher, without the button or its chevron. In the compact bar it shows as the
+ * innermost step does: on the bar's one switcher, or, when every step is a name, on its own.
+ */
+export function TopBarScopeName({
+  label,
+  mark,
+  status,
+  className,
+  ...props
+}: TopBarScopeNameProps): ReactElement {
+  useReportStep({ label, mark, status });
+  return (
+    <span
+      {...props}
+      className={cx("qx-top-bar-scope-name", className)}
+      data-slot="top-bar-scope-name"
+    >
+      <ScopeFace label={label} mark={mark} status={status} />
+    </span>
+  );
+}
+
+/** A step given straight as a TopBarScopeName, which the compact bar can show as it is. */
+function isScopeName(node: ReactNode): boolean {
+  return isValidElement(node) && node.type === TopBarScopeName;
 }
 
 /**

@@ -348,10 +348,10 @@ change in a patch release, always with a changelog note, until they're stable.
 
 | Area | Components |
 |:--|:--|
-| **Console frame** | `AppShell`, `TopBar` (`TopBarSwitcher`, `TopBarSearch`), `Sidebar` (`SidebarGroup`, `SidebarItem`), `PageHeader` (`PageHeaderBack`), `PageContent`, `Breadcrumb` |
+| **Console frame** | `AppShell`, `TopBar` (`TopBarSwitcher`, `TopBarScopeName`, `TopBarSearch`), `Sidebar` (`SidebarGroup`, `SidebarItem`), `PageHeader` (`PageHeaderBack`), `PageContent`, `Breadcrumb` |
 | **Forms and input** | `Form`, `ErrorSummary`, `Combobox` (with server search), `SearchField`, `NumberField`, `PasswordInput`, `OTPInput`, `FileUpload`, `FilterTags`, `Chip` (`ChipGroup`) |
 | **Dates** | `Calendar`, `RangeCalendar`, `DatePicker`, `DateRangePicker` (with presets) |
-| **Data display** | `Stat` (`StatGroup`), `DescriptionList`, `Timeline`, `TreeView`, `AvatarGroup`, `AvatarItem`, `CodeBlock`, `QRCode` |
+| **Data display** | `Stat` (`StatGroup`, `StatList`), `DescriptionList`, `Timeline`, `TreeView`, `AvatarGroup`, `AvatarItem`, `CodeBlock`, `QRCode` |
 | **Feedback** | `Alert`, `EmptyState`, `DataState`, `Steps`, `Pagination` |
 | **Actions** | `CopyButton`, `CommandPalette`, `ThemeSwitcher`, `ProviderButton` (`ProviderButtonGroup`) |
 
